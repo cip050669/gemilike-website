@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 0%; /* Schwarzer Hintergrund */
+    --foreground: 0 0% 100%; /* Weißer Text */
+    --card: 0 0% 8%; /* Dunkles Grau */
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+    
+    /* Logo-Farben aus BRANDING_APPLIED.md */
+    --primary: 15 100% 60%; /* Orange-Rot #FF6B35 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 188 100% 45%; /* Cyan #00BCD4 */
+    --secondary-foreground: 0 0% 0%;
+    --accent: 45 100% 50%; /* Gold #FFC107 */
+    --accent-foreground: 0 0% 0%;
+    
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 70%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 15 100% 60%;
+    --radius: 0.5rem;
+    
+    /* CSS-Variablen für Tailwind */
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+    --color-card: hsl(var(--card));
+    --color-card-foreground: hsl(var(--card-foreground));
+    --color-popover: hsl(var(--popover));
+    --color-popover-foreground: hsl(var(--popover-foreground));
+    --color-primary: hsl(var(--primary));
+    --color-primary-foreground: hsl(var(--primary-foreground));
+    --color-secondary: hsl(var(--secondary));
+    --color-secondary-foreground: hsl(var(--secondary-foreground));
+    --color-muted: hsl(var(--muted));
+    --color-muted-foreground: hsl(var(--muted-foreground));
+    --color-accent: hsl(var(--accent));
+    --color-accent-foreground: hsl(var(--accent-foreground));
+    --color-destructive: hsl(var(--destructive));
+    --color-destructive-foreground: hsl(var(--destructive-foreground));
+    --color-border: hsl(var(--border));
+    --color-input: hsl(var(--input));
+    --color-ring: hsl(var(--ring));
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Gemilike Corporate Design - Edelstein-spezifische Styles */
+@layer components {
+  /* Logo-inspirierte Gradients aus BRANDING_APPLIED.md */
+  .gradient-fire {
+    background: linear-gradient(135deg, #FF6B35 0%, #FFA500 50%, #FFC107 100%);
+  }
+  
+  .gradient-ice {
+    background: linear-gradient(135deg, #00BCD4 0%, #0097A7 50%, #006064 100%);
+  }
+  
+  .gradient-fire-to-ice {
+    background: linear-gradient(135deg, #FF6B35 0%, #FFC107 50%, #00BCD4 100%);
+  }
+  
+  /* Gemilike Logo Text */
+  .gemilike-text {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #000;
+    text-shadow: 
+      -2px -2px 0 #00BCD4,  /* Cyan Outline */
+      2px -2px 0 #00BCD4,
+      -2px 2px 0 #00BCD4,
+      2px 2px 0 #00BCD4,
+      0 0 8px rgba(0, 188, 212, 0.3);  /* Glow */
+  }
+  
+  .gemilike-text-gradient {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #FF6B35 0%, #00BCD4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}

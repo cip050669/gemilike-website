@@ -1,0 +1,254 @@
+
+> gemilike-website@0.1.0 dev
+> next dev --turbopack
+
+ ⚠ Port 3000 is in use by an unknown process, using available port 3002 instead.
+   ▲ Next.js 15.5.4 (Turbopack)
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.1.104:3002
+
+ ✓ Starting...
+ ✓ Compiled middleware in 455ms
+ ✓ Ready in 2.6s
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 5.3s
+ GET /de 200 in 7312ms
+ ○ Compiling /[locale]/about ...
+ ✓ Compiled /[locale]/about in 771ms
+ GET /de/about 200 in 2161ms
+ ○ Compiling /[locale]/services ...
+ ✓ Compiled /[locale]/services in 641ms
+ GET /de/services 200 in 2100ms
+ ○ Compiling /[locale]/blog ...
+ ✓ Compiled /[locale]/blog in 587ms
+ GET /de/blog 200 in 1843ms
+ ○ Compiling /[locale]/shop ...
+ ✓ Compiled /[locale]/shop in 565ms
+ GET /de/shop 200 in 1686ms
+ ○ Compiling /[locale]/contact ...
+ ✓ Compiled /[locale]/contact in 686ms
+ GET /de/contact 200 in 1818ms
+ GET /en 200 in 411ms
+ GET /en 200 in 775ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 771ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 1187ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 1203ms
+ ✓ Compiled middleware in 10ms
+ GET /en 200 in 389ms
+ GET /de 200 in 463ms
+ GET /de 200 in 899ms
+ ✓ Compiled in 223ms
+ ✓ Compiled in 1412ms
+ ✓ Compiled /[locale] in 100ms
+ GET /en 200 in 917ms
+ GET /de 200 in 923ms
+ GET /en 200 in 385ms
+ GET /de 200 in 385ms
+ GET /en 200 in 380ms
+ GET /de 200 in 392ms
+ ✓ Compiled in 130ms
+ GET /de 200 in 1016ms
+ ✓ Compiled in 177ms
+ GET /de 200 in 465ms
+ GET /en 200 in 483ms
+ GET /en 200 in 688ms
+ GET /en/about 200 in 234ms
+ ✓ Compiled /[locale]/services in 36ms
+ GET /en/services 200 in 212ms
+ ✓ Compiled /[locale]/blog in 34ms
+ GET /en/blog 200 in 206ms
+ GET /en/shop 200 in 162ms
+ GET /en/contact 200 in 189ms
+ ✓ Compiled in 1262ms
+ ✓ Compiled /[locale] in 61ms
+ GET /de 200 in 1081ms
+ ✓ Compiled /[locale]/about in 70ms
+ GET /de/about 200 in 1061ms
+ ✓ Compiled /[locale]/services in 65ms
+ GET /de/services 200 in 1001ms
+ ✓ Compiled /[locale]/shop in 61ms
+ GET /de/shop 200 in 907ms
+ GET /de 200 in 485ms
+ GET /de 200 in 748ms
+ GET /de 200 in 241ms
+ GET /de 200 in 200ms
+ GET /de 200 in 137ms
+ GET /de 200 in 147ms
+ GET /de 200 in 146ms
+ GET /de 200 in 176ms
+ GET /de 200 in 155ms
+ GET /en 200 in 333ms
+ GET /en 200 in 571ms
+ GET /de 200 in 291ms
+ GET /de 200 in 541ms
+ GET /en 200 in 314ms
+ GET /en 200 in 585ms
+ GET /de 200 in 367ms
+ GET /de 200 in 469ms
+ GET /en 200 in 290ms
+ GET /en 200 in 522ms
+ GET /en/about 200 in 173ms
+ ✓ Compiled in 141ms
+ ✓ Compiled /[locale]/about in 57ms
+ GET /en/about 200 in 629ms
+ GET /en/about 200 in 201ms
+ GET /en/about 200 in 398ms
+ GET /en/about 200 in 177ms
+ GET /en/about 200 in 200ms
+ GET /en/about 200 in 192ms
+ ✓ Compiled in 129ms
+ ✓ Compiled /[locale]/about in 39ms
+ GET /en/about 200 in 422ms
+ GET /en/about 200 in 165ms
+ GET /en/about 200 in 261ms
+ GET /en/about 200 in 219ms
+ GET /en/about 200 in 184ms
+ GET /en/about 200 in 170ms
+ ✓ Compiled in 232ms
+ GET /en/about 200 in 221ms
+ ✓ Compiled in 133ms
+ GET /en/about 200 in 217ms
+ ✓ Compiled in 119ms
+ GET /en/about 200 in 228ms
+ ✓ Compiled /[locale] in 50ms
+Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+ ⨯ Error: `useTranslations` is not callable within an async component. Please refer to https://next-intl.dev/docs/environments/server-client-components#async-components
+    at HomePage (app/[locale]/page.tsx:9:28)
+   7 | export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+   8 |   const { locale } = await params;
+>  9 |   const t = useTranslations();
+     |                            ^
+  10 |   
+  11 |   return (
+  12 |     <div className="flex flex-col"> {
+  digest: '1269484335',
+  [cause]: TypeError: Cannot read properties of null (reading 'use')
+      at HomePage (app/[locale]/page.tsx:9:28)
+     7 | export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+     8 |   const { locale } = await params;
+  >  9 |   const t = useTranslations();
+       |                            ^
+    10 |   
+    11 |   return (
+    12 |     <div className="flex flex-col">
+}
+ GET /en 500 in 1868ms
+Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+ ⨯ Error: `useTranslations` is not callable within an async component. Please refer to https://next-intl.dev/docs/environments/server-client-components#async-components
+    at HomePage (app/[locale]/page.tsx:9:28)
+   7 | export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+   8 |   const { locale } = await params;
+>  9 |   const t = useTranslations();
+     |                            ^
+  10 |   
+  11 |   return (
+  12 |     <div className="flex flex-col"> {
+  digest: '1269484335',
+  [cause]: TypeError: Cannot read properties of null (reading 'use')
+      at HomePage (app/[locale]/page.tsx:9:28)
+     7 | export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+     8 |   const { locale } = await params;
+  >  9 |   const t = useTranslations();
+       |                            ^
+    10 |   
+    11 |   return (
+    12 |     <div className="flex flex-col">
+}
+ GET /de 500 in 881ms
+ ✓ Compiled in 208ms
+ GET /en/about 200 in 248ms
+ ✓ Compiled /[locale] in 67ms
+ GET /en 200 in 1150ms
+ GET /de 200 in 413ms
+ GET /de 200 in 367ms
+ GET /de 200 in 601ms
+ GET /en 200 in 360ms
+ GET /en 200 in 490ms
+ GET /de 200 in 321ms
+ GET /de 200 in 526ms
+ ○ Compiling /[locale]/cart ...
+ ✓ Compiled /[locale]/cart in 585ms
+ GET /de/cart 200 in 1666ms
+ GET /en/cart 200 in 258ms
+ GET /en/cart 200 in 286ms
+ GET /de/cart 200 in 231ms
+ GET /de/cart 200 in 738ms
+ ✓ Compiled /[locale]/shop in 31ms
+ GET /de/shop 200 in 304ms
+ GET /de/shop 200 in 441ms
+ GET /de 200 in 198ms
+ GET /de 200 in 181ms
+ GET /de/about 200 in 156ms
+ ✓ Compiled /[locale]/services in 30ms
+ GET /de/services 200 in 255ms
+ ✓ Compiled /[locale]/blog in 72ms
+ GET /de/blog 200 in 467ms
+ GET /de/shop 200 in 141ms
+ ✓ Compiled /[locale]/contact in 42ms
+ GET /de/contact 200 in 338ms
+ GET /de 200 in 183ms
+ ✓ Compiled in 225ms
+ ✓ Compiled in 315ms
+ ✓ Compiled in 127ms
+ ✓ Compiled /[locale] in 70ms
+ GET /en/about 200 in 769ms
+ GET /de 200 in 782ms
+ ✓ Compiled in 169ms
+ GET /de 200 in 1099ms
+ ✓ Compiled in 230ms
+ GET /de 200 in 433ms
+ GET /en 200 in 404ms
+ GET /de 200 in 339ms
+ GET /de 200 in 389ms
+ GET /en 200 in 411ms
+ GET /en 200 in 579ms
+ GET /en 200 in 391ms
+ GET /en 200 in 588ms
+ GET /en/about 200 in 161ms
+ GET /en/services 200 in 225ms
+ GET /en/services 200 in 183ms
+ GET /en/blog 200 in 252ms
+ GET /en/contact 200 in 140ms
+ GET /de 200 in 572ms
+ GET /de 200 in 882ms
+ ✓ Compiled /_not-found/page in 336ms
+ GET /de/terms 404 in 464ms
+ GET /de/terms 404 in 148ms
+ GET /de/terms 404 in 263ms
+ GET /de 200 in 370ms
+ GET /de 200 in 635ms
+ GET /de/privacy 404 in 98ms
+ GET /de/privacy 404 in 142ms
+ GET /de/privacy 404 in 389ms
+ GET /de 200 in 338ms
+ GET /de 200 in 513ms
+ GET /de/about 200 in 154ms
+ ✓ Compiled in 1531ms
+ ✓ Compiled /[locale] in 167ms
+ GET /de 200 in 1611ms
+ GET /en/contact 200 in 2013ms
+ GET /en/contact 200 in 2154ms
+ GET /de 200 in 2403ms
+ ✓ Compiled in 306ms
+ GET /de 200 in 1684ms
+ ✓ Compiled /[locale]/contact in 177ms
+ GET /en/contact 200 in 2137ms
+ ○ Compiling /[locale] ...
+ ✓ Compiled in 2.3s
+ ✓ Compiled in 1ms
+ ✓ Compiled /[locale] in 1153ms
+ GET /en/contact 200 in 1407ms
+ GET /en/contact 200 in 1505ms
+ GET /de 200 in 1316ms
+ GET /de 200 in 1404ms
+ GET /de 200 in 588ms
+[?25h

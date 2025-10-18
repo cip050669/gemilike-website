@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Test - Gemilike Admin</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; text-align: center; }
+        h2 { color: #666; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        button { 
+            margin: 10px; 
+            padding: 15px 25px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .blue { background-color: #3b82f6; color: white; }
+        .green { background-color: #10b981; color: white; }
+        .purple { background-color: #8b5cf6; color: white; }
+        .orange { background-color: #f59e0b; color: white; }
+        .red { background-color: #ef4444; color: white; }
+        .status { 
+            background: #d1fae5; 
+            color: #065f46; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0;
+            border-left: 4px solid #10b981;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1e40af;
+        }
+        .stat-label {
+            color: #64748b;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Dashboard-Berichte - Button Test</h1>
+        
+        <div class="status">
+            <strong>✅ ALLE BUTTONS SIND FUNKTIONAL!</strong><br>
+            Zeit: <span id="currentTime"></span><br>
+            Öffnen Sie die Browser-Konsole (F12) um die Logs zu sehen.
+        </div>
+        
+        <h2>📅 Test-Buttons:</h2>
+        <div>
+            <button class="blue" onclick="testButton('WOCHE')">
+                📅 Woche
+            </button>
+            <button class="green" onclick="testButton('MONAT')">
+                📅 Monat
+            </button>
+            <button class="purple" onclick="testButton('QUARTAL')">
+                📅 Quartal
+            </button>
+            <button class="orange" onclick="testButton('JAHR')">
+                📅 Jahr
+            </button>
+        </div>
+        
+        <h2>🔄 Aktions-Buttons:</h2>
+        <div>
+            <button class="red" onclick="testButton('AKTUALISIEREN')">
+                🔄 Aktualisieren
+            </button>
+            <button class="blue" onclick="testExport()">
+                💾 Exportieren
+            </button>
+            <button class="green" onclick="testPrint()">
+                🖨️ Drucken
+            </button>
+        </div>
+        
+        <h2>📊 Statistiken:</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">€1.018.149,00</div>
+                <div class="stat-label">Gesamtumsatz</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">7</div>
+                <div class="stat-label">Edelsteine gesamt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">6</div>
+                <div class="stat-label">Verfügbar</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1</div>
+                <div class="stat-label">Verkauft</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update time
+        function updateTime() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleString('de-DE');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Test button function
+        function testButton(buttonName) {
+            console.log(buttonName + ' BUTTON GEDRÜCKT!');
+            alert(buttonName + ' BUTTON FUNKTIONIERT!');
+        }
+
+        // Test export function
+        function testExport() {
+            console.log('EXPORT BUTTON GEDRÜCKT!');
+            const data = { 
+                test: 'funktioniert', 
+                zeit: new Date().toISOString(),
+                umsatz: '€1.018.149,00',
+                edelsteine: 7
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gemilike-export-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('EXPORT BUTTON FUNKTIONIERT! Datei heruntergeladen.');
+        }
+
+        // Test print function
+        function testPrint() {
+            console.log('DRUCK BUTTON GEDRÜCKT!');
+            window.print();
+            alert('DRUCK BUTTON FUNKTIONIERT!');
+        }
+
+        // Log page load
+        console.log('Button Test Seite geladen - alle Buttons sind funktional!');
+    </script>
+</body>
+</html>

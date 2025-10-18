@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../paulines-life"
+		}
+	],
+	"settings": {
+		"markdown.validate.enabled": true
+	}
+}

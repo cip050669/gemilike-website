@@ -1,0 +1,145 @@
+[
+  {
+    "id": "blue",
+    "name": "Blau",
+    "value": "blau",
+    "bg": "bg-blue-100",
+    "text": "text-blue-800",
+    "border": "border-blue-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "red",
+    "name": "Rot",
+    "value": "rot",
+    "bg": "bg-red-100",
+    "text": "text-red-800",
+    "border": "border-red-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "green",
+    "name": "Grün",
+    "value": "grün",
+    "bg": "bg-green-100",
+    "text": "text-green-800",
+    "border": "border-green-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "yellow",
+    "name": "Gelb",
+    "value": "gelb",
+    "bg": "bg-yellow-100",
+    "text": "text-yellow-800",
+    "border": "border-yellow-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "orange",
+    "name": "Orange",
+    "value": "orange",
+    "bg": "bg-orange-100",
+    "text": "text-orange-800",
+    "border": "border-orange-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "purple",
+    "name": "Lila",
+    "value": "lila",
+    "bg": "bg-purple-100",
+    "text": "text-purple-800",
+    "border": "border-purple-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "pink",
+    "name": "Pink",
+    "value": "pink",
+    "bg": "bg-pink-100",
+    "text": "text-pink-800",
+    "border": "border-pink-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "white",
+    "name": "Weiß",
+    "value": "weiß",
+    "bg": "bg-gray-100",
+    "text": "text-gray-800",
+    "border": "border-gray-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "black",
+    "name": "Schwarz",
+    "value": "schwarz",
+    "bg": "bg-gray-800",
+    "text": "text-white",
+    "border": "border-gray-700",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "brown",
+    "name": "Braun",
+    "value": "braun",
+    "bg": "bg-amber-100",
+    "text": "text-amber-800",
+    "border": "border-amber-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "transparent",
+    "name": "Transparent",
+    "value": "transparent",
+    "bg": "bg-slate-100",
+    "text": "text-slate-800",
+    "border": "border-slate-200",
+    "isCustom": false,
+    "createdAt": "2025-01-27T10:00:00.000Z",
+    "updatedAt": "2025-01-27T10:00:00.000Z"
+  },
+  {
+    "id": "custom_1759764606500_jfhfzmupa",
+    "name": "Türkis",
+    "value": "türkis",
+    "bg": "bg-cyan-100",
+    "text": "text-cyan-800",
+    "border": "border-cyan-200",
+    "isCustom": true,
+    "createdAt": "2025-10-06T15:30:06.500Z",
+    "updatedAt": "2025-10-06T15:30:06.500Z"
+  },
+  {
+    "id": "custom_1759764614603_8dkh26aom",
+    "name": "Peach-Pink",
+    "value": "peach-pink",
+    "bg": "bg-pink-100",
+    "text": "text-orange-300",
+    "border": "border-pink-75",
+    "isCustom": true,
+    "createdAt": "2025-10-06T15:30:14.603Z",
+    "updatedAt": "2025-10-06T15:32:14.749Z"
+  }
+]

@@ -1,0 +1,394 @@
+{
+  "options": [
+    {
+      "id": "cut-brilliant",
+      "value": "Brilliantschliff",
+      "label": "Brilliantschliff",
+      "category": "cut",
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-cabochon",
+      "value": "Cabochonschliff",
+      "label": "Cabochonschliff",
+      "category": "cut",
+      "isActive": true,
+      "order": 2,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-step",
+      "value": "Treppenschliff",
+      "label": "Treppenschliff",
+      "category": "cut",
+      "isActive": true,
+      "order": 3,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-scissor",
+      "value": "Scherenschliff",
+      "label": "Scherenschliff",
+      "category": "cut",
+      "isActive": true,
+      "order": 4,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-mixed",
+      "value": "Gemischter Schliff",
+      "label": "Gemischter Schliff",
+      "category": "cut",
+      "isActive": true,
+      "order": 5,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-fancy",
+      "value": "Fancy Schliff",
+      "label": "Fancy Schliff",
+      "category": "cut",
+      "isActive": true,
+      "order": 6,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-emerald",
+      "value": "Smaragdschliff",
+      "label": "Smaragdschliff",
+      "category": "cut",
+      "isActive": true,
+      "order": 7,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-rose",
+      "value": "Rosen-Schliff",
+      "label": "Rosen-Schliff",
+      "category": "cut",
+      "isActive": true,
+      "order": 9,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-rough",
+      "value": "Roh",
+      "label": "Roh",
+      "category": "cut",
+      "isActive": true,
+      "order": 12,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "cut-other",
+      "value": "Sonstige",
+      "label": "Sonstige",
+      "category": "cut",
+      "isActive": true,
+      "order": 13,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-round",
+      "value": "Rund",
+      "label": "Rund",
+      "category": "form",
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-oval",
+      "value": "Oval",
+      "label": "Oval",
+      "category": "form",
+      "isActive": true,
+      "order": 2,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-cushion",
+      "value": "Antiker Kissen",
+      "label": "Antiker Kissen",
+      "category": "form",
+      "isActive": true,
+      "order": 3,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-10-15T19:52:26.570Z"
+    },
+    {
+      "id": "form-princess",
+      "value": "Princess",
+      "label": "Princess",
+      "category": "form",
+      "isActive": true,
+      "order": 4,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-marquise",
+      "value": "Marquise",
+      "label": "Marquise",
+      "category": "form",
+      "isActive": true,
+      "order": 5,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-heart",
+      "value": "Herz",
+      "label": "Herz",
+      "category": "form",
+      "isActive": true,
+      "order": 6,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-trillion",
+      "value": "Trillion",
+      "label": "Trillion",
+      "category": "form",
+      "isActive": true,
+      "order": 7,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-baguette",
+      "value": "Baguette",
+      "label": "Baguette",
+      "category": "form",
+      "isActive": true,
+      "order": 8,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-asscher",
+      "value": "Asscher",
+      "label": "Asscher",
+      "category": "form",
+      "isActive": true,
+      "order": 9,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-radiant",
+      "value": "Radiant",
+      "label": "Radiant",
+      "category": "form",
+      "isActive": true,
+      "order": 10,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-cabochon",
+      "value": "Cabochon",
+      "label": "Cabochon",
+      "category": "form",
+      "isActive": true,
+      "order": 12,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-fancy",
+      "value": "Fancy Cut",
+      "label": "Fancy Cut",
+      "category": "form",
+      "isActive": true,
+      "order": 13,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "form-other",
+      "value": "Sonstige",
+      "label": "Sonstige",
+      "category": "form",
+      "isActive": true,
+      "order": 14,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-fl",
+      "value": "FL",
+      "label": "FL (Flawless)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-if",
+      "value": "IF",
+      "label": "IF (Internally Flawless)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 2,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-vvs1",
+      "value": "VVS1",
+      "label": "VVS1 (Very Very Slightly Included 1)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 3,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-vvs2",
+      "value": "VVS2",
+      "label": "VVS2 (Very Very Slightly Included 2)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 4,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-vs1",
+      "value": "VS1",
+      "label": "VS1 (Very Slightly Included 1)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 5,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-vs2",
+      "value": "VS2",
+      "label": "VS2 (Very Slightly Included 2)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 6,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-si1",
+      "value": "SI1",
+      "label": "SI1 (Slightly Included 1)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 7,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-si2",
+      "value": "SI2",
+      "label": "SI2 (Slightly Included 2)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 8,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-si3",
+      "value": "SI3",
+      "label": "SI3 (Slightly Included 3)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 9,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-i1",
+      "value": "I1",
+      "label": "I1 (Included 1)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 10,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-i2",
+      "value": "I2",
+      "label": "I2 (Included 2)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 11,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "clarity-i3",
+      "value": "I3",
+      "label": "I3 (Included 3)",
+      "category": "clarity",
+      "isActive": true,
+      "order": 12,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "option-1760557920076-16d7vq7",
+      "value": "Smarags",
+      "label": "Smaragd",
+      "category": "form",
+      "isActive": true,
+      "order": 0,
+      "createdAt": "2025-10-15T19:52:00.077Z",
+      "updatedAt": "2025-10-15T20:44:39.802Z"
+    },
+    {
+      "id": "option-1760558034350-ux6bges",
+      "value": "Baguette",
+      "label": "Baguette",
+      "category": "form",
+      "isActive": true,
+      "order": 0,
+      "createdAt": "2025-10-15T19:53:54.350Z",
+      "updatedAt": "2025-10-15T20:44:49.064Z"
+    },
+    {
+      "id": "option-1760558060940-y01ww4e",
+      "value": "Briolette",
+      "label": "Briolette",
+      "category": "form",
+      "isActive": true,
+      "order": 0,
+      "createdAt": "2025-10-15T19:54:20.940Z",
+      "updatedAt": "2025-10-15T20:44:56.127Z"
+    },
+    {
+      "id": "option-1760558368355-5vrya8x",
+      "value": "Buff-Top",
+      "label": "Buff-Top",
+      "category": "cut",
+      "isActive": true,
+      "order": 0,
+      "createdAt": "2025-10-15T19:59:28.355Z",
+      "updatedAt": "2025-10-15T20:45:26.382Z"
+    }
+  ]
+}

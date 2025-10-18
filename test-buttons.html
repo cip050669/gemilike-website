@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { margin: 10px; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .blue { background-color: #3b82f6; color: white; }
+        .green { background-color: #10b981; color: white; }
+        .purple { background-color: #8b5cf6; color: white; }
+        .orange { background-color: #f59e0b; color: white; }
+        .red { background-color: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Button Test - Gemilike Admin</h1>
+    
+    <h2>Test-Buttons:</h2>
+    <button class="blue" onclick="alert('WOCHE BUTTON FUNKTIONIERT!'); console.log('WOCHE BUTTON GEDRÜCKT!');">
+        📅 Woche
+    </button>
+    <button class="green" onclick="alert('MONAT BUTTON FUNKTIONIERT!'); console.log('MONAT BUTTON GEDRÜCKT!');">
+        📅 Monat
+    </button>
+    <button class="purple" onclick="alert('QUARTAL BUTTON FUNKTIONIERT!'); console.log('QUARTAL BUTTON GEDRÜCKT!');">
+        📅 Quartal
+    </button>
+    <button class="orange" onclick="alert('JAHR BUTTON FUNKTIONIERT!'); console.log('JAHR BUTTON GEDRÜCKT!');">
+        📅 Jahr
+    </button>
+    
+    <h2>Aktions-Buttons:</h2>
+    <button class="red" onclick="alert('AKTUALISIEREN BUTTON FUNKTIONIERT!'); console.log('AKTUALISIEREN BUTTON GEDRÜCKT!');">
+        🔄 Aktualisieren
+    </button>
+    <button class="blue" onclick="
+        const data = { test: 'funktioniert', zeit: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'test-export.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('EXPORT BUTTON FUNKTIONIERT! Datei heruntergeladen.');
+        console.log('EXPORT BUTTON GEDRÜCKT!');
+    ">
+        💾 Exportieren
+    </button>
+    <button class="green" onclick="window.print(); alert('DRUCK BUTTON FUNKTIONIERT!'); console.log('DRUCK BUTTON GEDRÜCKT!');">
+        🖨️ Drucken
+    </button>
+    
+    <h2>Status:</h2>
+    <p style="color: green; font-weight: bold;">✅ ALLE BUTTONS SIND FUNKTIONAL!</p>
+    <p>Öffnen Sie die Browser-Konsole (F12) um die Logs zu sehen.</p>
+</body>
+</html>

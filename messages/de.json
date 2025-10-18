@@ -1,0 +1,202 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "close": "Schließen",
+    "open": "Öffnen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "refresh": "Aktualisieren"
+  },
+  "nav": {
+    "home": "Startseite",
+    "about": "Über uns",
+    "contact": "Kontakt"
+  },
+  "HomePage": {
+    "hero": {
+      "title": "Willkommen bei Gemilike",
+      "description": "Ihr Spezialist für rohe und geschliffene Edelsteine. Entdecken Sie unsere exquisite Auswahl an Diamanten, Smaragden, Rubinen und weiteren Edelsteinen.",
+      "discoverGems": "Edelsteine entdecken",
+      "aboutUs": "Über uns"
+    },
+    "features": {
+      "whyGemilike": "Warum Gemilike?",
+      "qualityService": "Wir bieten Ihnen die höchste Qualität und den besten Service im Edelsteinhandel",
+      "premiumQuality": {
+        "title": "Premium Qualität",
+        "description": "Nur die besten Edelsteine aus vertrauensvollen Quellen"
+      },
+      "expertKnowledge": {
+        "title": "Expertenwissen",
+        "description": "Jahrzehntelange Erfahrung im Edelsteinhandel"
+      },
+      "certified": {
+        "title": "Zertifiziert",
+        "description": "Alle Edelsteine mit offiziellen Zertifikaten"
+      },
+      "secureShipping": {
+        "title": "Sicherer Versand",
+        "description": "Versicherter und sicherer Versand weltweit"
+      }
+    },
+    "featuredProducts": {
+      "ourHighlights": "Unsere Highlights",
+      "discoverPopular": "Entdecken Sie unsere beliebtesten Edelsteine",
+      "diamond": {
+        "title": "Diamant",
+        "badge": "Premium",
+        "description": "Brillant geschliffener Diamant in höchster Qualität"
+      },
+      "emerald": {
+        "title": "Smaragd",
+        "badge": "Selten",
+        "description": "Natürlicher Smaragd mit intensiver grüner Farbe"
+      },
+      "ruby": {
+        "title": "Rubin",
+        "badge": "Exklusiv",
+        "description": "Feuerroter Rubin von außergewöhnlicher Klarheit"
+      },
+      "onRequest": "Auf Anfrage",
+      "details": "Details",
+      "viewAllGems": "Alle Edelsteine anzeigen"
+    }
+  },
+  "footer": {
+    "rights": "Alle Rechte vorbehalten"
+  },
+  "cookies": {
+    "message": "Diese Website verwendet Cookies, um Ihnen die beste Erfahrung zu bieten.",
+    "accept": "Akzeptieren"
+  },
+  "admin": {
+    "title": "Edelstein-Verwaltung",
+    "description": "Verwalten Sie Ihre Website-Inhalte und Einstellungen",
+    "dashboard": "Dashboard",
+    "downloads": "Downloads",
+    "projects": "Projekte",
+    "files": "Dateien",
+    "users": "Benutzer",
+    "settings": "Einstellungen",
+    "gemstones": "Edelsteine",
+    "analytics": "Analytics",
+    "searchPlaceholder": "Edelsteine durchsuchen...",
+    "allCategories": "Alle Kategorien",
+    "allRarities": "Alle Seltenheiten",
+    "import": "Importieren",
+    "newGemstone": "Neuer Edelstein",
+    "editGemstone": "Edelstein bearbeiten",
+    "loading": "Lade...",
+    "noGemstones": "Keine Edelsteine gefunden",
+    "createFirst": "Ersten Edelstein erstellen",
+    "noImage": "Kein Bild",
+    "priceOnRequest": "Preis auf Anfrage",
+    "confirmDelete": "Möchten Sie diesen Edelstein wirklich löschen?",
+    "analyticsDescription": "Hier werden Website-Statistiken und Analytics angezeigt",
+    "settingsDescription": "Hier können Sie Website-Einstellungen konfigurieren",
+    "available": "Verfügbar",
+    "soldOut": "Ausverkauft",
+    "cut": "Geschliffen",
+    "rough": "Roh",
+    "category": "Kategorie",
+    "color": "Farbe",
+    "origin": "Herkunft",
+    "caratWeight": "Karatgewicht",
+    "gramWeight": "Grammgewicht",
+    "saveSuccess": "Erfolgreich gespeichert",
+    "saveError": "Fehler beim Speichern",
+    "deleteSuccess": "Erfolgreich gelöscht",
+    "deleteError": "Fehler beim Löschen",
+    "name": "Name",
+    "type": "Typ",
+    "description": "Beschreibung",
+    "price": "Preis",
+    "create": "Erstellen",
+    "update": "Aktualisieren",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "selectFile": "Datei auswählen",
+    "about": {
+      "title": "Über uns Verwaltung",
+      "description": "Verwalten Sie die Inhalte der Über uns Seite",
+      "mission": "Mission",
+      "vision": "Vision"
+    }
+  },
+  "downloads": {
+    "title": "Download-Bereich",
+    "description": "Geschützter Download-Bereich für Projekte und Dateien",
+    "login": "Anmelden",
+    "email": "E-Mail",
+    "name": "Name",
+    "consent": "Zustimmung zu den Download-Bedingungen",
+    "consentText": "Ich stimme den Download-Bedingungen zu und akzeptiere die Haftungsausschlüsse.",
+    "download": "Download",
+    "upload": "Upload",
+    "project": "Projekt",
+    "category": "Kategorie",
+    "description": "Beschreibung",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "created": "Erstellt",
+    "updated": "Aktualisiert",
+    "size": "Größe",
+    "type": "Typ",
+    "actions": "Aktionen"
+  },
+  "errors": {
+    "loading": "Fehler beim Laden",
+    "saving": "Fehler beim Speichern",
+    "deleting": "Fehler beim Löschen",
+    "uploading": "Fehler beim Upload",
+    "downloading": "Fehler beim Download",
+    "authentication": "Authentifizierungsfehler",
+    "permission": "Berechtigungsfehler",
+    "network": "Netzwerkfehler",
+    "server": "Serverfehler"
+  },
+  "home": {
+    "loadingStories": "Lade Geschichten...",
+    "noStories": "Keine Geschichten verfügbar",
+    "noImage": "Kein Bild",
+    "readStory": "Geschichte lesen",
+    "storiesTitle": "Unsere Geschichten",
+    "storiesDescription": "Entdecken Sie die faszinierenden Geschichten hinter unseren Edelsteinen",
+    "newGemstonesTitle": "Neue Edelsteine",
+    "newGemstonesDesc": "Entdecken Sie unsere neuesten Edelstein-Kollektionen",
+    "loadingGemstones": "Lade Edelsteine...",
+    "of": "von",
+    "noGemstones": "Keine Edelsteine verfügbar",
+    "addGemstonesHint": "Fügen Sie Edelsteine im Admin-Panel hinzu",
+    "manageGemstones": "Edelsteine verwalten",
+    "addToCart": "In den Warenkorb",
+    "priceOnRequest": "Preis auf Anfrage"
+  },
+  "shop": {
+    "viewDetails": "Details anzeigen"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Entdecken Sie die faszinierende Welt der Edelsteine",
+    "readMore": "Weiterlesen",
+    "published": "Veröffentlicht",
+    "author": "Autor",
+    "tags": "Tags",
+    "category": "Kategorie",
+    "search": "Blog durchsuchen",
+    "noPosts": "Keine Beiträge gefunden",
+    "loading": "Lade Blog-Beiträge..."
+  }
+}

@@ -1,0 +1,7 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#06B6D4"/>
+  <rect x="50" y="50" width="300" height="200" fill="#0891B2" stroke="#0E7490" stroke-width="2"/>
+  <text x="200" y="120" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">Aquamarin</text>
+  <text x="200" y="150" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16">Edelstein-Geschichte</text>
+  <circle cx="200" cy="180" r="30" fill="white" opacity="0.3"/>
+</svg>

@@ -1,0 +1,62 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "open": "Open",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "refresh": "Refresh"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "dashboard": "Dashboard",
+    "downloads": "Downloads",
+    "projects": "Projects",
+    "files": "Files",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "downloads": {
+    "title": "Download Area",
+    "description": "Protected download area for projects and files",
+    "login": "Login",
+    "email": "Email",
+    "name": "Name",
+    "consent": "Consent to download terms",
+    "consentText": "I agree to the download terms and accept the liability disclaimers.",
+    "download": "Download",
+    "upload": "Upload",
+    "project": "Project",
+    "category": "Category",
+    "description": "Description",
+    "active": "Active",
+    "inactive": "Inactive",
+    "created": "Created",
+    "updated": "Updated",
+    "size": "Size",
+    "type": "Type",
+    "actions": "Actions"
+  },
+  "errors": {
+    "loading": "Error loading",
+    "saving": "Error saving",
+    "deleting": "Error deleting",
+    "uploading": "Error uploading",
+    "downloading": "Error downloading",
+    "authentication": "Authentication error",
+    "permission": "Permission error",
+    "network": "Network error",
+    "server": "Server error"
+  }
+}

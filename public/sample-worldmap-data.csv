@@ -1,0 +1,11 @@
+name,country,lat,lng,gem,description,mineType,status
+Cullinan Mine,Südafrika,-25.6703,28.5231,Diamond,Heimat des größten Diamanten der Welt,open-pit,active
+Jwaneng Mine,Südafrika,-24.5,24.7,Diamond,Eine der produktivsten Diamantminen,open-pit,active
+Mogok Valley,Myanmar,22.9167,96.5167,Ruby,Berühmt für die feinsten Rubine der Welt,primary,active
+Muzo,Kolumbien,5.5,-74,Emerald,Berühmte Smaragd-Mine,underground,active
+Chivor,Kolumbien,5,-73.5,Emerald,Historische Smaragd-Mine,underground,active
+Argyle Mine,Australien,-18,128,Diamond,Berühmte Diamant-Mine,open-pit,depleted
+Ural Mountains,Russland,60,60,Emerald,Smaragd-Vorkommen im Ural,primary,active
+Bohemia,Tschechien,50,15,Garnet,Granat-Lagerstätte,primary,active
+Karamoja,Uganda,2,34,Emerald,Smaragd-Vorkommen in Karamoja,primary,active
+Kampala Region,Uganda,0.3,32.6,Garnet,Granat-Lagerstätte,primary,active

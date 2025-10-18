@@ -1,0 +1,134 @@
+{
+  "descriptions": [
+    {
+      "id": "pictogram-rarity",
+      "icon": "Sparkles",
+      "title": "Rarität",
+      "description": "Zeigt die Seltenheit und Besonderheit des Edelsteins an. Seltene Edelsteine sind besonders wertvoll und begehrt.",
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-10-11T18:15:21.214Z"
+    },
+    {
+      "id": "pictogram-category",
+      "icon": "Tag",
+      "title": "Kategorie",
+      "description": "Die Art des Edelsteins (z.B. Diamant, Rubin, Smaragd). Jede Kategorie hat ihre eigenen Eigenschaften und Werte.",
+      "isActive": true,
+      "order": 2,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "pictogram-origin-type",
+      "icon": "Award",
+      "title": "Entstehung",
+      "description": "Die Art der Entstehung des Edelsteins. Natürliche Edelsteine entstehen in der Natur, synthetische werden im Labor hergestellt.",
+      "isActive": true,
+      "order": 3,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "pictogram-origin",
+      "icon": "MapPin",
+      "title": "Herkunft",
+      "description": "Das Herkunftsland oder die Region, aus der der Edelstein stammt. Die Herkunft kann den Wert und die Qualität beeinflussen.",
+      "isActive": true,
+      "order": 4,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "pictogram-weight",
+      "icon": "Weight",
+      "title": "Gewicht",
+      "description": "Das Gewicht des Edelsteins in Karat (ct) für geschliffene Steine oder Gramm (g) für Rohsteine. Ein wichtiger Faktor für den Wert.",
+      "isActive": true,
+      "order": 5,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "pictogram-size",
+      "icon": "Ruler",
+      "title": "Abmessungen",
+      "description": "Die Länge, Breite und Höhe des Edelsteins in Millimetern. Wichtig für die Beurteilung der Größe und Proportionen.",
+      "isActive": true,
+      "order": 6,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "pictogram-clarity",
+      "icon": "Star",
+      "title": "Reinheit",
+      "description": "Die Klarheit und Reinheit des Edelsteins. Bewertet nach GIA-Standards von FL (flawless) bis I3 (included).",
+      "isActive": true,
+      "order": 7,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "pictogram-color",
+      "icon": "Palette",
+      "title": "Farbe",
+      "description": "Farbton (Hue): Die Grundfarbe des Steins",
+      "isActive": true,
+      "order": 8,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-10-11T21:04:48.894Z"
+    },
+    {
+      "id": "pictogram-color-intensity",
+      "icon": "Droplets",
+      "title": "Farbsättigung",
+      "description": "Farbsättigung: Dies ist die Reinheit der Farbe, ohne graue oder bräunliche Anteile. Je weniger Grautöne der Stein enthält, desto höher die Sättigung und desto begehrter ist er.",
+      "isActive": true,
+      "order": 9,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-10-11T21:03:21.022Z"
+    },
+    {
+      "id": "pictogram-color-saturation",
+      "icon": "CircleDot",
+      "title": "Helligkeit",
+      "description": "Helligkeit (Tone): Beschreibt, wie hell oder dunkel der Farbton ist. Eine zu dunkle oder zu helle Farbe kann den Wert mindern.",
+      "isActive": true,
+      "order": 10,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-10-11T21:03:57.190Z"
+    },
+    {
+      "id": "pictogram-cut",
+      "icon": "Gem",
+      "title": "Schliff",
+      "description": "Die Art des Schliffs bestimmt die Brillanz und das Feuer des Edelsteins. Verschiedene Schliffe wie Brillant, Smaragd oder Oval haben unterschiedliche Eigenschaften.",
+      "isActive": true,
+      "order": 11,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "pictogram-form",
+      "icon": "Shapes",
+      "title": "Form",
+      "description": "Die äußere Form des Edelsteins (z.B. rund, oval, eckig). Die Form beeinflusst die Lichtbrechung und das Erscheinungsbild des Steins.",
+      "isActive": true,
+      "order": 12,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "pictogram-treatment",
+      "icon": "FlaskConical",
+      "title": "Behandlung",
+      "description": "Angabe über eventuelle Behandlungen des Edelsteins zur Verbesserung von Farbe oder Klarheit. Wichtig für die Bewertung des natürlichen Zustands.",
+      "isActive": true,
+      "order": 13,
+      "createdAt": "2025-01-02T10:00:00.000Z",
+      "updatedAt": "2025-01-02T10:00:00.000Z"
+    }
+  ]
+}

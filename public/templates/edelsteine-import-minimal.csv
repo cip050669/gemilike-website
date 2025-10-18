@@ -1,0 +1,6 @@
+name,type,description,price,currency,category,color,origin,inStock,quantity,caratWeight,gramWeight,cut,cutForm,clarity,crystalQuality,crystalForm,mainImage
+"Smaragd Beispiel",cut,"Schöner Smaragd aus Kolumbien",1500,EUR,Smaragd,Grün,Kolumbien,true,1,2.0,,Brillant,Rund,VVS1,Excellent,,/images/emerald.jpg
+"Rubin Beispiel",cut,"Klassischer Rubin aus Myanmar",2000,EUR,Rubin,Rot,Myanmar,true,1,1.5,,Brillant,Rund,VS1,Excellent,,/images/ruby.jpg
+"Saphir Rohstein",rough,"Transparenter Saphir-Kristall",800,EUR,Saphir,Blau,Sri Lanka,true,1,,12.0,,,Excellent,Hexagonal,/images/sapphire-rough.jpg
+
+

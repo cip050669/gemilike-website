@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Test - Gemilike</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .status {
+            font-size: 0.9rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.2);
+            border-radius: 10px;
+            border: 2px solid rgba(0, 255, 0, 0.5);
+        }
+        
+        .info {
+            font-size: 0.8rem;
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 5px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+        
+        .button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .buttons {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Gemilike Mobile Test</h1>
+        <div class="status">
+            ✅ Mobile Verbindung erfolgreich!
+        </div>
+        <div class="info">
+            <strong>IP:</strong> 192.168.1.104:3000<br>
+            <strong>Status:</strong> Erreichbar
+        </div>
+        <div class="info">
+            Mobile Version funktioniert!
+        </div>
+        <div class="buttons">
+            <a href="/de" class="button">Hauptseite</a>
+            <a href="/de/admin" class="button">Admin</a>
+        </div>
+    </div>
+</body>
+</html>
