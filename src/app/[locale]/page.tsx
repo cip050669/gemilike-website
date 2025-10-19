@@ -36,8 +36,8 @@ export default function HomePage(): React.JSX.Element {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section 
-        className="relative flex items-center justify-center overflow-hidden py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" 
-        style={{ minHeight: 'calc(100vh - 8rem)' }}
+        className="relative flex items-center justify-center overflow-hidden pt-32 pb-16 sm:pt-36 sm:pb-20 lg:pt-40 lg:pb-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" 
+        style={{ minHeight: 'calc(100vh - 5rem)' }}
       >
         {/* Animated Background */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent_50%)]"></div>
