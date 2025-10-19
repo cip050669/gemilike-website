@@ -36,12 +36,16 @@ export default function AdminPage() {
             <h3 className="text-lg font-semibold mb-4">Edelstein-Verwaltung</h3>
             <p className="text-gray-600 mb-4">Verwalten Sie Ihre Edelstein-Kollektion</p>
             <div className="flex gap-2">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
-                Neuer Edelstein
-              </button>
-              <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
-                Alle anzeigen
-              </button>
+              <form action="/de/admin/gemstones/new" method="get">
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                  Neuer Edelstein
+                </button>
+              </form>
+              <form action="/de/admin/gemstones" method="get">
+                <button type="submit" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
+                  Alle anzeigen
+                </button>
+              </form>
             </div>
           </div>
 
@@ -49,12 +53,16 @@ export default function AdminPage() {
             <h3 className="text-lg font-semibold mb-4">Bestellungen</h3>
             <p className="text-gray-600 mb-4">Verwalten Sie Kundenbestellungen</p>
             <div className="flex gap-2">
-              <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">
-                Neue Bestellungen
-              </button>
-              <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
-                Alle anzeigen
-              </button>
+              <form action="/de/admin/orders" method="get">
+                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">
+                  Neue Bestellungen
+                </button>
+              </form>
+              <form action="/de/admin/orders" method="get">
+                <button type="submit" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
+                  Alle anzeigen
+                </button>
+              </form>
             </div>
           </div>
 
@@ -62,12 +70,16 @@ export default function AdminPage() {
             <h3 className="text-lg font-semibold mb-4">Kunden</h3>
             <p className="text-gray-600 mb-4">Verwalten Sie Ihre Kunden</p>
             <div className="flex gap-2">
-              <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm">
-                Kunden verwalten
-              </button>
-              <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
-                Alle anzeigen
-              </button>
+              <form action="/de/admin/customers" method="get">
+                <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm">
+                  Kunden verwalten
+                </button>
+              </form>
+              <form action="/de/admin/customers" method="get">
+                <button type="submit" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
+                  Alle anzeigen
+                </button>
+              </form>
             </div>
           </div>
         </div>

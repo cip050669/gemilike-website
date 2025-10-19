@@ -1,270 +1,281 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Edit, Trash2, Eye, EyeOff, Calendar, User, Tag } from 'lucide-react';
-import { BlogPost } from '@/lib/types/blog';
-import { BlogEditor } from '@/components/admin/BlogEditor';
-
-export default function BlogAdminPage() {
-  const [blogs, setBlogs] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-
-  // Lade Blog-Posts
-  useEffect(() => {
-    loadBlogs();
-  }, []);
-
-  const loadBlogs = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/admin/blogs');
-      if (response.ok) {
-        const data = await response.json();
-        setBlogs(data.blogs || []);
-      }
-    } catch (error) {
-      console.error('Error loading blogs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Möchten Sie diesen Blog-Post wirklich löschen?')) return;
-
-    try {
-      const response = await fetch(`/api/admin/blogs?id=${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        await loadBlogs();
-        alert('Blog-Post erfolgreich gelöscht!');
-      } else {
-        const error = await response.json();
-        alert(`Fehler: ${error.error}`);
-      }
-    } catch (error) {
-      console.error('Error deleting blog:', error);
-      alert('Fehler beim Löschen des Blog-Posts');
-    }
-  };
-
-  const handleSave = async (blogData: Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt'>) => {
-    try {
-      const url = editingBlog ? '/api/admin/blogs' : '/api/admin/blogs';
-      const method = editingBlog ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editingBlog ? { id: editingBlog.id, ...blogData } : blogData),
-      });
-
-      if (response.ok) {
-        await loadBlogs();
-        setEditingBlog(null);
-        setIsCreating(false);
-        alert(editingBlog ? 'Blog-Post erfolgreich aktualisiert!' : 'Blog-Post erfolgreich erstellt!');
-      } else {
-        const error = await response.json();
-        alert(`Fehler: ${error.error}`);
-      }
-    } catch (error) {
-      console.error('Error saving blog:', error);
-      alert('Fehler beim Speichern des Blog-Posts');
-    }
-  };
-
-  const handleCancel = () => {
-    setEditingBlog(null);
-    setIsCreating(false);
-  };
-
-  // Filter Blogs
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      blog.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || blog.category === categoryFilter;
-    const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'published' && blog.published) ||
-                         (statusFilter === 'draft' && !blog.published);
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
-
-  const categories = [...new Set(blogs.map(blog => blog.category))];
-
-  if (editingBlog || isCreating) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <BlogEditor
-          blog={editingBlog || undefined}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          isCreating={isCreating}
-        />
-      </div>
-    );
-  }
-
+export default function BlogsAdminPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Blog-Verwaltung</h1>
-        <p className="text-muted-foreground">Verwalten Sie Ihre Blog-Posts</p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold mb-4 text-gray-900">Blog-Verwaltung</h1>
+              <p className="text-gray-600">
+                Verwalten Sie Ihre Blog-Beiträge
+              </p>
+            </div>
+            <form action="/de/admin/blogs/new" method="get">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
+              >
+                + Neuer Blog-Beitrag
+              </button>
+            </form>
+          </div>
+        </div>
 
-      {/* Filter und Suche */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
+        {/* Filter and Search */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Blog-Posts durchsuchen..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+            <div>
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+                Suche
+              </label>
+              <input
+                type="text"
+                id="search"
+                name="search"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Blog-Beiträge suchen..."
               />
             </div>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Kategorie" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle Kategorien</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle Status</SelectItem>
-                <SelectItem value="published">Veröffentlicht</SelectItem>
-                <SelectItem value="draft">Entwurf</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={() => setIsCreating(true)} className="w-full">
-              <Plus className="h-4 w-4 mr-2" />
-              Neuer Blog-Post
-            </Button>
+            <div>
+              <label htmlFor="category-filter" className="block text-sm font-medium text-gray-700 mb-2">
+                Kategorie
+              </label>
+              <select
+                id="category-filter"
+                name="category"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Alle Kategorien</option>
+                <option value="edelsteine">Edelsteine</option>
+                <option value="schmuck">Schmuck</option>
+                <option value="pflege">Pflege</option>
+                <option value="geschichte">Geschichte</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-2">
+                Status
+              </label>
+              <select
+                id="status-filter"
+                name="status"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Alle Status</option>
+                <option value="published">Veröffentlicht</option>
+                <option value="draft">Entwurf</option>
+                <option value="archived">Archiviert</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <form action="/de/admin/blogs" method="get">
+                <button type="submit" className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                  Filter anwenden
+                </button>
+              </form>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Blog-Liste */}
-      {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Lade Blog-Posts...</p>
-        </div>
-      ) : filteredBlogs.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <p className="text-muted-foreground">Keine Blog-Posts gefunden</p>
-            <Button onClick={() => setIsCreating(true)} className="mt-4">
-              <Plus className="h-4 w-4 mr-2" />
-              Ersten Blog-Post erstellen
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
-          {filteredBlogs.map((blog) => (
-            <Card key={blog.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-xl font-semibold">{blog.title}</h3>
-                      {blog.published ? (
-                        <Badge variant="default" className="bg-green-100 text-green-800">
-                          <Eye className="h-3 w-3 mr-1" />
-                          Veröffentlicht
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary">
-                          <EyeOff className="h-3 w-3 mr-1" />
-                          Entwurf
-                        </Badge>
-                      )}
-                      {blog.featured && (
-                        <Badge variant="outline" className="border-yellow-300 text-yellow-700">
-                          Featured
-                        </Badge>
-                      )}
+        {/* Blog Posts List */}
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="p-6 border-b">
+            <h2 className="text-lg font-semibold">Blog-Beiträge (12 gefunden)</h2>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Titel
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Kategorie
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Autor
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Datum
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aktionen
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {/* Example Blog Posts */}
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">Die faszinierende Welt der Smaragde</div>
+                    <div className="text-sm text-gray-500">Ein umfassender Leitfaden zu Smaragden</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Edelsteine
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Dr. Schmidt
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      Veröffentlicht
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    15.10.2025
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex gap-2">
+                      <form action="/de/admin/blogs/edit/1" method="get" className="inline">
+                        <button type="submit" className="text-blue-600 hover:text-blue-900">Bearbeiten</button>
+                      </form>
+                      <form action="/api/admin/blogs/1" method="delete" className="inline">
+                        <button type="submit" className="text-red-600 hover:text-red-900">Löschen</button>
+                      </form>
                     </div>
-                    
-                    <p className="text-muted-foreground mb-3 line-clamp-2">{blog.excerpt}</p>
-                    
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        {blog.author}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(blog.createdAt).toLocaleDateString('de-DE')}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Tag className="h-4 w-4" />
-                        {blog.category}
-                      </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">Diamanten: Von der Mine zum Schmuck</div>
+                    <div className="text-sm text-gray-500">Der Weg eines Diamanten</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Edelsteine
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Maria Weber
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                      Entwurf
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    18.10.2025
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex gap-2">
+                      <form action="/de/admin/blogs/edit/1" method="get" className="inline">
+                        <button type="submit" className="text-blue-600 hover:text-blue-900">Bearbeiten</button>
+                      </form>
+                      <form action="/api/admin/blogs/1" method="delete" className="inline">
+                        <button type="submit" className="text-red-600 hover:text-red-900">Löschen</button>
+                      </form>
                     </div>
-                    
-                    {blog.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {blog.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex gap-2 ml-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setEditingBlog(blog)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(blog.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">Pflege von Edelsteinen</div>
+                    <div className="text-sm text-gray-500">Tipps für die richtige Pflege</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Pflege
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Anna Müller
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      Veröffentlicht
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    12.10.2025
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex gap-2">
+                      <form action="/de/admin/blogs/edit/1" method="get" className="inline">
+                        <button type="submit" className="text-blue-600 hover:text-blue-900">Bearbeiten</button>
+                      </form>
+                      <form action="/api/admin/blogs/1" method="delete" className="inline">
+                        <button type="submit" className="text-red-600 hover:text-red-900">Löschen</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">Die Geschichte des Rubins</div>
+                    <div className="text-sm text-gray-500">Historische Bedeutung des Rubins</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Geschichte
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    Prof. Klein
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      Veröffentlicht
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    08.10.2025
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex gap-2">
+                      <form action="/de/admin/blogs/edit/1" method="get" className="inline">
+                        <button type="submit" className="text-blue-600 hover:text-blue-900">Bearbeiten</button>
+                      </form>
+                      <form action="/api/admin/blogs/1" method="delete" className="inline">
+                        <button type="submit" className="text-red-600 hover:text-red-900">Löschen</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="px-6 py-4 border-t">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Zeige 1-4 von 12 Ergebnissen
+              </div>
+              <div className="flex gap-2">
+                <form action="/de/admin/blogs" method="get" className="inline">
+                  <input type="hidden" name="page" value="1" />
+                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                    Vorherige
+                  </button>
+                </form>
+                <form action="/de/admin/blogs" method="get" className="inline">
+                  <input type="hidden" name="page" value="1" />
+                  <button type="submit" className="px-3 py-1 bg-blue-600 text-white rounded text-sm">
+                    1
+                  </button>
+                </form>
+                <form action="/de/admin/blogs" method="get" className="inline">
+                  <input type="hidden" name="page" value="2" />
+                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                    2
+                  </button>
+                </form>
+                <form action="/de/admin/blogs" method="get" className="inline">
+                  <input type="hidden" name="page" value="3" />
+                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                    3
+                  </button>
+                </form>
+                <form action="/de/admin/blogs" method="get" className="inline">
+                  <input type="hidden" name="page" value="2" />
+                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                    Nächste
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
-
-

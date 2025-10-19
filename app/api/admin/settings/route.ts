@@ -5,17 +5,17 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     
     // Hier würden Sie normalerweise die Daten in der Datenbank speichern
-    console.log('About page data received:', Object.fromEntries(formData));
+    console.log('Settings data received:', Object.fromEntries(formData));
     
     // Simuliere eine erfolgreiche Speicherung
     return NextResponse.json({ 
       success: true, 
-      message: 'Über uns Seite erfolgreich gespeichert!' 
+      message: 'System-Einstellungen erfolgreich gespeichert!' 
     });
   } catch (error) {
-    console.error('Error saving about page:', error);
+    console.error('Error saving settings:', error);
     return NextResponse.json(
-      { success: false, message: 'Fehler beim Speichern der Über uns Seite' },
+      { success: false, message: 'Fehler beim Speichern der Einstellungen' },
       { status: 500 }
     );
   }

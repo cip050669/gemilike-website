@@ -1,496 +1,374 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { HeroImageManager } from '@/components/admin/HeroImageManager';
-import { ColorManager } from '@/components/admin/ColorManager';
-import { StorySectionManager } from '@/components/admin/StorySectionManager';
-import { 
-  Settings, 
-  Globe, 
-  Mail, 
-  Shield, 
-  Bell, 
-  Palette,
-  Save,
-  RefreshCw,
-  Image,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react';
-
-export default function AdminSettingsPage() {
-  const t = useTranslations();
-  const [emailSettings, setEmailSettings] = useState({
-    smtpHost: 'smtp.strato.de',
-    smtpPort: '587',
-    smtpUser: 'info@gemilike.com',
-    smtpPassword: '',
-    emailNotifications: true
-  });
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
-
-  useEffect(() => {
-    // Load current settings from environment or localStorage
-    const savedSettings = localStorage.getItem('emailSettings');
-    if (savedSettings) {
-      setEmailSettings(JSON.parse(savedSettings));
-    }
-  }, []);
-
-  const handleEmailSettingsChange = (field: string, value: string | boolean) => {
-    setEmailSettings(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSaveEmailSettings = async () => {
-    console.log('💾 SAVE EMAIL SETTINGS BUTTON CLICKED');
-    setIsSaving(true);
-    setSaveStatus('idle');
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Save to localStorage (in real app, this would be an API call)
-      localStorage.setItem('emailSettings', JSON.stringify(emailSettings));
-      
-      setSaveStatus('success');
-      alert('✅ E-Mail-Einstellungen erfolgreich gespeichert!');
-      
-      // Reset status after 3 seconds
-      setTimeout(() => setSaveStatus('idle'), 3000);
-    } catch (error) {
-      setSaveStatus('error');
-      alert('❌ Fehler beim Speichern der E-Mail-Einstellungen!');
-      setTimeout(() => setSaveStatus('idle'), 3000);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleTestEmailSettings = async () => {
-    console.log('🧪 TEST EMAIL SETTINGS BUTTON CLICKED');
-    setTestStatus('testing');
-    
-    try {
-      // Test SMTP connection
-      const response = await fetch('/api/test-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(emailSettings),
-      });
-      
-      if (response.ok) {
-        setTestStatus('success');
-        alert('✅ E-Mail-Einstellungen erfolgreich getestet!');
-      } else {
-        setTestStatus('error');
-        alert('❌ E-Mail-Test fehlgeschlagen!');
-      }
-    } catch (error) {
-      setTestStatus('error');
-      alert('❌ Fehler beim Testen der E-Mail-Einstellungen!');
-    }
-    
-    setTimeout(() => setTestStatus('idle'), 3000);
-  };
-
-  const handleResetEmailSettings = () => {
-    console.log('🔄 RESET EMAIL SETTINGS BUTTON CLICKED');
-    setEmailSettings({
-      smtpHost: 'smtp.strato.de',
-      smtpPort: '587',
-      smtpUser: 'info@gemilike.com',
-      smtpPassword: '',
-      emailNotifications: true
-    });
-    alert('🔄 E-Mail-Einstellungen zurückgesetzt!');
-  };
-
+export default function SettingsAdminPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Einstellungen</h1>
-        <p className="text-muted-foreground">
-          Konfigurieren Sie Ihr Admin-Panel
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-4 text-gray-900">System-Einstellungen</h1>
+          <p className="text-gray-600">
+            Verwalten Sie die System-Konfiguration
+          </p>
+        </div>
 
-      <div className="grid gap-6">
         {/* General Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Allgemeine Einstellungen
-            </CardTitle>
-            <CardDescription>
-              Grundlegende Systemkonfiguration
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="siteName">Website-Name</Label>
-                <Input id="siteName" defaultValue="Gemilike - Heroes in Gems" />
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Allgemeine Einstellungen</h2>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="site-name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Website-Name
+                </label>
+                <input
+                  type="text"
+                  id="site-name"
+                  name="site-name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Gemilike - Heroes in Gems"
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="adminEmail">Admin-E-Mail</Label>
-                <Input id="adminEmail" type="email" defaultValue="admin@gemilike.com" />
+              <div>
+                <label htmlFor="site-url" className="block text-sm font-medium text-gray-700 mb-2">
+                  Website-URL
+                </label>
+                <input
+                  type="url"
+                  id="site-url"
+                  name="site-url"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://gemilike.com"
+                />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="siteDescription">Website-Beschreibung</Label>
-              <Textarea 
-                id="siteDescription" 
-                defaultValue="Ihr Spezialist für rohe und geschliffene Edelsteine"
-                rows={3}
-              />
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Localization */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" />
-              Lokalisierung
-            </CardTitle>
-            <CardDescription>
-              Sprache und Regionseinstellungen
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="defaultLanguage">Standardsprache</Label>
-                <select 
-                  id="defaultLanguage" 
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            <div>
+              <label htmlFor="site-description" className="block text-sm font-medium text-gray-700 mb-2">
+                Website-Beschreibung
+              </label>
+              <textarea
+                id="site-description"
+                name="site-description"
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ihr Spezialist für rohe und geschliffene Edelsteine..."
+              ></textarea>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="default-language" className="block text-sm font-medium text-gray-700 mb-2">
+                  Standard-Sprache
+                </label>
+                <select
+                  id="default-language"
+                  name="default-language"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="de">Deutsch</option>
                   <option value="en">English</option>
                 </select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="timezone">Zeitzone</Label>
-                <select 
-                  id="timezone" 
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              <div>
+                <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 mb-2">
+                  Zeitzone
+                </label>
+                <select
+                  id="timezone"
+                  name="timezone"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="Europe/Berlin">Europa/Berlin</option>
-                  <option value="UTC">UTC</option>
+                  <option value="Europe/Berlin">Europe/Berlin</option>
+                  <option value="Europe/London">Europe/London</option>
+                  <option value="America/New_York">America/New_York</option>
                 </select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="currency">Währung</Label>
-              <select 
-                id="currency" 
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="EUR">Euro (€)</option>
-                <option value="USD">US Dollar ($)</option>
-                <option value="CHF">Schweizer Franken (CHF)</option>
-              </select>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Email Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              E-Mail-Einstellungen
-            </CardTitle>
-            <CardDescription>
-              Konfiguration für E-Mail-Versand
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="smtpHost">SMTP-Host</Label>
-                <Input 
-                  id="smtpHost" 
-                  value={emailSettings.smtpHost}
-                  onChange={(e) => handleEmailSettingsChange('smtpHost', e.target.value)}
-                  placeholder="smtp.strato.de"
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">E-Mail-Einstellungen</h2>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="smtp-host" className="block text-sm font-medium text-gray-700 mb-2">
+                  SMTP-Host
+                </label>
+                <input
+                  type="text"
+                  id="smtp-host"
+                  name="smtp-host"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="smtp.gmail.com"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="smtpPort">SMTP-Port</Label>
-                <Input 
-                  id="smtpPort" 
-                  type="number" 
-                  value={emailSettings.smtpPort}
-                  onChange={(e) => handleEmailSettingsChange('smtpPort', e.target.value)}
+              <div>
+                <label htmlFor="smtp-port" className="block text-sm font-medium text-gray-700 mb-2">
+                  SMTP-Port
+                </label>
+                <input
+                  type="number"
+                  id="smtp-port"
+                  name="smtp-port"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="587"
                 />
               </div>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="smtpUser">SMTP-Benutzername</Label>
-                <Input 
-                  id="smtpUser" 
-                  type="email" 
-                  value={emailSettings.smtpUser}
-                  onChange={(e) => handleEmailSettingsChange('smtpUser', e.target.value)}
-                  placeholder="info@gemilike.com"
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="smtp-username" className="block text-sm font-medium text-gray-700 mb-2">
+                  SMTP-Benutzername
+                </label>
+                <input
+                  type="text"
+                  id="smtp-username"
+                  name="smtp-username"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="noreply@gemilike.com"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="smtpPassword">SMTP-Passwort</Label>
-                <Input 
-                  id="smtpPassword" 
-                  type="password" 
-                  value={emailSettings.smtpPassword}
-                  onChange={(e) => handleEmailSettingsChange('smtpPassword', e.target.value)}
-                  placeholder="Ihr E-Mail-Passwort"
+              <div>
+                <label htmlFor="smtp-password" className="block text-sm font-medium text-gray-700 mb-2">
+                  SMTP-Passwort
+                </label>
+                <input
+                  type="password"
+                  id="smtp-password"
+                  name="smtp-password"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="••••••••"
                 />
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="emailNotifications" 
-                checked={emailSettings.emailNotifications}
-                onCheckedChange={(checked) => handleEmailSettingsChange('emailNotifications', checked)}
+
+            <div>
+              <label htmlFor="from-email" className="block text-sm font-medium text-gray-700 mb-2">
+                Absender-E-Mail
+              </label>
+              <input
+                type="email"
+                id="from-email"
+                name="from-email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="noreply@gemilike.com"
               />
-              <Label htmlFor="emailNotifications">E-Mail-Benachrichtigungen aktivieren</Label>
             </div>
-            
-            {/* Status indicators */}
-            <div className="flex items-center gap-4">
-              {saveStatus === 'success' && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <CheckCircle className="h-4 w-4" />
-                  <span className="text-sm">Einstellungen gespeichert</span>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="smtp-ssl"
+                name="smtp-ssl"
+                className="mr-2"
+              />
+              <label htmlFor="smtp-ssl" className="text-sm font-medium text-gray-700">
+                SSL/TLS verwenden
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Settings */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Zahlungseinstellungen</h2>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                  Währung
+                </label>
+                <select
+                  id="currency"
+                  name="currency"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="EUR">Euro (€)</option>
+                  <option value="USD">US Dollar ($)</option>
+                  <option value="GBP">British Pound (£)</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="tax-rate" className="block text-sm font-medium text-gray-700 mb-2">
+                  Steuersatz (%)
+                </label>
+                <input
+                  type="number"
+                  id="tax-rate"
+                  name="tax-rate"
+                  step="0.01"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="19.00"
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium mb-3">Zahlungsmethoden</h3>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="paypal-enabled"
+                    name="paypal-enabled"
+                    className="mr-2"
+                  />
+                  <label htmlFor="paypal-enabled" className="text-sm font-medium text-gray-700">
+                    PayPal
+                  </label>
                 </div>
-              )}
-              {saveStatus === 'error' && (
-                <div className="flex items-center gap-2 text-red-600">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">Fehler beim Speichern</span>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="stripe-enabled"
+                    name="stripe-enabled"
+                    className="mr-2"
+                  />
+                  <label htmlFor="stripe-enabled" className="text-sm font-medium text-gray-700">
+                    Stripe (Kreditkarte)
+                  </label>
                 </div>
-              )}
-              {testStatus === 'success' && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <CheckCircle className="h-4 w-4" />
-                  <span className="text-sm">E-Mail-Test erfolgreich</span>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="bank-transfer-enabled"
+                    name="bank-transfer-enabled"
+                    className="mr-2"
+                  />
+                  <label htmlFor="bank-transfer-enabled" className="text-sm font-medium text-gray-700">
+                    Banküberweisung
+                  </label>
                 </div>
-              )}
-              {testStatus === 'error' && (
-                <div className="flex items-center gap-2 text-red-600">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">E-Mail-Test fehlgeschlagen</span>
-                </div>
-              )}
+              </div>
             </div>
-            
-            {/* Action buttons */}
-            <div className="flex gap-2">
-              <Button 
-                onClick={handleSaveEmailSettings}
-                disabled={isSaving}
-                className="flex-1"
-              >
-                {isSaving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Speichere...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    E-Mail-Einstellungen speichern
-                  </>
-                )}
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={handleTestEmailSettings}
-                disabled={testStatus === 'testing'}
-              >
-                {testStatus === 'testing' ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
-                    Teste...
-                  </>
-                ) : (
-                  <>
-                    <Mail className="h-4 w-4 mr-2" />
-                    E-Mail testen
-                  </>
-                )}
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={handleResetEmailSettings}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Zurücksetzen
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Security */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Sicherheit
-            </CardTitle>
-            <CardDescription>
-              Sicherheitseinstellungen für das Admin-Panel
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Switch id="twoFactorAuth" />
-              <Label htmlFor="twoFactorAuth">Zwei-Faktor-Authentifizierung</Label>
+        {/* Security Settings */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Sicherheitseinstellungen</h2>
+          
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="session-timeout" className="block text-sm font-medium text-gray-700 mb-2">
+                Session-Timeout (Minuten)
+              </label>
+              <input
+                type="number"
+                id="session-timeout"
+                name="session-timeout"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="30"
+              />
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch id="sessionTimeout" defaultChecked />
-              <Label htmlFor="sessionTimeout">Automatische Session-Abmeldezeit</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch id="auditLogging" defaultChecked />
-              <Label htmlFor="auditLogging">Audit-Logging aktivieren</Label>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="sessionTimeoutMinutes">Session-Timeout (Minuten)</Label>
-              <Input id="sessionTimeoutMinutes" type="number" defaultValue="60" />
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              Benachrichtigungen
-            </CardTitle>
-            <CardDescription>
-              Konfigurieren Sie Benachrichtigungseinstellungen
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Switch id="newOrderNotifications" defaultChecked />
-              <Label htmlFor="newOrderNotifications">Neue Bestellungen</Label>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="two-factor-auth"
+                name="two-factor-auth"
+                className="mr-2"
+              />
+              <label htmlFor="two-factor-auth" className="text-sm font-medium text-gray-700">
+                Zwei-Faktor-Authentifizierung aktivieren
+              </label>
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch id="lowStockNotifications" defaultChecked />
-              <Label htmlFor="lowStockNotifications">Niedriger Lagerbestand</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch id="customerRegistrationNotifications" />
-              <Label htmlFor="customerRegistrationNotifications">Neue Kundenregistrierungen</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch id="systemMaintenanceNotifications" defaultChecked />
-              <Label htmlFor="systemMaintenanceNotifications">System-Wartung</Label>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Hero Section Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Image className="h-5 w-5" />
-              Hero-Section Verwaltung
-            </CardTitle>
-            <CardDescription>
-              Verwalten Sie das Hero-Bild und die Texte der Startseite
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <HeroImageManager />
-          </CardContent>
-        </Card>
-
-        {/* Story Section Management */}
-        <StorySectionManager />
-
-        {/* Color Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" />
-              Farbverwaltung
-            </CardTitle>
-            <CardDescription>
-              Verwalten Sie die verfügbaren Farben für Edelstein-Badges
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ColorManager />
-          </CardContent>
-        </Card>
-
-        {/* Appearance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" />
-              Erscheinungsbild
-            </CardTitle>
-            <CardDescription>
-              Anpassen des Admin-Panel-Designs
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="theme">Design-Theme</Label>
-              <select 
-                id="theme" 
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="dark">Dunkel</option>
-                <option value="light">Hell</option>
-                <option value="system">System</option>
-              </select>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="password-policy"
+                name="password-policy"
+                className="mr-2"
+              />
+              <label htmlFor="password-policy" className="text-sm font-medium text-gray-700">
+                Starke Passwort-Richtlinien
+              </label>
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch id="compactMode" />
-              <Label htmlFor="compactMode">Kompakter Modus</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch id="sidebarCollapsed" />
-              <Label htmlFor="sidebarCollapsed">Sidebar standardmäßig eingeklappt</Label>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Save Buttons */}
-        <div className="flex justify-end space-x-2">
-          <Button variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Zurücksetzen
-          </Button>
-          <Button>
-            <Save className="h-4 w-4 mr-2" />
-            Einstellungen speichern
-          </Button>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="login-attempts"
+                name="login-attempts"
+                className="mr-2"
+              />
+              <label htmlFor="login-attempts" className="text-sm font-medium text-gray-700">
+                Login-Versuche begrenzen
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Backup Settings */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Backup-Einstellungen</h2>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="backup-frequency" className="block text-sm font-medium text-gray-700 mb-2">
+                  Backup-Häufigkeit
+                </label>
+                <select
+                  id="backup-frequency"
+                  name="backup-frequency"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="daily">Täglich</option>
+                  <option value="weekly">Wöchentlich</option>
+                  <option value="monthly">Monatlich</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="backup-retention" className="block text-sm font-medium text-gray-700 mb-2">
+                  Aufbewahrungszeit (Tage)
+                </label>
+                <input
+                  type="number"
+                  id="backup-retention"
+                  name="backup-retention"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="30"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="auto-backup"
+                name="auto-backup"
+                className="mr-2"
+              />
+              <label htmlFor="auto-backup" className="text-sm font-medium text-gray-700">
+                Automatische Backups aktivieren
+              </label>
+            </div>
+
+            <div className="flex gap-4">
+              <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                Backup erstellen
+              </button>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Backup wiederherstellen
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="mt-8 flex justify-end">
+          <form action="/api/admin/settings" method="post">
+            <button type="submit" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium">
+              Einstellungen speichern
+            </button>
+          </form>
         </div>
       </div>
     </div>

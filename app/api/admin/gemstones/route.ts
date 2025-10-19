@@ -1,114 +1,113 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile } from 'fs/promises';
-import { join } from 'path';
-import { Gemstone } from '@/lib/types/gemstone';
+import { prisma } from '@/lib/prisma';
 
-const GEMSTONES_FILE_PATH = join(process.cwd(), 'lib', 'data', 'gemstones.ts');
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Import the gemstones data dynamically
-    const { allGemstones } = await import('@/lib/data/gemstones');
+    console.log('API: Fetching gemstones...');
     
-    // Ensure we always return an array
-    const gemstones = Array.isArray(allGemstones) ? allGemstones : [];
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '25');
+    const search = searchParams.get('search') || '';
+    const color = searchParams.get('color') || '';
+    const cut = searchParams.get('cut') || '';
+
+    const skip = (page - 1) * limit;
+
+    // Build where clause
+    const where: any = {};
     
-    // Add cache control headers to prevent caching
-    const response = NextResponse.json({ success: true, gemstones });
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
-    response.headers.set('Surrogate-Control', 'no-store');
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { category: { contains: search, mode: 'insensitive' } }
+      ];
+    }
     
-    return response;
+    if (color) {
+      where.color = { contains: color, mode: 'insensitive' };
+    }
+    
+    if (cut) {
+      where.cut = { contains: cut, mode: 'insensitive' };
+    }
+
+    console.log('API: Where clause:', where);
+
+    // Get gemstones with pagination
+    const [gemstones, total] = await Promise.all([
+      prisma.gemstone.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.gemstone.count({ where })
+    ]);
+
+    console.log('API: Found gemstones:', gemstones.length);
+
+    return NextResponse.json({
+      success: true,
+      data: gemstones,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
-    // Return empty array instead of error
-    const response = NextResponse.json({ success: true, gemstones: [] });
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
-    response.headers.set('Surrogate-Control', 'no-store');
-    return response;
+    console.error('Error fetching gemstones:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch gemstones: ' + (error as Error).message },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { gemstones } = await request.json();
+    const body = await request.json();
     
-    if (!Array.isArray(gemstones)) {
-      return NextResponse.json({ success: false, error: 'Invalid gemstones data' }, { status: 400 });
-    }
+    const gemstone = await prisma.gemstone.create({
+      data: {
+        name: body.name,
+        category: body.category || 'Edelstein',
+        type: body.type || 'cut',
+        price: parseFloat(body.price) || 0,
+        weight: body.weight ? parseFloat(body.weight) : null,
+        dimensions: body.dimensions,
+        color: body.color,
+        colorIntensity: body.colorIntensity,
+        colorBrightness: body.colorBrightness,
+        clarity: body.clarity,
+        cut: body.cut,
+        cutForm: body.cutForm,
+        treatment: body.treatment,
+        certification: body.certification,
+        rarity: body.rarity,
+        origin: body.origin,
+        description: body.description,
+        images: body.images,
+        inStock: body.inStock !== false,
+        stock: parseInt(body.stock) || 0,
+        sku: body.sku,
+        isNew: body.isNew || false
+      }
+    });
 
-    // Generate the TypeScript file content
-    const fileContent = generateGemstonesFile(gemstones);
-    
-    // Write the file
-    await writeFile(GEMSTONES_FILE_PATH, fileContent, 'utf-8');
-    
-    return NextResponse.json({ success: true, message: 'Gemstones updated successfully' });
+    return NextResponse.json({
+      success: true,
+      data: gemstone,
+      message: 'Edelstein erfolgreich erstellt'
+    });
   } catch (error) {
-    console.error('Error updating gemstones:', error);
-    return NextResponse.json({ success: false, error: 'Failed to update gemstones file' }, { status: 500 });
+    console.error('Error creating gemstone:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to create gemstone' },
+      { status: 500 }
+    );
   }
 }
-
-function generateGemstonesFile(gemstones: Gemstone[]): string {
-  const cutGemstones = gemstones.filter(g => g.type === 'cut');
-  const roughGemstones = gemstones.filter(g => g.type === 'rough');
-
-  let content = `import { CutGemstone, RoughGemstone, Gemstone } from '@/lib/types/gemstone';
-
-// Beispiel-Daten für geschliffene Edelsteine
-export const cutGemstones: CutGemstone[] = [
-`;
-
-  // Add cut gemstones
-  cutGemstones.forEach((gemstone, index) => {
-    content += `  ${JSON.stringify(gemstone, null, 2)}`;
-    if (index < cutGemstones.length - 1) {
-      content += ',';
-    }
-    content += '\n';
-  });
-
-  content += `];
-
-// Beispiel-Daten für Rohsteine
-export const roughGemstones: RoughGemstone[] = [
-`;
-
-  // Add rough gemstones
-  roughGemstones.forEach((gemstone, index) => {
-    content += `  ${JSON.stringify(gemstone, null, 2)}`;
-    if (index < roughGemstones.length - 1) {
-      content += ',';
-    }
-    content += '\n';
-  });
-
-  content += `];
-
-// Alle Edelsteine kombiniert
-export const allGemstones: Gemstone[] = [
-  ...cutGemstones,
-  ...roughGemstones,
-];
-
-// Helper-Funktionen
-export function getGemstoneById(id: string): Gemstone | undefined {
-  return allGemstones.find(gem => gem.id === id);
-}
-
-export function getGemstonesByType(type: 'cut' | 'rough'): Gemstone[] {
-  return allGemstones.filter(gem => gem.type === type);
-}
-
-export function getGemstonesByCategory(category: string): Gemstone[] {
-  return allGemstones.filter(gem => gem.category === category);
-}
-`;
-
-  return content;
-}
-

@@ -196,6 +196,7 @@ model Gemstone {
   dimensions     String?  // e.g., "5x3x2mm"
   color          String?
   colorIntensity String?  // Pale, Light, Medium, Intense, Vivid, Deep
+  colorBrightness String? // 0-10 scale (0=white, 10=black)
   clarity        String?
   cut            String?
   cutForm        String?  // Form/Shape of the cut
