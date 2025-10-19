@@ -1,4 +1,44 @@
-export default function OrdersPage() {
+import { prisma } from '@/lib/prisma';
+
+interface Order {
+  id: string;
+  orderNumber: string;
+  userId: string;
+  status: string;
+  total: number;
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  currency: string;
+  paymentMethod?: string;
+  paymentStatus: string;
+  shippingMethod?: string;
+  trackingNumber?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user?: {
+    id: string;
+    name?: string;
+    email: string;
+  };
+}
+
+export default async function OrdersPage() {
+  // Fetch orders from database
+  const orders = await prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        }
+      }
+    }
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -38,37 +78,37 @@ export default function OrdersPage() {
             <form action="/de/admin/orders" method="get" className="inline">
               <input type="hidden" name="status" value="all" />
               <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Alle (24)
+                Alle ({orders.length})
               </button>
             </form>
             <form action="/de/admin/orders" method="get" className="inline">
-              <input type="hidden" name="status" value="new" />
+              <input type="hidden" name="status" value="PENDING" />
               <button type="submit" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                Neu (8)
+                Ausstehend ({orders.filter(o => o.status === 'PENDING').length})
               </button>
             </form>
             <form action="/de/admin/orders" method="get" className="inline">
-              <input type="hidden" name="status" value="processing" />
+              <input type="hidden" name="status" value="PROCESSING" />
               <button type="submit" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                In Bearbeitung (5)
+                In Bearbeitung ({orders.filter(o => o.status === 'PROCESSING').length})
               </button>
             </form>
             <form action="/de/admin/orders" method="get" className="inline">
-              <input type="hidden" name="status" value="shipped" />
+              <input type="hidden" name="status" value="SHIPPED" />
               <button type="submit" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                Versandt (7)
+                Versandt ({orders.filter(o => o.status === 'SHIPPED').length})
               </button>
             </form>
             <form action="/de/admin/orders" method="get" className="inline">
-              <input type="hidden" name="status" value="delivered" />
+              <input type="hidden" name="status" value="DELIVERED" />
               <button type="submit" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                Geliefert (4)
+                Geliefert ({orders.filter(o => o.status === 'DELIVERED').length})
               </button>
             </form>
             <form action="/de/admin/orders" method="get" className="inline">
-              <input type="hidden" name="status" value="cancelled" />
+              <input type="hidden" name="status" value="CANCELLED" />
               <button type="submit" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                Storniert (0)
+                Storniert ({orders.filter(o => o.status === 'CANCELLED').length})
               </button>
             </form>
           </div>
@@ -121,15 +161,16 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        {/* Bestellungen-Liste */}
+        {/* Bestellungen-Liste mit Scrollleiste */}
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-6 border-b">
-            <h2 className="text-lg font-semibold">Bestellungen (24 gefunden)</h2>
+            <h2 className="text-lg font-semibold">Bestellungen ({orders.length} gefunden)</h2>
           </div>
           
-          <div className="overflow-x-auto">
+          {/* Scrollbar-Container */}
+          <div className="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Bestellnummer
@@ -147,194 +188,60 @@ export default function OrdersPage() {
                     Betrag
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Zahlung
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Aktionen
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {/* Beispiel-Bestellungen */}
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">#1234</div>
-                    <div className="text-sm text-gray-500">Online</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">Max Mustermann</div>
-                    <div className="text-sm text-gray-500">max@example.com</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    19.10.2025
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                      In Bearbeitung
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    €1,500.00
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    PayPal
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
-                      <form action="/de/admin/orders/view/1" method="get" className="inline">
-                        <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
-                      </form>
-                      <form action="/de/admin/orders/edit/1" method="get" className="inline ml-4">
-                        <button type="submit" className="text-green-600 hover:text-green-900">Bearbeiten</button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">#1233</div>
-                    <div className="text-sm text-gray-500">Telefon</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">Anna Schmidt</div>
-                    <div className="text-sm text-gray-500">anna@example.com</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    18.10.2025
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      Versandt
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    €2,200.00
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    Überweisung
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
-                      <form action="/de/admin/orders/view/1" method="get" className="inline">
-                        <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
-                      </form>
-                      <form action="/de/admin/orders/edit/1" method="get" className="inline ml-4">
-                        <button type="submit" className="text-green-600 hover:text-green-900">Bearbeiten</button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">#1232</div>
-                    <div className="text-sm text-gray-500">Online</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">Peter Weber</div>
-                    <div className="text-sm text-gray-500">peter@example.com</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    17.10.2025
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      Neu
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    €850.00
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    Kreditkarte
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
-                      <form action="/de/admin/orders/view/1" method="get" className="inline">
-                        <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
-                      </form>
-                      <form action="/de/admin/orders/edit/1" method="get" className="inline ml-4">
-                        <button type="submit" className="text-green-600 hover:text-green-900">Bearbeiten</button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">#1231</div>
-                    <div className="text-sm text-gray-500">Online</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">Maria Müller</div>
-                    <div className="text-sm text-gray-500">maria@example.com</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    16.10.2025
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      Geliefert
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    €3,750.00
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    PayPal
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
-                      <form action="/de/admin/orders/view/1" method="get" className="inline">
-                        <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
-                      </form>
-                      <form action="/de/admin/orders/edit/1" method="get" className="inline ml-4">
-                        <button type="submit" className="text-green-600 hover:text-green-900">Bearbeiten</button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
+                {orders.map((order) => (
+                  <tr key={order.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">#{order.orderNumber}</div>
+                      <div className="text-sm text-gray-500">Online</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {order.user ? order.user.name || 'Unbekannt' : 'Unbekannt'}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {order.user?.email || '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {new Date(order.createdAt).toLocaleDateString('de-DE')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        order.status === 'PENDING' ? 'bg-blue-100 text-blue-800' :
+                        order.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
+                        order.status === 'SHIPPED' ? 'bg-green-100 text-green-800' :
+                        order.status === 'DELIVERED' ? 'bg-gray-100 text-gray-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      €{order.total.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-2">
+                        <form action={`/de/admin/orders/view/${order.id}`} method="get" className="inline">
+                          <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
+                        </form>
+                        <form action={`/de/admin/orders/edit/${order.id}`} method="get" className="inline ml-4">
+                          <button type="submit" className="text-green-600 hover:text-green-900">Bearbeiten</button>
+                        </form>
+                        <form action={`/api/admin/orders/${order.id}`} method="post" className="inline ml-4">
+                          <input type="hidden" name="_method" value="DELETE" />
+                          <button type="submit" className="text-red-600 hover:text-red-900">Löschen</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="px-6 py-4 border-t">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700">
-                Zeige 1-4 von 24 Ergebnissen
-              </div>
-              <div className="flex gap-2">
-                <form action="/de/admin/orders" method="get" className="inline">
-                  <input type="hidden" name="page" value="1" />
-                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
-                    Vorherige
-                  </button>
-                </form>
-                <form action="/de/admin/orders" method="get" className="inline">
-                  <input type="hidden" name="page" value="1" />
-                  <button type="submit" className="px-3 py-1 bg-blue-600 text-white rounded text-sm">
-                    1
-                  </button>
-                </form>
-                <form action="/de/admin/orders" method="get" className="inline">
-                  <input type="hidden" name="page" value="2" />
-                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
-                    2
-                  </button>
-                </form>
-                <form action="/de/admin/orders" method="get" className="inline">
-                  <input type="hidden" name="page" value="3" />
-                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
-                    3
-                  </button>
-                </form>
-                <form action="/de/admin/orders" method="get" className="inline">
-                  <input type="hidden" name="page" value="2" />
-                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
-                    Nächste
-                  </button>
-                </form>
-              </div>
-            </div>
           </div>
         </div>
       </div>
