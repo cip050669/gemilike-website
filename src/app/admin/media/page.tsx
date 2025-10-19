@@ -8,16 +8,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
   Upload, 
+  Image as ImageIcon, 
+  File, 
   Search, 
-  Filter,
-  Image as ImageIcon,
-  Video,
-  File,
-  Trash2,
+  Filter, 
+  Trash2, 
   Download,
   Eye,
   Folder,
-  FolderPlus
+  FolderOpen,
+  Plus
 } from 'lucide-react';
 
 interface MediaFile {
@@ -28,147 +28,143 @@ interface MediaFile {
   url: string;
   thumbnail?: string;
   uploadedAt: string;
+  folder: string;
   tags: string[];
-  category: string;
+}
+
+interface MediaFolder {
+  id: string;
+  name: string;
+  fileCount: number;
+  createdAt: string;
 }
 
 export default function MediaAdmin() {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
-  const [filteredFiles, setFilteredFiles] = useState<MediaFile[]>([]);
+  const [folders, setFolders] = useState<MediaFolder[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
-  const [filterCategory, setFilterCategory] = useState('all');
+  const [selectedFolder, setSelectedFolder] = useState('all');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-
-  const categories = [
-    'Produktbilder',
-    'Hero-Bilder',
-    'Blog-Bilder',
-    'Icons',
-    'Dokumente',
-    'Videos'
-  ];
+  const [showUpload, setShowUpload] = useState(false);
 
   useEffect(() => {
-    fetchMediaFiles();
+    fetchMediaData();
   }, []);
 
-  useEffect(() => {
-    filterFiles();
-  }, [mediaFiles, searchTerm, filterType, filterCategory]);
-
-  const fetchMediaFiles = async () => {
+  const fetchMediaData = async () => {
     setLoading(true);
     
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Mock data
+    // Mock media files
     const mockFiles: MediaFile[] = [
       {
         id: '1',
-        name: 'sapphire-hero.jpg',
+        name: 'sapphire-1.jpg',
         type: 'image',
-        size: 2048576,
-        url: '/images/sapphire-hero.jpg',
-        thumbnail: '/images/sapphire-hero-thumb.jpg',
+        size: 2048576, // 2MB
+        url: '/media/sapphire-1.jpg',
+        thumbnail: '/media/thumbnails/sapphire-1.jpg',
         uploadedAt: '2024-01-20',
-        tags: ['hero', 'sapphire', 'blue'],
-        category: 'Hero-Bilder'
+        folder: 'products',
+        tags: ['sapphire', 'blue', 'gemstone']
       },
       {
         id: '2',
         name: 'emerald-collection.jpg',
         type: 'image',
-        size: 1536000,
-        url: '/images/emerald-collection.jpg',
-        thumbnail: '/images/emerald-collection-thumb.jpg',
+        size: 3145728, // 3MB
+        url: '/media/emerald-collection.jpg',
+        thumbnail: '/media/thumbnails/emerald-collection.jpg',
         uploadedAt: '2024-01-18',
-        tags: ['emerald', 'collection', 'green'],
-        category: 'Produktbilder'
+        folder: 'products',
+        tags: ['emerald', 'green', 'collection']
       },
       {
         id: '3',
-        name: 'gemstone-guide.pdf',
-        type: 'document',
-        size: 5120000,
-        url: '/documents/gemstone-guide.pdf',
+        name: 'hero-background.jpg',
+        type: 'image',
+        size: 5242880, // 5MB
+        url: '/media/hero-background.jpg',
+        thumbnail: '/media/thumbnails/hero-background.jpg',
         uploadedAt: '2024-01-15',
-        tags: ['guide', 'documentation'],
-        category: 'Dokumente'
+        folder: 'backgrounds',
+        tags: ['hero', 'background', 'banner']
       },
       {
         id: '4',
-        name: 'gemstone-video.mp4',
-        type: 'video',
-        size: 25600000,
-        url: '/videos/gemstone-video.mp4',
-        thumbnail: '/videos/gemstone-video-thumb.jpg',
-        uploadedAt: '2024-01-12',
-        tags: ['video', 'tutorial'],
-        category: 'Videos'
+        name: 'gemstone-guide.pdf',
+        type: 'document',
+        size: 10485760, // 10MB
+        url: '/media/gemstone-guide.pdf',
+        uploadedAt: '2024-01-10',
+        folder: 'documents',
+        tags: ['guide', 'pdf', 'documentation']
+      }
+    ];
+
+    // Mock folders
+    const mockFolders: MediaFolder[] = [
+      {
+        id: '1',
+        name: 'products',
+        fileCount: 2,
+        createdAt: '2024-01-01'
+      },
+      {
+        id: '2',
+        name: 'backgrounds',
+        fileCount: 1,
+        createdAt: '2024-01-05'
+      },
+      {
+        id: '3',
+        name: 'documents',
+        fileCount: 1,
+        createdAt: '2024-01-10'
       }
     ];
 
     setMediaFiles(mockFiles);
+    setFolders(mockFolders);
     setLoading(false);
-  };
-
-  const filterFiles = () => {
-    let filtered = mediaFiles;
-
-    if (searchTerm) {
-      filtered = filtered.filter(file =>
-        file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        file.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    if (filterType !== 'all') {
-      filtered = filtered.filter(file => file.type === filterType);
-    }
-
-    if (filterCategory !== 'all') {
-      filtered = filtered.filter(file => file.category === filterCategory);
-    }
-
-    setFilteredFiles(filtered);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
+      // Simulate file upload
       Array.from(files).forEach(file => {
         const newFile: MediaFile = {
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+          id: Date.now().toString() + Math.random(),
           name: file.name,
           type: file.type.startsWith('image/') ? 'image' : 
                 file.type.startsWith('video/') ? 'video' : 'document',
           size: file.size,
           url: URL.createObjectURL(file),
           uploadedAt: new Date().toISOString().split('T')[0],
-          tags: [],
-          category: 'Produktbilder'
+          folder: selectedFolder === 'all' ? 'uploads' : selectedFolder,
+          tags: []
         };
-        setMediaFiles([...mediaFiles, newFile]);
+        setMediaFiles(prev => [...prev, newFile]);
       });
     }
   };
 
   const handleDeleteFile = (fileId: string) => {
     if (confirm('Sind Sie sicher, dass Sie diese Datei löschen möchten?')) {
-      setMediaFiles(mediaFiles.filter(file => file.id !== fileId));
+      setMediaFiles(mediaFiles.filter(f => f.id !== fileId));
     }
   };
 
-  const handleSelectFile = (fileId: string) => {
-    setSelectedFiles(prev => 
-      prev.includes(fileId) 
-        ? prev.filter(id => id !== fileId)
-        : [...prev, fileId]
-    );
+  const handleDeleteSelected = () => {
+    if (confirm(`Sind Sie sicher, dass Sie ${selectedFiles.length} Dateien löschen möchten?`)) {
+      setMediaFiles(mediaFiles.filter(f => !selectedFiles.includes(f.id)));
+      setSelectedFiles([]);
+    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -182,11 +178,20 @@ export default function MediaAdmin() {
   const getFileIcon = (type: string) => {
     switch (type) {
       case 'image': return <ImageIcon className="w-6 h-6 text-blue-500" />;
-      case 'video': return <Video className="w-6 h-6 text-purple-500" />;
-      case 'document': return <File className="w-6 h-6 text-green-500" />;
-      default: return <File className="w-6 h-6 text-gray-500" />;
+      case 'video': return <File className="w-6 h-6 text-purple-500" />;
+      case 'document': return <File className="w-6 h-6 text-gray-500" />;
+      default: return <File className="w-6 h-6 text-gray-400" />;
     }
   };
+
+  const filteredFiles = mediaFiles.filter(file => {
+    const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         file.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesType = filterType === 'all' || file.type === filterType;
+    const matchesFolder = selectedFolder === 'all' || file.folder === selectedFolder;
+    
+    return matchesSearch && matchesType && matchesFolder;
+  });
 
   if (loading) {
     return (
@@ -199,9 +204,9 @@ export default function MediaAdmin() {
           {[...Array(8)].map((_, i) => (
             <AdminCard key={i} title="">
               <div className="animate-pulse">
-                <div className="h-48 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-32 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
               </div>
             </AdminCard>
           ))}
@@ -214,18 +219,20 @@ export default function MediaAdmin() {
     <div className="space-y-8">
       <AdminHeader
         title="Medien verwalten"
-        description="Verwalten Sie Bilder, Videos und Dokumente für Ihre Website."
+        description="Verwalten Sie Bilder, Videos und Dokumente."
         actions={
-          <>
-            <Button variant="outline" onClick={() => setShowUploadModal(true)}>
+          <div className="flex space-x-3">
+            <Button variant="outline" onClick={() => setShowUpload(true)}>
               <Upload className="w-4 h-4 mr-2" />
-              Dateien hochladen
+              Hochladen
             </Button>
-            <Button>
-              <FolderPlus className="w-4 h-4 mr-2" />
-              Ordner erstellen
-            </Button>
-          </>
+            {selectedFiles.length > 0 && (
+              <Button variant="outline" onClick={handleDeleteSelected}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Löschen ({selectedFiles.length})
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -247,12 +254,12 @@ export default function MediaAdmin() {
           </div>
           
           <div>
-            <Label htmlFor="type">Dateityp</Label>
+            <Label htmlFor="type">Typ</Label>
             <select
               id="type"
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md text-sm"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
             >
               <option value="all">Alle Typen</option>
               <option value="image">Bilder</option>
@@ -262,16 +269,16 @@ export default function MediaAdmin() {
           </div>
           
           <div>
-            <Label htmlFor="category">Kategorie</Label>
+            <Label htmlFor="folder">Ordner</Label>
             <select
-              id="category"
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md text-sm"
+              id="folder"
+              value={selectedFolder}
+              onChange={(e) => setSelectedFolder(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
             >
-              <option value="all">Alle Kategorien</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
+              <option value="all">Alle Ordner</option>
+              {folders.map(folder => (
+                <option key={folder.id} value={folder.name}>{folder.name}</option>
               ))}
             </select>
           </div>
@@ -285,14 +292,48 @@ export default function MediaAdmin() {
         </div>
       </AdminCard>
 
+      {/* Folders */}
+      <AdminCard title="Ordner">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div 
+            className={`p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+              selectedFolder === 'all' 
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+            }`}
+            onClick={() => setSelectedFolder('all')}
+          >
+            <FolderOpen className="w-8 h-8 mx-auto mb-2 text-gray-500" />
+            <p className="text-center text-sm font-medium">Alle Dateien</p>
+            <p className="text-center text-xs text-gray-500">{mediaFiles.length} Dateien</p>
+          </div>
+          
+          {folders.map(folder => (
+            <div 
+              key={folder.id}
+              className={`p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                selectedFolder === folder.name 
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+              }`}
+              onClick={() => setSelectedFolder(folder.name)}
+            >
+              <Folder className="w-8 h-8 mx-auto mb-2 text-gray-500" />
+              <p className="text-center text-sm font-medium">{folder.name}</p>
+              <p className="text-center text-xs text-gray-500">{folder.fileCount} Dateien</p>
+            </div>
+          ))}
+        </div>
+      </AdminCard>
+
       {/* Media Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {filteredFiles.map((file) => (
           <AdminCard key={file.id} title="">
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* File Preview */}
-              <div className="relative h-48 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                {file.thumbnail ? (
+              <div className="relative h-32 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                {file.type === 'image' && file.thumbnail ? (
                   <img
                     src={file.thumbnail}
                     alt={file.name}
@@ -304,76 +345,51 @@ export default function MediaAdmin() {
                   </div>
                 )}
                 
-                {/* Selection Checkbox */}
                 <div className="absolute top-2 left-2">
                   <input
                     type="checkbox"
                     checked={selectedFiles.includes(file.id)}
-                    onChange={() => handleSelectFile(file.id)}
-                    className="w-4 h-4 text-blue-600 bg-white rounded border-gray-300"
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedFiles([...selectedFiles, file.id]);
+                      } else {
+                        setSelectedFiles(selectedFiles.filter(id => id !== file.id));
+                      }
+                    }}
+                    className="w-4 h-4"
                   />
-                </div>
-                
-                {/* File Type Badge */}
-                <div className="absolute top-2 right-2">
-                  <span className="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">
-                    {file.type.toUpperCase()}
-                  </span>
                 </div>
               </div>
 
               {/* File Info */}
               <div>
-                <h3 className="font-medium text-gray-900 dark:text-white mb-2 truncate">
+                <h3 className="font-medium text-sm text-gray-900 dark:text-white truncate" title={file.name}>
                   {file.name}
                 </h3>
-                
-                <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                  <div className="flex items-center justify-between">
-                    <span>Größe:</span>
-                    <span>{formatFileSize(file.size)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Kategorie:</span>
-                    <span>{file.category}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Hochgeladen:</span>
-                    <span>{new Date(file.uploadedAt).toLocaleDateString('de-DE')}</span>
-                  </div>
-                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {formatFileSize(file.size)}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {new Date(file.uploadedAt).toLocaleDateString('de-DE')}
+                </p>
+              </div>
 
-                {/* Tags */}
-                {file.tags.length > 0 && (
-                  <div className="mt-2">
-                    <div className="flex flex-wrap gap-1">
-                      {file.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-full text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex space-x-2 mt-4">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Eye className="w-4 h-4 mr-1" />
-                    Ansehen
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDeleteFile(file.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+              {/* Actions */}
+              <div className="flex space-x-1">
+                <Button variant="outline" size="sm" className="flex-1">
+                  <Eye className="w-3 h-3" />
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1">
+                  <Download className="w-3 h-3" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleDeleteFile(file.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
               </div>
             </div>
           </AdminCard>
@@ -381,42 +397,44 @@ export default function MediaAdmin() {
       </div>
 
       {/* Upload Modal */}
-      {showUploadModal && (
+      {showUpload && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">Dateien hochladen</h2>
             
             <div className="space-y-4">
               <div>
-                <Label htmlFor="fileUpload" className="text-sm font-medium">Dateien auswählen</Label>
-                <input
+                <Label htmlFor="fileUpload">Dateien auswählen</Label>
+                <Input
                   id="fileUpload"
                   type="file"
                   multiple
                   accept="image/*,video/*,.pdf,.doc,.docx"
                   onChange={handleFileUpload}
-                  className="w-full mt-1"
+                  className="mt-1"
                 />
               </div>
               
               <div>
-                <Label htmlFor="uploadCategory" className="text-sm font-medium">Kategorie</Label>
+                <Label htmlFor="uploadFolder">Ordner</Label>
                 <select
-                  id="uploadCategory"
-                  className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md text-sm mt-1"
+                  id="uploadFolder"
+                  value={selectedFolder}
+                  onChange={(e) => setSelectedFolder(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 mt-1"
                 >
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
+                  {folders.map(folder => (
+                    <option key={folder.id} value={folder.name}>{folder.name}</option>
                   ))}
                 </select>
               </div>
             </div>
             
             <div className="flex justify-end space-x-3 mt-6">
-              <Button variant="outline" onClick={() => setShowUploadModal(false)}>
+              <Button variant="outline" onClick={() => setShowUpload(false)}>
                 Abbrechen
               </Button>
-              <Button onClick={() => setShowUploadModal(false)}>
+              <Button onClick={() => setShowUpload(false)}>
                 Hochladen
               </Button>
             </div>

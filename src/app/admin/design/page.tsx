@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminCard from '@/components/admin/AdminCard';
 import { Button } from '@/components/ui/button';
@@ -9,9 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { 
+  Palette, 
   Save, 
   Eye, 
-  Palette,
+  Undo, 
+  Redo,
   Type,
   Image as ImageIcon,
   Layout,
@@ -19,126 +21,229 @@ import {
   Font
 } from 'lucide-react';
 
+interface DesignSettings {
+  theme: 'light' | 'dark' | 'auto';
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  fontFamily: string;
+  fontSize: number;
+  logo: string;
+  favicon: string;
+  heroBackground: string;
+  footerBackground: string;
+  customCSS: string;
+}
+
+interface ColorScheme {
+  name: string;
+  primary: string;
+  secondary: string;
+  accent: string;
+}
+
 export default function DesignAdmin() {
-  const [colorScheme, setColorScheme] = useState({
-    primary: '#3B82F6',
-    secondary: '#8B5CF6',
-    accent: '#10B981',
-    background: '#000000',
-    text: '#FFFFFF',
-    muted: '#6B7280'
+  const [designSettings, setDesignSettings] = useState<DesignSettings>({
+    theme: 'dark',
+    primaryColor: '#3B82F6',
+    secondaryColor: '#8B5CF6',
+    accentColor: '#10B981',
+    fontFamily: 'Inter',
+    fontSize: 16,
+    logo: '/fulllogo_transparent_nobuffer.png',
+    favicon: '/favicon.ico',
+    heroBackground: '/images/hero-background.jpg',
+    footerBackground: '#1F2937',
+    customCSS: ''
   });
 
-  const [typography, setTypography] = useState({
-    headingFont: 'system-ui',
-    bodyFont: 'system-ui',
-    headingSize: '2.5rem',
-    bodySize: '1rem',
-    lineHeight: '1.6'
-  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
-  const [layout, setLayout] = useState({
-    containerWidth: '1280px',
-    headerHeight: '80px',
-    footerHeight: '200px',
-    sidebarWidth: '256px',
-    borderRadius: '8px',
-    spacing: '1rem'
-  });
+  const colorSchemes: ColorScheme[] = [
+    {
+      name: 'Standard',
+      primary: '#3B82F6',
+      secondary: '#8B5CF6',
+      accent: '#10B981'
+    },
+    {
+      name: 'Warm',
+      primary: '#F59E0B',
+      secondary: '#EF4444',
+      accent: '#EC4899'
+    },
+    {
+      name: 'Cool',
+      primary: '#06B6D4',
+      secondary: '#3B82F6',
+      accent: '#8B5CF6'
+    },
+    {
+      name: 'Nature',
+      primary: '#10B981',
+      secondary: '#059669',
+      accent: '#84CC16'
+    }
+  ];
 
-  const [theme, setTheme] = useState({
-    darkMode: true,
-    animations: true,
-    shadows: true,
-    gradients: true
-  });
+  const fontFamilies = [
+    'Inter',
+    'Roboto',
+    'Open Sans',
+    'Lato',
+    'Montserrat',
+    'Poppins',
+    'Playfair Display',
+    'Georgia',
+    'Times New Roman'
+  ];
 
-  const handleSave = () => {
-    console.log('Design-Einstellungen gespeichert:', {
-      colorScheme,
-      typography,
-      layout,
-      theme
-    });
-    // Hier würde die Logik zum Speichern in einer Datenbank implementiert
+  useEffect(() => {
+    fetchDesignSettings();
+  }, []);
+
+  const fetchDesignSettings = async () => {
+    setLoading(true);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setLoading(false);
+  };
+
+  const handleSaveSettings = async () => {
+    setSaving(true);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    console.log('Design-Einstellungen gespeichert:', designSettings);
+    setSaving(false);
   };
 
   const handlePreview = () => {
-    window.open('/de', '_blank');
+    setPreviewMode(!previewMode);
+  };
+
+  const handleApplyColorScheme = (scheme: ColorScheme) => {
+    setDesignSettings({
+      ...designSettings,
+      primaryColor: scheme.primary,
+      secondaryColor: scheme.secondary,
+      accentColor: scheme.accent
+    });
   };
 
   const handleReset = () => {
-    if (confirm('Sind Sie sicher, dass Sie alle Design-Einstellungen zurücksetzen möchten?')) {
-      setColorScheme({
-        primary: '#3B82F6',
-        secondary: '#8B5CF6',
-        accent: '#10B981',
-        background: '#000000',
-        text: '#FFFFFF',
-        muted: '#6B7280'
-      });
-      setTypography({
-        headingFont: 'system-ui',
-        bodyFont: 'system-ui',
-        headingSize: '2.5rem',
-        bodySize: '1rem',
-        lineHeight: '1.6'
-      });
-      setLayout({
-        containerWidth: '1280px',
-        headerHeight: '80px',
-        footerHeight: '200px',
-        sidebarWidth: '256px',
-        borderRadius: '8px',
-        spacing: '1rem'
-      });
-      setTheme({
-        darkMode: true,
-        animations: true,
-        shadows: true,
-        gradients: true
-      });
-    }
+    setDesignSettings({
+      theme: 'dark',
+      primaryColor: '#3B82F6',
+      secondaryColor: '#8B5CF6',
+      accentColor: '#10B981',
+      fontFamily: 'Inter',
+      fontSize: 16,
+      logo: '/fulllogo_transparent_nobuffer.png',
+      favicon: '/favicon.ico',
+      heroBackground: '/images/hero-background.jpg',
+      footerBackground: '#1F2937',
+      customCSS: ''
+    });
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <AdminHeader
+          title="Design verwalten"
+          description="Lade Design-Einstellungen..."
+        />
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <AdminCard key={i} title="">
+              <div className="animate-pulse">
+                <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              </div>
+            </AdminCard>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       <AdminHeader
         title="Design verwalten"
-        description="Passen Sie das Aussehen und Verhalten Ihrer Website an."
+        description="Passen Sie das Aussehen Ihrer Website an."
         actions={
-          <>
+          <div className="flex space-x-3">
             <Button variant="outline" onClick={handlePreview}>
               <Eye className="w-4 h-4 mr-2" />
-              Vorschau
+              {previewMode ? 'Vorschau beenden' : 'Vorschau'}
             </Button>
             <Button variant="outline" onClick={handleReset}>
+              <Undo className="w-4 h-4 mr-2" />
               Zurücksetzen
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={handleSaveSettings} disabled={saving}>
               <Save className="w-4 h-4 mr-2" />
-              Speichern
+              {saving ? 'Speichere...' : 'Speichern'}
             </Button>
-          </>
+          </div>
         }
       />
 
-      {/* Color Scheme */}
-      <AdminCard title="Farbschema">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Color Schemes */}
+      <AdminCard title="Farbschemata">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {colorSchemes.map((scheme, index) => (
+            <div 
+              key={index}
+              className="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
+              onClick={() => handleApplyColorScheme(scheme)}
+            >
+              <h3 className="font-medium mb-3">{scheme.name}</h3>
+              <div className="flex space-x-2">
+                <div 
+                  className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                  style={{ backgroundColor: scheme.primary }}
+                  title="Primärfarbe"
+                ></div>
+                <div 
+                  className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                  style={{ backgroundColor: scheme.secondary }}
+                  title="Sekundärfarbe"
+                ></div>
+                <div 
+                  className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                  style={{ backgroundColor: scheme.accent }}
+                  title="Akzentfarbe"
+                ></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </AdminCard>
+
+      {/* Color Settings */}
+      <AdminCard title="Farben">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <Label htmlFor="primary" className="text-sm font-medium">Primärfarbe</Label>
+            <Label htmlFor="primaryColor">Primärfarbe</Label>
             <div className="flex items-center space-x-2 mt-1">
-              <input
-                id="primary"
+              <Input
+                id="primaryColor"
                 type="color"
-                value={colorScheme.primary}
-                onChange={(e) => setColorScheme({...colorScheme, primary: e.target.value})}
-                className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                value={designSettings.primaryColor}
+                onChange={(e) => setDesignSettings({...designSettings, primaryColor: e.target.value})}
+                className="w-16 h-10 p-1"
               />
               <Input
-                value={colorScheme.primary}
-                onChange={(e) => setColorScheme({...colorScheme, primary: e.target.value})}
+                value={designSettings.primaryColor}
+                onChange={(e) => setDesignSettings({...designSettings, primaryColor: e.target.value})}
                 placeholder="#3B82F6"
                 className="flex-1"
               />
@@ -146,18 +251,18 @@ export default function DesignAdmin() {
           </div>
           
           <div>
-            <Label htmlFor="secondary" className="text-sm font-medium">Sekundärfarbe</Label>
+            <Label htmlFor="secondaryColor">Sekundärfarbe</Label>
             <div className="flex items-center space-x-2 mt-1">
-              <input
-                id="secondary"
+              <Input
+                id="secondaryColor"
                 type="color"
-                value={colorScheme.secondary}
-                onChange={(e) => setColorScheme({...colorScheme, secondary: e.target.value})}
-                className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                value={designSettings.secondaryColor}
+                onChange={(e) => setDesignSettings({...designSettings, secondaryColor: e.target.value})}
+                className="w-16 h-10 p-1"
               />
               <Input
-                value={colorScheme.secondary}
-                onChange={(e) => setColorScheme({...colorScheme, secondary: e.target.value})}
+                value={designSettings.secondaryColor}
+                onChange={(e) => setDesignSettings({...designSettings, secondaryColor: e.target.value})}
                 placeholder="#8B5CF6"
                 className="flex-1"
               />
@@ -165,76 +270,19 @@ export default function DesignAdmin() {
           </div>
           
           <div>
-            <Label htmlFor="accent" className="text-sm font-medium">Akzentfarbe</Label>
+            <Label htmlFor="accentColor">Akzentfarbe</Label>
             <div className="flex items-center space-x-2 mt-1">
-              <input
-                id="accent"
+              <Input
+                id="accentColor"
                 type="color"
-                value={colorScheme.accent}
-                onChange={(e) => setColorScheme({...colorScheme, accent: e.target.value})}
-                className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                value={designSettings.accentColor}
+                onChange={(e) => setDesignSettings({...designSettings, accentColor: e.target.value})}
+                className="w-16 h-10 p-1"
               />
               <Input
-                value={colorScheme.accent}
-                onChange={(e) => setColorScheme({...colorScheme, accent: e.target.value})}
+                value={designSettings.accentColor}
+                onChange={(e) => setDesignSettings({...designSettings, accentColor: e.target.value})}
                 placeholder="#10B981"
-                className="flex-1"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="background" className="text-sm font-medium">Hintergrund</Label>
-            <div className="flex items-center space-x-2 mt-1">
-              <input
-                id="background"
-                type="color"
-                value={colorScheme.background}
-                onChange={(e) => setColorScheme({...colorScheme, background: e.target.value})}
-                className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-              />
-              <Input
-                value={colorScheme.background}
-                onChange={(e) => setColorScheme({...colorScheme, background: e.target.value})}
-                placeholder="#000000"
-                className="flex-1"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="text" className="text-sm font-medium">Textfarbe</Label>
-            <div className="flex items-center space-x-2 mt-1">
-              <input
-                id="text"
-                type="color"
-                value={colorScheme.text}
-                onChange={(e) => setColorScheme({...colorScheme, text: e.target.value})}
-                className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-              />
-              <Input
-                value={colorScheme.text}
-                onChange={(e) => setColorScheme({...colorScheme, text: e.target.value})}
-                placeholder="#FFFFFF"
-                className="flex-1"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="muted" className="text-sm font-medium">Gedämpfte Farbe</Label>
-            <div className="flex items-center space-x-2 mt-1">
-              <input
-                id="muted"
-                type="color"
-                value={colorScheme.muted}
-                onChange={(e) => setColorScheme({...colorScheme, muted: e.target.value})}
-                className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-              />
-              <Input
-                value={colorScheme.muted}
-                onChange={(e) => setColorScheme({...colorScheme, muted: e.target.value})}
-                placeholder="#6B7280"
                 className="flex-1"
               />
             </div>
@@ -245,262 +293,184 @@ export default function DesignAdmin() {
       {/* Typography */}
       <AdminCard title="Typografie">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="headingFont" className="text-sm font-medium">Überschrift-Schriftart</Label>
-              <select
-                id="headingFont"
-                value={typography.headingFont}
-                onChange={(e) => setTypography({...typography, headingFont: e.target.value})}
-                className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md text-sm mt-1"
-              >
-                <option value="system-ui">System UI</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Arial">Arial</option>
-                <option value="Helvetica">Helvetica</option>
-              </select>
-            </div>
-            
-            <div>
-              <Label htmlFor="bodyFont" className="text-sm font-medium">Text-Schriftart</Label>
-              <select
-                id="bodyFont"
-                value={typography.bodyFont}
-                onChange={(e) => setTypography({...typography, bodyFont: e.target.value})}
-                className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md text-sm mt-1"
-              >
-                <option value="system-ui">System UI</option>
-                <option value="Arial">Arial</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Times New Roman">Times New Roman</option>
-              </select>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="headingSize" className="text-sm font-medium">Überschrift-Größe</Label>
-              <Input
-                id="headingSize"
-                value={typography.headingSize}
-                onChange={(e) => setTypography({...typography, headingSize: e.target.value})}
-                placeholder="2.5rem"
-                className="w-full"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="bodySize" className="text-sm font-medium">Text-Größe</Label>
-              <Input
-                id="bodySize"
-                value={typography.bodySize}
-                onChange={(e) => setTypography({...typography, bodySize: e.target.value})}
-                placeholder="1rem"
-                className="w-full"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="lineHeight" className="text-sm font-medium">Zeilenhöhe</Label>
-              <Input
-                id="lineHeight"
-                value={typography.lineHeight}
-                onChange={(e) => setTypography({...typography, lineHeight: e.target.value})}
-                placeholder="1.6"
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-      </AdminCard>
-
-      {/* Layout */}
-      <AdminCard title="Layout">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
-            <Label htmlFor="containerWidth" className="text-sm font-medium">Container-Breite</Label>
-            <Input
-              id="containerWidth"
-              value={layout.containerWidth}
-              onChange={(e) => setLayout({...layout, containerWidth: e.target.value})}
-              placeholder="1280px"
-              className="w-full"
-            />
+            <Label htmlFor="fontFamily">Schriftart</Label>
+            <select
+              id="fontFamily"
+              value={designSettings.fontFamily}
+              onChange={(e) => setDesignSettings({...designSettings, fontFamily: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 mt-1"
+            >
+              {fontFamilies.map(font => (
+                <option key={font} value={font}>{font}</option>
+              ))}
+            </select>
           </div>
           
           <div>
-            <Label htmlFor="headerHeight" className="text-sm font-medium">Header-Höhe</Label>
+            <Label htmlFor="fontSize">Schriftgröße (px)</Label>
             <Input
-              id="headerHeight"
-              value={layout.headerHeight}
-              onChange={(e) => setLayout({...layout, headerHeight: e.target.value})}
-              placeholder="80px"
-              className="w-full"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="footerHeight" className="text-sm font-medium">Footer-Höhe</Label>
-            <Input
-              id="footerHeight"
-              value={layout.footerHeight}
-              onChange={(e) => setLayout({...layout, footerHeight: e.target.value})}
-              placeholder="200px"
-              className="w-full"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="sidebarWidth" className="text-sm font-medium">Sidebar-Breite</Label>
-            <Input
-              id="sidebarWidth"
-              value={layout.sidebarWidth}
-              onChange={(e) => setLayout({...layout, sidebarWidth: e.target.value})}
-              placeholder="256px"
-              className="w-full"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="borderRadius" className="text-sm font-medium">Border-Radius</Label>
-            <Input
-              id="borderRadius"
-              value={layout.borderRadius}
-              onChange={(e) => setLayout({...layout, borderRadius: e.target.value})}
-              placeholder="8px"
-              className="w-full"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="spacing" className="text-sm font-medium">Abstand</Label>
-            <Input
-              id="spacing"
-              value={layout.spacing}
-              onChange={(e) => setLayout({...layout, spacing: e.target.value})}
-              placeholder="1rem"
-              className="w-full"
+              id="fontSize"
+              type="number"
+              value={designSettings.fontSize}
+              onChange={(e) => setDesignSettings({...designSettings, fontSize: parseInt(e.target.value)})}
+              min="12"
+              max="24"
+              className="mt-1"
             />
           </div>
         </div>
       </AdminCard>
 
       {/* Theme Settings */}
-      <AdminCard title="Theme-Einstellungen">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">Dunkler Modus</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Dunkles Design für bessere Benutzerfreundlichkeit
-              </p>
-            </div>
-            <Switch
-              checked={theme.darkMode}
-              onCheckedChange={(checked) => setTheme({...theme, darkMode: checked})}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">Animationen</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Smooth Transitions und Hover-Effekte
-              </p>
-            </div>
-            <Switch
-              checked={theme.animations}
-              onCheckedChange={(checked) => setTheme({...theme, animations: checked})}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">Schatten</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Box-Shadows für Tiefe und Dimension
-              </p>
-            </div>
-            <Switch
-              checked={theme.shadows}
-              onCheckedChange={(checked) => setTheme({...theme, shadows: checked})}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">Gradienten</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Farbverläufe für moderne Optik
-              </p>
-            </div>
-            <Switch
-              checked={theme.gradients}
-              onCheckedChange={(checked) => setTheme({...theme, gradients: checked})}
-            />
+      <AdminCard title="Theme">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="theme">Standard-Theme</Label>
+            <select
+              id="theme"
+              value={designSettings.theme}
+              onChange={(e) => setDesignSettings({...designSettings, theme: e.target.value as any})}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 mt-1"
+            >
+              <option value="light">Hell</option>
+              <option value="dark">Dunkel</option>
+              <option value="auto">Automatisch</option>
+            </select>
           </div>
         </div>
       </AdminCard>
 
-      {/* Preview */}
-      <AdminCard title="Design-Vorschau">
-        <div className="space-y-4">
-          <div 
-            className="p-6 rounded-lg border"
-            style={{
-              backgroundColor: colorScheme.background,
-              color: colorScheme.text,
-              borderRadius: layout.borderRadius
-            }}
-          >
-            <h3 
-              className="text-2xl font-bold mb-4"
-              style={{
-                fontFamily: typography.headingFont,
-                fontSize: typography.headingSize,
-                color: colorScheme.primary
-              }}
-            >
-              Beispiel-Überschrift
-            </h3>
-            <p 
-              className="mb-4"
-              style={{
-                fontFamily: typography.bodyFont,
-                fontSize: typography.bodySize,
-                lineHeight: typography.lineHeight,
-                color: colorScheme.text
-              }}
-            >
-              Dies ist ein Beispieltext, der zeigt, wie Ihre Website mit den aktuellen Design-Einstellungen aussehen wird.
-            </p>
-            <div className="flex space-x-4">
-              <button 
-                className="px-4 py-2 rounded text-white font-medium"
-                style={{
-                  backgroundColor: colorScheme.primary,
-                  borderRadius: layout.borderRadius
-                }}
-              >
-                Primärer Button
-              </button>
-              <button 
-                className="px-4 py-2 rounded font-medium border"
-                style={{
-                  backgroundColor: 'transparent',
-                  color: colorScheme.secondary,
-                  borderColor: colorScheme.secondary,
-                  borderRadius: layout.borderRadius
-                }}
-              >
-                Sekundärer Button
-              </button>
+      {/* Media Assets */}
+      <AdminCard title="Medien-Assets">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <Label htmlFor="logo">Logo</Label>
+            <div className="flex items-center space-x-2 mt-1">
+              <Input
+                id="logo"
+                value={designSettings.logo}
+                onChange={(e) => setDesignSettings({...designSettings, logo: e.target.value})}
+                placeholder="/path/to/logo.png"
+                className="flex-1"
+              />
+              <Button variant="outline" size="sm">
+                <ImageIcon className="w-4 h-4" />
+              </Button>
+            </div>
+            {designSettings.logo && (
+              <div className="mt-2">
+                <img src={designSettings.logo} alt="Logo" className="h-16 object-contain" />
+              </div>
+            )}
+          </div>
+          
+          <div>
+            <Label htmlFor="favicon">Favicon</Label>
+            <div className="flex items-center space-x-2 mt-1">
+              <Input
+                id="favicon"
+                value={designSettings.favicon}
+                onChange={(e) => setDesignSettings({...designSettings, favicon: e.target.value})}
+                placeholder="/path/to/favicon.ico"
+                className="flex-1"
+              />
+              <Button variant="outline" size="sm">
+                <ImageIcon className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          
+          <div>
+            <Label htmlFor="heroBackground">Hero-Hintergrund</Label>
+            <div className="flex items-center space-x-2 mt-1">
+              <Input
+                id="heroBackground"
+                value={designSettings.heroBackground}
+                onChange={(e) => setDesignSettings({...designSettings, heroBackground: e.target.value})}
+                placeholder="/path/to/hero-bg.jpg"
+                className="flex-1"
+              />
+              <Button variant="outline" size="sm">
+                <ImageIcon className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          
+          <div>
+            <Label htmlFor="footerBackground">Footer-Hintergrund</Label>
+            <div className="flex items-center space-x-2 mt-1">
+              <Input
+                id="footerBackground"
+                type="color"
+                value={designSettings.footerBackground}
+                onChange={(e) => setDesignSettings({...designSettings, footerBackground: e.target.value})}
+                className="w-16 h-10 p-1"
+              />
+              <Input
+                value={designSettings.footerBackground}
+                onChange={(e) => setDesignSettings({...designSettings, footerBackground: e.target.value})}
+                placeholder="#1F2937"
+                className="flex-1"
+              />
             </div>
           </div>
         </div>
       </AdminCard>
+
+      {/* Custom CSS */}
+      <AdminCard title="Benutzerdefiniertes CSS">
+        <div>
+          <Label htmlFor="customCSS">CSS-Code</Label>
+          <Textarea
+            id="customCSS"
+            value={designSettings.customCSS}
+            onChange={(e) => setDesignSettings({...designSettings, customCSS: e.target.value})}
+            placeholder="/* Ihr benutzerdefiniertes CSS hier */"
+            rows={8}
+            className="mt-1 font-mono text-sm"
+          />
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            Fügen Sie hier benutzerdefiniertes CSS hinzu, um das Design weiter anzupassen.
+          </p>
+        </div>
+      </AdminCard>
+
+      {/* Preview */}
+      {previewMode && (
+        <AdminCard title="Vorschau">
+          <div className="space-y-4">
+            <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <h3 className="text-lg font-semibold mb-2" style={{ color: designSettings.primaryColor }}>
+                Beispiel-Überschrift
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Dies ist ein Beispieltext, um die Schriftart und -größe zu demonstrieren.
+              </p>
+              <div className="flex space-x-2">
+                <div 
+                  className="px-4 py-2 rounded text-white"
+                  style={{ backgroundColor: designSettings.primaryColor }}
+                >
+                  Primärer Button
+                </div>
+                <div 
+                  className="px-4 py-2 rounded text-white"
+                  style={{ backgroundColor: designSettings.secondaryColor }}
+                >
+                  Sekundärer Button
+                </div>
+                <div 
+                  className="px-4 py-2 rounded text-white"
+                  style={{ backgroundColor: designSettings.accentColor }}
+                >
+                  Akzent Button
+                </div>
+              </div>
+            </div>
+          </div>
+        </AdminCard>
+      )}
     </div>
   );
 }
