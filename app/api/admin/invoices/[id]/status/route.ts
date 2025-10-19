@@ -6,9 +6,10 @@ const prisma = new PrismaClient();
 // PUT - Rechnungsstatus aktualisieren
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { status, paymentStatus, paymentDate } = body;
 
@@ -18,7 +19,7 @@ export async function PUT(
     if (paymentDate) updateData.paymentDate = new Date(paymentDate);
 
     const invoice = await prisma.invoice.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
       include: {
         customer: true,

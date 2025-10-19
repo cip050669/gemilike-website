@@ -13,8 +13,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-export default async function AdminOverviewPage({ params }: { params: { locale: string } }) {
-  const { locale } = params;
+export default async function AdminOverviewPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations();
 
   const adminSections = [

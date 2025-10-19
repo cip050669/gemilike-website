@@ -4,14 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { GemIcon, StarIcon, ShieldIcon, TruckIcon } from 'lucide-react';
 import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
+import { PublicLayout } from '@/components/layout/PublicLayout';
 
-export default function HomePage({
+export default async function HomePage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = params;
+  const { locale } = await params;
   return (
+    <PublicLayout>
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="gradient-fire-to-ice py-20">
@@ -193,5 +195,6 @@ export default function HomePage({
         </div>
       </section>
     </div>
+    </PublicLayout>
   );
 }

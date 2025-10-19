@@ -7,10 +7,10 @@ const prisma = new PrismaClient();
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { fileId: string } }
+  { params }: { params: Promise<{ fileId: string }> }
 ) {
   try {
-    const { fileId } = params;
+    const { fileId } = await params;
 
     // Get file info before deletion
     const file = await prisma.downloadFile.findUnique({

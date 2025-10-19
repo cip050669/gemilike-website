@@ -1,3 +1,5 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
 import { PictogramDescriptionManager } from '@/components/admin/PictogramDescriptionManager';
 

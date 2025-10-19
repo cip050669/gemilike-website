@@ -1,7 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { StorySectionSettings } from '@/lib/hooks/useStorySettings';
 import fs from 'fs';
 import path from 'path';
+
+// Type definitions
+export interface StoryItem {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  imageUrl: string;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StorySectionSettings {
+  sectionTitle: string;
+  sectionDescription: string;
+  stories: StoryItem[];
+}
 
 const STORIES_FILE = path.join(process.cwd(), 'data', 'stories.json');
 

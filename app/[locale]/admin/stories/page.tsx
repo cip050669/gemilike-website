@@ -21,7 +21,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { StoryItem, StorySectionSettings } from '@/lib/hooks/useStorySettings';
+import { StoryItem, StorySectionSettings } from '@/app/api/admin/stories/route';
 
 interface CreateStoryFormProps {
   onSave: () => void;

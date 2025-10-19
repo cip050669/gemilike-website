@@ -80,3 +80,6 @@ build/
 # Test files
 test-*.js
 test-*.html
+# Backup directories
+src/app.backup/
+src/components.backup/

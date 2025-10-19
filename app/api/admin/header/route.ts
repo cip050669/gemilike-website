@@ -5,11 +5,8 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // Authentifizierung - in Entwicklung optional
-    const session = await getServerSession(authOptions);
-    if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // GET-Anfragen sind öffentlich, damit der Header geladen werden kann
+    // Keine Authentifizierung erforderlich für GET
 
     // Hole Header-Daten aus der Datenbank (mit Fallback)
     let headerData;

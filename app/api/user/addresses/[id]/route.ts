@@ -5,9 +5,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
@@ -20,7 +21,7 @@ export async function DELETE(
     // Check if address belongs to user
     const address = await prisma.address.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     });
@@ -34,7 +35,7 @@ export async function DELETE(
 
     await prisma.address.delete({
       where: {
-        id: params.id
+        id: id
       }
     });
 
@@ -53,9 +54,10 @@ export async function DELETE(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
@@ -71,7 +73,7 @@ export async function PUT(
     // Check if address belongs to user
     const existingAddress = await prisma.address.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     });
@@ -89,7 +91,7 @@ export async function PUT(
         where: {
           userId: session.user.id,
           type: type,
-          id: { not: params.id }
+          id: { not: id }
         },
         data: {
           isDefault: false
@@ -99,7 +101,7 @@ export async function PUT(
 
     const address = await prisma.address.update({
       where: {
-        id: params.id
+        id: id
       },
       data: {
         type,

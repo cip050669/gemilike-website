@@ -4,13 +4,13 @@ import { redirect } from 'next/navigation';
 import WorldMapManagement from '@/components/admin/WorldMapManagement';
 
 interface Props {
-  params: {
+  params: Promise<{
     locale: string;
-  };
+  }>;
 }
 
 export default async function WorldMapAdminPage({ params }: Props) {
-  const { locale } = params;
+  const { locale } = await params;
   
   // Authentifizierung - in Entwicklung optional
   const session = await getServerSession(authOptions);

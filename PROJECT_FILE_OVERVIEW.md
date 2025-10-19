@@ -81,14 +81,14 @@
   - Metadata
   - Global Providers
 
-#### **app/[locale]/layout.tsx**
+#### **`app/[locale]/layout.tsx`**
 - **Funktion:** Internationalisierung-Layout
 - **Features:**
   - Multi-Language Support (DE/EN)
   - Locale-basierte Routing
   - Translation Provider
 
-#### **app/[locale]/page.tsx**
+#### **`app/[locale]/page.tsx`**
 - **Funktion:** Homepage
 - **Features:**
   - Hero Section
@@ -96,7 +96,7 @@
   - Call-to-Action
   - SEO-optimiert
 
-#### **app/[locale]/admin/layout.tsx**
+#### **`app/[locale]/admin/layout.tsx`**
 - **Funktion:** Admin-Panel Layout
 - **Features:**
   - AdminSidebar Integration
@@ -167,7 +167,7 @@
   - Data Validation
   - Error Handling
 
-#### **app/api/auth/[...nextauth]/route.ts**
+#### **`app/api/auth/[...nextauth]/route.ts`**
 - **Funktion:** NextAuth.js Konfiguration
 - **Features:**
   - Authentication Providers

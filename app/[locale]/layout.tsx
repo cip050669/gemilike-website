@@ -13,25 +13,20 @@ export const metadata: Metadata = {
   description: 'Ihr Spezialist für rohe und geschliffene Edelsteine. Entdecken Sie unsere exquisite Auswahl an Diamanten, Smaragden, Rubinen und weiteren Edelsteinen.',
 };
 
-export default function LocaleLayout({
+export default async function LocaleLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = params;
+  const { locale } = await params;
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <SessionProvider>
-          <div className="min-h-screen bg-background text-foreground">
-            <Header />
-            <main className="pt-20">{children}</main>
-            <Footer />
-            <CookieBanner />
-          </div>
+          {children}
         </SessionProvider>
       </body>
     </html>
