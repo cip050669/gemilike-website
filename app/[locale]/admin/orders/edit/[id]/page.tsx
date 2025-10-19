@@ -1,128 +1,106 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import { notFound } from 'next/navigation';
 
 interface Order {
   id: string;
   orderNumber: string;
-  customerId: string;
+  userId?: string;
   status: string;
-  totalAmount: number;
-  orderDate: string;
-  shippingAddress: string;
-  billingAddress: string;
+  total: number;
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  currency: string;
+  paymentMethod?: string;
+  paymentStatus: string;
+  shippingMethod?: string;
+  trackingNumber?: string;
   notes?: string;
-  customer?: {
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: string;
+    name?: string;
+    email: string;
+    phone?: string;
+  };
+  orderItems?: Array<{
+    id: string;
+    quantity: number;
+    price: number;
+    total: number;
+    gemstone: {
+      id: string;
+      name: string;
+      price: number;
+    };
+  }>;
+  billingAddress?: {
     id: string;
     firstName: string;
     lastName: string;
-    email: string;
+    company?: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    state?: string;
+    postalCode: string;
+    country: string;
+    phone?: string;
+  };
+  shippingAddress?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    company?: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    state?: string;
+    postalCode: string;
+    country: string;
+    phone?: string;
   };
 }
 
-export default function EditOrderPage({
+export default async function EditOrderPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const router = useRouter();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        const response = await fetch(`/api/admin/orders/${params.then(p => p.id)}`);
-        if (response.ok) {
-          const data = await response.json();
-          setOrder(data.data);
-        } else {
-          setMessage('❌ Bestellung nicht gefunden');
+  const { id } = await params;
+  
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
         }
-      } catch (error) {
-        console.error('Error fetching order:', error);
-        setMessage('❌ Fehler beim Laden der Bestellung');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrder();
-  }, [params]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setMessage('');
-
-    try {
-      const formData = new FormData(e.currentTarget);
-      const data = {
-        orderNumber: formData.get('orderNumber'),
-        status: formData.get('status'),
-        totalAmount: formData.get('totalAmount'),
-        orderDate: formData.get('orderDate'),
-        shippingAddress: formData.get('shippingAddress'),
-        billingAddress: formData.get('billingAddress'),
-        notes: formData.get('notes'),
-      };
-
-      const response = await fetch(`/api/admin/orders/${order?.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Fehler beim Aktualisieren der Bestellung');
-      }
-
-      setMessage('✅ Bestellung erfolgreich aktualisiert!');
-      setTimeout(() => {
-        router.push('/de/admin/orders');
-      }, 1500);
-    } catch (error) {
-      console.error('Error updating order:', error);
-      setMessage('❌ Fehler beim Speichern');
-    } finally {
-      setIsSubmitting(false);
+      },
+      orderItems: {
+        include: {
+          gemstone: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+            }
+          }
+        }
+      },
+      billingAddress: true,
+      shippingAddress: true
     }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Lade Bestellung...</p>
-        </div>
-      </div>
-    );
-  }
+  });
 
   if (!order) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Bestellung nicht gefunden</h1>
-          <form action="/de/admin/orders" method="get">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-            >
-              ← Zurück zu Bestellungen
-            </button>
-          </form>
-        </div>
-      </div>
-    );
+    notFound();
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -158,12 +136,8 @@ export default function EditOrderPage({
         </div>
 
         {/* Formular */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border p-6">
-          {message && (
-            <div className={`mb-4 p-3 rounded-lg text-white ${message.startsWith('✅') ? 'bg-green-500' : 'bg-red-500'}`}>
-              {message}
-            </div>
-          )}
+        <form action={`/api/admin/orders/${order.id}`} method="POST" className="bg-white rounded-lg shadow-sm border p-6">
+          <input type="hidden" name="_method" value="PUT" />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Bestellnummer */}
@@ -192,72 +166,138 @@ export default function EditOrderPage({
                 defaultValue={order.status}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="new">Neu</option>
-                <option value="processing">In Bearbeitung</option>
-                <option value="shipped">Versandt</option>
-                <option value="delivered">Geliefert</option>
-                <option value="cancelled">Storniert</option>
+                <option value="PENDING">Ausstehend</option>
+                <option value="CONFIRMED">Bestätigt</option>
+                <option value="PROCESSING">In Bearbeitung</option>
+                <option value="SHIPPED">Versandt</option>
+                <option value="DELIVERED">Geliefert</option>
+                <option value="CANCELLED">Storniert</option>
+                <option value="REFUNDED">Erstattet</option>
               </select>
             </div>
 
             {/* Gesamtbetrag */}
             <div>
-              <label htmlFor="totalAmount" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="total" className="block text-sm font-medium text-gray-700 mb-2">
                 Gesamtbetrag (€)
               </label>
               <input
                 type="number"
-                id="totalAmount"
-                name="totalAmount"
+                id="total"
+                name="total"
                 step="0.01"
-                defaultValue={order.totalAmount}
+                defaultValue={order.total}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
-            {/* Bestelldatum */}
+            {/* Zwischensumme */}
             <div>
-              <label htmlFor="orderDate" className="block text-sm font-medium text-gray-700 mb-2">
-                Bestelldatum
+              <label htmlFor="subtotal" className="block text-sm font-medium text-gray-700 mb-2">
+                Zwischensumme (€)
               </label>
               <input
-                type="datetime-local"
-                id="orderDate"
-                name="orderDate"
-                defaultValue={new Date(order.orderDate).toISOString().slice(0, 16)}
+                type="number"
+                id="subtotal"
+                name="subtotal"
+                step="0.01"
+                defaultValue={order.subtotal}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
-            {/* Lieferadresse */}
-            <div className="md:col-span-2">
-              <label htmlFor="shippingAddress" className="block text-sm font-medium text-gray-700 mb-2">
-                Lieferadresse
+            {/* Steuer */}
+            <div>
+              <label htmlFor="tax" className="block text-sm font-medium text-gray-700 mb-2">
+                Steuer (€)
               </label>
-              <textarea
-                id="shippingAddress"
-                name="shippingAddress"
-                rows={4}
-                defaultValue={order.shippingAddress}
+              <input
+                type="number"
+                id="tax"
+                name="tax"
+                step="0.01"
+                defaultValue={order.tax}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
-            {/* Rechnungsadresse */}
-            <div className="md:col-span-2">
-              <label htmlFor="billingAddress" className="block text-sm font-medium text-gray-700 mb-2">
-                Rechnungsadresse
+            {/* Versand */}
+            <div>
+              <label htmlFor="shipping" className="block text-sm font-medium text-gray-700 mb-2">
+                Versand (€)
               </label>
-              <textarea
-                id="billingAddress"
-                name="billingAddress"
-                rows={4}
-                defaultValue={order.billingAddress}
+              <input
+                type="number"
+                id="shipping"
+                name="shipping"
+                step="0.01"
+                defaultValue={order.shipping}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
+              />
+            </div>
+
+            {/* Zahlungsmethode */}
+            <div>
+              <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700 mb-2">
+                Zahlungsmethode
+              </label>
+              <input
+                type="text"
+                id="paymentMethod"
+                name="paymentMethod"
+                defaultValue={order.paymentMethod || ''}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Zahlungsstatus */}
+            <div>
+              <label htmlFor="paymentStatus" className="block text-sm font-medium text-gray-700 mb-2">
+                Zahlungsstatus
+              </label>
+              <select
+                id="paymentStatus"
+                name="paymentStatus"
+                defaultValue={order.paymentStatus}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="PENDING">Ausstehend</option>
+                <option value="PAID">Bezahlt</option>
+                <option value="FAILED">Fehlgeschlagen</option>
+                <option value="REFUNDED">Erstattet</option>
+                <option value="PARTIALLY_REFUNDED">Teilweise erstattet</option>
+              </select>
+            </div>
+
+            {/* Versandmethode */}
+            <div>
+              <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-700 mb-2">
+                Versandmethode
+              </label>
+              <input
+                type="text"
+                id="shippingMethod"
+                name="shippingMethod"
+                defaultValue={order.shippingMethod || ''}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Tracking-Nummer */}
+            <div>
+              <label htmlFor="trackingNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                Tracking-Nummer
+              </label>
+              <input
+                type="text"
+                id="trackingNumber"
+                name="trackingNumber"
+                defaultValue={order.trackingNumber || ''}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -278,19 +318,17 @@ export default function EditOrderPage({
 
           {/* Buttons */}
           <div className="flex justify-end gap-4 mt-8 pt-6 border-t">
-            <button
-              type="button"
-              onClick={() => router.push('/de/admin/orders')}
+            <a
+              href="/de/admin/orders"
               className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               Abbrechen
-            </button>
+            </a>
             <button
               type="submit"
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              disabled={isSubmitting}
             >
-              {isSubmitting ? 'Speichern...' : 'Änderungen speichern'}
+              Änderungen speichern
             </button>
           </div>
         </form>

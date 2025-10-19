@@ -1,10 +1,38 @@
 [
   {
     "id": "newsticker-1760555852871-8flvoot5e",
-    "text": "!!!!WIR SIND NEU, WIR SIND ANDERS!!!! Bei uns trifft Idee auf KI und Edelstein. Die Ergebnisse  sind  verblüffend.",
-    "type": "announcement",
-    "isActive": true,
+    "text": "!!!!WIR SIND NEU, WIR SIND ANDERS!!!! Bei uns trifft Idee auf KI und Edelstein. Die Ergebnisse  sind  verblüffend.....",
+    "type": "info",
+    "isActive": false,
     "createdAt": "2025-10-15T19:17:32.871Z",
-    "updatedAt": "2025-10-17T20:46:57.540Z"
+    "updatedAt": "2025-10-19T21:43:02.493Z",
+    "priority": "high"
+  },
+  {
+    "id": "newsticker-1760910394909-n07eh1syn",
+    "text": "Test Nachricht",
+    "type": "info",
+    "priority": "medium",
+    "isActive": true,
+    "createdAt": "2025-10-19T21:46:34.909Z",
+    "updatedAt": "2025-10-19T21:46:34.909Z"
+  },
+  {
+    "id": "newsticker-1760910418428-0g2x4dctq",
+    "text": "Test Nachricht 2",
+    "type": "info",
+    "priority": "medium",
+    "isActive": true,
+    "createdAt": "2025-10-19T21:46:58.429Z",
+    "updatedAt": "2025-10-19T21:46:58.429Z"
+  },
+  {
+    "id": "newsticker-1760910566118-skgu0xl0t",
+    "text": "test",
+    "type": "success",
+    "priority": "high",
+    "isActive": false,
+    "createdAt": "2025-10-19T21:49:26.118Z",
+    "updatedAt": "2025-10-19T21:49:26.118Z"
   }
 ]

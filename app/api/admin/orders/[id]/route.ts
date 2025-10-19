@@ -7,15 +7,27 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const order = await prisma.order.findUnique({
       where: { id },
       include: {
-        customer: {
+        user: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            name: true,
             email: true,
             phone: true,
           }
-        }
+        },
+        orderItems: {
+          include: {
+            gemstone: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+              }
+            }
+          }
+        },
+        billingAddress: true,
+        shippingAddress: true
       }
     });
 
@@ -43,10 +55,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       data: {
         orderNumber: body.orderNumber,
         status: body.status,
-        totalAmount: parseFloat(body.totalAmount) || 0,
-        orderDate: new Date(body.orderDate),
-        shippingAddress: body.shippingAddress,
-        billingAddress: body.billingAddress,
+        total: parseFloat(body.total) || 0,
+        subtotal: parseFloat(body.subtotal) || 0,
+        tax: parseFloat(body.tax) || 0,
+        shipping: parseFloat(body.shipping) || 0,
+        paymentMethod: body.paymentMethod,
+        paymentStatus: body.paymentStatus,
+        shippingMethod: body.shippingMethod,
+        trackingNumber: body.trackingNumber,
         notes: body.notes,
       },
     });
@@ -78,7 +94,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   }
 }
 
-// Handle POST requests with _method=DELETE for form submissions
+// Handle POST requests with _method=DELETE or _method=PUT for form submissions
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
@@ -88,6 +104,27 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (method === 'DELETE') {
       await prisma.order.delete({
         where: { id },
+      });
+
+      return NextResponse.redirect(new URL('/de/admin/orders', request.url));
+    }
+
+    if (method === 'PUT') {
+      const updatedOrder = await prisma.order.update({
+        where: { id },
+        data: {
+          orderNumber: formData.get('orderNumber') as string,
+          status: formData.get('status') as string,
+          total: parseFloat(formData.get('total') as string) || 0,
+          subtotal: parseFloat(formData.get('subtotal') as string) || 0,
+          tax: parseFloat(formData.get('tax') as string) || 0,
+          shipping: parseFloat(formData.get('shipping') as string) || 0,
+          paymentMethod: formData.get('paymentMethod') as string,
+          paymentStatus: formData.get('paymentStatus') as string,
+          shippingMethod: formData.get('shippingMethod') as string,
+          trackingNumber: formData.get('trackingNumber') as string,
+          notes: formData.get('notes') as string,
+        },
       });
 
       return NextResponse.redirect(new URL('/de/admin/orders', request.url));

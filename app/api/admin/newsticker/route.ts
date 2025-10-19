@@ -14,7 +14,7 @@ const ensureDataDirectory = () => {
 };
 
 // Load newsticker data
-const loadNewstickerData = (): NewstickerItem[] => {
+export const loadNewstickerData = (): NewstickerItem[] => {
   try {
     if (fs.existsSync(NEWSTICKER_FILE)) {
       const data = fs.readFileSync(NEWSTICKER_FILE, 'utf8');
@@ -32,7 +32,7 @@ const loadNewstickerData = (): NewstickerItem[] => {
 };
 
 // Save newsticker data
-const saveNewstickerData = (data: NewstickerItem[]) => {
+export const saveNewstickerData = (data: NewstickerItem[]) => {
   try {
     ensureDataDirectory();
     fs.writeFileSync(NEWSTICKER_FILE, JSON.stringify(data, null, 2));
@@ -58,9 +58,24 @@ export async function GET() {
 // POST - Create new newsticker item
 export async function POST(request: NextRequest) {
   try {
-
-    const body = await request.json();
-    const { text, type, isActive = true } = body;
+    const contentType = request.headers.get('content-type');
+    
+    let text, type, priority = 'medium', isActive = true, startDate, endDate;
+    
+    if (contentType?.includes('application/json')) {
+      // Handle JSON requests
+      const body = await request.json();
+      ({ text, type, priority = 'medium', isActive = true, startDate, endDate } = body);
+    } else {
+      // Handle form data requests
+      const formData = await request.formData();
+      text = formData.get('text') as string;
+      type = formData.get('type') as string;
+      priority = formData.get('priority') as string || 'medium';
+      isActive = formData.get('isActive') === 'on';
+      startDate = formData.get('startDate') as string;
+      endDate = formData.get('endDate') as string;
+    }
 
     if (!text || !type) {
       return NextResponse.json(
@@ -74,13 +89,21 @@ export async function POST(request: NextRequest) {
       id: `newsticker-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       text,
       type,
+      priority,
       isActive,
+      startDate: startDate ? new Date(startDate).toISOString() : undefined,
+      endDate: endDate ? new Date(endDate).toISOString() : undefined,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
     items.push(newItem);
     saveNewstickerData(items);
+
+    // If it's a form submission, redirect to the newsticker page
+    if (!contentType?.includes('application/json')) {
+      return NextResponse.redirect(new URL('/de/admin/newsticker', request.url));
+    }
 
     return NextResponse.json({ success: true, item: newItem });
   } catch (error) {

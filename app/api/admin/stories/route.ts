@@ -2,27 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-// Type definitions
-export interface StoryItem {
+interface Story {
   id: string;
   title: string;
-  description: string;
   content: string;
-  imageUrl: string;
-  published: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface StorySectionSettings {
-  sectionTitle: string;
-  sectionDescription: string;
-  stories: StoryItem[];
+  gemstone: string;
+  author: string;
+  status: 'draft' | 'published' | 'archived';
+  imageUrl: string;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const STORIES_FILE = path.join(process.cwd(), 'data', 'stories.json');
 
-// Ensure data directory exists
 const ensureDataDirectory = () => {
   const dataDir = path.join(process.cwd(), 'data');
   if (!fs.existsSync(dataDir)) {
@@ -30,264 +23,127 @@ const ensureDataDirectory = () => {
   }
 };
 
-// Load stories data
-const loadStoriesData = (): StorySectionSettings => {
+export const loadStoriesData = (): Story[] => {
   try {
-    if (fs.existsSync(STORIES_FILE)) {
-      const data = fs.readFileSync(STORIES_FILE, 'utf8');
-      const parsed = JSON.parse(data);
-      return parsed;
+    ensureDataDirectory();
+    if (!fs.existsSync(STORIES_FILE)) {
+      return [];
     }
+    const data = fs.readFileSync(STORIES_FILE, 'utf8');
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    // Silent error handling
+    console.error('Error loading stories data:', error);
+    return [];
   }
-  
-  // Return default settings if file doesn't exist or is invalid
-  return {
-    sectionTitle: 'Geschichten um Edelsteine',
-    sectionDescription: 'Faszinierende Einblicke in die Welt der Edelsteine, ihre Herkunft und die Menschen dahinter',
-    stories: []
-  };
 };
 
-// Save stories data
-const saveStoriesData = (data: StorySectionSettings) => {
+export const saveStoriesData = (data: Story[]) => {
   try {
     ensureDataDirectory();
     fs.writeFileSync(STORIES_FILE, JSON.stringify(data, null, 2));
   } catch (error) {
+    console.error('Error saving stories data:', error);
     throw error;
   }
 };
 
-// GET - Fetch stories
+// GET - Fetch all stories
 export async function GET() {
   try {
     const stories = loadStoriesData();
     return NextResponse.json({ success: true, stories });
   } catch (error) {
-    // Return default settings instead of error
-    return NextResponse.json({ 
-      success: true, 
-      stories: {
-        sectionTitle: 'Geschichten um Edelsteine',
-        sectionDescription: 'Faszinierende Einblicke in die Welt der Edelsteine, ihre Herkunft und die Menschen dahinter',
-        stories: []
-      }
-    });
+    console.error('Error fetching stories:', error);
+    return NextResponse.json({ success: true, stories: [] });
   }
 }
 
-// POST - Create new story or handle actions
+// POST - Create new story
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { action, story, settings } = body;
-
-    // Handle different actions
-    if (action === 'addStory') {
-      const { title, description, content, imageUrl, published = true } = story;
-
-      if (!title || !description) {
-        return NextResponse.json(
-          { success: false, error: 'Title and description are required' },
-          { status: 400 }
-        );
+    const contentType = request.headers.get('content-type');
+    
+    let title, content, author, status = 'draft', imageUrl = '';
+    
+    if (contentType?.includes('application/json')) {
+      // Handle JSON requests
+      const body = await request.json();
+      ({ title, content, author, status = 'draft', imageUrl = '' } = body);
+    } else {
+      // Handle form data requests
+      const formData = await request.formData();
+      title = formData.get('title') as string;
+      content = formData.get('content') as string;
+      author = formData.get('author') as string;
+      status = formData.get('status') as string || 'draft';
+      
+      // Handle image upload
+      const imageFile = formData.get('imageUpload') as File;
+      if (imageFile && imageFile.size > 0) {
+        // Create uploads directory if it doesn't exist
+        const fs = require('fs');
+        const path = require('path');
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+        
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        
+        // Save the file
+        const filePath = path.join(uploadsDir, imageFile.name);
+        const buffer = Buffer.from(await imageFile.arrayBuffer());
+        fs.writeFileSync(filePath, buffer);
+        
+        imageUrl = `/uploads/${imageFile.name}`;
+        console.log('Image saved:', imageUrl);
+      } else {
+        imageUrl = formData.get('imageUrl') as string || '';
       }
 
-      const stories = loadStoriesData();
-      const newStory = {
-        id: `story-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        title,
-        description,
-        content: content || '',
-        imageUrl: imageUrl || '/images/stories/placeholder.svg',
-        published,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      stories.stories.push(newStory);
-      saveStoriesData(stories);
-
-      return NextResponse.json({ success: true, story: newStory });
+      // Handle markdown file upload
+      const markdownFile = formData.get('markdownUpload') as File;
+      if (markdownFile && markdownFile.size > 0) {
+        // Read the markdown file content and use it as content
+        const markdownContent = await markdownFile.text();
+        content = markdownContent;
+        console.log('Markdown file processed:', markdownFile.name, 'Content length:', markdownContent.length);
+      }
     }
 
-    if (action === 'updateStory') {
-      const { id, title, description, content, imageUrl, published } = story;
-
-      if (!id) {
-        return NextResponse.json(
-          { success: false, error: 'ID is required' },
-          { status: 400 }
-        );
-      }
-
-      const stories = loadStoriesData();
-      const storyIndex = stories.stories.findIndex(s => s.id === id);
-
-      if (storyIndex === -1) {
-        return NextResponse.json(
-          { success: false, error: 'Story not found' },
-          { status: 404 }
-        );
-      }
-
-      stories.stories[storyIndex] = {
-        ...stories.stories[storyIndex],
-        title: title !== undefined ? title : stories.stories[storyIndex].title,
-        description: description !== undefined ? description : stories.stories[storyIndex].description,
-        content: content !== undefined ? content : stories.stories[storyIndex].content,
-        imageUrl: imageUrl !== undefined ? imageUrl : stories.stories[storyIndex].imageUrl,
-        published: published !== undefined ? published : stories.stories[storyIndex].published,
-        updatedAt: new Date().toISOString()
-      };
-
-      saveStoriesData(stories);
-      return NextResponse.json({ success: true, story: stories.stories[storyIndex] });
-    }
-
-    if (action === 'deleteStory') {
-      const { id } = story;
-
-      if (!id) {
-        return NextResponse.json(
-          { success: false, error: 'ID is required' },
-          { status: 400 }
-        );
-      }
-
-      const stories = loadStoriesData();
-      const filteredStories = stories.stories.filter(s => s.id !== id);
-
-      if (filteredStories.length === stories.stories.length) {
-        return NextResponse.json(
-          { success: false, error: 'Story not found' },
-          { status: 404 }
-        );
-      }
-
-      stories.stories = filteredStories;
-      saveStoriesData(stories);
-      return NextResponse.json({ success: true });
-    }
-
-    if (action === 'updateSettings') {
-      const stories = loadStoriesData();
-      stories.sectionTitle = settings.sectionTitle;
-      stories.sectionDescription = settings.sectionDescription;
-      saveStoriesData(stories);
-      return NextResponse.json({ success: true });
-    }
-
-    // Fallback: Direct story creation (legacy support)
-    const { title, description, content, imageUrl, published = true } = body;
-
-    if (!title || !description) {
+    if (!title || !content || !author) {
       return NextResponse.json(
-        { success: false, error: 'Title and description are required' },
+        { success: false, error: 'Title, content and author are required' },
         { status: 400 }
       );
     }
 
     const stories = loadStoriesData();
-    const newStory = {
+    const newStory: Story = {
       id: `story-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title,
-      description,
-      content: content || '',
-      imageUrl: imageUrl || '/images/stories/placeholder.svg',
-      published,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      content,
+      gemstone: 'general', // Default value since we removed the field
+      author,
+      status: status as 'draft' | 'published' | 'archived',
+      imageUrl,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
-    stories.stories.push(newStory);
+    stories.push(newStory);
     saveStoriesData(stories);
+
+    // If it's a form submission, redirect to the stories page
+    if (!contentType?.includes('application/json')) {
+      return NextResponse.redirect(new URL('/de/admin/stories', request.url));
+    }
 
     return NextResponse.json({ success: true, story: newStory });
   } catch (error) {
-    console.error('Stories API error:', error);
+    console.error('Error creating story:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to process request' },
-      { status: 500 }
-    );
-  }
-}
-
-// PUT - Update story
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { id, title, description, imageUrl, published } = body;
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID is required' },
-        { status: 400 }
-      );
-    }
-
-    const stories = loadStoriesData();
-    const storyIndex = stories.stories.findIndex(story => story.id === id);
-
-    if (storyIndex === -1) {
-      return NextResponse.json(
-        { success: false, error: 'Story not found' },
-        { status: 404 }
-      );
-    }
-
-    // Update story
-    stories.stories[storyIndex] = {
-      ...stories.stories[storyIndex],
-      title: title !== undefined ? title : stories.stories[storyIndex].title,
-      description: description !== undefined ? description : stories.stories[storyIndex].description,
-      imageUrl: imageUrl !== undefined ? imageUrl : stories.stories[storyIndex].imageUrl,
-      published: published !== undefined ? published : stories.stories[storyIndex].published
-    };
-
-    saveStoriesData(stories);
-
-    return NextResponse.json({ success: true, story: stories.stories[storyIndex] });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: 'Failed to update story' },
-      { status: 500 }
-    );
-  }
-}
-
-// DELETE - Delete story
-export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID is required' },
-        { status: 400 }
-      );
-    }
-
-    const stories = loadStoriesData();
-    const filteredStories = stories.stories.filter(story => story.id !== id);
-
-    if (filteredStories.length === stories.stories.length) {
-      return NextResponse.json(
-        { success: false, error: 'Story not found' },
-        { status: 404 }
-      );
-    }
-
-    stories.stories = filteredStories;
-    saveStoriesData(stories);
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: 'Failed to delete story' },
+      { success: false, error: 'Failed to create story' },
       { status: 500 }
     );
   }

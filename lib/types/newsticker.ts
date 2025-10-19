@@ -1,8 +1,11 @@
 export interface NewstickerItem {
   id: string;
   text: string;
-  type: 'info' | 'warning' | 'success' | 'announcement';
+  type: 'info' | 'warning' | 'success' | 'error';
+  priority: 'low' | 'medium' | 'high';
   isActive: boolean;
+  startDate?: string;
+  endDate?: string;
   createdAt: Date;
   updatedAt: Date;
 }
