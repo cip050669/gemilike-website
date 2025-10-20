@@ -21,7 +21,7 @@ export default async function HomePage({
 
       {/* Container 1: Geschichten um Edelsteine */}
       <div className="main-container">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white text-center">Geschichten um Edelsteine</h2>
+        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-white text-center">GESCHICHTEN UM EDELSTEINE</h2>
         <p className="text-lg text-gray-300 text-center mb-16">
           Entdecken Sie die faszinierenden Geschichten und Mythen hinter unseren Edelsteinen
         </p>
@@ -43,7 +43,7 @@ export default async function HomePage({
 
       {/* Container 2: Neue Edelsteine */}
       <div className="main-container">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white text-center">Neue Edelsteine</h2>
+        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-white text-center">NEUE EDELSTEINE</h2>
         <p className="text-lg text-gray-300 text-center mb-16">
           Entdecken Sie unsere neuesten und exklusivsten Edelsteine
         </p>

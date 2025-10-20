@@ -35,6 +35,12 @@ module.exports = {
           '50%': { 'background-position': '100% 50%' },
         },
       },
+      fontFamily: {
+        'impact': ['Impact', 'Arial Black', 'sans-serif'],
+      },
+      fontWeight: {
+        'impact': '900',
+      },
     },
   },
   plugins: [],

@@ -2,30 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Container-Klassen */
+/* Container-Klassen - Sichtbares Dunkelgrau */
 @layer components {
   .main-container {
-    background-color: rgba(45, 45, 45, 0.6);
+    background-color: #2D2D2D !important;
     margin: 4rem 8rem;
     padding: 3rem;
-    border-radius: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid #4B5563;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
   
   .story-card {
-    background-color: rgba(45, 45, 45, 0.6);
+    background-color: #2D2D2D !important;
     padding: 2rem;
     border-radius: 0.75rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #4B5563;
   }
   
   .gem-card {
-    background-color: rgba(45, 45, 45, 0.6);
+    background-color: #2D2D2D !important;
     padding: 2rem;
     border-radius: 0.75rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #4B5563;
     text-align: center;
+  }
+  
+  /* Container-Dark Klasse für Hauptcontainer */
+  .container-dark {
+    background-color: #2D2D2D !important;
+    border: 1px solid #4B5563;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Card-Dark Styling für alle Cards */
+  .card-dark {
+    background-color: #2D2D2D !important;
+    border: 1px solid #4B5563;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -100,6 +118,14 @@
     --color-border: hsl(var(--border));
     --color-input: hsl(var(--input));
     --color-ring: hsl(var(--ring));
+  }
+  
+  /* Impact/Arial Black Font für Logo und wichtige Texte */
+  .font-impact {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 }
 

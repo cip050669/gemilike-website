@@ -11,7 +11,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ locale }: HeroSectionProps) {
-  const { settings, isLoading, resetSettings } = useHeroSettings();
+  const { heroSettings, updateSettings } = useHeroSettings();
   
 
   const renderGemLikeTitle = (title: string) => {
@@ -56,21 +56,16 @@ export function HeroSection({ locale }: HeroSectionProps) {
     );
   };
 
-  // Automatische Cache-Bereinigung wenn alter Pfad erkannt wird
-  if (settings?.imageUrl === '/products/emerald-001-2.jpg') {
-    resetSettings();
-  }
-
-  // Fallback-Einstellungen falls localStorage leer ist
-  const heroSettings = {
-    imageUrl: settings?.imageUrl?.trim() ? settings.imageUrl : '/uploads/hero/hero-1759840578273.jpg',
-    title: settings?.title || 'Einfach nur Gemilike',
-    titleLine2: settings?.titleLine2 !== undefined ? settings.titleLine2 : 'Heroes in Gems',
-    subtitle: settings?.subtitle || 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
-    primaryButtonText: settings?.primaryButtonText || 'Sortiment entdecken',
-    secondaryButtonText: settings?.secondaryButtonText || 'Kontaktieren Sie uns',
-    primaryButtonLink: settings?.primaryButtonLink || '/shop',
-    secondaryButtonLink: settings?.secondaryButtonLink || '/contact'
+  // Fallback-Einstellungen
+  const fallbackSettings = {
+    imageUrl: '/uploads/hero/hero-1759840578273.jpg',
+    title: 'Einfach nur Gemilike',
+    titleLine2: 'Heroes in Gems',
+    subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
+    primaryButtonText: 'Sortiment entdecken',
+    secondaryButtonText: 'Kontaktieren Sie uns',
+    primaryButtonLink: '/shop',
+    secondaryButtonLink: '/contact'
   };
 
   // Entferne den Loading-Zustand, da er den Text-Bereich verhindert
@@ -85,7 +80,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
         
         <div className="absolute inset-0">
           <img
-            src={heroSettings.imageUrl}
+            src={fallbackSettings.imageUrl}
             alt="Exquisite Edelsteine - Gemilike"
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -101,14 +96,14 @@ export function HeroSection({ locale }: HeroSectionProps) {
          <div className="mb-4">
            <GemILikeLogo 
              size={80} 
-             animated={true}
+             animated={false}
              firstIColor="#FF7B7B"
              tagline="Heroes in Gems"
              className="text-center"
            />
          </div>
          <p className="text-xs sm:text-sm md:text-base lg:text-lg max-w-xs sm:max-w-md md:max-w-lg leading-relaxed text-white">
-           {heroSettings.subtitle}
+           {fallbackSettings.subtitle}
          </p>
         </div>
       </section>
