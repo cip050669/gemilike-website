@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-size-300 { background-size: 300% 300%; }
+:root { color-scheme: dark; }

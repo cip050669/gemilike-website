@@ -2,6 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Container-Klassen */
+@layer components {
+  .main-container {
+    background-color: rgba(45, 45, 45, 0.6);
+    margin: 4rem 8rem;
+    padding: 3rem;
+    border-radius: 1rem;
+  }
+  
+  .story-card {
+    background-color: rgba(45, 45, 45, 0.6);
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid #4B5563;
+  }
+  
+  .gem-card {
+    background-color: rgba(45, 45, 45, 0.6);
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid #4B5563;
+    text-align: center;
+  }
+}
+
+/* GemILike Logo Gradient - Exakte Farben */
+@layer components {
+  .bg-gem-gradient {
+    background: linear-gradient(90deg, #00E5FF 0%, #00D4B0 25%, #00A884 50%, #006064 75%, #6A1B9A 100%);
+  }
+  
+  .text-gem-light {
+    color: #00E5FF;
+  }
+  
+  .animate-gem-shift {
+    animation: gem-shift 3s ease-in-out infinite;
+  }
+  
+  @keyframes gem-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+}
+
+
 @layer base {
   :root {
     --background: 0 0% 0%; /* Schwarzer Hintergrund */

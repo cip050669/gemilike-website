@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles, Gem } from 'lucide-react';
 import Link from 'next/link';
 import { useHeroSettings } from '@/lib/hooks/useHeroSettings';
+import GemILikeLogo from '@/components/GemILikeLogo';
 
 interface HeroSectionProps {
   locale: string;
@@ -56,20 +57,20 @@ export function HeroSection({ locale }: HeroSectionProps) {
   };
 
   // Automatische Cache-Bereinigung wenn alter Pfad erkannt wird
-  if (settings.imageUrl === '/products/emerald-001-2.jpg') {
+  if (settings?.imageUrl === '/products/emerald-001-2.jpg') {
     resetSettings();
   }
 
   // Fallback-Einstellungen falls localStorage leer ist
   const heroSettings = {
-    imageUrl: settings.imageUrl?.trim() ? settings.imageUrl : '/uploads/hero/hero-1759840578273.jpg',
-    title: settings.title || 'Einfach nur Gemilike',
-    titleLine2: settings.titleLine2 !== undefined ? settings.titleLine2 : 'Heroes in Gems',
-    subtitle: settings.subtitle || 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
-    primaryButtonText: settings.primaryButtonText || 'Sortiment entdecken',
-    secondaryButtonText: settings.secondaryButtonText || 'Kontaktieren Sie uns',
-    primaryButtonLink: settings.primaryButtonLink || '/shop',
-    secondaryButtonLink: settings.secondaryButtonLink || '/contact'
+    imageUrl: settings?.imageUrl?.trim() ? settings.imageUrl : '/uploads/hero/hero-1759840578273.jpg',
+    title: settings?.title || 'Einfach nur Gemilike',
+    titleLine2: settings?.titleLine2 !== undefined ? settings.titleLine2 : 'Heroes in Gems',
+    subtitle: settings?.subtitle || 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
+    primaryButtonText: settings?.primaryButtonText || 'Sortiment entdecken',
+    secondaryButtonText: settings?.secondaryButtonText || 'Kontaktieren Sie uns',
+    primaryButtonLink: settings?.primaryButtonLink || '/shop',
+    secondaryButtonLink: settings?.secondaryButtonLink || '/contact'
   };
 
   // Entferne den Loading-Zustand, da er den Text-Bereich verhindert
@@ -78,7 +79,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
   return (
     <>
       {/* Hero-Bild mit Text links oben */}
-      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-screen w-full overflow-hidden">
+      <section className="relative h-screen w-full overflow-hidden">
         {/* Fallback Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background/50 to-accent/30" />
         
@@ -96,18 +97,19 @@ export function HeroSection({ locale }: HeroSectionProps) {
         </div>
         
         {/* Text-Overlay - Mobile optimiert */}
-        <div className="absolute top-2 left-2 right-2 sm:top-8 sm:left-8 sm:right-auto lg:top-12 lg:left-12 z-10">
-          <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-1 sm:mb-2 md:mb-4 text-white drop-shadow-2xl">
-            {renderGemLikeTitle(heroSettings.title)}
-          </h1>
-          {heroSettings.titleLine2 && (
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight mb-1 sm:mb-2 md:mb-4 text-white drop-shadow-2xl">
-              {renderGemLikeTitle(heroSettings.titleLine2)}
-            </h2>
-          )}
-          <p className="text-xs sm:text-sm md:text-base lg:text-lg text-white drop-shadow-2xl max-w-xs sm:max-w-md md:max-w-lg leading-relaxed">
-            {heroSettings.subtitle}
-          </p>
+        <div className="absolute" style={{ top: '80px', left: '16px', right: '16px', zIndex: 10 }}>
+         <div className="mb-4">
+           <GemILikeLogo 
+             size={80} 
+             animated={true}
+             firstIColor="#FF7B7B"
+             tagline="Heroes in Gems"
+             className="text-center"
+           />
+         </div>
+         <p className="text-xs sm:text-sm md:text-base lg:text-lg max-w-xs sm:max-w-md md:max-w-lg leading-relaxed text-white">
+           {heroSettings.subtitle}
+         </p>
         </div>
       </section>
 
