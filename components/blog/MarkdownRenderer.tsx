@@ -62,11 +62,11 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           
           // Links
           a: ({ href, children }) => {
-            // Prüfe, ob es ein Bild-Link ist
-            const isImageLink = href && (
-              href.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) || 
-              href.includes('placeholder') ||
-              href.includes('upload')
+            // Prüfe, ob es sich um einen Bild-Link handelt
+            const isImageLink = Boolean(
+              href &&
+              (/\.(jpg|jpeg|png|gif|webp|avif|svg)$/i.test(href) ||
+                href.startsWith('data:image'))
             );
             
             if (isImageLink) {

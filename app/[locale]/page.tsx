@@ -67,53 +67,57 @@ export default async function HomePage({
           Entdecken Sie die faszinierenden Geschichten und Mythen hinter unseren Edelsteinen
         </p>
         {stories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {stories.map((story) => (
-              <div
-                key={story.id}
-                className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="flex gap-[50px] items-center">
-                  <div className="overflow-hidden rounded-lg border border-white/10 bg-black/20 h-[180px] w-[204px] flex-shrink-0">
-                    <img
-                      src={story.image}
-                      alt={story.title}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-6 justify-center">
-                    <div className="flex flex-col gap-3 text-left">
-                      <h3 className="text-xl font-bold text-white">
-                        {story.title}
-                      </h3>
-                      <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">
-                        {story.excerpt}
-                      </p>
+          <div className="max-h-[340px] overflow-y-auto pr-3 scrollbar-thin">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {stories.map((story) => (
+                <div
+                  key={story.id}
+                  className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="flex gap-[50px] items-center">
+                    <div className="overflow-hidden rounded-lg border border-white/10 bg-black/20 h-[180px] w-[204px] flex-shrink-0">
+                      <img
+                        src={story.image}
+                        alt={story.title}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
                     </div>
-                    <Link
-                      href={story.href}
-                      className="inline-flex items-center gap-3 text-sm text-primary"
-                    >
-                      <span>Mehr lesen</span>
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                        />
-                      </svg>
-                    </Link>
+                    <div className="flex flex-col gap-6 justify-center flex-1">
+                      <div className="flex items-center gap-6 w-full">
+                        <div className="flex flex-col gap-3 text-left flex-1">
+                          <h3 className="text-xl font-bold text-white">
+                            {story.title}
+                          </h3>
+                          <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">
+                            {story.excerpt}
+                          </p>
+                        </div>
+                        <Link
+                          href={story.href}
+                          className="ml-auto inline-flex items-center gap-3 text-sm text-primary whitespace-nowrap"
+                        >
+                          <span>Mehr lesen</span>
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                            />
+                          </svg>
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         ) : (
           <div className="story-card text-center">
