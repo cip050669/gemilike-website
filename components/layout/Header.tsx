@@ -2,16 +2,48 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { MenuIcon, ShoppingCartIcon, UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { MenuIcon, SearchIcon, ShoppingCartIcon, UserIcon } from 'lucide-react';
-import { useState } from 'react';
-import { useCartStore } from '@/lib/store/cart';
 import { Cart } from '@/components/cart/Cart';
+import { useCartStore } from '@/lib/store/cart';
+import { cn } from '@/lib/utils';
+
+const NAV_ITEMS = [
+  { href: '/', label: 'Startseite' },
+  { href: '/shop', label: 'Shop' },
+  { href: '/blog', label: 'Wissenswertes' },
+  { href: '/contact', label: 'Kontakt' },
+];
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toggleCart, getTotalItems } = useCartStore();
+  const pathname = usePathname();
+
+  const localePrefix = (() => {
+    if (!pathname) return '';
+    const segments = pathname.split('/');
+    return segments[1] && segments[1].length === 2 ? `/${segments[1]}` : '';
+  })();
+
+  const stripLocale = (path: string) => {
+    const segments = path.split('/');
+    if (segments[1] && segments[1].length === 2) {
+      const rest = segments.slice(2).join('/');
+      return rest ? `/${rest}` : '/';
+    }
+    return path || '/';
+  };
+
+  const currentPath = stripLocale(pathname ?? '/');
+  const buildHref = (href: string) => {
+    if (!localePrefix) return href;
+    if (href === '/') return localePrefix;
+    return `${localePrefix}${href}`;
+  };
 
   return (
     <div 
@@ -45,42 +77,28 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Desktop Navigation - Rechts */}
-        <nav className="flex items-center justify-end space-x-6 lg:space-x-8 flex-1">
-          <Link 
-            href="/" 
-            className="text-white hover:text-primary transition-colors text-sm lg:text-base font-medium whitespace-nowrap drop-shadow-lg px-3 py-2"
-          >
-            Startseite
-          </Link>
-          <Link 
-            href="/shop" 
-            className="text-white hover:text-primary transition-colors text-sm lg:text-base font-medium whitespace-nowrap drop-shadow-lg px-3 py-2"
-          >
-            Shop
-          </Link>
-          <Link 
-            href="/blog" 
-            className="text-white hover:text-primary transition-colors text-sm lg:text-base font-medium whitespace-nowrap drop-shadow-lg px-3 py-2"
-          >
-            Blog
-          </Link>
-          <Link 
-            href="/about" 
-            className="text-white hover:text-primary transition-colors text-sm lg:text-base font-medium whitespace-nowrap drop-shadow-lg px-3 py-2"
-          >
-            Über uns
-          </Link>
-          <Link 
-            href="/contact" 
-            className="text-white hover:text-primary transition-colors text-sm lg:text-base font-medium whitespace-nowrap drop-shadow-lg px-3 py-2"
-          >
-            Kontakt
-          </Link>
+        {/* Hauptnavigation */}
+        <nav className="flex items-center justify-start flex-1 gap-[30px] ml-10 overflow-x-auto sm:overflow-visible">
+          {NAV_ITEMS.map(({ href, label }) => {
+            const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
+            return (
+              <Link
+                key={href}
+                href={buildHref(href)}
+                className={cn(
+                  'relative inline-flex items-center justify-center px-4 py-2 text-sm lg:text-base font-semibold text-white/80 whitespace-nowrap transition-all duration-200 rounded-full border border-white/10 backdrop-blur-sm',
+                  'hover:text-white hover:border-white/25 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent',
+                  isActive && 'text-white bg-white/15 border-white/40 shadow-[0_12px_32px_rgba(15,10,30,0.35)]'
+                )}
+              >
+                <span>{label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Right Side Actions - Rechts */}
-        <div className="flex items-center justify-end space-x-3 lg:space-x-4 flex-shrink-0">
+        <div className="hidden md:flex items-center justify-end space-x-3 lg:space-x-4 flex-shrink-0">
           {/* Action Buttons */}
           <Button variant="outline" size="icon" className="h-9 w-9">
             <UserIcon className="h-4 w-4" />
@@ -101,7 +119,7 @@ export function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className="hidden items-center space-x-2">
+        <div className="flex items-center space-x-2 md:hidden">
           <Button 
             variant="outline" 
             size="icon" 
@@ -123,22 +141,24 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="right">
               <SheetTitle className="sr-only">Navigation</SheetTitle>
-              <nav className="flex flex-col gap-4 mt-6">
-                <Link href="/" className="text-foreground hover:text-primary text-lg">
-                  Startseite
-                </Link>
-                <Link href="/shop" className="text-foreground hover:text-primary text-lg">
-                  Shop
-                </Link>
-                <Link href="/blog" className="text-foreground hover:text-primary text-lg">
-                  Blog
-                </Link>
-                <Link href="/about" className="text-foreground hover:text-primary text-lg">
-                  Über uns
-                </Link>
-                <Link href="/contact" className="text-foreground hover:text-primary text-lg">
-                  Kontakt
-                </Link>
+              <nav className="flex flex-col gap-3 mt-6">
+                {NAV_ITEMS.map(({ href, label }) => {
+                  const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
+                  return (
+                    <Link
+                      key={href}
+                      href={buildHref(href)}
+                      className={cn(
+                        'flex items-center justify-between rounded-xl border border-border/40 bg-background/60 px-4 py-3 text-base font-medium transition-colors duration-200',
+                        'hover:border-primary/40 hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2',
+                        isActive && 'border-primary/50 bg-primary/10 text-primary'
+                      )}
+                    >
+                      {label}
+                      <span className="text-xs uppercase tracking-wide text-foreground/60">Entdecken</span>
+                    </Link>
+                  );
+                })}
               </nav>
             </SheetContent>
           </Sheet>

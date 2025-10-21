@@ -2,45 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { BlogPost } from '@/lib/types/blog';
-import { writeFile, readFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
-
-const BLOG_FILE = join(process.cwd(), 'data', 'blogs.json');
-
-// Lade Blog-Posts aus der JSON-Datei
-async function loadBlogs(): Promise<BlogPost[]> {
-  try {
-    if (!existsSync(BLOG_FILE)) {
-      return [];
-    }
-    const data = await readFile(BLOG_FILE, 'utf-8');
-    const blogs = JSON.parse(data);
-    return blogs.map((blog: any) => ({
-      ...blog,
-      createdAt: new Date(blog.createdAt),
-      updatedAt: new Date(blog.updatedAt),
-      publishedAt: blog.publishedAt ? new Date(blog.publishedAt) : undefined,
-    }));
-  } catch (error) {
-    console.error('Error loading blogs:', error);
-    return [];
-  }
-}
-
-// Speichere Blog-Posts in der JSON-Datei
-async function saveBlogs(blogs: BlogPost[]): Promise<void> {
-  try {
-    const dataDir = join(process.cwd(), 'data');
-    if (!existsSync(dataDir)) {
-      await mkdir(dataDir, { recursive: true });
-    }
-    await writeFile(BLOG_FILE, JSON.stringify(blogs, null, 2));
-  } catch (error) {
-    console.error('Error saving blogs:', error);
-    throw error;
-  }
-}
+import { loadBlogs, saveBlogs } from '@/lib/data/blogs';
 
 // GET - Alle Blog-Posts abrufen
 export async function GET(request: NextRequest) {
@@ -225,5 +187,4 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to delete blog post' }, { status: 500 });
   }
 }
-
 

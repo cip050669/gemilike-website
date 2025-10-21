@@ -4,6 +4,7 @@ type Props = {
   firstIColor?: string;
   tagline?: string;
   className?: string;
+  gradientClassName?: string;
 };
 
 export default function GemILikeLogo({
@@ -12,9 +13,10 @@ export default function GemILikeLogo({
   firstIColor = "#FF7B7B",
   tagline,
   className,
+  gradientClassName = "bg-gem-gradient",
 }: Props) {
   const gradientClass = [
-    "bg-gem-gradient",
+    gradientClassName,
     "bg-clip-text text-transparent",
     animated ? "animate-gem-shift bg-[length:300%_300%]" : "",
   ].filter(Boolean).join(" ");

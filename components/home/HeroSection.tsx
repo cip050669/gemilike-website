@@ -74,7 +74,10 @@ export function HeroSection({ locale }: HeroSectionProps) {
   return (
     <>
       {/* Hero-Bild mit Text links oben */}
-      <section className="relative h-screen w-full overflow-hidden">
+      <section
+        className="relative h-screen w-full overflow-hidden"
+        style={{ fontFamily: 'Arial, sans-serif' }}
+      >
         {/* Fallback Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background/50 to-accent/30" />
         
@@ -100,6 +103,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
              firstIColor="#FF7B7B"
              tagline="Heroes in Gems"
              className="text-center"
+             gradientClassName="gradient-gem-spectrum"
            />
          </div>
          <p className="text-xs sm:text-sm md:text-base lg:text-lg max-w-xs sm:max-w-md md:max-w-lg leading-relaxed text-white">
