@@ -9,5 +9,14 @@
     "updatedAt": "2025-10-08T00:00:00.000Z",
     "headingColor": "#ffffff",
     "subheadingColor": "#d1d5db"
+  },
+  {
+    "id": "newsticker-1761064969318-gktyd0stq",
+    "text": "dast ist ein testfall",
+    "type": "warning",
+    "priority": "medium",
+    "isActive": true,
+    "createdAt": "2025-10-21T16:42:49.318Z",
+    "updatedAt": "2025-10-21T16:42:49.318Z"
   }
 ]

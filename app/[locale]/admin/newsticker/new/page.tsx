@@ -48,6 +48,7 @@ export default function NewNewstickerPage() {
                   id="type"
                   name="type"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  defaultValue="info"
                 >
                   <option value="info">Info</option>
                   <option value="warning">Warnung</option>
@@ -65,9 +66,10 @@ export default function NewNewstickerPage() {
                   id="priority"
                   name="priority"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  defaultValue="medium"
                 >
                   <option value="low">Niedrig</option>
-                  <option value="medium" selected>Mittel</option>
+                  <option value="medium">Mittel</option>
                   <option value="high">Hoch</option>
                 </select>
               </div>

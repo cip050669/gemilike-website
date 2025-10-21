@@ -84,38 +84,41 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
 
   return (
     <div className="newsticker-container mx-auto" style={{ width: 'calc(100% - 16rem)' }}>
-      <div className="flex items-center gap-5 pr-16 pl-16 py-[6px] relative">
-        {showControls && (
-          <button
-            type="button"
-            onClick={handlePrev}
-            className="absolute left-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-            aria-label="Vorherige Meldung"
+      <div className="flex items-center gap-6 px-8 py-[6px]">
+        <div className="flex items-center gap-4 flex-1 overflow-hidden">
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10"
+            style={{ color: item.resolvedColor }}
           >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-        )}
-        <div
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10"
-          style={{ color: item.resolvedColor }}
-        >
-          {TYPE_ICONS[item.type]}
+            {TYPE_ICONS[item.type]}
+          </div>
+          <p
+            className="text-sm font-semibold leading-relaxed text-white truncate"
+            style={{ color: item.resolvedColor }}
+            title={item.text}
+          >
+            {item.text}
+          </p>
         </div>
-        <p
-          className="text-sm font-semibold leading-relaxed text-white"
-          style={{ color: item.resolvedColor }}
-        >
-          {item.text}
-        </p>
         {showControls && (
-          <button
-            type="button"
-            onClick={handleNext}
-            className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-            aria-label="Nächste Meldung"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              aria-label="Vorherige Meldung"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              aria-label="Nächste Meldung"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         )}
       </div>
     </div>
