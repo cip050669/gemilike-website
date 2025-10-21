@@ -17,6 +17,7 @@ type BlogListItem = {
   publishedAt?: string;
   slug: string;
   tags: string[];
+  image: string;
 };
 
 const statusBadgeClasses = (published: boolean) =>
@@ -123,6 +124,9 @@ export function BlogTable({
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Thumbnail
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Titel &amp; Auszug
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -145,6 +149,15 @@ export function BlogTable({
             <tbody className="bg-white divide-y divide-gray-200">
               {filtered.map((blog) => (
                 <tr key={blog.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="h-16 w-24 overflow-hidden rounded-md border border-gray-200 bg-gray-100">
+                      <img
+                        src={blog.image}
+                        alt={blog.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="text-sm font-semibold text-gray-900">
                       {blog.title}

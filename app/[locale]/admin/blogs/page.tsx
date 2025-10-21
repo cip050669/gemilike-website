@@ -3,6 +3,8 @@ import { loadBlogs } from '@/lib/data/blogs';
 import type { BlogPost } from '@/lib/types/blog';
 import { BlogTable } from '@/components/admin/BlogTable';
 
+const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
+
 const toListItem = (blog: BlogPost) => ({
   id: blog.id,
   title: blog.title,
@@ -25,6 +27,10 @@ const toListItem = (blog: BlogPost) => ({
       : blog.publishedAt,
   slug: blog.slug,
   tags: blog.tags,
+  image:
+    blog.image && blog.image.trim() && blog.image !== '/blog/default-blog.jpg'
+      ? blog.image
+      : STORY_PLACEHOLDER_IMAGE,
 });
 
 const countByStatus = (blogs: BlogPost[]) => ({

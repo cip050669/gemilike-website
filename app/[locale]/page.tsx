@@ -8,6 +8,8 @@ import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { loadBlogs } from '@/lib/data/blogs';
 
+const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
+
 const stripMarkdown = (markdown: string) =>
   markdown
     .replace(/!\[[^\]]*]\([^)]*\)/g, '')
@@ -38,10 +40,16 @@ export default async function HomePage({
           ? `${baseText.slice(0, 220).trimEnd()} …`
           : baseText;
 
+      const image =
+        blog.image && blog.image.trim() && blog.image !== '/blog/default-blog.jpg'
+          ? blog.image
+          : STORY_PLACEHOLDER_IMAGE;
+
       return {
         id: blog.id,
         title: blog.title,
         href: `/${locale}/blog/${blog.slug}`,
+        image,
         excerpt,
       };
     });
@@ -59,32 +67,52 @@ export default async function HomePage({
           Entdecken Sie die faszinierenden Geschichten und Mythen hinter unseren Edelsteinen
         </p>
         {stories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {stories.map((story) => (
-              <Link key={story.id} href={story.href} className="story-card transition-transform hover:-translate-y-1 hover:shadow-lg">
-                <h3 className="text-2xl font-bold mb-4 text-white">
-                  {story.title}
-                </h3>
-                <p className="text-gray-300 text-base leading-relaxed">
-                  {story.excerpt}
-                </p>
-                <span className="inline-flex items-center gap-2 mt-6 text-sm text-primary">
-                  Mehr lesen
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+              <div
+                key={story.id}
+                className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="flex gap-[50px] items-center">
+                  <div className="overflow-hidden rounded-lg border border-white/10 bg-black/20 h-[180px] w-[204px] flex-shrink-0">
+                    <img
+                      src={story.image}
+                      alt={story.title}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
                     />
-                  </svg>
-                </span>
-              </Link>
+                  </div>
+                  <div className="flex flex-col gap-6 justify-center">
+                    <div className="flex flex-col gap-3 text-left">
+                      <h3 className="text-xl font-bold text-white">
+                        {story.title}
+                      </h3>
+                      <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">
+                        {story.excerpt}
+                      </p>
+                    </div>
+                    <Link
+                      href={story.href}
+                      className="inline-flex items-center gap-3 text-sm text-primary"
+                    >
+                      <span>Mehr lesen</span>
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                        />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
