@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { NewstickerItem } from '@/lib/types/newsticker';
-import { cn } from '@/lib/utils';
-import { Info, AlertTriangle, CheckCircle, Megaphone } from 'lucide-react';
+import { Info, AlertTriangle, CheckCircle, Megaphone, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const TYPE_OUTLINE: Record<NewstickerItem['type'], string> = {
   info: 'border-blue-300/40',
@@ -73,27 +72,51 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
 
   const item = activeItems[currentIndex];
 
+  const showControls = activeItems.length > 0;
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + activeItems.length) % activeItems.length);
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % activeItems.length);
+  };
+
   return (
-    <div
-      className={cn(
-        'w-full max-w-5xl rounded-2xl border bg-black/60 px-8 py-[30px] shadow-xl backdrop-blur-sm transition-all duration-500 ease-out',
-        TYPE_OUTLINE[item.type]
-      )}
-      style={{ borderColor: item.resolvedColor + '55' }}
-    >
-      <div className="flex items-center gap-5">
+    <div className="newsticker-container mx-auto" style={{ width: 'calc(100% - 16rem)' }}>
+      <div className="flex items-center gap-5 pr-16 pl-16 py-[6px] relative">
+        {showControls && (
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="absolute left-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            aria-label="Vorherige Meldung"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        )}
         <div
-          className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10"
+          className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10"
           style={{ color: item.resolvedColor }}
         >
           {TYPE_ICONS[item.type]}
         </div>
         <p
-          className="text-lg font-semibold leading-relaxed text-white"
+          className="text-sm font-semibold leading-relaxed text-white"
           style={{ color: item.resolvedColor }}
         >
           {item.text}
         </p>
+        {showControls && (
+          <button
+            type="button"
+            onClick={handleNext}
+            className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            aria-label="Nächste Meldung"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   );
