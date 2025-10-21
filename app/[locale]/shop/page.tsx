@@ -1,7 +1,7 @@
-import { GemstoneGrid, ShopGemstone } from '@/components/shop/GemstoneGrid';
+import type { ShopGemstone } from '@/components/shop/GemstoneGrid';
+import { ShopShowcase } from '@/components/shop/ShopShowcase';
 import { prisma } from '@/lib/prisma';
 import { allGemstones } from '@/lib/data/gemstones';
-import { Badge } from '@/components/ui/badge';
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
 
@@ -95,42 +95,19 @@ export default async function ShopPage() {
   const { gemstones, fallback } = await loadGemstones();
 
   return (
-    <div className="min-h-screen bg-surface text-white">
-      <div className="container mx-auto px-4 py-12">
-        <header className="mb-12 space-y-4 text-center">
-          <Badge variant="outline" className="mx-auto bg-primary-soft text-primary">
-            Exklusive Auswahl
-          </Badge>
-          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">Edelstein-Shop</h1>
+    <div className="min-h-screen bg-surface text-white py-16">
+      <div className="max-w-6xl mx-auto space-y-12 px-4">
+        <section className="main-container text-center space-y-3">
+          <h1 className="text-4xl md:text-5xl font-impact font-weight-impact text-white">
+            Edelstein-Shop
+          </h1>
           <p className="mx-auto max-w-2xl text-base text-white/70">
-            Entdecken Sie handverlesene Edelsteine aus aller Welt – geschliffen oder roh, zertifiziert
-            und sofort verfügbar. Jedes Stück ist einzigartig und bereit für Ihre Kollektion.
+            Entdecken Sie unsere kuratierte Auswahl an neuen Highlights und dauerhaft verfügbaren Edelsteinen.
+            Wählen Sie eine Vorschau, um alle Details zum jeweiligen Stein anzuzeigen.
           </p>
-        </header>
-
-        <section className="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <div className="rounded-2xl border border-primary/20 bg-primary-soft p-6">
-            <p className="text-xs uppercase tracking-wide text-white/55">Sortiment</p>
-            <p className="text-3xl font-semibold text-white">{gemstones.length}</p>
-            <p className="text-sm text-white/60">verfügbare Edelsteine</p>
-          </div>
-          <div className="rounded-2xl border border-secondary/20 bg-secondary-soft p-6">
-            <p className="text-xs uppercase tracking-wide text-white/55">Neuzugänge</p>
-            <p className="text-3xl font-semibold text-white">
-              {gemstones.filter((gem) => gem.isNew).length}
-            </p>
-            <p className="text-sm text-white/60">werden hervorgehoben</p>
-          </div>
-          <div className="rounded-2xl border border-accent/20 bg-accent-soft p-6">
-            <p className="text-xs uppercase tracking-wide text-white/55">Gesamt-Bestand</p>
-            <p className="text-3xl font-semibold text-white">
-              {gemstones.reduce((sum, gem) => sum + (Number.isFinite(gem.stock) ? gem.stock : 0), 0)}
-            </p>
-            <p className="text-sm text-white/60">Steine auf Lager</p>
-          </div>
         </section>
 
-        <GemstoneGrid gemstones={gemstones} fallback={fallback} />
+        <ShopShowcase gemstones={gemstones} fallback={fallback} />
       </div>
     </div>
   );

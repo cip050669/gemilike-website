@@ -213,31 +213,53 @@ export function GemstoneManagementSection() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-wide text-muted-foreground">Inventar</p>
+        <div className="space-y-2">
+          <p className="text-sm uppercase tracking-wide text-primary">Inventar</p>
           <h1 className="text-3xl font-bold text-white">Edelsteine verwalten</h1>
           <p className="text-sm text-white/60 max-w-2xl">
             Pflegen Sie Ihr Portfolio, bearbeiten Sie bestehende Einträge oder legen Sie neue Edelsteine
             an. Alle Änderungen werden direkt in der Datenbank gespeichert.
           </p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+          <div className="relative w-full sm:w-72">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
             <Input
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Suchen nach Name, Typ oder Herkunft …"
-              className="border-white/10 bg-black/40 pl-9 text-white placeholder:text-white/40"
+              className="w-full border-white/15 bg-black/40 pl-9 text-white placeholder:text-white/40"
             />
           </div>
-          <Button
-            onClick={handleCreate}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Neuer Edelstein
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="border-secondary/60 text-secondary hover:bg-secondary/10"
+              onClick={loadGemstones}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="inline-flex items-center gap-2 text-sm">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Lädt …
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-2 text-sm">
+                  <Eye className="h-4 w-4" />
+                  Aktualisieren
+                </span>
+              )}
+            </Button>
+            <Button
+              type="button"
+              className="bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong"
+              onClick={handleCreate}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Neuer Edelstein
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -279,7 +301,11 @@ export function GemstoneManagementSection() {
               <p className="mt-2 text-sm text-white/50">
                 Passen Sie die Suche an oder legen Sie einen neuen Edelstein an.
               </p>
-              <Button onClick={handleCreate} className="mt-4 bg-primary text-primary-foreground">
+              <Button
+                type="button"
+                onClick={handleCreate}
+                className="mt-4 bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong"
+              >
                 Neuen Edelstein hinzufügen
               </Button>
             </div>
@@ -350,6 +376,7 @@ export function GemstoneManagementSection() {
                         </div>
                         <div className="flex gap-2">
                           <Button
+                            type="button"
                             size="icon"
                             variant="outline"
                             className="h-9 w-9 border-white/20 text-white hover:bg-white/10"
@@ -359,6 +386,7 @@ export function GemstoneManagementSection() {
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button
+                            type="button"
                             size="icon"
                             variant="outline"
                             className="h-9 w-9 border-white/20 text-white hover:bg-white/10"
@@ -368,6 +396,7 @@ export function GemstoneManagementSection() {
                             <PenSquare className="h-4 w-4" />
                           </Button>
                           <Button
+                            type="button"
                             size="icon"
                             variant="outline"
                             className="h-9 w-9 border-red-300/40 text-red-300 hover:bg-red-500/10"

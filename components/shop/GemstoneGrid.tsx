@@ -33,7 +33,7 @@ export interface ShopGemstone {
   videos: string[];
 }
 
-interface GemstoneGridProps {
+export interface GemstoneGridProps {
   gemstones: ShopGemstone[];
   fallback?: boolean;
 }
