@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { loadBlogs } from '@/lib/data/blogs';
+import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 import type { BlogPost } from '@/lib/types/blog';
 import { BlogTable } from '@/components/admin/BlogTable';
+import { BlogSettingsForm } from '@/components/admin/BlogSettingsForm';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -47,6 +49,7 @@ export default async function BlogsAdminPage({
 }) {
   const { locale } = await params;
   const blogs = await loadBlogs();
+  const blogSettings = await loadBlogSectionSettings();
   const sorted = [...blogs].sort((a, b) => {
     const aTime = new Date(a.updatedAt ?? a.createdAt).getTime();
     const bTime = new Date(b.updatedAt ?? b.createdAt).getTime();
@@ -103,6 +106,16 @@ export default async function BlogsAdminPage({
               {stats.featured}
             </p>
           </div>
+        </div>
+
+        {/* Blog Posts List */}
+        <div className="mb-8">
+          <BlogSettingsForm
+            heading={blogSettings.heading}
+            subheading={blogSettings.subheading}
+            headingColor={blogSettings.headingColor}
+            subheadingColor={blogSettings.subheadingColor}
+          />
         </div>
 
         {/* Blog Posts List */}

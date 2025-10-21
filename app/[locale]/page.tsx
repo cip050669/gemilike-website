@@ -7,6 +7,7 @@ import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { loadBlogs } from '@/lib/data/blogs';
+import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -25,6 +26,7 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   const blogs = await loadBlogs();
+  const blogSettings = await loadBlogSectionSettings();
   const stories = blogs
     .filter((blog) => blog.published)
     .sort((a, b) => {
@@ -62,9 +64,11 @@ export default async function HomePage({
 
       {/* Container 1: Geschichten um Edelsteine */}
       <div className="main-container">
-        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-white text-center">GESCHICHTEN UM EDELSTEINE</h2>
+        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-white text-center">
+          <span style={{ color: blogSettings.headingColor }}>{blogSettings.heading}</span>
+        </h2>
         <p className="text-lg text-gray-300 text-center mb-16">
-          Entdecken Sie die faszinierenden Geschichten und Mythen hinter unseren Edelsteinen
+          <span style={{ color: blogSettings.subheadingColor }}>{blogSettings.subheading}</span>
         </p>
         {stories.length > 0 ? (
           <div className="max-h-[340px] overflow-y-auto pr-3 scrollbar-thin">
