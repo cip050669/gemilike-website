@@ -8,6 +8,8 @@ export interface NewstickerItem {
   endDate?: string;
   createdAt: Date;
   updatedAt: Date;
+  headingColor?: string;
+  subheadingColor?: string;
 }
 
 export interface NewstickerSettings {

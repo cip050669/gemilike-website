@@ -8,6 +8,8 @@ import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { loadBlogs } from '@/lib/data/blogs';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
+import { loadNewstickerData } from '@/app/api/admin/newsticker/route';
+import { Newsticker } from '@/components/ui/Newsticker';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -27,6 +29,8 @@ export default async function HomePage({
   const { locale } = await params;
   const blogs = await loadBlogs();
   const blogSettings = await loadBlogSectionSettings();
+  const newstickerItems = loadNewstickerData();
+  const activeNewstickerItems = newstickerItems.filter((item) => item.isActive);
   const stories = blogs
     .filter((blog) => blog.published)
     .sort((a, b) => {
@@ -61,6 +65,13 @@ export default async function HomePage({
     <div className="min-h-screen">
       {/* Hero Section */}
       <HeroSection locale={locale} />
+
+      {/* Newsticker */}
+      {activeNewstickerItems.length > 0 && (
+        <div className="my-[150px] flex justify-center px-6">
+          <Newsticker items={activeNewstickerItems} />
+        </div>
+      )}
 
       {/* Container 1: Geschichten um Edelsteine */}
       <div className="main-container">
