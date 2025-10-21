@@ -18,6 +18,7 @@ export interface AdminGemstone {
   origin?: string | null;
   description?: string | null;
   images?: string[];
+  videos?: string[];
   inStock: boolean;
   stock: number;
   sku?: string | null;

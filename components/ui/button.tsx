@@ -4,19 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-200 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default:
+          "bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong active:bg-primary-press focus-visible:ring-primary-focus",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border border-primary/70 bg-transparent text-primary hover:bg-primary-soft hover:text-primary-foreground focus-visible:ring-primary-focus",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-secondary text-secondary-foreground shadow-secondary-glow hover:bg-secondary-strong active:bg-secondary-press focus-visible:ring-secondary-focus",
+        accent:
+          "bg-accent text-accent-foreground hover:bg-accent/90 focus-visible:ring-primary-focus",
+        ghost:
+          "text-link hover:text-link-hover hover:bg-link-soft focus-visible:ring-link-focus",
+        link:
+          "text-link underline-offset-4 hover:text-link-hover hover:underline focus-visible:ring-link-focus",
       },
       size: {
         default: "h-10 px-4 py-2",

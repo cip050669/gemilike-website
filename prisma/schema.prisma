@@ -206,6 +206,7 @@ model Gemstone {
   origin         String?
   description    String?
   images         String?  // JSON string of image URLs
+  videos         String?  // JSON string of video URLs (max 2)
   inStock        Boolean  @default(true)
   stock          Int      @default(0)
   sku            String?  @unique

@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
 
@@ -23,28 +24,29 @@ type DisplayGemstone = AdminGemstone & {
   mainImage: string;
 };
 
-const parseImages = (images: string | null | undefined): string[] => {
-  if (!images) {
+const parseList = (value: string | null | undefined): string[] => {
+  if (!value) {
     return [];
   }
   try {
-    const parsed = JSON.parse(images);
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.map((item) => String(item)) : [];
   } catch {
     return [];
   }
 };
 
 const mapToDisplayGemstone = (gem: any): DisplayGemstone => {
-  const images = Array.isArray(gem.images) ? gem.images : parseImages(gem.images);
+  const images = Array.isArray(gem.images) ? gem.images : parseList(gem.images);
+  const videos = Array.isArray(gem.videos) ? gem.videos : parseList(gem.videos);
   const mainImage = images?.[0] ?? PLACEHOLDER_IMAGE;
   return {
     id: gem.id,
     name: gem.name,
     category: gem.category,
     type: gem.type,
-    price: gem.price,
-    weight: gem.weight,
+    price: typeof gem.price === 'number' ? gem.price : Number(gem.price ?? 0),
+    weight: typeof gem.weight === 'number' ? gem.weight : gem.weight ? Number(gem.weight) : undefined,
     dimensions: gem.dimensions,
     color: gem.color,
     colorIntensity: gem.colorIntensity,
@@ -58,6 +60,7 @@ const mapToDisplayGemstone = (gem: any): DisplayGemstone => {
     origin: gem.origin,
     description: gem.description,
     images,
+    videos,
     inStock: gem.inStock,
     stock: gem.stock,
     sku: gem.sku,
@@ -77,6 +80,8 @@ export function GemstoneManagementSection() {
   const [showEditor, setShowEditor] = useState(false);
   const [detailGemstone, setDetailGemstone] = useState<DisplayGemstone | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
+  const [updatingNewId, setUpdatingNewId] = useState<string | null>(null);
 
   const loadGemstones = useCallback(async () => {
     try {
@@ -95,9 +100,11 @@ export function GemstoneManagementSection() {
         : [];
 
       setGemstones(mapped);
+      setUsingFallback(Boolean(result.fallback));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
       setError(message);
+      setUsingFallback(false);
     } finally {
       setIsLoading(false);
     }
@@ -167,6 +174,42 @@ export function GemstoneManagementSection() {
     await loadGemstones();
   };
 
+  const handleToggleNew = async (gem: DisplayGemstone, value: boolean) => {
+    try {
+      setUpdatingNewId(gem.id);
+      const response = await fetch(`/api/admin/gemstones/${gem.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isNew: value }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Aktualisierung fehlgeschlagen');
+      }
+
+      setGemstones((prev) =>
+        prev.map((item) =>
+          item.id === gem.id
+            ? {
+                ...item,
+                isNew: value,
+              }
+            : item
+        )
+      );
+
+      setDetailGemstone((prev) => (prev?.id === gem.id ? { ...prev, isNew: value } : prev));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
+      alert(message);
+    } finally {
+      setUpdatingNewId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -204,10 +247,21 @@ export function GemstoneManagementSection() {
             Bestand ({filteredGemstones.length})
           </CardTitle>
           <p className="text-sm text-white/50">
-            Die Daten werden aus der Prisma-Datenbank geladen. Änderungen sind sofort aktiv.
+            {usingFallback
+              ? 'Verbindung zur Datenbank fehlgeschlagen. Es werden temporäre Beispiel-Daten angezeigt.'
+              : 'Die Daten werden aus der Prisma-Datenbank geladen. Änderungen sind sofort aktiv.'}
           </p>
         </CardHeader>
         <CardContent>
+          {usingFallback && !error && (
+            <div className="mb-4 rounded-lg border border-yellow-400/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100">
+              Die Verbindung zur Datenbank konnte nicht hergestellt werden. Die angezeigten Edelsteine
+              sind nur ein Beispielset. Prüfen Sie die Prisma-Konfiguration und führen Sie ggf.
+              <code className="mx-1 rounded bg-black/40 px-1 py-0.5 text-xs">npx prisma db push</code>
+              aus.
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
               {error}
@@ -329,6 +383,15 @@ export function GemstoneManagementSection() {
                           </Button>
                         </div>
                       </div>
+                      <div className="flex items-center gap-2 text-xs text-white/60">
+                        <Checkbox
+                          checked={gem.isNew}
+                          onCheckedChange={(checked) => handleToggleNew(gem, Boolean(checked))}
+                          disabled={Boolean(deletingId) || updatingNewId === gem.id}
+                          className="border-white/30"
+                        />
+                        <span>Neuer Stein hervorheben</span>
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -374,6 +437,22 @@ export function GemstoneManagementSection() {
                           <Image src={img} alt={`${detailGemstone.name} ${idx + 1}`} fill sizes="64px" className="object-cover" />
                         </div>
                       ))}
+                    </div>
+                  )}
+                  {detailGemstone.videos && detailGemstone.videos.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs uppercase tracking-wide text-white/50">Videos</p>
+                      <div className="grid gap-3">
+                        {detailGemstone.videos.slice(0, 2).map((video, idx) => (
+                          <div key={idx} className="overflow-hidden rounded-lg border border-white/10">
+                            <video
+                              src={video}
+                              controls
+                              className="h-32 w-full bg-black object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

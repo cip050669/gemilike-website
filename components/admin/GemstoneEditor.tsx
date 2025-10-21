@@ -32,44 +32,49 @@ type GemstoneFormState = {
   description: string;
   certification: string;
   rarity: string;
-  existingImages: string[];
+  imageUrls: string[];
+  videoUrls: string[];
 };
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
 
+const DEFAULT_FORM_STATE: GemstoneFormState = {
+  name: '',
+  category: '',
+  type: 'cut',
+  price: '',
+  weight: '',
+  color: '',
+  cut: '',
+  origin: '',
+  stock: '0',
+  inStock: true,
+  isNew: false,
+  sku: '',
+  description: '',
+  certification: '',
+  rarity: '',
+  imageUrls: [],
+  videoUrls: [],
+};
+
 export function GemstoneEditor({ gemstone, onClose, onSaved }: GemstoneEditorProps) {
   const t = useTranslations();
-  const [formState, setFormState] = useState<GemstoneFormState>({
-    name: '',
-    category: '',
-    type: 'cut',
-    price: '',
-    weight: '',
-    color: '',
-    cut: '',
-    origin: '',
-    stock: '0',
-    inStock: true,
-    isNew: false,
-    sku: '',
-    description: '',
-    certification: '',
-    rarity: '',
-    existingImages: [],
-  });
+  const [formState, setFormState] = useState<GemstoneFormState>(DEFAULT_FORM_STATE);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageUrlsInput, setImageUrlsInput] = useState('');
+  const [videoUrlsInput, setVideoUrlsInput] = useState('');
 
   useEffect(() => {
     if (!gemstone) {
-      setFormState((prev) => ({
-        ...prev,
-        existingImages: [],
-      }));
+      setFormState(DEFAULT_FORM_STATE);
       setImagePreview(null);
       setImageFile(null);
+      setImageUrlsInput('');
+      setVideoUrlsInput('');
       return;
     }
 
@@ -89,9 +94,12 @@ export function GemstoneEditor({ gemstone, onClose, onSaved }: GemstoneEditorPro
       description: gemstone.description ?? '',
       certification: gemstone.certification ?? '',
       rarity: gemstone.rarity ?? '',
-      existingImages: gemstone.images ?? [],
+      imageUrls: gemstone.images ?? [],
+      videoUrls: gemstone.videos ?? [],
     });
-    setImagePreview(gemstone.images?.[0] ?? null);
+    setImageUrlsInput((gemstone.images ?? []).join('\n'));
+    setVideoUrlsInput((gemstone.videos ?? []).join('\n'));
+    setImagePreview((gemstone.images ?? [])[0] ?? null);
     setImageFile(null);
   }, [gemstone]);
 
@@ -106,6 +114,27 @@ export function GemstoneEditor({ gemstone, onClose, onSaved }: GemstoneEditorPro
 
   const handleChange = (field: keyof GemstoneFormState, value: any) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const parseListInput = (value: string) =>
+    value
+      .split(/\r?\n|,/)
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+
+  const handleImageUrlsChange = (value: string) => {
+    setImageUrlsInput(value);
+    const list = parseListInput(value).slice(0, 10);
+    setFormState((prev) => ({ ...prev, imageUrls: list }));
+    if (!imageFile) {
+      setImagePreview(list[0] ?? null);
+    }
+  };
+
+  const handleVideoUrlsChange = (value: string) => {
+    setVideoUrlsInput(value);
+    const list = parseListInput(value).slice(0, 2);
+    setFormState((prev) => ({ ...prev, videoUrls: list }));
   };
 
   const apiUrl = useMemo(() => {
@@ -140,8 +169,12 @@ export function GemstoneEditor({ gemstone, onClose, onSaved }: GemstoneEditorPro
       formData.append('certification', formState.certification || '');
       formData.append('rarity', formState.rarity || '');
 
-      if (formState.existingImages.length > 0) {
-        formData.append('existingImages', JSON.stringify(formState.existingImages));
+      if (formState.imageUrls.length > 0) {
+        formData.append('images', JSON.stringify(formState.imageUrls.slice(0, 10)));
+      }
+
+      if (formState.videoUrls.length > 0) {
+        formData.append('videos', JSON.stringify(formState.videoUrls.slice(0, 2)));
       }
 
       if (imageFile) {
@@ -368,7 +401,7 @@ export function GemstoneEditor({ gemstone, onClose, onSaved }: GemstoneEditorPro
               <Label className="text-white/80">Bild</Label>
               <div className="relative h-48 w-full overflow-hidden rounded-xl border border-dashed border-white/20 bg-black/40">
                 <Image
-                  src={imagePreview || formState.existingImages[0] || PLACEHOLDER_IMAGE}
+                  src={imagePreview || formState.imageUrls[0] || PLACEHOLDER_IMAGE}
                   alt={formState.name || 'Edelstein'}
                   fill
                   className="object-cover"
@@ -383,9 +416,40 @@ export function GemstoneEditor({ gemstone, onClose, onSaved }: GemstoneEditorPro
                 }}
                 className="cursor-pointer border-white/10 bg-black/40 text-white"
               />
-              <p className="text-xs text-white/50">
-                Unterstützt JPG, PNG oder WEBP. Das Bild wird optimiert im Verzeichnis <code>/public/uploads/gemstones</code> gespeichert.
+            <p className="text-xs text-white/50">
+              Unterstützt JPG, PNG oder WEBP. Das Bild wird optimiert im Verzeichnis <code>/public/uploads/gemstones</code> gespeichert.
+            </p>
+
+            <div className="space-y-2">
+              <Label htmlFor="gem-images" className="text-white/80">
+                Zusätzliche Bild-URLs (max. 10, eine pro Zeile)
+              </Label>
+              <Textarea
+                id="gem-images"
+                value={imageUrlsInput}
+                onChange={(event) => handleImageUrlsChange(event.target.value)}
+                rows={4}
+                className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
+                placeholder="https://...jpg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="gem-videos" className="text-white/80">
+                Video-URLs (max. 2, MP4/HLS)
+              </Label>
+              <Textarea
+                id="gem-videos"
+                value={videoUrlsInput}
+                onChange={(event) => handleVideoUrlsChange(event.target.value)}
+                rows={2}
+                className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
+                placeholder="https://...mp4"
+              />
+              <p className="text-xs text-white/40">
+                Für Videos bitte öffentlich abrufbare MP4- oder HLS-Links verwenden. Maximal zwei Videos werden in der Galerie angezeigt.
               </p>
+            </div>
             </div>
 
             <div className="grid gap-4 rounded-xl border border-white/10 bg-black/30 p-4">

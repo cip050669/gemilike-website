@@ -28,11 +28,11 @@ export const saveUploadedImage = async (file: File) => {
   return `/uploads/gemstones/${safeName}`;
 };
 
-export const parseImagesFromDB = (images?: string | null): string[] => {
-  if (!images) return [];
+export const parseListFromDB = (value?: string | null): string[] => {
+  if (!value) return [];
   try {
-    const parsed = JSON.parse(images);
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.map((item) => String(item)) : [];
   } catch {
     return [];
   }
@@ -65,7 +65,7 @@ export const toStringOrNull = (value: unknown) => {
   return String(value);
 };
 
-export const toImageArray = (value: unknown): string[] => {
+export const toStringArray = (value: unknown): string[] => {
   if (!value) return [];
   if (Array.isArray(value)) {
     return value.map((item) => String(item)).filter(Boolean);
@@ -93,7 +93,7 @@ export const normaliseGemstonePayload = (
   uploadedImage?: string,
   fallbackImages: string[] = []
 ) => {
-  const collectedImages = toImageArray(payload.images ?? payload.existingImages);
+  const collectedImages = toStringArray(payload.images ?? payload.existingImages ?? payload.imageUrls);
   let finalImages = collectedImages.length ? collectedImages : fallbackImages;
 
   if (uploadedImage) {
@@ -101,6 +101,9 @@ export const normaliseGemstonePayload = (
   }
 
   const dedupedImages = Array.from(new Set(finalImages.filter(Boolean)));
+
+  const videoList = toStringArray(payload.videos ?? payload.videoUrls ?? payload.existingVideos);
+  const dedupedVideos = Array.from(new Set(videoList.filter(Boolean))).slice(0, 2);
 
   return {
     name: String(payload.name ?? '').trim(),
@@ -120,7 +123,8 @@ export const normaliseGemstonePayload = (
     rarity: toStringOrNull(payload.rarity),
     origin: toStringOrNull(payload.origin),
     description: toStringOrNull(payload.description),
-    images: dedupedImages.length ? JSON.stringify(dedupedImages) : null,
+    images: dedupedImages.length ? JSON.stringify(dedupedImages.slice(0, 10)) : null,
+    videos: dedupedVideos.length ? JSON.stringify(dedupedVideos) : null,
     inStock: toBoolean(payload.inStock, true),
     stock: toNumber(payload.stock, 0) ?? 0,
     sku: toStringOrNull(payload.sku),

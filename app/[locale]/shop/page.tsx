@@ -1,187 +1,136 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GemstoneGrid, ShopGemstone } from '@/components/shop/GemstoneGrid';
+import { prisma } from '@/lib/prisma';
+import { allGemstones } from '@/lib/data/gemstones';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { GemIcon, HeartIcon, ShoppingCartIcon } from 'lucide-react';
-import { AddToCartButton } from '@/components/shop/AddToCartButton';
-import { WishlistButton } from '@/components/cart/WishlistButton';
 
-// Mock-Daten für Edelsteine
-const gemstones = [
-  {
-    id: '1',
-    name: 'Brillant Diamant',
-    price: 2500,
-    category: 'Diamant',
-    weight: 1.5,
-    origin: 'Südafrika',
-    image: '/products/diamond.jpg',
-    description: 'Brillant geschliffener Diamant in höchster Qualität',
-    treatment: 'Unbehandelt',
-    clarity: 'VS1',
-    color: 'D'
-  },
-  {
-    id: '2',
-    name: 'Smaragd',
-    price: 1800,
-    category: 'Smaragd',
-    weight: 2.0,
-    origin: 'Kolumbien',
-    image: '/products/emerald.jpg',
-    description: 'Natürlicher Smaragd mit intensiver grüner Farbe',
-    treatment: 'Geölt',
-    clarity: 'VS2',
-    color: 'G'
-  },
-  {
-    id: '3',
-    name: 'Rubin',
-    price: 3200,
-    category: 'Rubin',
-    weight: 1.8,
-    origin: 'Myanmar',
-    image: '/products/ruby.jpg',
-    description: 'Feuerroter Rubin von außergewöhnlicher Klarheit',
-    treatment: 'Erhitzt',
-    clarity: 'VVS1',
-    color: 'R'
-  },
-  {
-    id: '4',
-    name: 'Saphir',
-    price: 2200,
-    category: 'Saphir',
-    weight: 2.2,
-    origin: 'Sri Lanka',
-    image: '/products/sapphire.jpg',
-    description: 'Kornblumenblauer Saphir von seltener Schönheit',
-    treatment: 'Unbehandelt',
-    clarity: 'VS1',
-    color: 'B'
-  },
-  {
-    id: '5',
-    name: 'Amethyst',
-    price: 450,
-    category: 'Amethyst',
-    weight: 3.5,
-    origin: 'Brasilien',
-    image: '/products/amethyst.jpg',
-    description: 'Tiefvioletter Amethyst in Tropfenform',
-    treatment: 'Unbehandelt',
-    clarity: 'VS2',
-    color: 'V'
-  },
-  {
-    id: '6',
-    name: 'Citrin',
-    price: 280,
-    category: 'Citrin',
-    weight: 4.0,
-    origin: 'Brasilien',
-    image: '/products/citrine.jpg',
-    description: 'Sonnenfarbener Citrin mit warmem Glanz',
-    treatment: 'Erhitzt',
-    clarity: 'VS1',
-    color: 'Y'
+const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
+
+const parseJsonList = (value?: string | null): string[] => {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.map((item) => String(item)) : [];
+  } catch {
+    return [];
   }
-];
+};
 
-export default function ShopPage() {
+const toShopGemstone = (gem: any): ShopGemstone => {
+  const images = Array.isArray(gem.images) ? gem.images : parseJsonList(gem.images);
+  const videos = Array.isArray(gem.videos) ? gem.videos : parseJsonList(gem.videos);
+  const type = gem.type ?? 'cut';
+  const weight = typeof gem.weight === 'number' ? gem.weight : gem.weight ? Number(gem.weight) : null;
+  const weightUnit: 'ct' | 'g' = type === 'rough' ? 'g' : 'ct';
+
+  return {
+    id: String(gem.id),
+    name: gem.name ?? 'Unbenannter Edelstein',
+    category: gem.category ?? 'Edelstein',
+    type,
+    price: typeof gem.price === 'number' ? gem.price : Number(gem.price ?? 0),
+    weight,
+    weightUnit,
+    origin: gem.origin ?? null,
+    color: gem.color ?? null,
+    clarity: gem.clarity ?? null,
+    cut: gem.cut ?? gem.cutForm ?? null,
+    treatment: gem.treatment ?? null,
+    description: gem.description ?? null,
+    certification: gem.certification ?? null,
+    rarity: gem.rarity ?? null,
+    inStock: gem.inStock ?? true,
+    stock: typeof gem.stock === 'number' ? gem.stock : Number(gem.stock ?? gem.quantity ?? 0),
+    isNew: gem.isNew ?? false,
+    images: images.length ? images.slice(0, 10) : [gem.mainImage || PLACEHOLDER_IMAGE].filter(Boolean),
+    videos: videos.slice(0, 2),
+  };
+};
+
+async function loadGemstones(): Promise<{ gemstones: ShopGemstone[]; fallback: boolean }> {
+  try {
+    const data = await prisma.gemstone.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!data.length) {
+      throw new Error('Keine Edelsteine gefunden');
+    }
+
+    return {
+      gemstones: data.map(toShopGemstone),
+      fallback: false,
+    };
+  } catch (error) {
+    console.error('Shop: Fallback auf statische Edelsteine', error);
+    return {
+      gemstones: allGemstones.map((gem) =>
+        toShopGemstone({
+          id: gem.id,
+          name: gem.name,
+          category: gem.category,
+          type: gem.type,
+          price: gem.price,
+          weight: 'caratWeight' in gem ? gem.caratWeight : 'gramWeight' in gem ? gem.gramWeight : null,
+          origin: gem.origin,
+          color: (gem as any).color ?? null,
+          clarity: (gem as any).clarity ?? null,
+          cut: (gem as any).cut ?? (gem as any).cutForm ?? null,
+          treatment: gem.treatment?.type ?? null,
+          description: gem.description,
+          certification: gem.certification?.lab ?? null,
+          rarity: (gem as any).rarity ?? null,
+          inStock: gem.inStock ?? true,
+          stock: gem.quantity ?? 0,
+          isNew: gem.isNew ?? false,
+          images: [gem.mainImage, ...(gem.images ?? [])].filter(Boolean),
+          videos: (gem as any).videos ?? [],
+        })
+      ),
+      fallback: true,
+    };
+  }
+}
+
+export default async function ShopPage() {
+  const { gemstones, fallback } = await loadGemstones();
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="gemilike-text-gradient text-4xl font-bold mb-4">Edelstein-Shop</h1>
-          <p className="text-lg text-muted-foreground">
-            Entdecken Sie unsere exquisite Auswahl an rohen und geschliffenen Edelsteinen
+    <div className="min-h-screen bg-surface text-white">
+      <div className="container mx-auto px-4 py-12">
+        <header className="mb-12 space-y-4 text-center">
+          <Badge variant="outline" className="mx-auto bg-primary-soft text-primary">
+            Exklusive Auswahl
+          </Badge>
+          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">Edelstein-Shop</h1>
+          <p className="mx-auto max-w-2xl text-base text-white/70">
+            Entdecken Sie handverlesene Edelsteine aus aller Welt – geschliffen oder roh, zertifiziert
+            und sofort verfügbar. Jedes Stück ist einzigartig und bereit für Ihre Kollektion.
           </p>
-        </div>
+        </header>
 
-        {/* Filter und Sortierung */}
-        <div className="mb-8 flex flex-wrap gap-4">
-          <select className="px-4 py-2 border border-input rounded-md bg-background text-foreground">
-            <option>Alle Kategorien</option>
-            <option>Diamant</option>
-            <option>Smaragd</option>
-            <option>Rubin</option>
-            <option>Saphir</option>
-            <option>Amethyst</option>
-            <option>Citrin</option>
-          </select>
-          <select className="px-4 py-2 border border-input rounded-md bg-background text-foreground">
-            <option>Preis: Niedrig zu Hoch</option>
-            <option>Preis: Hoch zu Niedrig</option>
-            <option>Name: A-Z</option>
-            <option>Name: Z-A</option>
-          </select>
-        </div>
-
-        {/* Produktgrid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gemstones.map((gemstone) => (
-            <Card key={gemstone.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-64 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                <GemIcon className="h-24 w-24 text-primary" />
-              </div>
-              <CardHeader className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">{gemstone.name}</CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
-                      {gemstone.category} • {gemstone.weight}ct • {gemstone.origin}
-                    </CardDescription>
-                  </div>
-                  <WishlistButton item={gemstone} />
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <p className="text-sm text-muted-foreground mb-4">
-                  {gemstone.description}
-                </p>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge variant="secondary">{gemstone.treatment}</Badge>
-                  <Badge variant="outline">{gemstone.clarity}</Badge>
-                  <Badge variant="outline">{gemstone.color}</Badge>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="text-2xl font-bold text-primary">
-                      €{gemstone.price.toLocaleString()}
-                    </span>
-                    <span className="text-sm text-muted-foreground ml-2">
-                      pro Stück
-                    </span>
-                  </div>
-                  <AddToCartButton item={gemstone} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Newsletter CTA */}
-        <div className="mt-16 text-center">
-          <div className="bg-card border border-border rounded-lg p-8">
-            <h2 className="text-2xl font-bold mb-4">Verpassen Sie keine Neuigkeiten</h2>
-            <p className="text-muted-foreground mb-6">
-              Abonnieren Sie unseren Newsletter und erhalten Sie exklusive Angebote für neue Edelsteine
-            </p>
-            <div className="max-w-md mx-auto flex gap-2">
-              <input
-                type="email"
-                placeholder="Ihre E-Mail-Adresse"
-                className="flex-1 px-4 py-3 border border-input rounded-md bg-background text-foreground"
-              />
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3">
-                Abonnieren
-              </Button>
-            </div>
+        <section className="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="rounded-2xl border border-primary/20 bg-primary-soft p-6">
+            <p className="text-xs uppercase tracking-wide text-white/55">Sortiment</p>
+            <p className="text-3xl font-semibold text-white">{gemstones.length}</p>
+            <p className="text-sm text-white/60">verfügbare Edelsteine</p>
           </div>
-        </div>
+          <div className="rounded-2xl border border-secondary/20 bg-secondary-soft p-6">
+            <p className="text-xs uppercase tracking-wide text-white/55">Neuzugänge</p>
+            <p className="text-3xl font-semibold text-white">
+              {gemstones.filter((gem) => gem.isNew).length}
+            </p>
+            <p className="text-sm text-white/60">werden hervorgehoben</p>
+          </div>
+          <div className="rounded-2xl border border-accent/20 bg-accent-soft p-6">
+            <p className="text-xs uppercase tracking-wide text-white/55">Gesamt-Bestand</p>
+            <p className="text-3xl font-semibold text-white">
+              {gemstones.reduce((sum, gem) => sum + (Number.isFinite(gem.stock) ? gem.stock : 0), 0)}
+            </p>
+            <p className="text-sm text-white/60">Steine auf Lager</p>
+          </div>
+        </section>
+
+        <GemstoneGrid gemstones={gemstones} fallback={fallback} />
       </div>
     </div>
   );

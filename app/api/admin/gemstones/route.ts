@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { extractPayload, normaliseGemstonePayload } from './utils';
+import { allGemstones } from '@/lib/data/gemstones';
 
 export async function GET(request: NextRequest) {
   try {
@@ -61,9 +62,52 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching gemstones:', error);
+    const fallbackData = allGemstones.map((gem) => ({
+      id: gem.id,
+      name: gem.name,
+      category: gem.category,
+      type: gem.type,
+      price: gem.price,
+      weight: 'caratWeight' in gem ? gem.caratWeight : 'gramWeight' in gem ? gem.gramWeight : null,
+      dimensions: gem.dimensions
+        ? `${gem.dimensions.length}x${gem.dimensions.width}x${gem.dimensions.height}mm`
+        : null,
+      color: (gem as any).color ?? null,
+      colorIntensity: (gem as any).colorIntensity ?? null,
+      colorBrightness: null,
+      clarity: (gem as any).clarity ?? null,
+      cut: (gem as any).cut ?? (gem as any).cutForm ?? null,
+      cutForm: (gem as any).cutForm ?? null,
+      treatment: gem.treatment?.type ?? null,
+      certification: gem.certification?.lab ?? null,
+      rarity: (gem as any).rarity ?? null,
+      origin: gem.origin,
+      description: gem.description,
+      images: JSON.stringify([gem.mainImage, ...(gem.images ?? [])].filter(Boolean).slice(0, 10)),
+      videos: JSON.stringify((gem as any).videos ?? []),
+      inStock: gem.inStock ?? true,
+      stock: gem.quantity ?? 0,
+      sku: undefined,
+      isNew: gem.isNew ?? false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }));
+
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch gemstones: ' + (error as Error).message },
-      { status: 500 }
+      {
+        success: true,
+        data: fallbackData,
+        pagination: {
+          page: 1,
+          limit: fallbackData.length,
+          total: fallbackData.length,
+          pages: 1,
+        },
+        fallback: true,
+        message:
+          'Datenbank nicht erreichbar. Es werden vorerst Beispiel-Edelsteine angezeigt.',
+      },
+      { status: 200 }
     );
   }
 }
@@ -98,3 +142,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+export const runtime = 'nodejs';

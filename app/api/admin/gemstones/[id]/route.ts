@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { extractPayload, normaliseGemstonePayload, parseImagesFromDB } from '../utils';
+import { extractPayload, normaliseGemstonePayload, parseListFromDB } from '../utils';
 
 export async function GET(
   request: NextRequest,
@@ -50,7 +50,7 @@ export async function PUT(
       );
     }
 
-    const fallbackImages = parseImagesFromDB(existing.images);
+    const fallbackImages = parseListFromDB(existing.images);
     const { payload, uploadedImage } = await extractPayload(request);
 
     if (!payload.name && !existing.name) {
@@ -122,3 +122,4 @@ export async function DELETE(
     );
   }
 }
+export const runtime = 'nodejs';
