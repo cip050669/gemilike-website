@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       author: author || 'Gemilike Team',
       category: category || 'Edelsteinkunde',
       tags: tags || [],
-      image: image || '/blog/default-blog.jpg',
+      image: image || '/images/stories/placeholder-gem.svg',
       contentImages: contentImages || [],
       published: published || false,
       featured: featured || false,
@@ -187,4 +187,3 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to delete blog post' }, { status: 500 });
   }
 }
-

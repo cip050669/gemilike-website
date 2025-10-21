@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
 
 type BlogListItem = {
   id: string;
@@ -33,10 +31,16 @@ const formatDate = (value?: string) => {
   if (!value) return '—';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '—';
-  return format(date, 'dd.MM.yyyy', { locale: de });
+  return new Intl.DateTimeFormat('de-DE').format(date);
 };
 
-export function BlogTable({ blogs }: { blogs: BlogListItem[] }) {
+export function BlogTable({
+  blogs,
+  locale,
+}: {
+  blogs: BlogListItem[];
+  locale: string;
+}) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [onlyPublished, setOnlyPublished] = useState(false);
@@ -183,7 +187,7 @@ export function BlogTable({ blogs }: { blogs: BlogListItem[] }) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-3">
                       <Link
-                        href={`/de/admin/blogs/edit/${blog.id}`}
+                        href={`/${locale}/admin/blogs/edit/${blog.id}`}
                         className="text-blue-600 hover:text-blue-900"
                       >
                         Bearbeiten

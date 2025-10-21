@@ -50,9 +50,9 @@ export default async function BlogPostPage({
         {/* Zurück-Button */}
         <div className="mb-8">
           <Button variant="ghost" asChild>
-            <Link href={`/${locale}/blog`}>
+            <Link href={`/${locale}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Zurück zur Blog-Übersicht
+              Zurück zur Startseite
             </Link>
           </Button>
         </div>
@@ -79,7 +79,11 @@ export default async function BlogPostPage({
         <Card>
           <CardContent className="p-8">
             {/* Bild falls vorhanden */}
-            {post.image && post.image !== '/blog/default-blog.jpg' && (
+            {post.image &&
+              ![
+                '/images/stories/placeholder-gem.svg',
+                '/blog/default-blog.jpg',
+              ].includes(post.image) && (
               <div className="mb-8">
                 <img 
                   src={post.image} 

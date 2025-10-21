@@ -127,6 +127,14 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
+  
+  a {
+    @apply text-white;
+  }
+  
+  a:hover {
+    @apply text-white/80;
+  }
 }
 
 @layer base {

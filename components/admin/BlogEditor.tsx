@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Save, X, Plus, Trash2, Edit, Eye, EyeOff, Upload, Image as ImageIcon } from 'lucide-react';
 import { BlogPost, defaultCategories, defaultTags } from '@/lib/types/blog';
 import { MarkdownPreview } from './MarkdownPreview';
+import { cn } from '@/lib/utils';
 
 interface BlogEditorProps {
   blog?: BlogPost;
@@ -19,6 +20,8 @@ interface BlogEditorProps {
   onCancel: () => void;
   isCreating?: boolean;
 }
+
+const PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
 export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogEditorProps) {
   const [formData, setFormData] = useState({
@@ -28,7 +31,9 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
     author: blog?.author || 'Gemilike Team',
     category: blog?.category || 'Edelsteinkunde',
     tags: blog?.tags || [],
-    image: blog?.image || '/blog/default-blog.jpg',
+    image: !blog?.image || blog.image === '/blog/default-blog.jpg'
+      ? PLACEHOLDER_IMAGE
+      : blog.image,
     contentImages: blog?.contentImages || [],
     published: blog?.published || false,
     featured: blog?.featured || false,
@@ -36,6 +41,11 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
 
   const [newTag, setNewTag] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const inputStyles =
+    'bg-background border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/40 focus-visible:border-white/40';
+  const cardStyles =
+    'bg-background/90 border-white/15 text-white shadow-lg shadow-black/40';
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -167,7 +177,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className={cn('w-full max-w-4xl mx-auto', cardStyles)}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Edit className="h-5 w-5" />
@@ -183,7 +193,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
             value={formData.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
             placeholder="Titel des Blog-Posts"
-            className="text-lg"
+            className={cn('text-lg', inputStyles)}
           />
         </div>
 
@@ -196,15 +206,16 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               value={formData.author}
               onChange={(e) => handleInputChange('author', e.target.value)}
               placeholder="Autor"
+              className={inputStyles}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Kategorie</Label>
             <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-              <SelectTrigger>
+              <SelectTrigger className={cn(inputStyles, 'font-medium')}>
                 <SelectValue placeholder="Kategorie auswählen" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background text-white border border-white/20">
                 {defaultCategories.map((category) => (
                   <SelectItem key={category.id} value={category.name}>
                     {category.name}
@@ -224,13 +235,14 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               value={formData.image}
               onChange={(e) => handleInputChange('image', e.target.value)}
               placeholder="/blog/beispiel-bild.jpg"
-              className="flex-1"
+              className={cn('flex-1', inputStyles)}
             />
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => document.getElementById('imageUploadInput')?.click()} 
               disabled={isLoading}
+              className="border-white/40 text-white hover:bg-white/10"
             >
               <Upload className="h-4 w-4 mr-2" />
               Upload
@@ -265,6 +277,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
                 variant="outline" 
                 onClick={() => document.getElementById('contentImagesUploadInput')?.click()} 
                 disabled={isLoading}
+                className="border-white/40 text-white hover:bg-white/10"
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Bilder hochladen
@@ -278,7 +291,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
                 onChange={handleContentImagesUpload}
                 disabled={isLoading}
               />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-white/70">
                 Mehrere Bilder gleichzeitig auswählen möglich
               </span>
             </div>
@@ -303,7 +316,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1 truncate">
+                    <div className="text-xs text-white/70 mt-1 truncate">
                       {imageUrl.split('/').pop()}
                     </div>
                   </div>
@@ -311,18 +324,18 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               </div>
             )}
           </div>
-      <div className="text-xs text-muted-foreground space-y-1">
-        <p className="font-semibold text-amber-600 dark:text-amber-400">
+      <div className="text-xs text-white/70 space-y-1">
+        <p className="font-semibold text-amber-300">
           ⚠️ Wichtig: Bilder müssen mit Markdown-Syntax eingefügt werden!
         </p>
         <p>
           Diese Bilder können im Blog-Inhalt verwendet werden.
           Kopieren Sie die URLs und fügen Sie sie in den Markdown-Inhalt ein:
         </p>
-        <code className="bg-muted px-2 py-1 rounded block">![Bildbeschreibung](URL)</code>
-        <p className="text-amber-600 dark:text-amber-400">
-          ✗ Falsch: <code className="bg-muted px-1 rounded">/uploads/bild.jpg</code> (wird als Link angezeigt)<br />
-          ✓ Richtig: <code className="bg-muted px-1 rounded">![Mein Bild](/uploads/bild.jpg)</code> (wird als Bild angezeigt)
+        <code className="bg-white/10 px-2 py-1 rounded block text-white">![Bildbeschreibung](URL)</code>
+        <p className="text-amber-300">
+          ✗ Falsch: <code className="bg-white/10 px-1 rounded text-white">/uploads/bild.jpg</code> (wird als Link angezeigt)<br />
+          ✓ Richtig: <code className="bg-white/10 px-1 rounded text-white">![Mein Bild](/uploads/bild.jpg)</code> (wird als Bild angezeigt)
         </p>
       </div>
         </div>
@@ -336,6 +349,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
             onChange={(e) => handleInputChange('excerpt', e.target.value)}
             placeholder="Kurze Beschreibung des Blog-Posts"
             rows={3}
+            className={inputStyles}
           />
         </div>
 
@@ -348,9 +362,9 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
             onChange={(e) => handleInputChange('content', e.target.value)}
             placeholder="Vollständiger Inhalt des Blog-Posts (Markdown-Formatierung möglich)"
             rows={12}
-            className="font-mono text-sm"
+            className={cn('font-mono text-sm', inputStyles)}
           />
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-white/70">
             <strong>Markdown-Unterstützung:</strong> Überschriften (# ## ###), 
             <strong>Fett</strong>, <em>Kursiv</em>, Listen (- *), Links [Text](URL), 
             Code `inline` und ```Blöcke```, Tabellen, Bilder ![Alt](URL)
@@ -369,6 +383,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               onChange={(e) => setNewTag(e.target.value)}
               placeholder="Neues Tag hinzufügen"
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+              className={inputStyles}
             />
             <Button type="button" onClick={handleAddTag} size="sm">
               <Plus className="h-4 w-4" />
@@ -376,7 +391,11 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
           </div>
           <div className="flex flex-wrap gap-2">
             {formData.tags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="flex items-center gap-1">
+              <Badge
+                key={index}
+                variant="secondary"
+                className="flex items-center gap-1 bg-white/10 text-white border border-white/20"
+              >
                 {tag}
                 <button
                   type="button"
@@ -397,7 +416,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               id="published"
               checked={formData.published}
               onCheckedChange={(checked) => handleInputChange('published', checked)}
-              className="data-[state=checked]:bg-gray-400 data-[state=unchecked]:bg-gray-200"
+              className="data-[state=checked]:bg-white data-[state=unchecked]:bg-white/30"
             />
             <Label htmlFor="published" className="flex items-center gap-2">
               {formData.published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
@@ -409,7 +428,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               id="featured"
               checked={formData.featured}
               onCheckedChange={(checked) => handleInputChange('featured', checked)}
-              className="data-[state=checked]:bg-gray-400 data-[state=unchecked]:bg-gray-200"
+              className="data-[state=checked]:bg-white data-[state=unchecked]:bg-white/30"
             />
             <Label htmlFor="featured">Featured Post</Label>
           </div>
@@ -421,7 +440,12 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
             <Save className="h-4 w-4 mr-2" />
             {isLoading ? 'Speichern...' : 'Speichern'}
           </Button>
-          <Button variant="outline" onClick={onCancel} disabled={isLoading} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="flex-1 border-white/40 text-white hover:bg-white/10"
+          >
             <X className="h-4 w-4 mr-2" />
             Abbrechen
           </Button>
