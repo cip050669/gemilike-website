@@ -62,7 +62,7 @@ export function NewGemstonesCarousel({ gemstones, locale, description }: NewGems
             </p>
           )}
         </div>
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3 mt-[15px]">
           <Button
             type="button"
             size="icon"
@@ -89,7 +89,7 @@ export function NewGemstonesCarousel({ gemstones, locale, description }: NewGems
       <div className="relative">
         <div
           ref={scrollRef}
-          className="flex gap-5 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600/50 scrollbar-track-transparent snap-x snap-mandatory pb-2"
+          className="flex gap-[75px] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600/50 scrollbar-track-transparent snap-x snap-mandatory pb-2"
         >
           {items.map((gemstone) => {
             const imageSrc = gemstone.mainImage || gemstone.images?.[0] || '/products/placeholder-gem.jpg';

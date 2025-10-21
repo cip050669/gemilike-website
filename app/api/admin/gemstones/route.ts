@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { extractPayload, normaliseGemstonePayload } from './utils';
 
 export async function GET(request: NextRequest) {
   try {
@@ -69,33 +70,19 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const { payload, uploadedImage } = await extractPayload(request);
+
+    if (!payload.name) {
+      return NextResponse.json(
+        { success: false, error: 'Name ist erforderlich' },
+        { status: 400 }
+      );
+    }
+
+    const data = normaliseGemstonePayload(payload, uploadedImage);
     
     const gemstone = await prisma.gemstone.create({
-      data: {
-        name: body.name,
-        category: body.category || 'Edelstein',
-        type: body.type || 'cut',
-        price: parseFloat(body.price) || 0,
-        weight: body.weight ? parseFloat(body.weight) : null,
-        dimensions: body.dimensions,
-        color: body.color,
-        colorIntensity: body.colorIntensity,
-        colorBrightness: body.colorBrightness,
-        clarity: body.clarity,
-        cut: body.cut,
-        cutForm: body.cutForm,
-        treatment: body.treatment,
-        certification: body.certification,
-        rarity: body.rarity,
-        origin: body.origin,
-        description: body.description,
-        images: body.images,
-        inStock: body.inStock !== false,
-        stock: parseInt(body.stock) || 0,
-        sku: body.sku,
-        isNew: body.isNew || false
-      }
+      data,
     });
 
     return NextResponse.json({

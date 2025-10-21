@@ -224,7 +224,7 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
       {/* Thumbnail Navigation */}
       {allMedia.length > 1 && (
         <div 
-          className="grid grid-cols-3 gap-1.5 pb-1 px-0"
+          className="flex flex-wrap pb-1 px-0"
           role="tablist"
           aria-label="Bildergalerie Navigation"
         >
@@ -238,6 +238,10 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
                   ? "border-primary ring-2 ring-primary/20 scale-105 shadow-md"
                   : "border-gray-200 hover:border-primary/50 hover:scale-102 shadow-sm"
               )}
+              style={{
+                marginRight: (index + 1) % 3 === 0 ? 0 : 75,
+                marginBottom: 75,
+              }}
               role="tab"
               aria-selected={selectedIndex === index}
               aria-label={`${media.type === 'video' ? 'Video' : 'Bild'} ${media.index + 1} auswählen`}

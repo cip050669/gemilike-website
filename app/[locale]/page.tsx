@@ -37,7 +37,6 @@ export default async function HomePage({
       const bTime = new Date(b.publishedAt ?? b.updatedAt ?? b.createdAt).getTime();
       return bTime - aTime;
     })
-    .slice(0, 3)
     .map((blog) => {
       const baseText = blog.excerpt?.trim() || stripMarkdown(blog.content);
       const excerpt =
@@ -82,7 +81,7 @@ export default async function HomePage({
         </p>
         {stories.length > 0 ? (
           <div className="max-h-[620px] overflow-y-auto pr-3 scrollbar-thin">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[75px]">
               {stories.map((story) => (
                 <div
                   key={story.id}

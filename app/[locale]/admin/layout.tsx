@@ -24,6 +24,7 @@ export default function AdminLayout({
     { href: '/de/admin/worldmap', label: '🗺️ Weltkarte', section: 'content' },
     { href: '/de/admin/pictogram-descriptions', label: '🔣 Piktogramme', section: 'content' },
     
+    { href: '/de/admin/gemstones', label: '💎 Edelsteine', section: 'shop' },
     { href: '/de/admin/customers', label: '👥 Kunden', section: 'shop' },
     { href: '/de/admin/orders', label: '🛒 Bestellungen', section: 'shop' },
     
