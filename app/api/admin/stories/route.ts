@@ -82,8 +82,6 @@ export async function POST(request: NextRequest) {
       const imageFile = formData.get('imageUpload') as File;
       if (imageFile && imageFile.size > 0) {
         // Create uploads directory if it doesn't exist
-        const fs = require('fs');
-        const path = require('path');
         const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
         
         if (!fs.existsSync(uploadsDir)) {

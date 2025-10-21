@@ -1,15 +1,13 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { GemIcon, StarIcon, ShieldIcon, TruckIcon } from 'lucide-react';
-import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
+import { NewGemstonesCarousel } from '@/components/home/NewGemstonesCarousel';
 import { loadBlogs } from '@/lib/data/blogs';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 import { loadNewstickerData } from '@/app/api/admin/newsticker/route';
 import { Newsticker } from '@/components/ui/Newsticker';
+import { getNewGemstones } from '@/lib/data/gemstones';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -31,6 +29,7 @@ export default async function HomePage({
   const blogSettings = await loadBlogSectionSettings();
   const newstickerItems = loadNewstickerData();
   const activeNewstickerItems = newstickerItems.filter((item) => item.isActive);
+  const newGemstones = getNewGemstones(12);
   const stories = blogs
     .filter((blog) => blog.published)
     .sort((a, b) => {
@@ -68,7 +67,7 @@ export default async function HomePage({
 
       {/* Newsticker */}
       {activeNewstickerItems.length > 0 && (
-        <div className="my-[150px] flex justify-center px-6">
+        <div className="my-[150px]">
           <Newsticker items={activeNewstickerItems} />
         </div>
       )}
@@ -82,7 +81,7 @@ export default async function HomePage({
           <span style={{ color: blogSettings.subheadingColor }}>{blogSettings.subheading}</span>
         </p>
         {stories.length > 0 ? (
-          <div className="max-h-[340px] overflow-y-auto pr-3 scrollbar-thin">
+          <div className="max-h-[620px] overflow-y-auto pr-3 scrollbar-thin">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {stories.map((story) => (
                 <div
@@ -155,34 +154,11 @@ export default async function HomePage({
       </div>
 
       {/* Container 2: Neue Edelsteine */}
-      <div className="main-container">
-        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-white text-center">NEUE EDELSTEINE</h2>
-        <p className="text-lg text-gray-300 text-center mb-16">
-          Entdecken Sie unsere neuesten und exklusivsten Edelsteine
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="gem-card">
-            <GemIcon className="h-20 w-20 text-primary mx-auto mb-6" />
-            <h3 className="text-xl font-bold mb-4 text-white">Neuer Diamant</h3>
-            <p className="text-gray-300 text-base">Frisch geschliffen</p>
-          </div>
-          <div className="gem-card">
-            <GemIcon className="h-20 w-20 text-secondary mx-auto mb-6" />
-            <h3 className="text-xl font-bold mb-4 text-white">Seltener Smaragd</h3>
-            <p className="text-gray-300 text-base">Aus Kolumbien</p>
-          </div>
-          <div className="gem-card">
-            <GemIcon className="h-20 w-20 text-accent mx-auto mb-6" />
-            <h3 className="text-xl font-bold mb-4 text-white">Exklusiver Rubin</h3>
-            <p className="text-gray-300 text-base">Aus Myanmar</p>
-          </div>
-          <div className="gem-card">
-            <GemIcon className="h-20 w-20 text-primary mx-auto mb-6" />
-            <h3 className="text-xl font-bold mb-4 text-white">Saphir</h3>
-            <p className="text-gray-300 text-base">Aus Sri Lanka</p>
-          </div>
-        </div>
-      </div>
+      <NewGemstonesCarousel
+        gemstones={newGemstones}
+        locale={locale}
+        description="Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar."
+      />
     </div>
     </PublicLayout>
   );

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 import { loadStoriesData, saveStoriesData } from '../route';
 
 // GET - Fetch single story
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const method = formData.get('_method') as string;
 
     if (method === 'PUT') {
-      let title = formData.get('title') as string;
+      const title = formData.get('title') as string;
       let content = formData.get('content') as string;
       const author = formData.get('author') as string;
       const status = formData.get('status') as string;
@@ -88,8 +90,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       const imageFile = formData.get('imageUpload') as File;
       if (imageFile && imageFile.size > 0) {
         // Create uploads directory if it doesn't exist
-        const fs = require('fs');
-        const path = require('path');
         const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
         
         if (!fs.existsSync(uploadsDir)) {

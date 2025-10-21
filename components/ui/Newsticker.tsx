@@ -83,8 +83,11 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
   };
 
   return (
-    <div className="newsticker-container mx-auto" style={{ width: 'calc(100% - 16rem)' }}>
-      <div className="flex items-center gap-6 px-8 py-[6px]">
+    <div className="newsticker-container mx-auto space-y-4" style={{ width: 'calc(100% - 16rem)' }}>
+      <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white text-center">
+        Newsticker
+      </h2>
+      <div className="story-card bg-[#2D2D2D] border border-white/10 px-8 py-4 flex items-center gap-6">
         <div className="flex items-center gap-4 flex-1 overflow-hidden">
           <div
             className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10"
