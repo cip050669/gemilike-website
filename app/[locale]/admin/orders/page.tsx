@@ -1,28 +1,5 @@
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  userId: string;
-  status: string;
-  total: number;
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  currency: string;
-  paymentMethod?: string;
-  paymentStatus: string;
-  shippingMethod?: string;
-  trackingNumber?: string;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  user?: {
-    id: string;
-    name?: string;
-    email: string;
-  };
-}
 
 export default async function OrdersPage() {
   // Fetch orders from database
@@ -52,22 +29,18 @@ export default async function OrdersPage() {
               </p>
             </div>
             <div className="flex gap-4">
-              <form action="/de/admin/orders/export" method="get">
-                <button
-                  type="submit"
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium"
-                >
-                  📊 Export
-                </button>
-              </form>
-              <form action="/de/admin/orders/new" method="get">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
-                >
-                  + Neue Bestellung
-                </button>
-              </form>
+              <Link
+                href="/de/admin/orders/export"
+                className="inline-flex items-center bg-green-600 px-6 py-3 font-medium text-white rounded-lg hover:bg-green-700"
+              >
+                📊 Export
+              </Link>
+              <Link
+                href="/de/admin/orders/new"
+                className="inline-flex items-center bg-blue-600 px-6 py-3 font-medium text-white rounded-lg hover:bg-blue-700"
+              >
+                + Neue Bestellung
+              </Link>
             </div>
           </div>
         </div>

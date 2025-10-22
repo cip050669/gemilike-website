@@ -1,30 +1,6 @@
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  userId: string;
-  status: string;
-  total: number;
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  currency: string;
-  paymentMethod?: string;
-  paymentStatus: string;
-  shippingMethod?: string;
-  trackingNumber?: string;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  user?: {
-    id: string;
-    name?: string;
-    email: string;
-    phone?: string;
-  };
-}
 
 export default async function ViewOrderPage({
   params,
@@ -64,22 +40,18 @@ export default async function ViewOrderPage({
               </p>
             </div>
             <div className="flex gap-4">
-              <form action={`/de/admin/orders/edit/${order.id}`} method="get">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
-                >
-                  ✏️ Bearbeiten
-                </button>
-              </form>
-              <form action="/de/admin/orders" method="get">
-                <button
-                  type="submit"
-                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
-                >
-                  ← Zurück
-                </button>
-              </form>
+              <Link
+                href={`/de/admin/orders/edit/${order.id}`}
+                className="inline-flex items-center bg-blue-600 px-6 py-3 font-medium text-white rounded-lg hover:bg-blue-700"
+              >
+                ✏️ Bearbeiten
+              </Link>
+              <Link
+                href="/de/admin/orders"
+                className="inline-flex items-center bg-gray-600 px-6 py-3 font-medium text-white rounded-lg hover:bg-gray-700"
+              >
+                ← Zurück
+              </Link>
             </div>
           </div>
         </div>
@@ -143,14 +115,12 @@ export default async function ViewOrderPage({
                   </div>
                 )}
                 <div className="pt-4">
-                  <form action={`/de/admin/customers/view/${order.user.id}`} method="get">
-                    <button
-                      type="submit"
-                      className="text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                      👤 Kundenprofil anzeigen
-                    </button>
-                  </form>
+                  <Link
+                    href={`/de/admin/customers/view/${order.user.id}`}
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    👤 Kundenprofil anzeigen
+                  </Link>
                 </div>
               </div>
             ) : (

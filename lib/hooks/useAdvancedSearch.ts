@@ -42,13 +42,6 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [isLoadingSavedSearches, setIsLoadingSavedSearches] = useState(false);
 
-  // Load saved searches on mount
-  useEffect(() => {
-    if (session?.user?.id) {
-      loadSavedSearches();
-    }
-  }, [session?.user?.id]);
-
   const loadSavedSearches = useCallback(async () => {
     if (!session?.user?.id) return;
     
@@ -67,6 +60,12 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
       setIsLoadingSavedSearches(false);
     }
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      void loadSavedSearches();
+    }
+  }, [loadSavedSearches, session?.user?.id]);
 
   const search = useCallback(async (filters: SearchFilters) => {
     setIsLoading(true);

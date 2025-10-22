@@ -2,26 +2,38 @@
 
 import { useState, useEffect } from 'react';
 
+const defaultSettings = {
+  title: 'Gemilike - Heroes in Gems',
+  subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine',
+  backgroundImage: null as string | null,
+  ctaText: 'Entdecken Sie unsere Edelsteine',
+  ctaLink: '/gemstones',
+};
+
+type HeroSettings = typeof defaultSettings;
+
 export function useHeroSettings() {
-  const [heroSettings, setHeroSettings] = useState({
-    title: 'Gemilike - Heroes in Gems',
-    subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine',
-    backgroundImage: null,
-    ctaText: 'Entdecken Sie unsere Edelsteine',
-    ctaLink: '/gemstones'
-  });
+  const [heroSettings, setHeroSettings] = useState<HeroSettings>(defaultSettings);
 
   useEffect(() => {
-    // Load settings from localStorage or API
-    const saved = localStorage.getItem('heroSettings');
+    if (typeof window === 'undefined') return;
+
+    const saved = window.localStorage.getItem('heroSettings');
     if (saved) {
-      setHeroSettings(JSON.parse(saved));
+      try {
+        const parsed = JSON.parse(saved) as HeroSettings;
+        setHeroSettings({ ...defaultSettings, ...parsed });
+      } catch {
+        // ignore invalid JSON
+      }
     }
   }, []);
 
-  const updateSettings = (newSettings: any) => {
+  const updateSettings = (newSettings: HeroSettings) => {
     setHeroSettings(newSettings);
-    localStorage.setItem('heroSettings', JSON.stringify(newSettings));
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('heroSettings', JSON.stringify(newSettings));
+    }
   };
 
   return { heroSettings, updateSettings };

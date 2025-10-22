@@ -2,24 +2,48 @@
 
 import { useState, useEffect } from 'react';
 
+type StoryEntry = {
+  id?: string;
+  title?: string;
+  description?: string;
+  imageUrl?: string;
+  [key: string]: unknown;
+};
+
+type StorySettings = {
+  title: string;
+  description: string;
+  stories: StoryEntry[];
+};
+
+const defaultStorySettings: StorySettings = {
+  title: 'Unsere Geschichte',
+  description: 'Seit über 20 Jahren sind wir Ihr vertrauensvoller Partner für Edelsteine',
+  stories: [],
+};
+
 export function useStorySettings() {
-  const [storySettings, setStorySettings] = useState({
-    title: 'Unsere Geschichte',
-    description: 'Seit über 20 Jahren sind wir Ihr vertrauensvoller Partner für Edelsteine',
-    stories: []
-  });
+  const [storySettings, setStorySettings] = useState<StorySettings>(defaultStorySettings);
 
   useEffect(() => {
-    // Load settings from localStorage or API
-    const saved = localStorage.getItem('storySettings');
+    if (typeof window === 'undefined') return;
+
+    const saved = window.localStorage.getItem('storySettings');
     if (saved) {
-      setStorySettings(JSON.parse(saved));
+      try {
+        const parsed = JSON.parse(saved) as StorySettings;
+        setStorySettings({ ...defaultStorySettings, ...parsed });
+      } catch {
+        // ignore invalid JSON
+      }
     }
   }, []);
 
-  const updateSettings = (newSettings: any) => {
+  const updateSettings = (newSettings: StorySettings) => {
     setStorySettings(newSettings);
-    localStorage.setItem('storySettings', JSON.stringify(newSettings));
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('storySettings', JSON.stringify(newSettings));
+    }
   };
 
   return { storySettings, updateSettings };

@@ -1,67 +1,6 @@
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  userId?: string;
-  status: string;
-  total: number;
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  currency: string;
-  paymentMethod?: string;
-  paymentStatus: string;
-  shippingMethod?: string;
-  trackingNumber?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-  user?: {
-    id: string;
-    name?: string;
-    email: string;
-    phone?: string;
-  };
-  orderItems?: Array<{
-    id: string;
-    quantity: number;
-    price: number;
-    total: number;
-    gemstone: {
-      id: string;
-      name: string;
-      price: number;
-    };
-  }>;
-  billingAddress?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    company?: string;
-    address1: string;
-    address2?: string;
-    city: string;
-    state?: string;
-    postalCode: string;
-    country: string;
-    phone?: string;
-  };
-  shippingAddress?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    company?: string;
-    address1: string;
-    address2?: string;
-    city: string;
-    state?: string;
-    postalCode: string;
-    country: string;
-    phone?: string;
-  };
-}
 
 export default async function EditOrderPage({
   params,
@@ -115,22 +54,18 @@ export default async function EditOrderPage({
               </p>
             </div>
             <div className="flex gap-4">
-              <form action={`/de/admin/orders/view/${order.id}`} method="get">
-                <button
-                  type="submit"
-                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
-                >
-                  👁️ Anzeigen
-                </button>
-              </form>
-              <form action="/de/admin/orders" method="get">
-                <button
-                  type="submit"
-                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
-                >
-                  ← Zurück
-                </button>
-              </form>
+              <Link
+                href={`/de/admin/orders/view/${order.id}`}
+                className="inline-flex items-center bg-gray-600 px-6 py-3 font-medium text-white rounded-lg hover:bg-gray-700"
+              >
+                👁️ Anzeigen
+              </Link>
+              <Link
+                href="/de/admin/orders"
+                className="inline-flex items-center bg-gray-600 px-6 py-3 font-medium text-white rounded-lg hover:bg-gray-700"
+              >
+                ← Zurück
+              </Link>
             </div>
           </div>
         </div>
@@ -318,12 +253,12 @@ export default async function EditOrderPage({
 
           {/* Buttons */}
           <div className="flex justify-end gap-4 mt-8 pt-6 border-t">
-            <a
+            <Link
               href="/de/admin/orders"
               className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               Abbrechen
-            </a>
+            </Link>
             <button
               type="submit"
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
