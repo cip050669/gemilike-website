@@ -67,7 +67,7 @@ export function Footer() {
   return (
     <footer className="bg-gem-bgDark border-t border-gem-iceDark/20">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-row gap-8">
           
           {/* Spalte 1: Logo + Social Media */}
           <div className="flex-1 space-y-6">
