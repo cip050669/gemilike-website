@@ -94,8 +94,9 @@ export function Footer() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(56,189,248,0.12),_transparent_55%)]" />
 
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 py-16 lg:px-8 lg:py-24">
-        <div className="grid gap-10 lg:grid-cols-[minmax(320px,1.1fr),repeat(4,minmax(160px,1fr))]">
-          <div className="space-y-8">
+        {/* Brand and Newsletter Section */}
+        <div className="mb-12">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
             <div className="space-y-4">
               <Link href="/" className="inline-flex flex-col gap-3">
                 <span className="gemilike-text-gradient text-3xl font-impact tracking-wide">Gemilike</span>
@@ -107,24 +108,23 @@ export function Footer() {
                 Wir begleiten Sammler, Investorinnen und Schmuckschaffende mit kuratierten Edelsteinen,
                 nachvollziehbarer Herkunft und Beratung, die jede Facette versteht.
               </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {socialLinks.map((social) => (
-                <Link
-                  key={social.label}
-                  href={social.href}
-                  aria-label={social.label}
-                  className="group inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:border-cyan-400/60 hover:text-cyan-300"
-                >
-                  <social.icon className="h-5 w-5 transition group-hover:scale-110" />
-                </Link>
-              ))}
+              <div className="flex flex-wrap items-center gap-3">
+                {socialLinks.map((social) => (
+                  <Link
+                    key={social.label}
+                    href={social.href}
+                    aria-label={social.label}
+                    className="group inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:border-cyan-400/60 hover:text-cyan-300"
+                  >
+                    <social.icon className="h-5 w-5 transition group-hover:scale-110" />
+                  </Link>
+                ))}
+              </div>
             </div>
 
             <form
               onSubmit={handleNewsletterSubmit}
-              className="group relative flex flex-col overflow-hidden rounded-3xl border border-cyan-500/30 bg-slate-900/70 p-6 shadow-lg shadow-cyan-500/10"
+              className="group relative flex flex-col overflow-hidden rounded-3xl border border-cyan-500/30 bg-slate-900/70 p-6 shadow-lg shadow-cyan-500/10 max-w-md"
               aria-labelledby="newsletter-heading"
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.14),_transparent_55%)]" />
@@ -169,7 +169,10 @@ export function Footer() {
               </div>
             </form>
           </div>
+        </div>
 
+        {/* Horizontal Navigation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {navigationColumns.map((column) => (
             <div key={column.heading} className="space-y-4">
               <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">{column.heading}</h3>
