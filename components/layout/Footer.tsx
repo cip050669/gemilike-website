@@ -84,7 +84,7 @@ export function Footer() {
         <div className="mb-12 flex justify-center">
           <form
             onSubmit={handleNewsletterSubmit}
-            className="group relative flex flex-col overflow-hidden rounded-3xl border border-red-500/30 bg-red-900/70 p-6 shadow-lg shadow-red-500/10 w-32"
+            className="group relative flex w-[24rem] max-w-full flex-col overflow-hidden rounded-3xl border border-red-500/30 bg-red-900/70 p-6 shadow-lg shadow-red-500/10"
             aria-labelledby="newsletter-heading"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.14),_transparent_55%)]" />
@@ -182,4 +182,3 @@ export function Footer() {
     </footer>
   );
 }
-
