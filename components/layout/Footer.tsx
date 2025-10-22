@@ -131,14 +131,15 @@ export function Footer() {
         </div>
 
         {/* Navigation */}
-        <div className="h-[350px] flex flex-row gap-8 mb-12 overflow-hidden">
+        <div className="h-[350px] flex flex-row gap-8 mb-12 overflow-visible">
           {/* Navigation Columns */}
           {navigationColumns.map((column, index) => (
-            <div 
-              key={column.heading} 
+            <div
+              key={column.heading}
               className={`flex-1 space-y-4 overflow-y-auto ${
-                column.heading === 'Rechtliches' ? 'ml-[-150px]' : 
-                column.heading === 'Kontakt' ? 'ml-[-150px]' : ''
+                index === 0 ? 'lg:flex-none lg:w-[calc(33.333%-200px)] lg:max-w-[calc(33.333%-200px)]' : ''
+              } ${
+                column.heading === 'Rechtliches' ? 'ml-[-250px]' : column.heading === 'Kontakt' ? 'ml-[-150px]' : ''
               }`}
             >
               <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">{column.heading}</h3>

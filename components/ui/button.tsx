@@ -9,19 +9,19 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong active:bg-primary-press focus-visible:ring-primary-focus",
+          "bg-gem-fire text-gem-bgDark shadow-primary-glow hover:bg-gem-fireLight hover:text-gem-bgDark active:bg-gem-fireDark focus-visible:ring-gem-fire/50",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-gem-compGreen text-gem-text hover:bg-gem-compGreen/90 focus-visible:ring-gem-compGreen/50",
         outline:
-          "border border-primary/70 bg-transparent text-primary hover:bg-primary-soft hover:text-primary-foreground focus-visible:ring-primary-focus",
+          "border border-gem-ice/70 bg-transparent text-gem-ice hover:bg-gem-ice/10 hover:text-gem-iceLight focus-visible:ring-gem-ice/50",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-secondary-glow hover:bg-secondary-strong active:bg-secondary-press focus-visible:ring-secondary-focus",
+          "bg-gem-ice text-gem-bgDark shadow-secondary-glow hover:bg-gem-iceLight hover:text-gem-bgDark active:bg-gem-iceDark focus-visible:ring-gem-ice/50",
         accent:
-          "bg-accent text-accent-foreground hover:bg-accent/90 focus-visible:ring-primary-focus",
+          "bg-gem-green text-gem-bgDark hover:bg-gem-green/90 focus-visible:ring-gem-green/50",
         ghost:
-          "text-link hover:text-link-hover hover:bg-link-soft focus-visible:ring-link-focus",
+          "text-gem-ice hover:text-gem-iceLight hover:bg-gem-ice/10 focus-visible:ring-gem-ice/50",
         link:
-          "text-link underline-offset-4 hover:text-link-hover hover:underline focus-visible:ring-link-focus",
+          "text-gem-ice underline-offset-4 hover:text-gem-iceLight hover:underline focus-visible:ring-gem-ice/50",
       },
       size: {
         default: "h-10 px-4 py-2",

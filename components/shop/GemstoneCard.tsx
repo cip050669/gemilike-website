@@ -47,7 +47,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {/* Neu Badge oben links */}
           {gemstone.isNew && (
             <div className="absolute top-2 left-2 z-10">
-              <Badge className="bg-orange-500 text-black shadow-sm text-xs font-bold px-2 py-1">
+              <Badge className="bg-gem-fire text-gem-bgDark shadow-sm text-xs font-bold px-2 py-1">
                 {adminT('isNew')}
               </Badge>
             </div>
@@ -57,7 +57,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           <div className="absolute top-2 right-8 z-10">
             <WishlistButton 
               gemstoneId={gemstone.id}
-              className="bg-purple-100/90 hover:bg-purple-200/90 shadow-sm h-6 w-6"
+              className="bg-gem-purple/90 hover:bg-gem-purple/80 shadow-sm h-6 w-6"
             />
           </div>
         </div>
@@ -74,14 +74,14 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
               {gemstone.name}
             </CardTitle>
             <div 
-              className="bg-primary text-primary-foreground px-2 py-1 rounded-md text-sm font-bold ml-2 flex-shrink-0"
+              className="bg-gem-fire text-gem-bgDark px-2 py-1 rounded-md text-sm font-bold ml-2 flex-shrink-0"
               aria-label={`Preis: ${gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })} Euro`}
             >
               €{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
             </div>
           </div>
           <CardDescription 
-            className="text-xs text-muted-foreground"
+            className="text-xs text-gem-text2"
             aria-describedby={`gemstone-title-${gemstone.id}`}
           >
             {gemstone.category}
@@ -89,7 +89,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
         </div>
 
         {/* Beschreibung */}
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-2 flex-shrink-0">
+        <p className="text-xs text-gem-text2 mb-3 line-clamp-2 flex-shrink-0">
           {gemstone.description}
         </p>
 
@@ -200,7 +200,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {isCutGemstone(gemstone) && gemstone.colorSaturation && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="CircleDot" />
-              <span className="text-muted-foreground">Helligkeit:</span>
+              <span className="text-gem-text2">Helligkeit:</span>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: 10 }, (_, i) => {
                   const level = i + 1;
@@ -220,10 +220,10 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
                       key={level}
                       className={`h-3 w-3 rounded-full transition-all duration-200 ${
                         isCurrentLevel
-                          ? 'border border-blue-500 shadow-lg scale-[1.82]' // 10% kleiner (2.025 - 0.2 = 1.82)
+                          ? 'border border-gem-ice shadow-lg scale-[1.82]' // 10% kleiner (2.025 - 0.2 = 1.82)
                           : level >= 7 
                           ? '' // Keine Umrandung für Stufen 7-10
-                          : 'border border-gray-400'
+                          : 'border border-gem-iceDark/40'
                       }`}
                       style={{
                         backgroundColor: colorForLevel,
@@ -234,8 +234,8 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
                   );
                 })}
               </div>
-              <div className="bg-gray-100 border-2 border-gray-400 rounded-md px-2 py-1 shadow-sm">
-                <span className="text-xs font-bold text-gray-800">
+              <div className="bg-gem-ice/20 border-2 border-gem-ice rounded-md px-2 py-1 shadow-sm">
+                <span className="text-xs font-bold text-gem-ice">
                   {gemstone.colorSaturation}/10
                 </span>
               </div>
@@ -255,7 +255,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {isCutGemstone(gemstone) && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Shapes" />
-              <span className="text-muted-foreground">{t('form')}:</span>
+              <span className="text-gem-text2">{t('form')}:</span>
               <span className="font-medium">{gemstone.cutForm || 'Nicht angegeben'}</span>
             </div>
           )}
@@ -264,7 +264,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {isRoughGemstone(gemstone) && gemstone.crystalForm && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Shapes" />
-              <span className="text-muted-foreground">Kristallform:</span>
+              <span className="text-gem-text2">Kristallform:</span>
               <span className="font-medium">{gemstone.crystalForm}</span>
             </div>
           )}
@@ -274,7 +274,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {isRoughGemstone(gemstone) && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Star" />
-              <span className="text-muted-foreground">{t('quality')}:</span>
+              <span className="text-gem-text2">{t('quality')}:</span>
               <span className="font-medium">{gemstone.crystalQuality}</span>
             </div>
           )}
@@ -282,7 +282,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {/* Behandlung */}
           <div className="flex items-center gap-2" role="listitem">
             <PictogramWithTooltip iconName="FlaskConical" />
-            <span className="text-muted-foreground">{t('treatment')}:</span>
+            <span className="text-gem-text2">{t('treatment')}:</span>
             <TreatmentIcon treatment={gemstone.treatment} size="lg-sm" showText={true} />
           </div>
         </div>

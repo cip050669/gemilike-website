@@ -52,9 +52,8 @@ export function Header() {
 
   return (
     <div 
-      className="fixed top-0 z-50 h-16"
+      className="fixed top-0 z-50 h-16 bg-gem-bgDark/90 backdrop-blur-md border-b border-gem-iceDark/20"
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
         backdropFilter: 'blur(15px)',
         WebkitBackdropFilter: 'blur(15px)',
         position: 'fixed',
@@ -62,7 +61,6 @@ export function Header() {
         left: '0',
         right: '0',
         width: '100%',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       }}
     >
@@ -91,9 +89,9 @@ export function Header() {
                 key={href}
                 href={buildHref(href)}
                 className={cn(
-                  'relative inline-flex items-center justify-center px-4 py-2 text-sm lg:text-base font-semibold text-white/80 whitespace-nowrap transition-all duration-200 rounded-full border border-white/10 backdrop-blur-sm',
-                  'hover:text-white hover:border-white/25 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent',
-                  isActive && 'text-white bg-white/15 border-white/40 shadow-[0_12px_32px_rgba(15,10,30,0.35)]'
+                  'relative inline-flex items-center justify-center px-4 py-2 text-sm lg:text-base font-semibold text-gem-text/80 whitespace-nowrap transition-all duration-200 rounded-full border border-gem-ice/20 backdrop-blur-sm',
+                  'hover:text-gem-text hover:border-gem-ice/40 hover:bg-gem-ice/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gem-ice/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent',
+                  isActive && 'text-gem-text bg-gem-ice/15 border-gem-ice/40 shadow-[0_12px_32px_rgba(0,188,212,0.35)]'
                 )}
               >
                 <span>{label}</span>
@@ -105,18 +103,18 @@ export function Header() {
         {/* Right Side Actions - Rechts */}
         <div className="hidden md:flex items-center justify-end space-x-3 lg:space-x-4 flex-shrink-0">
           {/* Action Buttons */}
-          <Button variant="outline" size="icon" className="h-9 w-9">
+          <Button variant="outline" size="icon" className="h-9 w-9 border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50">
             <UserIcon className="h-4 w-4" />
           </Button>
           <Button 
             variant="outline" 
             size="icon" 
             onClick={toggleCart}
-            className="relative h-9 w-9"
+            className="relative h-9 w-9 border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
           >
             <ShoppingCartIcon className="h-4 w-4" />
             {isMounted && getTotalItems() > 0 && (
-              <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {getTotalItems()}
               </span>
             )}
@@ -129,18 +127,18 @@ export function Header() {
             variant="outline" 
             size="icon" 
             onClick={toggleCart}
-            className="relative"
+            className="relative border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
           >
             <ShoppingCartIcon className="h-4 w-4" />
             {isMounted && getTotalItems() > 0 && (
-              <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {getTotalItems()}
               </span>
             )}
           </Button>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50">
                 <MenuIcon className="h-6 w-6" />
               </Button>
             </SheetTrigger>
@@ -154,13 +152,13 @@ export function Header() {
                       key={href}
                       href={buildHref(href)}
                       className={cn(
-                        'flex items-center justify-between rounded-xl border border-border/40 bg-background/60 px-4 py-3 text-base font-medium transition-colors duration-200',
-                        'hover:border-primary/40 hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2',
-                        isActive && 'border-primary/50 bg-primary/10 text-primary'
+                        'flex items-center justify-between rounded-xl border border-gem-ice/40 bg-gem-bgDark/60 px-4 py-3 text-base font-medium transition-colors duration-200 text-gem-text',
+                        'hover:border-gem-ice/60 hover:bg-gem-ice/10 hover:text-gem-iceLight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gem-ice/40 focus-visible:ring-offset-2',
+                        isActive && 'border-gem-ice/60 bg-gem-ice/15 text-gem-iceLight'
                       )}
                     >
                       {label}
-                      <span className="text-xs uppercase tracking-wide text-foreground/60">Entdecken</span>
+                      <span className="text-xs uppercase tracking-wide text-gem-text2/60">Entdecken</span>
                     </Link>
                   );
                 })}

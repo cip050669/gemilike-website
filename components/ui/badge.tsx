@@ -8,17 +8,21 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-primary/40 bg-primary-soft text-primary focus:ring-primary-focus",
+          "border-gem-fire/40 bg-gem-fire/20 text-gem-fire focus:ring-gem-fire/50",
         secondary:
-          "border-secondary/40 bg-secondary-soft text-secondary-foreground focus:ring-secondary-focus",
+          "border-gem-ice/40 bg-gem-ice/20 text-gem-ice focus:ring-gem-ice/50",
         destructive:
-          "border-destructive/40 bg-destructive/20 text-destructive-foreground focus:ring-destructive",
+          "border-gem-compGreen/40 bg-gem-compGreen/20 text-gem-compGreen focus:ring-gem-compGreen/50",
         accent:
-          "border-accent/40 bg-accent-soft text-accent-foreground focus:ring-primary-focus",
+          "border-gem-green/40 bg-gem-green/20 text-gem-green focus:ring-gem-green/50",
         outline:
-          "border-white/25 bg-transparent text-foreground hover:bg-white/10 focus:ring-primary-focus",
+          "border-gem-ice/25 bg-transparent text-gem-text hover:bg-gem-ice/10 focus:ring-gem-ice/50",
         ice:
-          "border-secondary/50 bg-secondary/20 text-secondary-foreground focus:ring-secondary-focus",
+          "border-gem-ice/50 bg-gem-ice/20 text-gem-ice focus:ring-gem-ice/50",
+        fire:
+          "border-gem-fire/50 bg-gem-fire/20 text-gem-fire focus:ring-gem-fire/50",
+        purple:
+          "border-gem-purple/50 bg-gem-purple/20 text-gem-purple focus:ring-gem-purple/50",
       },
     },
     defaultVariants: {

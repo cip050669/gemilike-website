@@ -16,17 +16,17 @@ export function AdminSidebar() {
   ];
 
   return (
-    <div className="w-64 bg-gray-900 text-white min-h-screen">
+    <div className="w-64 bg-gem-bgDark text-gem-text min-h-screen border-r border-gem-iceDark/20">
       <div className="p-6">
-        <h2 className="text-xl font-bold">{t('admin.title')}</h2>
+        <h2 className="text-xl font-bold text-gem-iceLight">{t('admin.title')}</h2>
       </div>
       <nav className="mt-6">
         {menuItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center px-6 py-3 hover:bg-gray-800 ${
-              pathname === item.href ? 'bg-gray-800' : ''
+            className={`flex items-center px-6 py-3 hover:bg-gem-ice/10 hover:text-gem-iceLight transition-colors ${
+              pathname === item.href ? 'bg-gem-ice/15 text-gem-iceLight border-r-2 border-gem-ice' : ''
             }`}
           >
             <span className="mr-3">{item.icon}</span>
