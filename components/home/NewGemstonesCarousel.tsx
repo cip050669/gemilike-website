@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Award, MapPin, Weight } from 'lucide-react';
+import { Award, MapPin, Weight } from 'lucide-react';
 import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
-import { Button } from '@/components/ui/button';
 
 interface NewGemstonesCarouselProps {
   gemstones: Gemstone[];
@@ -38,16 +37,6 @@ export function NewGemstonesCarousel({ gemstones, locale, description }: NewGems
     return null;
   }
 
-  const handleScroll = (direction: 'left' | 'right') => {
-    const container = scrollRef.current;
-    if (!container) return;
-    const scrollAmount = 260; // card width + gap
-    container.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth',
-    });
-  };
-
   return (
     <div className="main-container space-y-6">
       <div className="flex items-center justify-between">
@@ -62,34 +51,12 @@ export function NewGemstonesCarousel({ gemstones, locale, description }: NewGems
             </p>
           )}
         </div>
-        <div className="hidden md:flex items-center gap-3 mt-[15px]">
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            className="rounded-full border-white/40 text-white bg-white/10 hover:bg-white/20"
-            onClick={() => handleScroll('left')}
-            aria-label="Vorherige Edelsteine"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            className="rounded-full border-white/40 text-white bg-white/10 hover:bg-white/20"
-            onClick={() => handleScroll('right')}
-            aria-label="Nächste Edelsteine"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
 
       <div className="relative">
         <div
           ref={scrollRef}
-          className="flex gap-[75px] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600/50 scrollbar-track-transparent snap-x snap-mandatory pb-2"
+          className="flex gap-[75px] overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent snap-x snap-mandatory pb-2"
         >
           {items.map((gemstone) => {
             const imageSrc = gemstone.mainImage || gemstone.images?.[0] || '/products/placeholder-gem.jpg';
@@ -148,30 +115,6 @@ export function NewGemstonesCarousel({ gemstones, locale, description }: NewGems
               </Link>
             );
           })}
-        </div>
-
-        {/* Mobile controls */}
-        <div className="flex md:hidden justify-center gap-3 mt-4">
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            className="rounded-full border-white/40 text-white bg-white/10 hover:bg-white/20"
-            onClick={() => handleScroll('left')}
-            aria-label="Vorherige Edelsteine"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            className="rounded-full border-white/40 text-white bg-white/10 hover:bg-white/20"
-            onClick={() => handleScroll('right')}
-            aria-label="Nächste Edelsteine"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
         </div>
       </div>
     </div>
