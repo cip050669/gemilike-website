@@ -205,21 +205,10 @@ export function Footer() {
 
         {/* Footer Bottom */}
         <div className="mt-12 pt-8 border-t border-gem-iceDark/20">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex justify-center">
             <p className="text-sm text-gem-text2">
               © {new Date().getFullYear()} Gemilike. Alle Rechte vorbehalten.
             </p>
-            <div className="flex items-center gap-6 text-sm text-gem-text2">
-              <Link href="/contact" className="hover:text-gem-iceLight transition-colors">
-                Kontakt
-              </Link>
-              <Link href="/impressum" className="hover:text-gem-iceLight transition-colors">
-                Impressum
-              </Link>
-              <Link href="/datenschutz" className="hover:text-gem-iceLight transition-colors">
-                Datenschutz
-              </Link>
-            </div>
           </div>
         </div>
       </div>
