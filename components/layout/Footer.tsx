@@ -32,6 +32,11 @@ const navigationColumns = [
       { label: 'Widerruf', href: '/widerruf' },
     ],
   },
+  {
+    heading: 'Kontakt',
+    links: [],
+    isContact: true,
+  },
 ];
 
 const socialLinks = [
@@ -176,36 +181,35 @@ export function Footer() {
           {navigationColumns.map((column) => (
             <div key={column.heading} className="space-y-4">
               <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">{column.heading}</h3>
-              <ul className="space-y-2 text-sm text-slate-300">
-                {column.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="inline-flex items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-white/5 hover:text-white"
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-cyan-400/80" />
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              {column.isContact ? (
+                <ul className="space-y-3 text-sm text-slate-300">
+                  {contactDetails.map((item) => (
+                    <li key={item.heading} className="flex items-start gap-3">
+                      <item.icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-cyan-300" />
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-slate-400">{item.heading}</p>
+                        <div className="mt-1 text-sm leading-relaxed">{item.content}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ul className="space-y-2 text-sm text-slate-300">
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="inline-flex items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-white/5 hover:text-white"
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400/80" />
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
-
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">Kontakt</h3>
-            <ul className="space-y-3 text-sm text-slate-300">
-              {contactDetails.map((item) => (
-                <li key={item.heading} className="flex items-start gap-3">
-                  <item.icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-cyan-300" />
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-slate-400">{item.heading}</p>
-                    <div className="mt-1 text-sm leading-relaxed">{item.content}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         <div className="relative flex flex-col gap-6 border-t border-white/10 pt-8 text-xs text-slate-400 md:flex-row md:items-center md:justify-between">
@@ -231,3 +235,4 @@ export function Footer() {
     </footer>
   );
 }
+
