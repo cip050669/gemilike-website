@@ -45,7 +45,7 @@ npm run dev
 - ✅ Blog-Übersicht
 - ✅ Kontaktformular
 - ✅ Cookie-Banner
-- ✅ Footer mit Social Links
+- ✅ Social Links im Header
 
 ## 📝 Wichtigste nächste Schritte
 
@@ -130,7 +130,6 @@ npm install
 Alle Design-Elemente sind in folgenden Dateien:
 - **Farben:** `app/globals.css`
 - **Header:** `components/layout/Header.tsx`
-- **Footer:** `components/layout/Footer.tsx`
 - **Schriftarten:** `app/[locale]/layout.tsx`
 
 ## 📦 Build für Produktion

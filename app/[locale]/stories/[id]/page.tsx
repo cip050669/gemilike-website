@@ -159,7 +159,7 @@ export default function StoryPage() {
               </div>
             </div>
 
-            {/* Navigation Footer */}
+            {/* Navigation */}
             <div className="px-8 py-6 bg-muted/50 border-t border-border">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <Button asChild variant="outline" className="w-full sm:w-auto">

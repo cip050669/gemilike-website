@@ -230,7 +230,6 @@ components/
 │   └── CartSync.tsx
 ├── layout/
 │   ├── Header.tsx
-│   ├── Footer.tsx
 │   └── CookieBanner.tsx
 ├── profile/
 │   ├── AddressManager.tsx
@@ -419,7 +418,7 @@ __tests__/
 ### **Optimierte UI-Elemente**
 - **📦 Kompakte Karten** - Optimierte Schriftgrößen und Abstände
 - **🔗 Saubere Navigation** - Übersichtliche Menüstruktur
-- **📄 Minimalistischer Footer** - Ohne überflüssige Überschriften
+- **📄 Minimalistisches Design** - Ohne überflüssige Überschriften
 - **⚡ Performance-optimiert** - Schnelle Ladezeiten
 
 ---

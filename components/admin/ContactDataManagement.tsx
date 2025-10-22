@@ -230,7 +230,7 @@ export default function ContactDataManagement() {
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 className="font-semibold text-blue-900 mb-2">Hinweis</h3>
         <p className="text-blue-800 text-sm">
-          Diese Kontaktdaten werden automatisch in Header, Footer und der Kontakt-Seite verwendet. 
+          Diese Kontaktdaten werden automatisch in Header und der Kontakt-Seite verwendet. 
           Änderungen werden sofort übernommen.
         </p>
       </div>

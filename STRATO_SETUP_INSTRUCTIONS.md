@@ -82,7 +82,7 @@ npm run dev
 - **Inhalt:** Vollständige Formulardaten in strukturierter Form
 
 ### **Newsletter:**
-- **URL:** Footer-Newsletter oder `/de/newsletter`
+- **URL:** Newsletter oder `/de/newsletter`
 - **Empfänger:** Kunde (Bestätigungs-E-Mail)
 - **Betreff:** "Newsletter-Anmeldung bestätigen - Gemilike"
 - **Inhalt:** Willkommensnachricht und Newsletter-Informationen

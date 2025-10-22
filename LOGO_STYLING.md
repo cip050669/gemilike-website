@@ -78,8 +78,8 @@
 </h1>
 ```
 
-#### Footer Brand
-**Datei:** `components/layout/Footer.tsx`
+#### Header Brand
+**Datei:** `components/layout/Header.tsx`
 
 ```typescript
 <h3 className="gemilike-text-gradient">
@@ -117,7 +117,7 @@
 
 ### ✅ Aktuell implementiert:
 - **Homepage Hero-Titel** → `.gemilike-text-gradient`
-- **Footer Brand** → `.gemilike-text-gradient`
+- **Header Brand** → `.gemilike-text-gradient`
 
 ### 📋 Kann auch verwendet werden:
 - **404-Seite** - "Gemilike" Erwähnung
@@ -282,7 +282,7 @@
 - [x] `.gemilike-text` CSS-Klasse erstellt
 - [x] `.gemilike-text-gradient` CSS-Klasse erstellt
 - [x] Homepage Hero-Titel angepasst
-- [x] Footer Brand angepasst
+- [x] Header Brand angepasst
 - [x] Getestet auf localhost:3002
 
 ### Optional (noch nicht implementiert):

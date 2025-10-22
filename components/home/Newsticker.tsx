@@ -73,7 +73,7 @@ export function Newsticker({ items, className = '' }: NewstickerProps) {
 
   return (
     <div className={`relative overflow-hidden container-dark ${className}`}>
-      <div className="px-3 sm:px-6 py-3 sm:py-4">
+      <div className="px-3 sm:px-6 py-1.5 sm:py-2">
         <div className="flex flex-col sm:flex-row items-center justify-center relative gap-3 sm:gap-0">
           {/* Mobile Layout: Navigation Controls oben */}
           {activeItems.length > 1 && (
@@ -82,7 +82,7 @@ export function Newsticker({ items, className = '' }: NewstickerProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => setCurrentIndex((prev) => (prev - 1 + activeItems.length) % activeItems.length)}
-                className="h-8 w-8 p-0 hover:bg-primary/10"
+                className="h-6 w-6 p-0 hover:bg-primary/10"
                 aria-label="Vorherige Nachricht"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -91,7 +91,7 @@ export function Newsticker({ items, className = '' }: NewstickerProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => setCurrentIndex((prev) => (prev + 1) % activeItems.length)}
-                className="h-8 w-8 p-0 hover:bg-primary/10"
+                className="h-6 w-6 p-0 hover:bg-primary/10"
                 aria-label="Nächste Nachricht"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -106,7 +106,7 @@ export function Newsticker({ items, className = '' }: NewstickerProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => setCurrentIndex((prev) => (prev - 1 + activeItems.length) % activeItems.length)}
-                className="h-8 w-8 p-0 hover:bg-primary/10"
+                className="h-6 w-6 p-0 hover:bg-primary/10"
                 aria-label="Vorherige Nachricht"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -115,7 +115,7 @@ export function Newsticker({ items, className = '' }: NewstickerProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => setCurrentIndex((prev) => (prev + 1) % activeItems.length)}
-                className="h-8 w-8 p-0 hover:bg-primary/10"
+                className="h-6 w-6 p-0 hover:bg-primary/10"
                 aria-label="Nächste Nachricht"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -125,23 +125,23 @@ export function Newsticker({ items, className = '' }: NewstickerProps) {
           
           {/* Newsticker Content - Responsive */}
           <div 
-            className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 overflow-hidden w-full sm:w-auto"
+            className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-3 overflow-hidden w-full sm:w-auto"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
             {/* Current Item */}
-            <div className="flex items-center space-x-2 w-full sm:w-auto">
-              <span className="text-lg sm:text-xl flex-shrink-0">
+            <div className="flex items-center space-x-1.5 w-full sm:w-auto">
+              <span className="text-base sm:text-lg flex-shrink-0">
                 {getTypeIcon(activeItems[currentIndex]?.type || 'info')}
               </span>
-              <div className={`px-3 sm:px-4 py-2 rounded-full border text-sm sm:text-lg font-medium text-center sm:text-left flex-1 sm:flex-none ${getTypeStyles(activeItems[currentIndex]?.type || 'info')}`}>
+              <div className={`px-2.5 sm:px-3 py-1 rounded-full border text-xs sm:text-base font-medium text-center sm:text-left flex-1 sm:flex-none ${getTypeStyles(activeItems[currentIndex]?.type || 'info')}`}>
                 <span className="block sm:inline">{activeItems[currentIndex]?.text || ''}</span>
               </div>
             </div>
 
             {/* Navigation Dots */}
             {activeItems.length > 1 && (
-              <div className="flex space-x-1 mt-2 sm:mt-0">
+              <div className="flex space-x-1 mt-1 sm:mt-0">
                 {activeItems.map((_, index) => (
                   <button
                     key={index}
@@ -157,12 +157,12 @@ export function Newsticker({ items, className = '' }: NewstickerProps) {
           </div>
 
           {/* Close Button - Mobile: unten, Desktop: rechts */}
-          <div className="flex items-center space-x-2 sm:absolute sm:right-0">
+          <div className="flex items-center space-x-1.5 sm:absolute sm:right-0">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsVisible(false)}
-              className="h-8 w-8 p-0 hover:bg-primary/10"
+              className="h-6 w-6 p-0 hover:bg-primary/10"
               aria-label="Newsticker ausblenden"
             >
               <X className="h-4 w-4" />

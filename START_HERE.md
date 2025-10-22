@@ -36,7 +36,7 @@ Ihre Website ist vollständig programmiert und läuft erfolgreich!
 # Ersetzen Sie es einfach durch Ihr eigenes Logo
 
 # Logo erscheint:
-# - Im Footer (groß)
+# - Im Header (groß)
 # - Als Hintergrund auf der Startseite (dezent)
 ```
 
@@ -106,7 +106,7 @@ gemilike-website/
 │   └── globals.css        # 🎨 Farben hier ändern!
 │
 ├── components/
-│   ├── layout/            # Header, Footer, etc.
+│   ├── layout/            # Header, etc.
 │   └── ui/                # UI-Komponenten
 │
 ├── messages/              # 🌍 Übersetzungen
@@ -135,7 +135,7 @@ gemilike-website/
 - Header mit allen Links (ohne Logo - minimalistisch)
 - Mobile Hamburger-Menü
 - Sprachumschalter (DE/EN)
-- Footer mit großem Logo und Social Links
+- Header mit großem Logo und Social Links
 
 ✅ **Seiten**
 - Homepage mit Hero-Section und Logo-Hintergrund

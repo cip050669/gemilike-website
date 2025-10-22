@@ -5,10 +5,10 @@ import { NewstickerItem } from '@/lib/types/newsticker';
 import { Info, AlertTriangle, CheckCircle, Megaphone, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const TYPE_ICONS: Record<NewstickerItem['type'], JSX.Element> = {
-  info: <Info className="h-5 w-5" />,
-  warning: <AlertTriangle className="h-5 w-5" />,
-  success: <CheckCircle className="h-5 w-5" />,
-  error: <Megaphone className="h-5 w-5" />,
+  info: <Info className="h-4 w-4" />,
+  warning: <AlertTriangle className="h-4 w-4" />,
+  success: <CheckCircle className="h-4 w-4" />,
+  error: <Megaphone className="h-4 w-4" />,
 };
 
 interface DisplayNewstickerItem extends NewstickerItem {
@@ -80,16 +80,19 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
       <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white text-center">
         Newsticker
       </h2>
-      <div className="story-card bg-[#2D2D2D] border border-white/10 px-8 py-4 flex items-center gap-6">
-        <div className="flex items-center gap-4 flex-1 overflow-hidden">
+      <div
+        className="story-card bg-[#2D2D2D] border border-white/10 px-6 py-2 flex items-center gap-4"
+        style={{ padding: '0.75rem 1.5rem' }}
+      >
+        <div className="flex items-center gap-3 flex-1 overflow-hidden">
           <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10"
+            className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/10"
             style={{ color: item.resolvedColor }}
           >
             {TYPE_ICONS[item.type]}
           </div>
           <p
-            className="text-sm font-semibold leading-relaxed text-white truncate"
+            className="text-xs md:text-sm font-semibold leading-snug text-white truncate"
             style={{ color: item.resolvedColor }}
             title={item.text}
           >
@@ -97,22 +100,22 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
           </p>
         </div>
         {showControls && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handlePrev}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               aria-label="Vorherige Meldung"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3 w-3" />
             </button>
             <button
               type="button"
               onClick={handleNext}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               aria-label="Nächste Meldung"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3" />
             </button>
           </div>
         )}

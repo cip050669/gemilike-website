@@ -116,7 +116,7 @@ Die Homepage ist jetzt vollständig übersetzt. Andere Seiten verwenden bereits 
 
 ### ✅ Bereits übersetzt:
 - **Header/Navigation** - Vollständig
-- **Footer** - Vollständig
+- **Header** - Vollständig
 - **Cookie-Banner** - Vollständig
 - **Homepage** - Vollständig (neu!)
 

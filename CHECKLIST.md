@@ -18,10 +18,10 @@
 - [x] **Umfassende Tests** - Tests für alle implementierten Features durchgeführt
 - [x] **Hintergrund aufgehellt** - Bessere Lesbarkeit durch hellere Farben
 - [x] **Karten-Optimierung** - Schriftgrößen und Ausrichtung verbessert
-- [x] **Footer-Optimierung** - Überschriften entfernt für sauberes Design
+- [x] **Design-Optimierung** - Überschriften entfernt für sauberes Design
 - [x] **Komplette Dokumentation** - Alle Dokumentationsdateien aktualisiert
 - [x] **Mobile Optimierungen** - Header-Größen, Icon-Größen und Badge-Größen für mobile Geräte optimiert
-- [x] **Footer-Höhe reduziert** - Um 25px für bessere Proportionen
+- [x] **Design-Höhe reduziert** - Um 25px für bessere Proportionen
 - [x] **Shop-Layout verbessert** - GemstoneCard durch kompakte Thumbnails mit Modal-Ansicht ersetzt
 - [x] **Badge-Farben angepasst** - Treatment-Badge von Orange zu neutralem Hellgrau geändert
 - [x] **Hero Image Management** - Vollständiges Upload-System mit persistenter Speicherung implementiert
@@ -30,7 +30,7 @@
 - [x] **Shop-Badge-Optimierung** - Availability und Type Badges aus Shop entfernt für sauberes Design
 - [x] **Dialog-Positionierung** - X-Symbol und Lupenbutton optimal positioniert
 - [x] **Treatment-Badge-Größe** - Behandlungs-Badges auf optimale Größe angepasst
-- [x] **Footer-Höhe reduziert** - Um 20px für bessere Proportionen
+- [x] **Design-Höhe reduziert** - Um 20px für bessere Proportionen
 - [x] **Zertifizierungs-Badge vereinheitlicht** - Gleicher Stil in Hauptbild und Thumbnails
 - [x] **WCAG 2.1 Barrierefreiheit** - Vollständige Accessibility-Implementierung für alle Shop-Komponenten
 - [x] **Shop-Interface vereinfacht** - Intuitive Filter, Suche und Sortierung implementiert
@@ -196,7 +196,7 @@
 - [x] **Farbschema angepasst** (`app/globals.css` Zeilen 6-20) - Modernes Design mit aufgehelltem Hintergrund
 - [ ] **Favicon aktualisiert** (`app/favicon.ico`)
 - [x] **Schriftarten gewählt** (falls nicht Inter)
-- [x] **Social Media Icons aktualisiert** (`components/layout/Footer.tsx`)
+- [x] **Social Media Icons aktualisiert** (`components/layout/Header.tsx`)
 
 ---
 
@@ -210,7 +210,7 @@
   - [ ] E-Mail-Adresse
   - [ ] Telefonnummer
   - [ ] Adresse
-- [x] **Footer-Links überprüft** - Überschriften entfernt für sauberes Design
+- [x] **Header-Links überprüft** - Überschriften entfernt für sauberes Design
 
 ### Bilder
 - [x] **Produktbilder hochgeladen** (`public/products/`)
@@ -297,7 +297,7 @@
   - [x] Gewährleistung
 
 - [x] **Cookie-Richtlinie detailliert** (`app/[locale]/cookies/page.tsx`)
-- [x] **Links im Footer aktualisiert**
+- [x] **Links im Header aktualisiert**
 
 ---
 

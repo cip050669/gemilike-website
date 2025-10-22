@@ -65,7 +65,7 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 #### 🎨 Changed
 - **Treatment Badge Color** - Orange Badge (`bg-amber-600/90`) zu neutralem Hellgrau (`bg-gray-400/90`) geändert
 - **Mobile Optimizations** - Header-Größen, Icon-Größen und Badge-Größen für mobile Geräte optimiert
-- **Footer Height Reduction** - Footer-Höhe um 25px reduziert für bessere Proportionen
+- **Design Height Reduction** - Design-Höhe um 25px reduziert für bessere Proportionen
 - **Shop Layout** - GemstoneCard durch kompakte Thumbnails ersetzt mit Modal-Ansicht
 
 #### 🔧 Technical
@@ -125,7 +125,7 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
   
 ### 🎨 Changed
 - **Homepage Hero-Titel** verwendet jetzt Logo-Schriftart
-- **Footer Brand** verwendet jetzt Logo-Schriftart
+- **Header Brand** verwendet jetzt Logo-Schriftart
 - **Tagline** geändert zu "Heroes in Gems"
 
 ### 📚 Added

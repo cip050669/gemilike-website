@@ -115,12 +115,12 @@ Diese Dokumentation beschreibt alle rechtlichen Seiten und deren Implementierung
 
 ---
 
-## 🔗 Footer-Integration
+## 🔗 Header-Integration
 
-Alle rechtlichen Seiten sind im Footer verlinkt:
+Alle rechtlichen Seiten sind im Header verlinkt:
 
 ```typescript
-// components/layout/Footer.tsx
+// components/layout/Header.tsx
 <ul className="space-y-2 text-sm">
   <li>
     <Link href={`/${locale}/privacy`}>

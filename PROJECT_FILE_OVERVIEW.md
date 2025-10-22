@@ -124,13 +124,6 @@
   - Social Media Links
   - Header-Features (Search, Cart, User)
 
-#### **components/admin/FooterManagement.tsx**
-- **Funktion:** Footer-Verwaltung
-- **Features:**
-  - Unternehmensdaten
-  - Social Media Links
-  - Footer-Bereiche
-  - Rechtliche Links
 
 #### **components/admin/GemstoneEditor.tsx**
 - **Funktion:** Edelstein-Verwaltung

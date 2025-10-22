@@ -7,7 +7,7 @@
 - ✅ Responsive Design mit Tailwind CSS v4
 - ✅ Moderne UI-Komponenten (shadcn/ui)
 - ✅ Header mit Navigation und Sprachumschalter
-- ✅ Footer mit Social Links
+- ✅ Social Links im Header
 - ✅ Cookie-Banner (DSGVO-konform)
 - ✅ Homepage mit Hero-Section und Features
 - ✅ Blog-Seite (Übersicht)

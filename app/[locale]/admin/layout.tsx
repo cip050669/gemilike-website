@@ -16,7 +16,6 @@ export default function AdminLayout({
     { href: '/de/admin/dashboard', label: '📈 Statistiken', section: 'main' },
     
     { href: '/de/admin/header', label: '🔝 Header', section: 'content' },
-    { href: '/de/admin/footer', label: '⬇️ Footer', section: 'content' },
     { href: '/de/admin/about', label: 'ℹ️ Über uns', section: 'content' },
     { href: '/de/admin/blogs', label: '📝 Blog', section: 'content' },
     { href: '/de/admin/wissenswertes', label: '📚 Wissenswertes', section: 'content' },

@@ -99,7 +99,7 @@ export function Cart() {
             )}
           </div>
 
-          {/* Footer */}
+          {/* Cart Summary */}
           {items.length > 0 && (
             <div className="border-t border-border p-4 space-y-4">
               <div className="flex justify-between text-lg font-semibold">

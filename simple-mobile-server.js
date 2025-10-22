@@ -94,7 +94,7 @@ function showTestURLs() {
   console.log('📧 Kontakt: http://192.168.1.104:3002/de/contact');
   console.log('ℹ️  Über uns: http://192.168.1.104:3002/de/about');
   console.log('⚙️  Admin: http://192.168.1.104:3002/de/admin');
-  console.log('📧 Newsletter: http://192.168.1.104:3002/de (Footer)');
+  console.log('📧 Newsletter: http://192.168.1.104:3002/de');
 }
 
 // Troubleshooting-Tipps
