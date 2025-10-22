@@ -5,62 +5,62 @@
 /* Container-Klassen - Sichtbares Dunkelgrau */
 @layer components {
   .main-container {
-    background-color: rgba(58, 58, 58, 0.5) !important;
+    background-color: rgba(11, 12, 16, 0.78) !important;
     margin: 4rem 8rem;
     padding: 3rem;
-    border-radius: 0.75rem;
-    border: 1px solid #4B5563;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 0.9rem;
+    border: 1px solid rgba(0, 188, 212, 0.24);
+    box-shadow: 0 24px 48px -24px rgba(0, 229, 255, 0.35);
   }
 
   .newsticker-container {
-    background-color: rgba(58, 58, 58, 0.5) !important;
+    background: linear-gradient(135deg, rgba(255, 148, 71, 0.12), rgba(0, 188, 212, 0.12));
     margin: 0 8rem;
     padding: 1.25rem 2rem;
-    border-radius: 0.75rem;
-    border: 1px solid #4B5563;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 0.9rem;
+    border: 1px solid rgba(0, 188, 212, 0.25);
+    box-shadow: 0 18px 32px -18px rgba(0, 229, 255, 0.35);
     position: relative;
   }
   
   .story-card {
-    background-color: #2D2D2D !important;
+    background: radial-gradient(circle at top, rgba(0, 229, 255, 0.12), rgba(11, 12, 16, 0.9)) !important;
     padding: 2rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid #4B5563;
+    border-radius: 1rem;
+    box-shadow: 0 20px 45px -22px rgba(0, 188, 212, 0.4);
+    border: 1px solid rgba(72, 142, 255, 0.18);
   }
   
   .gem-card {
-    background-color: #2D2D2D !important;
+    background: linear-gradient(160deg, rgba(0, 188, 212, 0.08), rgba(11, 12, 16, 0.95)) !important;
     padding: 2rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid #4B5563;
+    border-radius: 1rem;
+    box-shadow: 0 18px 40px -20px rgba(106, 27, 154, 0.35);
+    border: 1px solid rgba(106, 27, 154, 0.22);
     text-align: center;
   }
   
   /* Container-Dark Klasse für Hauptcontainer */
   .container-dark {
-    background-color: #2D2D2D !important;
-    border: 1px solid #4B5563;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: rgba(11, 12, 16, 0.8) !important;
+    border: 1px solid rgba(0, 188, 212, 0.18);
+    border-radius: 1rem;
+    box-shadow: 0 18px 32px -20px rgba(0, 229, 255, 0.28);
   }
   
   /* Card-Dark Styling für alle Cards */
   .card-dark {
-    background-color: #2D2D2D !important;
-    border: 1px solid #4B5563;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(150deg, rgba(0, 188, 212, 0.08), rgba(11, 12, 16, 0.92)) !important;
+    border: 1px solid rgba(0, 188, 212, 0.2);
+    border-radius: 1rem;
+    box-shadow: 0 20px 45px -24px rgba(255, 148, 71, 0.38);
   }
 }
 
 /* GemILike Logo Gradient - Exakte Farben */
 @layer components {
   .bg-gem-gradient {
-    background: linear-gradient(90deg, #00E5FF 0%, #00D4B0 25%, #00A884 50%, #006064 75%, #6A1B9A 100%);
+    background: linear-gradient(90deg, #FF9447 0%, #FFD85E 25%, #00B8A9 60%, #00BCD4 85%, #006064 100%);
   }
   
   .text-gem-light {
@@ -84,47 +84,47 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%; /* Schwarzer Hintergrund */
-    --foreground: 0 0% 100%; /* Weißer Text */
-    --surface: 0 0% 5%;
-    --surface-alt: 0 0% 12%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 100%;
-    
+    --background: 228 19% 5%;
+    --foreground: 0 0% 96%;
+    --surface: 222 25% 10%;
+    --surface-alt: 220 22% 15%;
+    --card: 220 22% 15%;
+    --card-foreground: 0 0% 96%;
+    --popover: 226 25% 12%;
+    --popover-foreground: 0 0% 96%;
+
     /* Fire & Ice Brand Palette */
-    --primary: 15 100% 60%; /* Orange-Rot #FF6B35 */
-    --primary-foreground: 0 0% 100%;
-    --primary-strong: 18 100% 67%;
-    --primary-press: 15 100% 52%;
-    --primary-soft: 15 100% 60% / 0.18;
-    --primary-focus: 18 100% 62%;
+    --primary: 25 100% 64%;
+    --primary-foreground: 0 0% 7%;
+    --primary-strong: 25 100% 70%;
+    --primary-press: 25 100% 56%;
+    --primary-soft: 25 100% 64% / 0.18;
+    --primary-focus: 25 100% 62%;
 
-    --secondary: 188 100% 45%; /* Cyan #00BCD4 */
-    --secondary-foreground: 0 0% 0%;
-    --secondary-strong: 188 92% 53%;
-    --secondary-press: 188 90% 40%;
-    --secondary-soft: 188 100% 45% / 0.16;
-    --secondary-focus: 188 92% 55%;
+    --secondary: 187 100% 42%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-strong: 186 100% 50%;
+    --secondary-press: 182 100% 20%;
+    --secondary-soft: 187 100% 42% / 0.18;
+    --secondary-focus: 186 100% 54%;
 
-    --accent: 45 100% 50%; /* Gold #FFC107 */
-    --accent-foreground: 0 0% 0%;
-    --accent-soft: 45 100% 50% / 0.22;
+    --accent: 45 100% 68%;
+    --accent-foreground: 0 0% 10%;
+    --accent-soft: 45 100% 68% / 0.18;
     
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 68%;
+    --muted: 200 18% 30%;
+    --muted-foreground: 200 18% 70%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 22%;
-    --border-strong: 0 0% 28%;
-    --input: 0 0% 20%;
-    --ring: 188 90% 50%;
+    --border: 200 18% 26%;
+    --border-strong: 200 18% 36%;
+    --input: 220 18% 20%;
+    --ring: 217 100% 64%;
     --radius: 0.5rem;
-    --link: 188 100% 45%;
-    --link-hover: 190 92% 62%;
-    --link-soft: 188 100% 45% / 0.14;
-    --link-focus: 188 92% 55%;
+    --link: 217 100% 64%;
+    --link-hover: 217 100% 72%;
+    --link-soft: 217 100% 64% / 0.14;
+    --link-focus: 217 100% 70%;
     
     /* CSS-Variablen für Tailwind */
     --color-background: hsl(var(--background));
@@ -192,7 +192,7 @@
     border-color: hsl(var(--border));
   }
   body {
-    background-color: hsl(var(--surface));
+    background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
 }

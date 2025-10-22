@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "name": "Gem I Like Progressive Color System",
+    "version": "1.0",
+    "date": "2025-10-22",
+    "description": "Color palette based on the Gem I Like logo and its complementary tones."
+  },
+  "colors": {
+    "fire": {
+      "hex": "#FF9447",
+      "desc": "Primary warm (flame orange)"
+    },
+    "fireLight": {
+      "hex": "#FFD85E",
+      "desc": "Warm highlight (gold yellow)"
+    },
+    "fireDark": {
+      "hex": "#E53935",
+      "desc": "Deep ember red"
+    },
+    "ice": {
+      "hex": "#00BCD4",
+      "desc": "Primary cool (cyan)"
+    },
+    "iceLight": {
+      "hex": "#00E5FF",
+      "desc": "Crystal glow (light turquoise)"
+    },
+    "iceDark": {
+      "hex": "#006064",
+      "desc": "Deep ice (petrol blue)"
+    },
+    "green": {
+      "hex": "#00B8A9",
+      "desc": "Gem green (emerald bridge tone)"
+    },
+    "purple": {
+      "hex": "#6A1B9A",
+      "desc": "Royal purple (luxury contrast)"
+    },
+    "bgDark": {
+      "hex": "#0B0C10",
+      "desc": "Dark background"
+    },
+    "bgLight": {
+      "hex": "#E0F7FA",
+      "desc": "Light background"
+    },
+    "text": {
+      "hex": "#F5F5F5",
+      "desc": "Primary text on dark"
+    },
+    "text2": {
+      "hex": "#607D8B",
+      "desc": "Secondary text gray-blue"
+    },
+    "compOrange": {
+      "hex": "#478EFF",
+      "desc": "Complementary to orange (sky blue)"
+    },
+    "compYellow": {
+      "hex": "#5E8EFF",
+      "desc": "Complementary to gold (azure)"
+    },
+    "compCyan": {
+      "hex": "#D45E00",
+      "desc": "Complementary to cyan (amber)"
+    },
+    "compPetrol": {
+      "hex": "#FFA66B",
+      "desc": "Complementary to petrol (soft orange)"
+    },
+    "compGreen": {
+      "hex": "#B8000F",
+      "desc": "Complementary to gem green (ruby red)"
+    }
+  },
+  "gradients": {
+    "energySpectrum": [
+      "#FF9447",
+      "#FFD85E",
+      "#00B8A9",
+      "#00BCD4",
+      "#006064"
+    ],
+    "iceCrystal": [
+      "#00E5FF",
+      "#00BCD4",
+      "#009688",
+      "#6A1B9A"
+    ],
+    "heroHighlight": [
+      "#6A1B9A",
+      "#478EFF",
+      "#FF9447"
+    ]
+  }
+}
