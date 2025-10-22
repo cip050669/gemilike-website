@@ -1,17 +1,6 @@
+import Link from 'next/link';
 import { loadNewstickerData } from '@/app/api/admin/newsticker/route';
 import { notFound } from 'next/navigation';
-
-interface NewstickerItem {
-  id: string;
-  text: string;
-  type: string;
-  priority: string;
-  isActive: boolean;
-  startDate?: string;
-  endDate?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export default async function EditNewstickerPage({
   params,
@@ -43,12 +32,12 @@ export default async function EditNewstickerPage({
                 Bearbeiten Sie die Newsticker-Nachricht
               </p>
             </div>
-            <a
+            <Link
               href="/de/admin/newsticker"
               className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
             >
               ← Zurück
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -153,12 +142,12 @@ export default async function EditNewstickerPage({
 
             {/* Buttons */}
             <div className="flex justify-end gap-4 pt-6 border-t">
-              <a
+              <Link
                 href="/de/admin/newsticker"
                 className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
               >
                 Abbrechen
-              </a>
+              </Link>
               <button
                 type="submit"
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

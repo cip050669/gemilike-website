@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { ShopGemstone } from '@/components/shop/GemstoneGrid';
 
 interface ShopShowcaseProps {
@@ -26,6 +25,7 @@ const initialFilters = {
   weightMax: '',
   priceMin: '',
   priceMax: '',
+  sortBy: 'price-asc',
 };
 
 export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps) {
@@ -33,7 +33,6 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
   const locale = params?.locale ?? 'de';
 
   const [filters, setFilters] = useState(initialFilters);
-  const [selectedGemstone, setSelectedGemstone] = useState<ShopGemstone | null>(null);
 
   const newGemstones = useMemo(
     () => gemstones.filter((gem) => gem.isNew),
@@ -121,33 +120,189 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
     [filters]
   );
 
+  const sortedRegularGemstones = useMemo(() => {
+    const base = hasFiltersApplied ? filteredRegularGemstones : regularGemstones.length ? regularGemstones : newGemstones;
+
+    const sorter = (a: ShopGemstone, b: ShopGemstone) => {
+      switch (filters.sortBy) {
+        case 'price-desc':
+          return b.price - a.price;
+        case 'weight-asc': {
+          const weightA = typeof a.weight === 'number' ? a.weight : Number.MAX_SAFE_INTEGER;
+          const weightB = typeof b.weight === 'number' ? b.weight : Number.MAX_SAFE_INTEGER;
+          return weightA - weightB;
+        }
+        case 'weight-desc': {
+          const weightA = typeof a.weight === 'number' ? a.weight : Number.MIN_SAFE_INTEGER;
+          const weightB = typeof b.weight === 'number' ? b.weight : Number.MIN_SAFE_INTEGER;
+          return weightB - weightA;
+        }
+        case 'name-asc':
+          return a.name.localeCompare(b.name, 'de');
+        case 'name-desc':
+          return b.name.localeCompare(a.name, 'de');
+        case 'newest':
+          return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+        case 'price-asc':
+        default:
+          return a.price - b.price;
+      }
+    };
+
+    return [...base].sort(sorter);
+  }, [filteredRegularGemstones, regularGemstones, newGemstones, filters.sortBy, hasFiltersApplied]);
+
   const inventoryGemstones = useMemo(() => {
-    if (filteredRegularGemstones.length > 0) {
-      return filteredRegularGemstones;
+    if (sortedRegularGemstones.length > 0) {
+      return sortedRegularGemstones;
     }
     if (hasFiltersApplied) {
       return [];
     }
-    if (regularGemstones.length > 0) {
-      return regularGemstones;
-    }
-    return newGemstones;
-  }, [filteredRegularGemstones, hasFiltersApplied, regularGemstones, newGemstones]);
+    return sortedRegularGemstones;
+  }, [sortedRegularGemstones, hasFiltersApplied]);
 
-  useEffect(() => {
-    if (inventoryGemstones.length === 0) {
-      setSelectedGemstone(null);
-      return;
-    }
+  const handleFilterChange = (field: keyof typeof initialFilters, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-    setSelectedGemstone((current) => {
-      if (!current) {
-        return inventoryGemstones[0];
-      }
-      const stillExists = inventoryGemstones.some((gem) => gem.id === current.id);
-      return stillExists ? current : inventoryGemstones[0];
-    });
-  }, [inventoryGemstones]);
+  const renderFilterControls = () => (
+    <section className="main-container space-y-6 max-w-6xl !mx-auto !my-[50px] !px-[50px] !py-[40px]">
+      <div className="space-y-2">
+        <p className="text-sm uppercase tracking-wide text-white/60">Filter</p>
+        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white">
+          Bestand filtern
+        </h2>
+        <p className="text-sm md:text-base text-white/70 max-w-3xl">
+          Verfeinern Sie die Auswahl der verfügbaren Edelsteine nach Kategorie, Herkunft, Farbe oder
+          Preis. Die Filter wirken ausschließlich auf den Bestand.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="grid gap-5 grid-cols-4 min-w-0">
+          <FilterSelect
+            label="Edelstein (Art)"
+            value={filters.category}
+            onChange={(value) => handleFilterChange('category', value)}
+            options={categoryOptions}
+          />
+          <FilterSelect
+            label="Herkunft"
+            value={filters.origin}
+            onChange={(value) => handleFilterChange('origin', value)}
+            options={originOptions}
+          />
+          <FilterSelect
+            label="Farbe"
+            value={filters.color}
+            onChange={(value) => handleFilterChange('color', value)}
+            options={colorOptions}
+          />
+          <FilterSelect
+            label="Behandlung"
+            value={filters.treatment}
+            onChange={(value) => handleFilterChange('treatment', value)}
+            options={treatmentOptions}
+          />
+        </div>
+
+        <div className="grid gap-5 grid-cols-4 min-w-0">
+          <FilterSelect
+            label="Zertifizierung"
+            value={filters.certification}
+            onChange={(value) => handleFilterChange('certification', value)}
+            options={certificationOptions}
+          />
+          <div className="space-y-2 min-w-0">
+            <label className="text-xs uppercase tracking-wide text-white/55">Gewicht (von - bis)</label>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.01"
+                value={filters.weightMin}
+                onChange={(event) => handleFilterChange('weightMin', event.target.value)}
+                placeholder="Min"
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                style={{ width: 'calc(100% - 25px)' }}
+              />
+              <Input
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.01"
+                value={filters.weightMax}
+                onChange={(event) => handleFilterChange('weightMax', event.target.value)}
+                placeholder="Max"
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                style={{ width: 'calc(100% - 25px)' }}
+              />
+            </div>
+          </div>
+          <div className="space-y-2 min-w-0">
+            <label className="text-xs uppercase tracking-wide text-white/55">Preis (von - bis)</label>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="100"
+                value={filters.priceMin}
+                onChange={(event) => handleFilterChange('priceMin', event.target.value)}
+                placeholder="Min"
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                style={{ width: 'calc(100% - 25px)' }}
+              />
+              <Input
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="100"
+                value={filters.priceMax}
+                onChange={(event) => handleFilterChange('priceMax', event.target.value)}
+                placeholder="Max"
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                style={{ width: 'calc(100% - 25px)' }}
+              />
+            </div>
+          </div>
+          <div className="space-y-2 min-w-0">
+            <label className="text-xs uppercase tracking-wide text-white/55">Sortierung</label>
+            <select
+              value={filters.sortBy}
+              onChange={(event) => handleFilterChange('sortBy', event.target.value)}
+              className="w-full rounded-lg border border-white/20 bg-black/40 px-3 py-2 text-sm text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              style={{ width: 'calc(100% - 25px)' }}
+            >
+              <option value="price-asc">Preis (aufsteigend)</option>
+              <option value="price-desc">Preis (absteigend)</option>
+              <option value="weight-asc">Gewicht (aufsteigend)</option>
+              <option value="weight-desc">Gewicht (absteigend)</option>
+              <option value="name-asc">Name A-Z</option>
+              <option value="name-desc">Name Z-A</option>
+              <option value="newest">Neueste zuerst</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-4">
+        <Button
+          variant="secondary"
+          className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+          onClick={() => setFilters({ ...initialFilters })}
+          disabled={!hasFiltersApplied}
+        >
+          Filter zurücksetzen
+        </Button>
+      </div>
+    </section>
+  );
 
   const renderCarousel = (
     items: ShopGemstone[],
@@ -177,80 +332,26 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
 
         <div className="relative">
           <div className="flex gap-[75px] overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-            {items.map((gemstone) => {
-              const imageSrc = gemstone.images[0] ?? PLACEHOLDER_IMAGE;
-              const detailHref = `/${locale}/shop/${gemstone.id}`;
-
-              return (
-                <Link
-                  key={gemstone.id}
-                  href={detailHref}
-                  prefetch={true}
-                  className="group min-w-[240px] max-w-[240px] snap-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-                  aria-label={`${gemstone.name} Details anzeigen`}
-                >
-                  <article className="story-card bg-[#2D2D2D]/90 border border-white/10 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
-                    <div className="overflow-hidden rounded-lg mb-4">
-                      <div className="aspect-[4/3] relative bg-black/30">
-                        <Image
-                          src={imageSrc}
-                          alt={gemstone.name}
-                          fill
-                          sizes="240px"
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-3 px-2 text-left">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-base font-semibold text-white line-clamp-1">
-                          {gemstone.name}
-                        </h3>
-                        {showNewBadge && gemstone.isNew && (
-                          <span className="text-[11px] font-semibold text-orange-400 uppercase tracking-wide">
-                            Neu
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-white/80">
-                        {typeof gemstone.weight === 'number' && (
-                          <span className="inline-flex items-center gap-1">
-                            Gewicht {gemstone.weight.toFixed(2)} {gemstone.weightUnit ?? 'ct'}
-                          </span>
-                        )}
-                        {gemstone.origin && (
-                          <span className="inline-flex items-center gap-1">
-                            Herkunft {gemstone.origin}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-white/80">
-                        <span className="inline-flex items-center gap-1">
-                          Kategorie {gemstone.category}
-                        </span>
-                        <span className="text-sm font-semibold text-primary">
-                          €{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 0 })}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-white/60">Bestand: {gemstone.stock}</div>
-                    </div>
-                  </article>
-                </Link>
-              );
-            })}
+            {items.map((gemstone) => (
+              <GemCard
+                key={gemstone.id}
+                gemstone={gemstone}
+                locale={locale}
+                showNewBadge={showNewBadge}
+                variant="carousel"
+              />
+            ))}
           </div>
         </div>
       </section>
     );
   };
 
-  const renderInventorySection = (items: ShopGemstone[]) => (
-    <section className="main-container space-y-8 min-h-[75vh]">
-      <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between">
-        <div className="space-y-1">
-          <p className="text-sm uppercase tracking-wide text-white/60">Verfügbare Edelsteine</p>
-          <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white">Bestand</h2>
-        </div>
+  const renderInventoryGrid = (items: ShopGemstone[]) => (
+    <section className="main-container space-y-6">
+      <div className="space-y-2">
+        <p className="text-sm uppercase tracking-wide text-white/60">Verfügbare Edelsteine</p>
+        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white">Bestand</h2>
         {fallback && (
           <p className="text-xs text-white/50">
             Hinweis: Temporäre Beispiel-Daten, da aktuell keine Datenbankverbindung möglich war.
@@ -258,285 +359,10 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
         )}
       </div>
 
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
-        <div className="space-y-6">
-          {selectedGemstone ? (
-            <>
-              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
-                <div className="aspect-[4/3] relative">
-                  <Image
-                    src={selectedGemstone.images[0] ?? PLACEHOLDER_IMAGE}
-                    alt={selectedGemstone.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover"
-                  />
-                </div>
-                {!selectedGemstone.inStock && (
-                  <div className="absolute left-4 top-4">
-                    <Badge variant="destructive">Nicht verfügbar</Badge>
-                  </div>
-                )}
-                {selectedGemstone.isNew && (
-                  <div className="absolute right-4 top-4">
-                    <Badge variant="accent">Neu</Badge>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-semibold text-white">{selectedGemstone.name}</h3>
-                  <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wide text-white/60">
-                    <Badge variant="secondary">{selectedGemstone.category}</Badge>
-                    <Badge variant="outline">
-                      {selectedGemstone.type === 'cut' ? 'Geschliffener Stein' : 'Rohstein'}
-                    </Badge>
-                    {selectedGemstone.origin && (
-                      <Badge variant="outline">Herkunft {selectedGemstone.origin}</Badge>
-                    )}
-                    {selectedGemstone.rarity && (
-                      <Badge variant="outline">Seltenheit {selectedGemstone.rarity}</Badge>
-                    )}
-                  </div>
-                </div>
-
-                {selectedGemstone.description && (
-                  <p className="text-sm leading-relaxed text-white/75">{selectedGemstone.description}</p>
-                )}
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <InventoryDetail label="Preis">
-                    €{selectedGemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
-                  </InventoryDetail>
-                  <InventoryDetail label="Bestand">{selectedGemstone.stock} Stück</InventoryDetail>
-                  {typeof selectedGemstone.weight === 'number' && (
-                    <InventoryDetail label="Gewicht">
-                      {selectedGemstone.weight.toFixed(2)} {selectedGemstone.weightUnit ?? 'ct'}
-                    </InventoryDetail>
-                  )}
-                  {selectedGemstone.color && (
-                    <InventoryDetail label="Farbe">{selectedGemstone.color}</InventoryDetail>
-                  )}
-                  {selectedGemstone.clarity && (
-                    <InventoryDetail label="Klarheit">{selectedGemstone.clarity}</InventoryDetail>
-                  )}
-                  {selectedGemstone.treatment && (
-                    <InventoryDetail label="Behandlung">{selectedGemstone.treatment}</InventoryDetail>
-                  )}
-                  {selectedGemstone.certification && (
-                    <InventoryDetail label="Zertifizierung">{selectedGemstone.certification}</InventoryDetail>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4">
-                  <Button
-                    asChild
-                    className="bg-primary text-black hover:bg-primary/80"
-                  >
-                    <Link href={`/${locale}/shop/${selectedGemstone.id}`}>Details öffnen</Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10"
-                    asChild
-                  >
-                    <Link href={`/${locale}/shop/${selectedGemstone.id}?fullscreen=true`}>
-                      Kartenansicht
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/20 bg-black/30 p-12 text-center text-white/60">
-              Wählen Sie rechts einen Edelstein aus, um Details anzuzeigen.
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
-          <div className="flex items-center justify-between pb-4">
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-white">Bestandsliste</p>
-              <p className="text-xs text-white/60">{items.length} Edelsteine gefunden</p>
-            </div>
-            <Button
-              variant="ghost"
-              className="text-xs text-white/70 hover:text-white hover:bg-white/10"
-              onClick={() => setSelectedGemstone(items[0])}
-              disabled={items.length === 0}
-            >
-              Erste Auswahl
-            </Button>
-          </div>
-
-          <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-            {items.map((gemstone) => {
-              const imageSrc = gemstone.images[0] ?? PLACEHOLDER_IMAGE;
-              const isSelected = selectedGemstone?.id === gemstone.id;
-
-              return (
-                <button
-                  key={gemstone.id}
-                  type="button"
-                  onClick={() => setSelectedGemstone(gemstone)}
-                  className={`w-full rounded-xl border px-4 py-3 text-left transition ${
-                    isSelected
-                      ? 'border-primary/80 bg-primary/10 text-white shadow-lg'
-                      : 'border-white/10 bg-black/40 text-white/80 hover:border-primary/40 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-14 w-20 overflow-hidden rounded-lg border border-white/10 bg-black/30">
-                      <Image
-                        src={imageSrc}
-                        alt={gemstone.name}
-                        fill
-                        sizes="120px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-white">
-                          {gemstone.name}
-                        </p>
-                        <span className="text-xs font-medium text-primary">
-                          €{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 0 })}
-                        </span>
-                      </div>
-                      <p className="text-xs text-white/60">
-                        {gemstone.category} • Bestand {gemstone.stock}
-                      </p>
-                      {gemstone.origin && (
-                        <p className="text-[11px] text-white/50">
-                          Herkunft {gemstone.origin}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  const handleFilterChange = (field: keyof typeof initialFilters, value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const renderFilterControls = () => (
-    <section className="main-container space-y-6">
-      <div className="space-y-2">
-        <p className="text-sm uppercase tracking-wide text-white/60">Filter</p>
-        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white">
-          Bestand filtern
-        </h2>
-        <p className="text-sm md:text-base text-white/70 max-w-3xl">
-          Verfeinern Sie die Auswahl der verfügbaren Edelsteine nach Kategorie, Herkunft, Farbe oder
-          Preis. Die Filter wirken ausschließlich auf den Bestand.
-        </p>
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        <FilterSelect
-          label="Edelstein (Art)"
-          value={filters.category}
-          onChange={(value) => handleFilterChange('category', value)}
-          options={categoryOptions}
-        />
-        <FilterSelect
-          label="Herkunft"
-          value={filters.origin}
-          onChange={(value) => handleFilterChange('origin', value)}
-          options={originOptions}
-        />
-        <FilterSelect
-          label="Farbe"
-          value={filters.color}
-          onChange={(value) => handleFilterChange('color', value)}
-          options={colorOptions}
-        />
-        <FilterSelect
-          label="Behandlung"
-          value={filters.treatment}
-          onChange={(value) => handleFilterChange('treatment', value)}
-          options={treatmentOptions}
-        />
-        <FilterSelect
-          label="Zertifizierung"
-          value={filters.certification}
-          onChange={(value) => handleFilterChange('certification', value)}
-          options={certificationOptions}
-        />
-        <div className="space-y-2">
-          <label className="text-xs uppercase tracking-wide text-white/55">Gewicht (von - bis)</label>
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              value={filters.weightMin}
-              onChange={(event) => handleFilterChange('weightMin', event.target.value)}
-              placeholder="Min"
-              className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
-            />
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              value={filters.weightMax}
-              onChange={(event) => handleFilterChange('weightMax', event.target.value)}
-              placeholder="Max"
-              className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs uppercase tracking-wide text-white/55">Preis (von - bis)</label>
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="100"
-              value={filters.priceMin}
-              onChange={(event) => handleFilterChange('priceMin', event.target.value)}
-              placeholder="Min"
-              className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
-            />
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="100"
-              value={filters.priceMax}
-              onChange={(event) => handleFilterChange('priceMax', event.target.value)}
-              placeholder="Max"
-              className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-4">
-        <Button
-          variant="secondary"
-          className="border-white/20 bg-white/5 text-white hover:bg-white/10"
-          onClick={() => setFilters({ ...initialFilters })}
-          disabled={!hasFiltersApplied}
-        >
-          Filter zurücksetzen
-        </Button>
+      <div className="flex flex-wrap gap-[50px]">
+        {items.map((gemstone) => (
+          <GemCard key={gemstone.id} gemstone={gemstone} locale={locale} showNewBadge variant="grid" />
+        ))}
       </div>
     </section>
   );
@@ -545,8 +371,8 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
     <div className="space-y-12">
       {renderCarousel(newGemstones, 'Neue Edelsteine', 'Highlights', true)}
       {renderFilterControls()}
-      {filteredRegularGemstones.length > 0 ? (
-        renderCarousel(filteredRegularGemstones, 'Bestand', 'Verfügbare Edelsteine', false)
+      {inventoryGemstones.length > 0 ? (
+        renderInventoryGrid(inventoryGemstones)
       ) : hasFiltersApplied ? (
         <section className="main-container space-y-3 text-center">
           <h2 className="text-2xl font-semibold text-white">Keine Treffer</h2>
@@ -554,10 +380,84 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
             Passen Sie die Filter an oder setzen Sie sie zurück, um weitere Edelsteine im Bestand zu sehen.
           </p>
         </section>
-      ) : (
-        renderCarousel(regularGemstones, 'Bestand', 'Verfügbare Edelsteine', false)
-      )}
+      ) : null}
     </div>
+  );
+}
+
+function GemCard({
+  gemstone,
+  locale,
+  showNewBadge = false,
+  variant = 'grid',
+}: {
+  gemstone: ShopGemstone;
+  locale: string;
+  showNewBadge?: boolean;
+  variant?: 'grid' | 'carousel';
+}) {
+  const detailHref = `/${locale}/shop/${gemstone.id}`;
+  const imageSrc = gemstone.images[0] ?? PLACEHOLDER_IMAGE;
+  const wrapperClass =
+    variant === 'carousel'
+      ? 'group min-w-[240px] max-w-[240px] snap-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary'
+      : 'group block w-[240px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary';
+  const imageSizes = '240px';
+
+  return (
+    <Link
+      href={detailHref}
+      prefetch={true}
+      className={wrapperClass}
+      aria-label={`${gemstone.name} Details anzeigen`}
+    >
+      <article className="story-card bg-[#2D2D2D]/90 border border-white/10 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
+        <div className="overflow-hidden rounded-lg mb-4">
+          <div className="aspect-[4/3] relative bg-black/30">
+            <Image
+              src={imageSrc}
+              alt={gemstone.name}
+              fill
+              sizes={imageSizes}
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+        </div>
+        <div className="space-y-3 px-2 text-left">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold text-white line-clamp-1">
+              {gemstone.name}
+            </h3>
+            {showNewBadge && gemstone.isNew && (
+              <span className="text-[11px] font-semibold text-orange-400 uppercase tracking-wide">
+                Neu
+              </span>
+            )}
+          </div>
+          <div className="flex items-center justify-between text-xs text-white/80">
+            {typeof gemstone.weight === 'number' && (
+              <span className="inline-flex items-center gap-1">
+                Gewicht {gemstone.weight.toFixed(2)} {gemstone.weightUnit ?? 'ct'}
+              </span>
+            )}
+            {gemstone.origin && (
+              <span className="inline-flex items-center gap-1">
+                Herkunft {gemstone.origin}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center justify-between text-xs text-white/80">
+            <span className="inline-flex items-center gap-1">
+              Kategorie {gemstone.category}
+            </span>
+            <span className="text-sm font-semibold text-primary">
+              €{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 0 })}
+            </span>
+          </div>
+          <div className="text-[11px] text-white/60">Bestand: {gemstone.stock}</div>
+        </div>
+      </article>
+    </Link>
   );
 }
 
@@ -573,12 +473,13 @@ function FilterSelect({
   options: string[];
 }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 min-w-0">
       <label className="text-xs uppercase tracking-wide text-white/55">{label}</label>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="w-full rounded-lg border border-white/20 bg-black/40 px-3 py-2 text-sm text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        style={{ width: 'calc(100% - 25px)' }}
       >
         <option value="">Alle</option>
         {options.map((option) => (

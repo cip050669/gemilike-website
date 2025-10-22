@@ -6,7 +6,7 @@ export default function AboutAdminPage() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 text-gray-900">Über uns - Verwaltung</h1>
           <p className="text-gray-600">
-            Verwalten Sie den Inhalt der "Über uns" Seite
+            Verwalten Sie den Inhalt der &quot;Über uns&quot; Seite
           </p>
         </div>
 

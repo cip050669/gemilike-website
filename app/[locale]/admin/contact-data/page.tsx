@@ -1,9 +1,7 @@
-import { getTranslations } from 'next-intl/server';
 import ContactDataManagement from '@/components/admin/ContactDataManagement';
 
 export default async function ContactDataPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  const t = await getTranslations();
+  await params;
 
   return (
     <div className="space-y-6">

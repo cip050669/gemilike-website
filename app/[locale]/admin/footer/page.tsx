@@ -25,7 +25,7 @@ export default function FooterAdminPage() {
       } else {
         setMessage('❌ ' + result.message);
       }
-    } catch (error) {
+    } catch {
       setMessage('❌ Fehler beim Speichern');
     } finally {
       setIsSubmitting(false);

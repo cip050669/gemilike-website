@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Plus, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { MapPin, Plus, Edit, Trash2, Search } from 'lucide-react';
 
 interface GemLocation {
   id: string;
@@ -27,7 +26,6 @@ const GEM_TYPES = [
 ];
 
 export default function LocationsAdmin() {
-  const t = useTranslations('admin');
   const [locations, setLocations] = useState<GemLocation[]>([]);
   const [filteredLocations, setFilteredLocations] = useState<GemLocation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +73,7 @@ export default function LocationsAdmin() {
     try {
       const response = await fetch('/api/gems');
       const data = await response.json();
-      const locationsWithIds = data.points.map((point: any, index: number) => ({
+      const locationsWithIds = (data.points as Array<Omit<GemLocation, 'id'>>).map((point, index) => ({
         ...point,
         id: `loc_${index + 1}`
       }));

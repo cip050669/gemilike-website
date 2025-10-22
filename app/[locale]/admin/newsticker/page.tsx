@@ -1,18 +1,6 @@
 import { loadNewstickerData } from '@/app/api/admin/newsticker/route';
 import Link from 'next/link';
 
-interface NewstickerItem {
-  id: string;
-  text: string;
-  type: string;
-  priority: string;
-  isActive: boolean;
-  startDate?: string;
-  endDate?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export default function NewstickerAdminPage() {
   const items = loadNewstickerData();
 

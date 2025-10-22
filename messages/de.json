@@ -80,6 +80,15 @@
     "message": "Diese Website verwendet Cookies, um Ihnen die beste Erfahrung zu bieten.",
     "accept": "Akzeptieren"
   },
+  "knowledge": {
+    "loading": "Artikel wird geladen...",
+    "notFound": "Artikel nicht gefunden",
+    "notFoundDesc": "Dieser Wissenswert-Artikel ist nicht verfügbar oder wurde entfernt.",
+    "backToHome": "Zur Startseite",
+    "backToList": "Zurück zu Wissenswertes",
+    "author": "Gemilike Redaktion",
+    "discoverShop": "Zum Shop"
+  },
   "admin": {
     "title": "Edelstein-Verwaltung",
     "description": "Verwalten Sie Ihre Website-Inhalte und Einstellungen",

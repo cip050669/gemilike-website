@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
 import { POST, GET } from '@/app/api/search/advanced/route';
 import { getServerSession } from 'next-auth';
-import { allGemstones } from '@/lib/data/gemstones';
 
 // Mock next-auth
 jest.mock('next-auth', () => ({

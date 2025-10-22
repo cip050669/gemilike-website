@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Award, Ruler, Weight, MapPin, Star, Gem, FlaskConical, Eye, Shapes, Tag, Palette, Crown, Sparkles, Diamond, Zap, Droplets, CircleDot } from 'lucide-react';
+import { ShoppingCart, Eye } from 'lucide-react';
 import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 import { MediaGallery } from './MediaGallery';
 import { TreatmentIcon } from './TreatmentIcon';
@@ -273,7 +273,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {/* Spezifische Infos für Rohsteine */}
           {isRoughGemstone(gemstone) && (
             <div className="flex items-center gap-2" role="listitem">
-              <Star className="h-4 w-4 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+              <PictogramWithTooltip iconName="Star" />
               <span className="text-muted-foreground">{t('quality')}:</span>
               <span className="font-medium">{gemstone.crystalQuality}</span>
             </div>

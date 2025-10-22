@@ -3,41 +3,44 @@ import { Button } from '@/components/ui/button';
 import { Gem, Sparkles, Diamond, Mountain, Award, Package, Users, Target, Heart } from 'lucide-react';
 import Link from 'next/link';
 
-const getServices = (t: any) => [
+type LocaleMessages = typeof import('@/messages/de.json');
+type ServicesMessages = LocaleMessages['default']['services'];
+
+const getServices = (translations: ServicesMessages) => [
   {
     icon: Mountain,
-    title: t.services.rough,
-    description: t.services.roughDesc,
+    title: translations.rough,
+    description: translations.roughDesc,
     features: ['Smaragde', 'Rubine', 'Saphire', 'Turmaline', 'Aquamarine', 'Weitere Raritäten'],
   },
   {
     icon: Diamond,
-    title: t.services.cut,
-    description: t.services.cutDesc,
+    title: translations.cut,
+    description: translations.cutDesc,
     features: ['Brillantschliff', 'Facettenschliff', 'Cabochon', 'Fantasieschliffe'],
   },
   {
     icon: Sparkles,
-    title: t.services.diamonds,
-    description: t.services.diamondsDesc,
+    title: translations.diamonds,
+    description: translations.diamondsDesc,
     features: ['Brillanten', 'Farbdiamanten', 'Zertifikate', 'Individuelle Auswahl'],
   },
   {
     icon: Gem,
-    title: t.services.colored,
-    description: t.services.coloredDesc,
+    title: translations.colored,
+    description: translations.coloredDesc,
     features: ['Smaragde', 'Rubine', 'Saphire', 'Opale', 'Tansanite', 'Paraiba'],
   },
   {
     icon: Award,
-    title: t.services.collector,
-    description: t.services.collectorDesc,
+    title: translations.collector,
+    description: translations.collectorDesc,
     features: ['Museumsstücke', 'Seltene Fundstücke', 'Zertifiziert', 'Dokumentiert'],
   },
   {
     icon: Package,
-    title: t.services.wholesale,
-    description: t.services.wholesaleDesc,
+    title: translations.wholesale,
+    description: translations.wholesaleDesc,
     features: ['Großmengen', 'Individuelle Auswahl', 'Faire Preise', 'Zuverlässige Lieferung'],
   },
 ];
@@ -45,7 +48,7 @@ const getServices = (t: any) => [
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await import(`@/messages/${locale}.json`).then(m => m.default);
-  const services = getServices(t);
+  const services = getServices(t.services);
   
   return (
     <div className="container py-12 md:py-20">

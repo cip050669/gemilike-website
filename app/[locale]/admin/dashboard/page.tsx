@@ -1,11 +1,9 @@
-import { getTranslations } from 'next-intl/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, Users, Gem, ShoppingCart, TrendingUp, DollarSign } from 'lucide-react';
+import { Users, Gem, ShoppingCart, DollarSign } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 
 export default async function AdminDashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   await params; // Await params even if not used
-  const t = await getTranslations();
 
   // Get real data from database
   const [

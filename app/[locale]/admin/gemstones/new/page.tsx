@@ -58,7 +58,7 @@ export default function NewGemstonePage() {
       } else {
         setMessage('❌ ' + result.error);
       }
-    } catch (error) {
+    } catch {
       setMessage('❌ Fehler beim Speichern');
     } finally {
       setIsSubmitting(false);

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MenuIcon, ShoppingCartIcon, UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
@@ -14,14 +14,19 @@ import { cn } from '@/lib/utils';
 const NAV_ITEMS = [
   { href: '/', label: 'Startseite' },
   { href: '/shop', label: 'Shop' },
-  { href: '/blog', label: 'Wissenswertes' },
+  { href: '/wissenswertes', label: 'Wissenswertes' },
   { href: '/contact', label: 'Kontakt' },
 ];
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
   const { toggleCart, getTotalItems } = useCartStore();
   const pathname = usePathname();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const localePrefix = (() => {
     if (!pathname) return '';
@@ -110,7 +115,7 @@ export function Header() {
             className="relative h-9 w-9"
           >
             <ShoppingCartIcon className="h-4 w-4" />
-            {getTotalItems() > 0 && (
+            {isMounted && getTotalItems() > 0 && (
               <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {getTotalItems()}
               </span>
@@ -127,7 +132,7 @@ export function Header() {
             className="relative"
           >
             <ShoppingCartIcon className="h-4 w-4" />
-            {getTotalItems() > 0 && (
+            {isMounted && getTotalItems() > 0 && (
               <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {getTotalItems()}
               </span>

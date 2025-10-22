@@ -3,7 +3,7 @@ interface EditGemstonePageProps {
 }
 
 export default async function EditGemstonePage({ params }: EditGemstonePageProps) {
-  const { id, locale } = await params;
+  const { id } = await params;
 
   // Dummy data for demonstration
   const gemstone = {

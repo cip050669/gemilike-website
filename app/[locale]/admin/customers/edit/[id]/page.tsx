@@ -1,25 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 
-interface Customer {
-  id: string;
-  customerNumber: string;
-  company?: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  address: string;
-  postalCode: string;
-  city: string;
-  country: string;
-  taxId?: string;
-  notes?: string;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export default async function EditCustomerPage({ params }: { params: { id: string } }) {
   const { id } = params;
   

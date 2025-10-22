@@ -1,25 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Search, 
-  Filter,
-  Download,
-  User,
-  Calendar,
-  Activity,
-  Eye,
-  Trash2,
-  Edit,
-  Plus,
-  Settings
-} from 'lucide-react';
+import { Search, Download, User, Calendar, Activity, Eye, Trash2, Edit, Plus } from 'lucide-react';
 import { AuditLogDetailsModal } from '@/components/admin/AuditLogDetailsModal';
 
 interface AuditLog {
@@ -29,18 +15,14 @@ interface AuditLog {
   action: string;
   entityType: string;
   entityId: string;
-  details: any;
+  details: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
   createdAt: string;
 }
 
 export default function AuditLogPage() {
-  console.log('🚀 AuditLogPage component loaded');
-  
-  const t = useTranslations('admin');
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [filteredLogs, setFilteredLogs] = useState<AuditLog[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
   const [userFilter, setUserFilter] = useState<string>('all');
@@ -50,19 +32,6 @@ export default function AuditLogPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔄 useEffect triggered - loading audit logs');
-    loadAuditLogs();
-  }, []);
-
-  useEffect(() => {
-    console.log('🔄 filterLogs useEffect triggered');
-    filterLogs();
-  }, [auditLogs, searchTerm, actionFilter, userFilter, dateFilter]);
-
-  const loadAuditLogs = async () => {
-    console.log('🔍 Loading audit logs...');
-    
-    // Direkte Mock-Daten - garantiert funktioniert
     const mockAuditLogs: AuditLog[] = [
       {
         id: 'AUDIT-001',
@@ -74,7 +43,7 @@ export default function AuditLogPage() {
         details: { loginTime: new Date().toISOString() },
         ipAddress: '192.168.1.100',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+        createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
       },
       {
         id: 'AUDIT-002',
@@ -86,7 +55,7 @@ export default function AuditLogPage() {
         details: { name: 'Smaragd 001', price: 1250, category: 'Emerald' },
         ipAddress: '192.168.1.100',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
       },
       {
         id: 'AUDIT-003',
@@ -98,7 +67,7 @@ export default function AuditLogPage() {
         details: { price: 890, previousPrice: 750 },
         ipAddress: '192.168.1.101',
         userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 hours ago
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
       },
       {
         id: 'AUDIT-004',
@@ -110,7 +79,7 @@ export default function AuditLogPage() {
         details: { name: 'Saphir 003', reason: 'Defekt' },
         ipAddress: '192.168.1.101',
         userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(), // 6 hours ago
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
       },
       {
         id: 'AUDIT-005',
@@ -122,45 +91,39 @@ export default function AuditLogPage() {
         details: { customer: 'Max Mustermann', total: 1250 },
         ipAddress: '192.168.1.100',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(), // 8 hours ago
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
       },
     ];
-    
-    console.log('📋 Setting audit logs:', mockAuditLogs.length, 'entries');
+
     setAuditLogs(mockAuditLogs);
     setLoading(false);
-    console.log('✅ Audit logs loaded successfully');
-  };
+  }, []);
 
-  const filterLogs = () => {
-    console.log('🔍 filterLogs called with auditLogs:', auditLogs.length);
-    let filtered = auditLogs;
+  const filteredLogs = useMemo(() => {
+    let result = auditLogs;
 
-    // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(log =>
-        log.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.entityType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.entityId.toLowerCase().includes(searchTerm.toLowerCase())
+      const term = searchTerm.toLowerCase();
+      result = result.filter((log) =>
+        log.userName.toLowerCase().includes(term) ||
+        log.action.toLowerCase().includes(term) ||
+        log.entityType.toLowerCase().includes(term) ||
+        log.entityId.toLowerCase().includes(term)
       );
     }
 
-    // Action filter
     if (actionFilter !== 'all') {
-      filtered = filtered.filter(log => log.action === actionFilter);
+      result = result.filter((log) => log.action === actionFilter);
     }
 
-    // User filter
     if (userFilter !== 'all') {
-      filtered = filtered.filter(log => log.userId === userFilter);
+      result = result.filter((log) => log.userId === userFilter);
     }
 
-    // Date filter
     if (dateFilter !== 'all') {
       const now = new Date();
       const filterDate = new Date();
-      
+
       switch (dateFilter) {
         case 'today':
           filterDate.setHours(0, 0, 0, 0);
@@ -174,27 +137,22 @@ export default function AuditLogPage() {
         case 'year':
           filterDate.setFullYear(now.getFullYear() - 1);
           break;
+        default:
+          break;
       }
-      
-      filtered = filtered.filter(log => new Date(log.createdAt) >= filterDate);
+
+      result = result.filter((log) => new Date(log.createdAt) >= filterDate);
     }
 
-    console.log('📊 Filtered logs result:', filtered.length);
-    setFilteredLogs(filtered);
-  };
+    return result;
+  }, [auditLogs, searchTerm, actionFilter, userFilter, dateFilter]);
 
   const handleLogClick = (log: AuditLog) => {
-    console.log('👁️ AUDIT LOG DETAILS BUTTON CLICKED:', log.id);
-    alert(`👁️ AUDIT-LOG ${log.id.toUpperCase()} DETAILS WERDEN ANGEZEIGT!\n\nBenutzer: ${log.userName}\nAktion: ${log.action}\nEntität: ${log.entityType}`);
-    
     setSelectedLog(log);
     setIsDetailsModalOpen(true);
   };
 
   const exportLogs = () => {
-    console.log('💾 EXPORT AUDIT LOGS BUTTON CLICKED');
-    alert('💾 AUDIT-LOGS WERDEN EXPORTIERT!');
-    
     const csvContent = [
       ['Datum', 'Benutzer', 'Aktion', 'Entität', 'ID', 'Details', 'IP-Adresse'].join(','),
       ...filteredLogs.map(log => [

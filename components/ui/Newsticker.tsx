@@ -4,13 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { NewstickerItem } from '@/lib/types/newsticker';
 import { Info, AlertTriangle, CheckCircle, Megaphone, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const TYPE_OUTLINE: Record<NewstickerItem['type'], string> = {
-  info: 'border-blue-300/40',
-  warning: 'border-amber-300/40',
-  success: 'border-emerald-300/40',
-  error: 'border-rose-300/40',
-};
-
 const TYPE_ICONS: Record<NewstickerItem['type'], JSX.Element> = {
   info: <Info className="h-5 w-5" />,
   warning: <AlertTriangle className="h-5 w-5" />,
