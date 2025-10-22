@@ -1,27 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  FileText,
-  Euro,
-  Calendar,
-  User,
-  AlertCircle
-} from 'lucide-react';
+import { Plus, Search, Download, Eye, Edit, FileText, Euro, Calendar, AlertCircle } from 'lucide-react';
 
 interface Invoice {
   id: string;
@@ -51,13 +37,12 @@ interface InvoiceStats {
 }
 
 export default function InvoicesPage() {
-  const router = useRouter();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [stats, setStats] = useState<InvoiceStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [paymentFilter, setPaymentFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | Invoice['status']>('ALL');
+  const [paymentFilter, setPaymentFilter] = useState<'ALL' | Invoice['paymentStatus']>('ALL');
 
   useEffect(() => {
     fetchInvoices();
@@ -355,4 +340,3 @@ export default function InvoicesPage() {
     </div>
   );
 }
-

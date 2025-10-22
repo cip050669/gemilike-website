@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 export interface AuditLogData {
@@ -5,7 +6,7 @@ export interface AuditLogData {
   action: string;
   entityType: string;
   entityId?: string;
-  details?: any;
+  details?: unknown;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -18,7 +19,12 @@ export async function createAuditLog(data: AuditLogData) {
         action: data.action,
         entityType: data.entityType,
         entityId: data.entityId,
-        details: data.details ? JSON.stringify(data.details) : null,
+        details:
+          typeof data.details === 'string'
+            ? data.details
+            : data.details != null
+            ? JSON.stringify(data.details)
+            : null,
         ipAddress: data.ipAddress,
         userAgent: data.userAgent,
       },
@@ -32,15 +38,17 @@ export async function createAuditLog(data: AuditLogData) {
   }
 }
 
-export async function getAuditLogs(filters?: {
+type AuditLogFilters = {
   action?: string;
   entityType?: string;
   userId?: string;
   limit?: number;
   offset?: number;
-}) {
+};
+
+export async function getAuditLogs(filters?: AuditLogFilters) {
   try {
-    const where: any = {};
+    const where: Prisma.AuditLogWhereInput = {};
     
     if (filters?.action) {
       where.action = filters.action;
@@ -69,18 +77,29 @@ export async function getAuditLogs(filters?: {
       skip: filters?.offset || 0,
     });
 
-    return auditLogs.map(log => ({
-      id: log.id,
-      userId: log.userId,
-      userName: log.user?.name || 'Unbekannt',
-      action: log.action,
-      entityType: log.entityType,
-      entityId: log.entityId,
-      details: log.details ? JSON.parse(log.details) : null,
-      ipAddress: log.ipAddress,
-      userAgent: log.userAgent,
-      createdAt: log.createdAt,
-    }));
+    return auditLogs.map((log) => {
+      let parsedDetails: unknown = null;
+      if (log.details) {
+        try {
+          parsedDetails = JSON.parse(log.details);
+        } catch {
+          parsedDetails = log.details;
+        }
+      }
+
+      return {
+        id: log.id,
+        userId: log.userId,
+        userName: log.user?.name || 'Unbekannt',
+        action: log.action,
+        entityType: log.entityType,
+        entityId: log.entityId,
+        details: parsedDetails,
+        ipAddress: log.ipAddress,
+        userAgent: log.userAgent,
+        createdAt: log.createdAt,
+      };
+    });
   } catch (error) {
     console.error('Error fetching audit logs:', error);
     throw error;
@@ -93,7 +112,7 @@ export async function logUserAction(
   action: string,
   entityType: string,
   entityId?: string,
-  details?: any,
+  details?: unknown,
   request?: Request
 ) {
   const ipAddress = request?.headers.get('x-forwarded-for') || 
@@ -116,7 +135,7 @@ export async function logGemstoneAction(
   userId: string,
   action: string,
   gemstoneId: string,
-  details?: any,
+  details?: unknown,
   request?: Request
 ) {
   return logUserAction(userId, action, 'Gemstone', gemstoneId, details, request);
@@ -126,7 +145,7 @@ export async function logUserManagement(
   userId: string,
   action: string,
   targetUserId: string,
-  details?: any,
+  details?: unknown,
   request?: Request
 ) {
   return logUserAction(userId, action, 'User', targetUserId, details, request);
@@ -136,7 +155,7 @@ export async function logOrderAction(
   userId: string,
   action: string,
   orderId: string,
-  details?: any,
+  details?: unknown,
   request?: Request
 ) {
   return logUserAction(userId, action, 'Order', orderId, details, request);

@@ -1,4 +1,3 @@
-import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,6 @@ import {
 
 export default async function AdminOverviewPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = await getTranslations();
 
   const adminSections = [
     {

@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 export default function SignOutPage() {
-  const router = useRouter();
   const [status, setStatus] = useState('Abmelden...');
 
   useEffect(() => {

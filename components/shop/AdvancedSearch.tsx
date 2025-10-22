@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,22 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Search, 
-  Filter, 
-  X, 
-  RotateCcw, 
-  Star, 
-  Palette, 
-  Weight, 
-  MapPin, 
-  Award,
-  Zap,
-  Eye,
-  Sparkles,
-  Save,
-  Loader2
-} from 'lucide-react';
+import { Search, Filter, X, RotateCcw, Sparkles, Save, Loader2 } from 'lucide-react';
 import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 
 interface AdvancedSearchProps {
@@ -121,7 +106,7 @@ export function AdvancedSearch({
   savedSearches = [],
   onLoadSearch 
 }: AdvancedSearchProps) {
-  const t = useTranslations('shop');
+  useTranslations('shop');
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>(defaultFilters);
   const [isLoading, setIsLoading] = useState(false);
@@ -130,16 +115,17 @@ export function AdvancedSearch({
 
   // Calculate dynamic ranges based on available data
   const dataRanges = useMemo(() => {
-    const maxPrice = Math.max(...gemstones.map(g => g.price));
-    const maxWeight = Math.max(...gemstones.map(g => 
-      isCutGemstone(g) ? g.caratWeight : g.gramWeight
-    ));
-    const maxLength = Math.max(...gemstones.map(g => g.dimensions.length));
-    const maxWidth = Math.max(...gemstones.map(g => g.dimensions.width));
-    const maxHeight = Math.max(...gemstones.map(g => g.dimensions.height));
-    const maxYield = Math.max(...gemstones
-      .filter(isRoughGemstone)
-      .map(g => g.estimatedCaratYield || 0)
+    const maxPrice = Math.max(0, ...gemstones.map((g) => g.price));
+    const maxWeight = Math.max(
+      0,
+      ...gemstones.map((g) => (isCutGemstone(g) ? g.caratWeight : g.gramWeight))
+    );
+    const maxLength = Math.max(0, ...gemstones.map((g) => g.dimensions.length));
+    const maxWidth = Math.max(0, ...gemstones.map((g) => g.dimensions.width));
+    const maxHeight = Math.max(0, ...gemstones.map((g) => g.dimensions.height));
+    const maxYield = Math.max(
+      0,
+      ...gemstones.filter(isRoughGemstone).map((g) => g.estimatedCaratYield ?? 0)
     );
 
     return {
@@ -211,7 +197,7 @@ export function AdvancedSearch({
     // Simulate API delay for better UX
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    let filtered = gemstones;
+    const filtered = [...gemstones];
 
     // Text search (searches in name, description, and category)
     if (filters.searchTerm) {
@@ -221,9 +207,8 @@ export function AdvancedSearch({
         gemstone.description.toLowerCase().includes(searchLower) ||
         gemstone.category.toLowerCase().includes(searchLower) ||
         (gemstone.color && gemstone.color.toLowerCase().includes(searchLower))
-      );
-    }
-
+  );
+}
     // Basic filters
     if (filters.category !== 'all') {
       filtered = filtered.filter(gemstone => gemstone.category === filters.category);
@@ -335,33 +320,29 @@ export function AdvancedSearch({
     );
 
     // Special features
-    if (filters.hasVideos) {
-      filtered = filtered.filter(gemstone => gemstone.videos && gemstone.videos.length > 0);
-    }
-
-    if (filters.hasCertificates) {
-      filtered = filtered.filter(gemstone => 
-        gemstone.certification.certified && gemstone.certification.certificateUrl
-      );
-    }
-
-    if (filters.estimatedYieldRange[0] > 0 || filters.estimatedYieldRange[1] < dataRanges.maxYield) {
-      filtered = filtered.filter(gemstone => {
-        if (isRoughGemstone(gemstone) && gemstone.estimatedCaratYield) {
-          return gemstone.estimatedCaratYield >= filters.estimatedYieldRange[0] &&
-                 gemstone.estimatedCaratYield <= filters.estimatedYieldRange[1];
+    const filteredResult = filtered
+      .filter((gemstone) => !filters.hasVideos || (gemstone.videos && gemstone.videos.length > 0))
+      .filter(
+        (gemstone) =>
+          !filters.hasCertificates || (gemstone.certification.certified && gemstone.certification.certificateUrl)
+      )
+      .filter((gemstone) => {
+        if (filters.estimatedYieldRange[0] > 0 || filters.estimatedYieldRange[1] < dataRanges.maxYield) {
+          if (isRoughGemstone(gemstone) && gemstone.estimatedCaratYield) {
+            return (
+              gemstone.estimatedCaratYield >= filters.estimatedYieldRange[0] &&
+              gemstone.estimatedCaratYield <= filters.estimatedYieldRange[1]
+            );
+          }
+          return false;
         }
-        return false;
-      });
-    }
-
-    // Stock filter
-    if (filters.inStockOnly) {
-      filtered = filtered.filter(gemstone => gemstone.inStock);
-    }
+        return true;
+      })
+      .filter((gemstone) => (!filters.inStockOnly ? true : gemstone.inStock));
 
     onFilter(filters);
     setIsLoading(false);
+  };
   };
 
   const resetFilters = () => {

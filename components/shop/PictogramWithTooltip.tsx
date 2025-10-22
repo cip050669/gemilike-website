@@ -36,7 +36,7 @@ export function PictogramWithTooltip({
   const title = getTitleByIcon(iconName);
   
   const getIconComponent = (iconName: string) => {
-    const iconMap: { [key: string]: any } = {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
       Sparkles,
       Tag,
       MapPin,

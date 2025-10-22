@@ -6,7 +6,13 @@ import type { BlogPost } from '@/lib/types/blog';
 const BLOG_FILE_PATH = join(process.cwd(), 'data', 'blogs.json');
 const DATA_DIR = join(process.cwd(), 'data');
 
-const reviveBlogDates = (blog: any): BlogPost => ({
+type BlogJson = Omit<BlogPost, 'createdAt' | 'updatedAt' | 'publishedAt'> & {
+  createdAt?: string | Date | null;
+  updatedAt?: string | Date | null;
+  publishedAt?: string | Date | null;
+};
+
+const reviveBlogDates = (blog: BlogJson): BlogPost => ({
   ...blog,
   createdAt: blog.createdAt ? new Date(blog.createdAt) : new Date(),
   updatedAt: blog.updatedAt ? new Date(blog.updatedAt) : new Date(),
@@ -29,7 +35,7 @@ export const loadBlogs = async (): Promise<BlogPost[]> => {
       return [];
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(reviveBlogDates) : [];
+    return Array.isArray(parsed) ? (parsed as BlogJson[]).map(reviveBlogDates) : [];
   } catch (error) {
     console.error('Error loading blogs:', error);
     return [];

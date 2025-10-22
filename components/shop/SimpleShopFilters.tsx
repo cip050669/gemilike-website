@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Gemstone, isCutGemstone } from '@/lib/types/gemstone';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -19,7 +19,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
   const [selectedTreatment, setSelectedTreatment] = useState<string>('all');
   const [selectedCertification, setSelectedCertification] = useState<string>('all');
 
-  const safeGemstones = gemstones || [];
+  const safeGemstones = useMemo(() => gemstones ?? [], [gemstones]);
   const categories = Array.from(new Set(safeGemstones.map(g => g.category).filter(Boolean))).sort();
   const origins = Array.from(new Set(safeGemstones.map(g => g.origin).filter(Boolean))).sort();
   const cuts = Array.from(new Set(safeGemstones.filter(isCutGemstone).map(g => g.cut).filter(Boolean))).sort();
@@ -36,7 +36,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
     { value: '5000+', label: 'Über €5.000' }
   ];
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = safeGemstones;
 
     if (selectedCategory !== 'all') {
@@ -79,7 +79,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
     }
 
     onFilter(filtered);
-  };
+  }, [safeGemstones, selectedCategory, selectedPriceRange, selectedOrigin, selectedCut, selectedClarity, selectedTreatment, selectedCertification, onFilter]);
 
   const clearFilters = () => {
     setSelectedCategory('all');
@@ -106,7 +106,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
 
   useEffect(() => {
     applyFilters();
-  }, [selectedCategory, selectedPriceRange, selectedOrigin, selectedCut, selectedClarity, selectedTreatment, selectedCertification, safeGemstones]);
+  }, [applyFilters]);
 
   return (
     <div className="flex flex-wrap gap-4">

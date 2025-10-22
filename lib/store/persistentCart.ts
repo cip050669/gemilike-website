@@ -2,22 +2,24 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Gemstone } from '@/lib/types/gemstone';
 
+type CartItemVariant = {
+  id: string;
+  name: string;
+  price: number;
+};
+
 interface CartItem {
   id: string;
   gemstone: Gemstone;
   quantity: number;
   notes?: string;
   addedAt: Date;
-  variant?: {
-    id: string;
-    name: string;
-    price: number;
-  };
+  variant?: CartItemVariant;
 }
 
 interface PersistentCartStore {
   items: CartItem[];
-  addItem: (gemstone: Gemstone, quantity?: number, notes?: string, variant?: any) => void;
+  addItem: (gemstone: Gemstone, quantity?: number, notes?: string, variant?: CartItemVariant) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   updateNotes: (id: string, notes: string) => void;
@@ -50,7 +52,7 @@ export const usePersistentCartStore = create<PersistentCartStore>()(
       lastSynced: null,
       autoSave: true,
       
-      addItem: (gemstone: Gemstone, quantity = 1, notes?: string, variant?: any) => {
+      addItem: (gemstone: Gemstone, quantity = 1, notes?: string, variant?: CartItemVariant) => {
         set((state) => {
           const existingItem = state.items.find(item => 
             item.gemstone.id === gemstone.id && 
@@ -150,14 +152,15 @@ export const usePersistentCartStore = create<PersistentCartStore>()(
           });
           
           if (response.ok) {
-            const coupon = await response.json();
+            const coupon = (await response.json()) as PersistentCartStore['coupon'];
             set({ coupon });
-            return { success: true, message: 'Gutschein angewendet', discount: coupon.discount };
+            return { success: true, message: 'Gutschein angewendet', discount: coupon?.discount };
           } else {
             const error = await response.json();
             return { success: false, message: error.error || 'Ungültiger Gutschein' };
           }
         } catch (error) {
+          console.error('Error applying coupon:', error);
           return { success: false, message: 'Fehler beim Anwenden des Gutscheins' };
         }
       },
@@ -180,8 +183,10 @@ export const usePersistentCartStore = create<PersistentCartStore>()(
           });
           
           if (response.ok) {
-            const serverCart = await response.json();
-            set({ items: serverCart.items, lastSynced: new Date() });
+            const serverCart = (await response.json()) as {
+              items?: CartItem[];
+            };
+            set({ items: serverCart.items ?? [], lastSynced: new Date() });
           }
         } catch (error) {
           console.error('Error syncing cart:', error);
@@ -218,10 +223,13 @@ export const usePersistentCartStore = create<PersistentCartStore>()(
       loadCartFromServer: async (userId: string) => {
         set({ isSyncing: true });
         try {
-          const response = await fetch(`/api/cart/load?userId=${userId}`);
+          const response = await fetch(`/api/cart/load?userId=${encodeURIComponent(userId)}`);
           
           if (response.ok) {
-            const serverCart = await response.json();
+            const serverCart = (await response.json()) as {
+              items?: CartItem[];
+              coupon?: PersistentCartStore['coupon'];
+            };
             set({ 
               items: serverCart.items || [], 
               coupon: serverCart.coupon || null,

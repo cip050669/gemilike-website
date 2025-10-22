@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import DownloadArea from '@/components/downloads/DownloadArea';
+import { DownloadArea } from '@/components/downloads/DownloadArea';
 
 export default async function DownloadsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

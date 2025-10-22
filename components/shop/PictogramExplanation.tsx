@@ -58,7 +58,7 @@ export function PictogramExplanation({ className = '' }: PictogramExplanationPro
   }, []);
 
   const getIconComponent = (iconName: string) => {
-    const iconMap: { [key: string]: any } = {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
       Sparkles,
       Tag,
       MapPin,

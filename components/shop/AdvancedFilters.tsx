@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,24 +47,39 @@ export function AdvancedFilters({ gemstones, onFilter, onSearch }: AdvancedFilte
 
   const [savedSearches, setSavedSearches] = useState<string[]>([]);
 
-  // Get unique values for filter options
-  const categories = [...new Set(gemstones.map(g => g.category))];
-  const origins = [...new Set(gemstones.map(g => g.origin))];
-  const treatments = [...new Set(gemstones.map(g => g.treatment.type))];
-  const certifications = [...new Set(gemstones.map(g => g.certification.lab).filter(Boolean))];
-
-  const maxPrice = Math.max(...gemstones.map(g => g.price));
-  const maxWeight = Math.max(
-    ...gemstones.map(g => 
-      'caratWeight' in g ? g.caratWeight : 'gramWeight' in g ? g.gramWeight : 0
-    )
+  const categories = useMemo(
+    () => [...new Set(gemstones.map((gem) => gem.category))],
+    [gemstones]
   );
 
-  useEffect(() => {
-    applyFilters();
-  }, [filters, gemstones]);
+  const origins = useMemo(
+    () => [...new Set(gemstones.map((gem) => gem.origin).filter(Boolean))] as string[],
+    [gemstones]
+  );
 
-  const applyFilters = () => {
+  const treatments = useMemo(
+    () => [...new Set(gemstones.map((gem) => gem.treatment?.type).filter(Boolean))] as string[],
+    [gemstones]
+  );
+
+  const certifications = useMemo(
+    () => [...new Set(gemstones.map((gem) => gem.certification?.lab).filter(Boolean))] as string[],
+    [gemstones]
+  );
+
+  const maxPrice = useMemo(() => Math.max(0, ...gemstones.map((gem) => gem.price)), [gemstones]);
+  const maxWeight = useMemo(
+    () =>
+      Math.max(
+        0,
+        ...gemstones.map((gem) =>
+          'caratWeight' in gem ? gem.caratWeight : 'gramWeight' in gem ? gem.gramWeight : 0
+        )
+      ),
+    [gemstones]
+  );
+
+  const applyFilters = useCallback(() => {
     let filtered = [...gemstones];
 
     // Search filter
@@ -115,39 +130,34 @@ export function AdvancedFilters({ gemstones, onFilter, onSearch }: AdvancedFilte
 
     // Sorting
     filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
-      
-      switch (filters.sortBy) {
-        case 'name':
-          aValue = a.name;
-          bValue = b.name;
-          break;
-        case 'price':
-          aValue = a.price;
-          bValue = b.price;
-          break;
-        case 'weight':
-          aValue = 'caratWeight' in a ? a.caratWeight : 'gramWeight' in a ? a.gramWeight : 0;
-          bValue = 'caratWeight' in b ? b.caratWeight : 'gramWeight' in b ? b.gramWeight : 0;
-          break;
-        case 'category':
-          aValue = a.category;
-          bValue = b.category;
-          break;
-        default:
-          aValue = a.name;
-          bValue = b.name;
-      }
+      const getWeight = (gem: Gemstone) =>
+        'caratWeight' in gem ? gem.caratWeight : 'gramWeight' in gem ? gem.gramWeight : 0;
 
-      if (filters.sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
+      switch (filters.sortBy) {
+        case 'price':
+          return (a.price - b.price) * (filters.sortOrder === 'asc' ? 1 : -1);
+        case 'weight': {
+          const difference = getWeight(a) - getWeight(b);
+          return filters.sortOrder === 'asc' ? difference : -difference;
+        }
+        case 'category':
+          return filters.sortOrder === 'asc'
+            ? a.category.localeCompare(b.category)
+            : b.category.localeCompare(a.category);
+        case 'name':
+        default:
+          return filters.sortOrder === 'asc'
+            ? a.name.localeCompare(b.name)
+            : b.name.localeCompare(a.name);
       }
     });
 
     onFilter(filtered);
-  };
+  }, [filters, gemstones, onFilter]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const resetFilters = () => {
     setFilters({

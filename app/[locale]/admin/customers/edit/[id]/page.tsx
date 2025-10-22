@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 
-export default async function EditCustomerPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function EditCustomerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   
   const customer = await prisma.customer.findUnique({
     where: { id },

@@ -1,10 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { PictogramDescriptionManager } from '@/components/admin/PictogramDescriptionManager';
 
 export default function AdminPictogramDescriptionsPage() {
-  const t = useTranslations('admin');
 
   return (
     <div className="space-y-6">

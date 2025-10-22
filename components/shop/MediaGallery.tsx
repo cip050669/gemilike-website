@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, Play, X, ZoomIn, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, ZoomIn, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 

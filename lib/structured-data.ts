@@ -1,18 +1,16 @@
+type StructuredDataType = 'Organization' | 'WebSite' | 'WebPage' | 'Product' | 'BreadcrumbList' | 'LocalBusiness';
+
 interface StructuredDataProps {
-  type: 'Organization' | 'WebSite' | 'WebPage' | 'Product' | 'BreadcrumbList' | 'LocalBusiness'
-  data: any
+  type: StructuredDataType;
+  data: Record<string, unknown>;
 }
 
-export function generateStructuredData({ type, data }: StructuredDataProps) {
-  const baseUrl = 'https://gemilike.de'
-  
-  const structuredData = {
+export function generateStructuredData({ type, data }: StructuredDataProps): Record<string, unknown> {
+  return {
     '@context': 'https://schema.org',
     '@type': type,
-    ...data
-  }
-
-  return structuredData
+    ...data,
+  };
 }
 
 // Vordefinierte strukturierte Daten
@@ -193,4 +191,3 @@ export function generateProductStructuredData(product: {
     }
   })
 }
-

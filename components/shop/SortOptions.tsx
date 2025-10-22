@@ -45,34 +45,41 @@ export function SortOptions({ value, onValueChange, className }: SortOptionsProp
   );
 }
 
-export function sortGemstones(gemstones: any[], sortOption: SortOption) {
+export function sortGemstones<T extends { name?: string; price?: number; createdAt?: Date | string; caratWeight?: number; gramWeight?: number }>(
+  gemstones: T[],
+  sortOption: SortOption
+): T[] {
   const sorted = [...gemstones];
   
   switch (sortOption) {
     case 'name-asc':
-      return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      return sorted.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
     case 'name-desc':
-      return sorted.sort((a, b) => b.name.localeCompare(a.name));
+      return sorted.sort((a, b) => (b.name ?? '').localeCompare(a.name ?? ''));
     case 'price-asc':
-      return sorted.sort((a, b) => a.price - b.price);
+      return sorted.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
     case 'price-desc':
-      return sorted.sort((a, b) => b.price - a.price);
+      return sorted.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
     case 'weight-asc':
       return sorted.sort((a, b) => {
-        const weightA = 'caratWeight' in a ? a.caratWeight : a.gramWeight;
-        const weightB = 'caratWeight' in b ? b.caratWeight : b.gramWeight;
+        const weightA = (a.caratWeight ?? a.gramWeight) ?? 0;
+        const weightB = (b.caratWeight ?? b.gramWeight) ?? 0;
         return weightA - weightB;
       });
     case 'weight-desc':
       return sorted.sort((a, b) => {
-        const weightA = 'caratWeight' in a ? a.caratWeight : a.gramWeight;
-        const weightB = 'caratWeight' in b ? b.caratWeight : b.gramWeight;
+        const weightA = (a.caratWeight ?? a.gramWeight) ?? 0;
+        const weightB = (b.caratWeight ?? b.gramWeight) ?? 0;
         return weightB - weightA;
       });
     case 'date-newest':
-      return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return sorted.sort(
+        (a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+      );
     case 'date-oldest':
-      return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      return sorted.sort(
+        (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()
+      );
     default:
       return sorted;
   }
