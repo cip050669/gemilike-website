@@ -67,10 +67,10 @@ export function Footer() {
   return (
     <footer className="bg-gem-bgDark border-t border-gem-iceDark/20">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           
           {/* Spalte 1: Logo + Social Media */}
-          <div className="space-y-6">
+          <div className="flex-1 space-y-6">
             <div className="flex flex-col items-start space-y-4">
               <Link href="/" className="inline-flex flex-col gap-3 items-start">
                 <Image 
@@ -104,7 +104,7 @@ export function Footer() {
           </div>
 
           {/* Spalte 2: Wer sind wir? */}
-          <div className="space-y-4">
+          <div className="flex-1 space-y-4">
             <h3 className="text-lg font-semibold text-gem-text uppercase tracking-[0.2em]">
               Wer sind wir?
             </h3>
@@ -137,7 +137,7 @@ export function Footer() {
           </div>
 
           {/* Spalte 3: Rechtliches */}
-          <div className="space-y-4">
+          <div className="flex-1 space-y-4">
             <h3 className="text-lg font-semibold text-gem-text uppercase tracking-[0.2em]">
               Rechtliches
             </h3>
@@ -170,7 +170,7 @@ export function Footer() {
           </div>
 
           {/* Spalte 4: Newsletter */}
-          <div className="space-y-4">
+          <div className="flex-1 space-y-4">
             <h3 className="text-lg font-semibold text-gem-text uppercase tracking-[0.2em]">
               Newsletter
             </h3>
