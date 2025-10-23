@@ -6,13 +6,18 @@ import { NextRequest } from 'next/server';
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'gemstones');
 
 const ensureUploadDirectory = () => {
-  if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(UPLOAD_DIR)) {
+      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    }
+    return true;
+  } catch (error) {
+    console.warn('Gemstone uploads: Unable to access upload directory.', error);
+    return false;
   }
 };
 
 export const saveUploadedImage = async (file: File) => {
-  ensureUploadDirectory();
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
   const parts = file.name.split('.');
@@ -23,9 +28,20 @@ export const saveUploadedImage = async (file: File) => {
     .replace(/[^a-zA-Z0-9-]/g, '')
     .toLowerCase();
   const safeName = `${Date.now()}-${randomUUID()}-${slug || 'gemstone'}.${extension}`;
-  const targetPath = path.join(UPLOAD_DIR, safeName);
-  fs.writeFileSync(targetPath, buffer);
-  return `/uploads/gemstones/${safeName}`;
+  const mimeType = file.type || 'image/jpeg';
+
+  if (ensureUploadDirectory()) {
+    try {
+      const targetPath = path.join(UPLOAD_DIR, safeName);
+      fs.writeFileSync(targetPath, buffer);
+      return `/uploads/gemstones/${safeName}`;
+    } catch (error) {
+      console.warn('Gemstone uploads: Falling back to inline image storage.', error);
+    }
+  }
+
+  const base64 = buffer.toString('base64');
+  return `data:${mimeType};base64,${base64}`;
 };
 
 export const parseListFromDB = (value?: string | null): string[] => {

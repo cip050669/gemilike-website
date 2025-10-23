@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import type { NavigationItem } from '@prisma/client';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // GET-Anfragen sind öffentlich, damit der Header geladen werden kann
     // Keine Authentifizierung erforderlich für GET
 
     // Hole Header-Daten aus der Datenbank (mit Fallback)
     let headerData;
-    let navigationItems: any[] = [];
+    let navigationItems: NavigationItem[] = [];
     
     try {
       headerData = await prisma.headerData.findFirst();
@@ -18,7 +17,7 @@ export async function GET(request: NextRequest) {
         orderBy: { order: 'asc' }
       });
     } catch (dbError) {
-      console.log('Database not ready, using fallback data');
+      console.log('Database not ready, using fallback data', dbError);
       headerData = null;
       navigationItems = [];
     }
@@ -91,7 +90,7 @@ export async function PUT(request: NextRequest) {
     
     try {
       // Aktualisiere Header-Daten
-      const headerData = await prisma.headerData.upsert({
+      await prisma.headerData.upsert({
       where: { id: 'default' },
       update: {
         logoText: data.logo.text,

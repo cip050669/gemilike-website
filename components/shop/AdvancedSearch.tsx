@@ -197,41 +197,41 @@ export function AdvancedSearch({
     // Simulate API delay for better UX
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    const filtered = [...gemstones];
+    let filtered = [...gemstones];
 
     // Text search (searches in name, description, and category)
     if (filters.searchTerm) {
       const searchLower = filters.searchTerm.toLowerCase();
-      filtered = filtered.filter(gemstone =>
+      filtered = filtered.filter((gemstone) =>
         gemstone.name.toLowerCase().includes(searchLower) ||
-        gemstone.description.toLowerCase().includes(searchLower) ||
+        (gemstone.description && gemstone.description.toLowerCase().includes(searchLower)) ||
         gemstone.category.toLowerCase().includes(searchLower) ||
         (gemstone.color && gemstone.color.toLowerCase().includes(searchLower))
-  );
-}
+      );
+    }
     // Basic filters
     if (filters.category !== 'all') {
-      filtered = filtered.filter(gemstone => gemstone.category === filters.category);
+      filtered = filtered.filter((gemstone) => gemstone.category === filters.category);
     }
 
     if (filters.origin !== 'all') {
-      filtered = filtered.filter(gemstone => gemstone.origin === filters.origin);
+      filtered = filtered.filter((gemstone) => gemstone.origin === filters.origin);
     }
 
     if (filters.type !== 'all') {
-      filtered = filtered.filter(gemstone => gemstone.type === filters.type);
+      filtered = filtered.filter((gemstone) => gemstone.type === filters.type);
     }
 
     if (filters.color !== 'all') {
-      filtered = filtered.filter(gemstone => gemstone.color === filters.color);
+      filtered = filtered.filter((gemstone) => gemstone.color === filters.color);
     }
 
     // Price and weight ranges
-    filtered = filtered.filter(gemstone => 
+    filtered = filtered.filter((gemstone) => 
       gemstone.price >= filters.priceRange[0] && gemstone.price <= filters.priceRange[1]
     );
 
-    filtered = filtered.filter(gemstone => {
+    filtered = filtered.filter((gemstone) => {
       const weight = isCutGemstone(gemstone) ? gemstone.caratWeight : gemstone.gramWeight;
       return weight >= filters.weightRange[0] && weight <= filters.weightRange[1];
     });
@@ -239,9 +239,9 @@ export function AdvancedSearch({
     // Quality filters
     if (filters.treatment !== 'all') {
       if (filters.treatment === 'untreated') {
-        filtered = filtered.filter(gemstone => !gemstone.treatment.treated);
+        filtered = filtered.filter((gemstone) => !gemstone.treatment.treated);
       } else {
-        filtered = filtered.filter(gemstone => 
+        filtered = filtered.filter((gemstone) => 
           gemstone.treatment.treated && gemstone.treatment.type === filters.treatment
         );
       }
@@ -249,11 +249,11 @@ export function AdvancedSearch({
 
     if (filters.certification !== 'all') {
       if (filters.certification === 'certified') {
-        filtered = filtered.filter(gemstone => gemstone.certification.certified);
+        filtered = filtered.filter((gemstone) => gemstone.certification.certified);
       } else if (filters.certification === 'uncertified') {
-        filtered = filtered.filter(gemstone => !gemstone.certification.certified);
+        filtered = filtered.filter((gemstone) => !gemstone.certification.certified);
       } else {
-        filtered = filtered.filter(gemstone => 
+        filtered = filtered.filter((gemstone) => 
           gemstone.certification.certified && gemstone.certification.lab === filters.certification
         );
       }
@@ -261,56 +261,56 @@ export function AdvancedSearch({
 
     // Cut-specific filters
     if (filters.clarity !== 'all') {
-      filtered = filtered.filter(gemstone => 
+      filtered = filtered.filter((gemstone) => 
         isCutGemstone(gemstone) && gemstone.clarity === filters.clarity
       );
     }
 
     if (filters.cutQuality !== 'all') {
-      filtered = filtered.filter(gemstone => 
+      filtered = filtered.filter((gemstone) => 
         isCutGemstone(gemstone) && gemstone.cutQuality === filters.cutQuality
       );
     }
 
     if (filters.symmetry !== 'all') {
-      filtered = filtered.filter(gemstone => 
+      filtered = filtered.filter((gemstone) => 
         isCutGemstone(gemstone) && gemstone.symmetry === filters.symmetry
       );
     }
 
     if (filters.polish !== 'all') {
-      filtered = filtered.filter(gemstone => 
+      filtered = filtered.filter((gemstone) => 
         isCutGemstone(gemstone) && gemstone.polish === filters.polish
       );
     }
 
     if (filters.colorGrade !== 'all') {
-      filtered = filtered.filter(gemstone => 
+      filtered = filtered.filter((gemstone) => 
         isCutGemstone(gemstone) && gemstone.colorGrade === filters.colorGrade
       );
     }
 
     if (filters.colorIntensity !== 'all') {
-      filtered = filtered.filter(gemstone => 
+      filtered = filtered.filter((gemstone) => 
         isCutGemstone(gemstone) && gemstone.colorIntensity === filters.colorIntensity
       );
     }
 
     // Rough-specific filters
     if (filters.crystalQuality !== 'all') {
-      filtered = filtered.filter(gemstone => 
+      filtered = filtered.filter((gemstone) => 
         isRoughGemstone(gemstone) && gemstone.crystalQuality === filters.crystalQuality
       );
     }
 
     if (filters.transparency !== 'all') {
-      filtered = filtered.filter(gemstone => 
+      filtered = filtered.filter((gemstone) => 
         isRoughGemstone(gemstone) && gemstone.transparency === filters.transparency
       );
     }
 
     // Dimension filters
-    filtered = filtered.filter(gemstone => 
+    filtered = filtered.filter((gemstone) => 
       gemstone.dimensions.length >= filters.dimensionsRange.length[0] &&
       gemstone.dimensions.length <= filters.dimensionsRange.length[1] &&
       gemstone.dimensions.width >= filters.dimensionsRange.width[0] &&
@@ -320,12 +320,17 @@ export function AdvancedSearch({
     );
 
     // Special features
-    const filteredResult = filtered
+    filtered = filtered
       .filter((gemstone) => !filters.hasVideos || (gemstone.videos && gemstone.videos.length > 0))
-      .filter(
-        (gemstone) =>
-          !filters.hasCertificates || (gemstone.certification.certified && gemstone.certification.certificateUrl)
-      )
+      .filter((gemstone) => {
+        if (!filters.hasCertificates) {
+          return true;
+        }
+        return (
+          gemstone.certification.certified &&
+          Boolean(gemstone.certification.certificateUrl)
+        );
+      })
       .filter((gemstone) => {
         if (filters.estimatedYieldRange[0] > 0 || filters.estimatedYieldRange[1] < dataRanges.maxYield) {
           if (isRoughGemstone(gemstone) && gemstone.estimatedCaratYield) {
@@ -340,9 +345,8 @@ export function AdvancedSearch({
       })
       .filter((gemstone) => (!filters.inStockOnly ? true : gemstone.inStock));
 
-    onFilter(filters);
+    onFilter(filtered);
     setIsLoading(false);
-  };
   };
 
   const resetFilters = () => {

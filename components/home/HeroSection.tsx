@@ -1,18 +1,15 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, Gem } from 'lucide-react';
-import Link from 'next/link';
 import { useHeroSettings } from '@/lib/hooks/useHeroSettings';
 import GemILikeLogo from '@/components/GemILikeLogo';
+import Image from 'next/image';
 
 interface HeroSectionProps {
   locale: string;
 }
 
 export function HeroSection({ locale }: HeroSectionProps) {
-  const { heroSettings, updateSettings } = useHeroSettings();
-  
+  const { heroSettings } = useHeroSettings();
 
   const renderGemLikeTitle = (title: string) => {
     const lowercaseTitle = title.toLowerCase();
@@ -68,8 +65,11 @@ export function HeroSection({ locale }: HeroSectionProps) {
     secondaryButtonLink: '/contact'
   };
 
-  // Entferne den Loading-Zustand, da er den Text-Bereich verhindert
-
+  const currentSettings = {
+    imageUrl: heroSettings.backgroundImage || fallbackSettings.imageUrl,
+    title: heroSettings.title || fallbackSettings.title,
+    subtitle: heroSettings.subtitle || fallbackSettings.subtitle,
+  };
 
   return (
     <>
@@ -77,20 +77,19 @@ export function HeroSection({ locale }: HeroSectionProps) {
       <section
         className="relative h-screen w-full overflow-hidden"
         style={{ fontFamily: 'Arial, sans-serif' }}
+        lang={locale}
       >
         {/* Fallback Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background/50 to-accent/30" />
         
         <div className="absolute inset-0">
-          <img
-            src={fallbackSettings.imageUrl}
+          <Image
+            src={currentSettings.imageUrl}
             alt="Exquisite Edelsteine - Gemilike"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              // Fallback zu einem anderen Hero-Bild
-              const target = e.target as HTMLImageElement;
-              target.src = '/uploads/hero/hero-1759791144832.jpg';
-            }}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
         </div>
         
@@ -106,8 +105,11 @@ export function HeroSection({ locale }: HeroSectionProps) {
              gradientClassName="gradient-gem-spectrum"
            />
          </div>
+         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg mb-4">
+           {renderGemLikeTitle(currentSettings.title)}
+         </h1>
          <p className="text-xs sm:text-sm md:text-base lg:text-lg max-w-xs sm:max-w-md md:max-w-lg leading-relaxed text-white">
-           {fallbackSettings.subtitle}
+           {currentSettings.subtitle}
          </p>
         </div>
       </section>

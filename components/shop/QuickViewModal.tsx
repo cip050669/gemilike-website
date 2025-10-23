@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 import { MediaGallery } from './MediaGallery';
 import { TreatmentIcon } from './TreatmentIcon';
 import { WishlistButton } from './WishlistButton';
-import { ShoppingCart, Eye, Award, Ruler, Weight, MapPin, Star, Gem, FlaskConical } from 'lucide-react';
+import { ShoppingCart, Eye, Award, Ruler, Weight, MapPin, FlaskConical } from 'lucide-react';
 
 interface QuickViewModalProps {
   gemstone: Gemstone | null;

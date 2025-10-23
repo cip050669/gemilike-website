@@ -10,8 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { User, Mail, Phone, Calendar, MapPin, Bell, Shield, Trash2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { User, Bell, Shield, Trash2 } from 'lucide-react';
 
 interface ProfileData {
   name: string;
@@ -30,7 +29,6 @@ interface ProfileData {
 
 export default function ProfileEditor() {
   const { data: session, update } = useSession();
-  const t = useTranslations('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
@@ -154,7 +152,9 @@ export default function ProfileEditor() {
             <Label htmlFor="gender">Geschlecht</Label>
             <Select
               value={profileData.gender}
-              onValueChange={(value: any) => setProfileData({ ...profileData, gender: value })}
+              onValueChange={(value) =>
+                setProfileData({ ...profileData, gender: value as ProfileData['gender'] })
+              }
               disabled={!isEditing}
             >
               <SelectTrigger>

@@ -3,12 +3,13 @@
 import Script from 'next/script'
 import { generateStructuredData, structuredDataConfig } from '@/lib/structured-data'
 
+type StructuredDatum = Record<string, unknown>;
+
 interface SEOHeadProps {
-  structuredData?: any[]
-  locale?: string
+  structuredData?: StructuredDatum[];
 }
 
-export function SEOHead({ structuredData = [], locale = 'de' }: SEOHeadProps) {
+export function SEOHead({ structuredData = [] }: SEOHeadProps) {
   // Standard strukturierte Daten
   const defaultStructuredData = [
     generateStructuredData(structuredDataConfig.organization),
@@ -70,4 +71,3 @@ export function SEOHead({ structuredData = [], locale = 'de' }: SEOHeadProps) {
     </>
   )
 }
-

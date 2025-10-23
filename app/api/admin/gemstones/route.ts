@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { extractPayload, normaliseGemstonePayload } from './utils';
 import { allGemstones } from '@/lib/data/gemstones';
+import { isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +19,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {};
+    const where: Prisma.GemstoneWhereInput = {};
     
     if (search) {
       where.OR = [
@@ -62,36 +64,57 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching gemstones:', error);
-    const fallbackData = allGemstones.map((gem) => ({
-      id: gem.id,
-      name: gem.name,
-      category: gem.category,
-      type: gem.type,
-      price: gem.price,
-      weight: 'caratWeight' in gem ? gem.caratWeight : 'gramWeight' in gem ? gem.gramWeight : null,
-      dimensions: gem.dimensions
+    const fallbackData = allGemstones.map((gem) => {
+      const weight = isCutGemstone(gem)
+        ? gem.caratWeight
+        : isRoughGemstone(gem)
+          ? gem.gramWeight
+          : null;
+
+      const dimensions = gem.dimensions
         ? `${gem.dimensions.length}x${gem.dimensions.width}x${gem.dimensions.height}mm`
-        : null,
-      color: (gem as any).color ?? null,
-      colorIntensity: (gem as any).colorIntensity ?? null,
-      colorBrightness: null,
-      clarity: (gem as any).clarity ?? null,
-      cut: (gem as any).cut ?? (gem as any).cutForm ?? null,
-      cutForm: (gem as any).cutForm ?? null,
-      treatment: gem.treatment?.type ?? null,
-      certification: gem.certification?.lab ?? null,
-      rarity: (gem as any).rarity ?? null,
-      origin: gem.origin,
-      description: gem.description,
-      images: JSON.stringify([gem.mainImage, ...(gem.images ?? [])].filter(Boolean).slice(0, 10)),
-      videos: JSON.stringify((gem as any).videos ?? []),
-      inStock: gem.inStock ?? true,
-      stock: gem.quantity ?? 0,
-      sku: undefined,
-      isNew: gem.isNew ?? false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }));
+        : null;
+
+      const cut = isCutGemstone(gem) ? gem.cut : null;
+      const cutForm = isCutGemstone(gem) ? gem.cutForm ?? null : null;
+      const colorIntensity = isCutGemstone(gem) ? gem.colorIntensity ?? null : null;
+      const clarity = isCutGemstone(gem) ? gem.clarity ?? null : null;
+
+      const images = [gem.mainImage, ...(gem.images ?? [])]
+        .filter((image): image is string => Boolean(image))
+        .slice(0, 10);
+
+      const videos = (gem.videos ?? []).filter((video): video is string => Boolean(video));
+
+      return {
+        id: gem.id,
+        name: gem.name,
+        category: gem.category,
+        type: gem.type,
+        price: gem.price,
+        weight,
+        dimensions,
+        color: gem.color ?? null,
+        colorIntensity,
+        colorBrightness: null,
+        clarity,
+        cut,
+        cutForm,
+        treatment: gem.treatment?.type ?? null,
+        certification: gem.certification?.lab ?? null,
+        rarity: gem.rarity ?? null,
+        origin: gem.origin,
+        description: gem.description,
+        images: JSON.stringify(images),
+        videos: JSON.stringify(videos),
+        inStock: gem.inStock ?? true,
+        stock: gem.quantity ?? 0,
+        sku: undefined,
+        isNew: gem.isNew ?? false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    });
 
     return NextResponse.json(
       {

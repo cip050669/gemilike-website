@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
 import { useCartStore } from '@/lib/store/cart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +14,7 @@ import { CheckIcon, CreditCardIcon, TruckIcon } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { items, getTotalPrice, getTotalItems, clearCart } = useCartStore();
+  const locale = useLocale();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -45,7 +48,7 @@ export default function CheckoutPage() {
             Fügen Sie Artikel zu Ihrem Warenkorb hinzu, um fortzufahren.
           </p>
           <Button asChild>
-            <a href="/shop">Zum Shop</a>
+            <Link href={`/${locale}/shop`}>Zum Shop</Link>
           </Button>
         </div>
       </div>

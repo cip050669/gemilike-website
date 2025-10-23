@@ -1,37 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Heart, ShoppingCart, Eye, Trash2, Share2, Plus, Minus } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, Trash2, Share2, Plus } from 'lucide-react';
 import { useWishlistStore } from '@/lib/store/wishlist';
 import { useCartStore } from '@/lib/store/cart';
-import { Gemstone } from '@/lib/types/gemstone';
+import { Gemstone, Treatment } from '@/lib/types/gemstone';
 import { allGemstones } from '@/lib/data/gemstones';
-import { useTranslations } from 'next-intl';
 
 export default function WishlistManager() {
-  const t = useTranslations('profile');
   const router = useRouter();
   const { items: wishlistItems, removeItem, clearWishlist } = useWishlistStore();
   const { addItem } = useCartStore();
   const [wishlistData, setWishlistData] = useState<Gemstone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadWishlistData();
-  }, [wishlistItems]);
-
-  const loadWishlistData = () => {
-    const gemstones = allGemstones.filter(gemstone => 
+  const loadWishlistData = useCallback(() => {
+    const gemstones = allGemstones.filter((gemstone) =>
       wishlistItems.some(item => item.id === gemstone.id)
     );
     setWishlistData(gemstones);
     setIsLoading(false);
-  };
+  }, [wishlistItems]);
+
+  useEffect(() => {
+    loadWishlistData();
+  }, [loadWishlistData]);
 
   const handleRemoveFromWishlist = (gemstoneId: string) => {
     removeItem(gemstoneId);
@@ -88,39 +87,47 @@ export default function WishlistManager() {
     }).format(price);
   };
 
-  const getTreatmentIcon = (treatment: any) => {
+  const getTreatmentIcon = (treatment?: Treatment | null) => {
     if (!treatment) return '💎';
     
     switch (treatment.type) {
       case 'none':
         return '💎';
-      case 'heat':
+      case 'heated':
         return '🔥';
-      case 'irradiation':
+      case 'irradiated':
         return '⚡';
-      case 'coating':
+      case 'coated':
         return '✨';
-      case 'filling':
+      case 'filled':
         return '🔧';
+      case 'oiled':
+        return '💧';
+      case 'diffused':
+        return '🌈';
       default:
         return '💎';
     }
   };
 
-  const getTreatmentColor = (treatment: any) => {
+  const getTreatmentColor = (treatment?: Treatment | null) => {
     if (!treatment) return 'text-green-600';
     
     switch (treatment.type) {
       case 'none':
         return 'text-green-600';
-      case 'heat':
+      case 'heated':
         return 'text-orange-600';
-      case 'irradiation':
+      case 'irradiated':
         return 'text-purple-600';
-      case 'coating':
+      case 'coated':
         return 'text-blue-600';
-      case 'filling':
+      case 'filled':
         return 'text-gray-600';
+      case 'oiled':
+        return 'text-emerald-600';
+      case 'diffused':
+        return 'text-indigo-600';
       default:
         return 'text-green-600';
     }
@@ -187,11 +194,13 @@ export default function WishlistManager() {
             <Card key={gemstone.id} className="group hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="relative">
-                  <div className="aspect-square bg-muted rounded-lg overflow-hidden mb-3">
-                    <img
+                  <div className="aspect-square bg-muted rounded-lg overflow-hidden mb-3 relative">
+                    <Image
                       src={gemstone.images[0]}
                       alt={gemstone.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div className="absolute top-2 right-2 flex gap-1">

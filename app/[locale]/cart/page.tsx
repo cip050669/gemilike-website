@@ -1,14 +1,16 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCartStore } from '@/lib/store/cart';
+import Link from 'next/link';
 
 export default function CartPage() {
   const t = useTranslations('shop');
+  const locale = useLocale();
   const { items, removeItem, updateQuantity, total, clearCart } = useCartStore();
 
   if (items.length === 0) {
@@ -22,7 +24,7 @@ export default function CartPage() {
             {t('emptyCart')}
           </p>
           <Button asChild>
-            <a href="/de/shop">{t('goToShop')}</a>
+            <Link href={`/${locale}/shop`}>{t('goToShop')}</Link>
           </Button>
         </div>
       </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { ArrowLeft, MapPin, Globe } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -12,8 +12,24 @@ const TileLayer = dynamic(() => import("react-leaflet").then(m => m.TileLayer), 
 const Marker = dynamic(() => import("react-leaflet").then(m => m.Marker), { ssr: false });
 const Popup = dynamic(() => import("react-leaflet").then(m => m.Popup), { ssr: false });
 
+interface GemstoneLocation {
+  name: string;
+  lat: number;
+  lng: number;
+  gem: string;
+}
+
+interface CountryEntry {
+  country: string;
+  lat: number;
+  lng: number;
+  locationCount: number;
+  gemTypes: string[];
+  locations: GemstoneLocation[];
+}
+
 // Kommerziell wichtige Edelstein-Lagerstätten weltweit
-const COUNTRY_DATA = [
+const COUNTRY_DATA: CountryEntry[] = [
   // AFRIKA
   {
     country: "Südafrika",
@@ -422,11 +438,11 @@ const GEM_COLORS: Record<string, string> = {
 
 export default function WorldMap() {
   const [viewMode, setViewMode] = useState<"countries" | "locations">("countries");
-  const [selectedCountry, setSelectedCountry] = useState<any>(null);
+  const [selectedCountry, setSelectedCountry] = useState<CountryEntry | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter countries based on search
-  const filteredCountries = useMemo(() => {
+  const filteredCountries = useMemo<CountryEntry[]>(() => {
     if (!searchTerm.trim()) return COUNTRY_DATA;
     return COUNTRY_DATA.filter(country => 
       country.country.toLowerCase().includes(searchTerm.toLowerCase())
@@ -434,16 +450,16 @@ export default function WorldMap() {
   }, [searchTerm]);
 
   // Filter locations based on search
-  const filteredLocations = useMemo(() => {
+  const filteredLocations = useMemo<GemstoneLocation[]>(() => {
     if (!selectedCountry) return [];
     if (!searchTerm.trim()) return selectedCountry.locations;
-    return selectedCountry.locations.filter((location: any) => 
+    return selectedCountry.locations.filter((location) => 
       location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       location.gem.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [selectedCountry, searchTerm]);
 
-  const selectCountry = (country: any) => {
+  const selectCountry = (country: CountryEntry) => {
     console.log("Selecting country:", country.country);
     setSelectedCountry(country);
     setViewMode("locations");
@@ -577,7 +593,7 @@ export default function WorldMap() {
           ) : (
             // Lagerstätten-Ansicht
             <>
-              {filteredLocations.map((location: any, index: number) => (
+              {filteredLocations.map((location, index) => (
                 <Marker
                   key={`location-${index}`}
                   position={[location.lat, location.lng]}

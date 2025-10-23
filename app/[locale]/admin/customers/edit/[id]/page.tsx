@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 
@@ -26,14 +27,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
               </p>
             </div>
             <div className="flex gap-4">
-              <form action="/de/admin/customers" method="get">
-                <button
-                  type="submit"
-                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
-                >
-                  ← Abbrechen
-                </button>
-              </form>
+              <Link
+                href="/de/admin/customers"
+                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium inline-block"
+              >
+                ← Abbrechen
+              </Link>
             </div>
           </div>
         </div>
@@ -244,14 +243,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
 
             {/* Buttons */}
             <div className="flex justify-end gap-4 mt-8 pt-6 border-t">
-              <form action="/de/admin/customers" method="get">
-                <button
-                  type="submit"
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Abbrechen
-                </button>
-              </form>
+              <Link
+                href="/de/admin/customers"
+                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 inline-block"
+              >
+                Abbrechen
+              </Link>
               <button
                 type="submit"
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

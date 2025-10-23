@@ -7,10 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Search, Filter, X, RotateCcw } from 'lucide-react';
-import { Gemstone } from '@/lib/types/gemstone';
+import { Gemstone, isCutGemstone } from '@/lib/types/gemstone';
 
 interface ShopFiltersProps {
   gemstones: Gemstone[];
@@ -37,9 +36,21 @@ export function ShopFilters({ gemstones, onFilter }: ShopFiltersProps) {
   // Get unique values for filter options
   const categories = Array.from(new Set(gemstones.map(g => g.category))).sort();
   const origins = Array.from(new Set(gemstones.map(g => g.origin))).sort();
-  const treatments = Array.from(new Set(gemstones.map(g => g.treatment.treated ? g.treatment.type : 'untreated'))).filter(Boolean);
-  const cuts = Array.from(new Set(gemstones.filter(g => 'cut' in g).map(g => (g as any).cut))).sort();
-  const forms = Array.from(new Set(gemstones.filter(g => 'cut' in g).map(g => (g as any).cut))).sort();
+  const treatments = Array.from(
+    new Set(
+      gemstones.map((g) => (g.treatment.treated ? g.treatment.type : 'untreated'))
+    )
+  ).filter(Boolean);
+  const cuts = Array.from(
+    new Set(
+      gemstones.filter(isCutGemstone).map((g) => g.cut).filter(Boolean)
+    )
+  ).sort();
+  const forms = Array.from(
+    new Set(
+      gemstones.filter(isCutGemstone).map((g) => g.cutForm).filter(Boolean)
+    )
+  ).sort();
   const maxPrice = Math.max(...gemstones.map(g => g.price));
   const maxWeight = Math.max(...gemstones.map(g => 
     'caratWeight' in g ? g.caratWeight : g.gramWeight
@@ -107,15 +118,15 @@ export function ShopFilters({ gemstones, onFilter }: ShopFiltersProps) {
 
     // Cut filter (only for cut gemstones)
     if (selectedCut !== 'all') {
-      filtered = filtered.filter(gemstone => 
-        'cut' in gemstone && (gemstone as any).cut === selectedCut
+      filtered = filtered.filter(
+        (gemstone) => isCutGemstone(gemstone) && gemstone.cut === selectedCut
       );
     }
 
     // Form filter (only for cut gemstones)
     if (selectedForm !== 'all') {
-      filtered = filtered.filter(gemstone => 
-        'cut' in gemstone && (gemstone as any).cut === selectedForm
+      filtered = filtered.filter(
+        (gemstone) => isCutGemstone(gemstone) && gemstone.cutForm === selectedForm
       );
     }
 

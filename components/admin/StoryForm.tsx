@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import FileUpload from './FileUpload';
 
 interface StoryFormProps {
@@ -159,7 +161,15 @@ export default function StoryForm({ story, isEdit = false }: StoryFormProps) {
           {story?.imageUrl && !selectedImage && (
             <div className="mt-2">
               <p className="text-sm text-gray-600">Aktuelles Bild:</p>
-              <img src={story.imageUrl} alt="Current" className="mt-1 h-20 w-20 object-cover rounded" />
+              <div className="mt-1 h-20 w-20 overflow-hidden rounded relative">
+                <Image
+                  src={story.imageUrl}
+                  alt="Aktuelles Storybild"
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -199,12 +209,12 @@ export default function StoryForm({ story, isEdit = false }: StoryFormProps) {
 
       {/* Buttons */}
       <div className="flex justify-end gap-4 pt-6 border-t">
-        <a
+        <Link
           href="/de/admin/stories"
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
         >
           Abbrechen
-        </a>
+        </Link>
         <button
           type="submit"
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

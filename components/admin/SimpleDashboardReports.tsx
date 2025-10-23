@@ -1,33 +1,43 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  TrendingUp, 
+import {
   DollarSign, 
   Package, 
   Star,
-  ShoppingCart,
   Award,
   BarChart3,
   PieChart,
   Download,
   RefreshCw,
-  FileText,
   Printer
 } from 'lucide-react';
 import { Gemstone } from '@/lib/types/gemstone';
 import { allGemstones } from '@/lib/data/gemstones';
 
+interface DashboardStats {
+  totalRevenue: number;
+  totalGemstones: number;
+  availableGemstones: number;
+  soldGemstones: number;
+  averagePrice: number;
+  mostPopularCategory: string;
+  mostExpensiveGemstone: Gemstone;
+  cheapestGemstone: Gemstone;
+  categoryStats: Record<string, number>;
+  multiplier: number;
+}
+
 export function SimpleDashboardReports() {
   const [currentPeriod, setCurrentPeriod] = useState('month');
-  const [reportData, setReportData] = useState<any>(null);
+  const [reportData, setReportData] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Einfache Berechnung der Statistiken
-  const calculateStats = () => {
+  const calculateStats = useCallback((): DashboardStats => {
     const gemstones = allGemstones;
     
     // Multiplikator basierend auf Zeitraum
@@ -47,7 +57,7 @@ export function SimpleDashboardReports() {
     const averagePrice = totalRevenue / totalGemstones;
 
     // Kategorie-Statistiken
-    const categoryStats: { [key: string]: number } = {};
+    const categoryStats: Record<string, number> = {};
     gemstones.forEach(gemstone => {
       categoryStats[gemstone.category] = (categoryStats[gemstone.category] || 0) + 1;
     });
@@ -72,21 +82,13 @@ export function SimpleDashboardReports() {
       categoryStats,
       multiplier
     };
-  };
+  }, [currentPeriod]);
 
   // Initiale Berechnung
   useEffect(() => {
     const initialData = calculateStats();
     setReportData(initialData);
-  }, []);
-
-  // Neuberechnung bei Zeitraum-Änderung
-  useEffect(() => {
-    if (reportData) {
-      const newData = calculateStats();
-      setReportData(newData);
-    }
-  }, [currentPeriod]);
+  }, [calculateStats]);
 
   // Button-Handler - Alle funktional
   const handlePeriodChange = (period: string) => {

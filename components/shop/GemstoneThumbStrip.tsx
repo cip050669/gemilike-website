@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Gemstone } from '@/lib/types/gemstone';
 import { GemstoneThumbnail } from './GemstoneThumbnail';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -12,7 +12,6 @@ interface GemstoneThumbStripProps {
 
 export function GemstoneThumbStrip({ gemstones, onThumbnailClick }: GemstoneThumbStripProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isScrolling, setIsScrolling] = useState(false);
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : gemstones.length - 1));
@@ -21,23 +20,6 @@ export function GemstoneThumbStrip({ gemstones, onThumbnailClick }: GemstoneThum
   const handleNext = () => {
     setCurrentIndex((prev) => (prev < gemstones.length - 1 ? prev + 1 : 0));
   };
-
-  const startScrolling = () => {
-    setIsScrolling(true);
-  };
-
-  const stopScrolling = () => {
-    setIsScrolling(false);
-  };
-
-  useEffect(() => {
-    if (isScrolling) {
-      const interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % gemstones.length);
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [isScrolling, gemstones.length]);
 
   return (
     <div className="relative w-full">

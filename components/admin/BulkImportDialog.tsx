@@ -15,14 +15,13 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from '@/components/ui/dialog';
-import { 
-  Upload, 
-  FileText, 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle,
+import {
+  Upload,
+  FileText,
+  CheckCircle,
+  XCircle,
   Download,
-  Trash2
+  Trash2,
 } from 'lucide-react';
 
 interface ImportResult {
@@ -37,13 +36,33 @@ interface BulkImportDialogProps {
   onImportComplete: () => void;
 }
 
+type RawCsvRow = Record<string, string>;
+
+interface ValidatedLocation {
+  name: string;
+  country: string;
+  lat: number;
+  lng: number;
+  gem: string;
+  description: string;
+  mineType: string;
+  status: string;
+}
+
+interface ImportApiResponse {
+  success: boolean;
+  imported: number;
+  errors: string[];
+  warnings?: string[];
+}
+
 export default function BulkImportDialog({ onImportComplete }: BulkImportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [progress, setProgress] = useState(0);
   const [csvData, setCsvData] = useState<string>('');
-  const [previewData, setPreviewData] = useState<any[]>([]);
+  const [previewData, setPreviewData] = useState<RawCsvRow[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,9 +91,9 @@ export default function BulkImportDialog({ onImportComplete }: BulkImportDialogP
     }
 
     const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-    const data = lines.slice(1).map(line => {
+    const data = lines.slice(1).map<RawCsvRow>((line) => {
       const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-      const row: any = {};
+      const row: RawCsvRow = {};
       headers.forEach((header, index) => {
         row[header] = values[index] || '';
       });
@@ -92,8 +111,8 @@ export default function BulkImportDialog({ onImportComplete }: BulkImportDialogP
     }
   };
 
-  const validateData = (data: any[]): { valid: any[], errors: string[] } => {
-    const valid: any[] = [];
+  const validateData = (data: RawCsvRow[]): { valid: ValidatedLocation[]; errors: string[] } => {
+    const valid: ValidatedLocation[] = [];
     const errors: string[] = [];
 
     data.forEach((row, index) => {
@@ -145,9 +164,9 @@ export default function BulkImportDialog({ onImportComplete }: BulkImportDialogP
     try {
       const lines = csvData.split('\n').filter(line => line.trim());
       const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-      const data = lines.slice(1).map(line => {
+      const data = lines.slice(1).map<RawCsvRow>((line) => {
         const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-        const row: any = {};
+        const row: RawCsvRow = {};
         headers.forEach((header, index) => {
           row[header] = values[index] || '';
         });
@@ -170,7 +189,7 @@ export default function BulkImportDialog({ onImportComplete }: BulkImportDialogP
 
       // Importiere Daten in Batches
       const batchSize = 10;
-      const batches = [];
+      const batches: ValidatedLocation[][] = [];
       for (let i = 0; i < valid.length; i += batchSize) {
         batches.push(valid.slice(i, i + batchSize));
       }
@@ -191,15 +210,16 @@ export default function BulkImportDialog({ onImportComplete }: BulkImportDialogP
             body: JSON.stringify({ data: batch }),
           });
 
-          const result = await response.json();
+          const result = (await response.json()) as ImportApiResponse;
           
           if (result.success) {
             totalImported += result.imported;
           } else {
-            importErrors.push(...result.errors);
+            importErrors.push(...(result.errors ?? ['Unbekannter Importfehler']));
           }
         } catch (error) {
-          importErrors.push(`Batch ${i + 1}: ${error}`);
+          const message = error instanceof Error ? error.message : String(error);
+          importErrors.push(`Batch ${i + 1}: ${message}`);
         }
       }
 

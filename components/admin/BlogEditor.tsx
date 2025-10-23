@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,8 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, X, Plus, Trash2, Edit, Eye, EyeOff, Upload, Image as ImageIcon } from 'lucide-react';
-import { BlogPost, defaultCategories, defaultTags } from '@/lib/types/blog';
+import { Save, X, Plus, Trash2, Edit, Eye, EyeOff, Upload } from 'lucide-react';
+import Image from 'next/image';
+import { BlogPost, defaultCategories } from '@/lib/types/blog';
 import { MarkdownPreview } from './MarkdownPreview';
 import { cn } from '@/lib/utils';
 
@@ -47,8 +48,8 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
   const cardStyles =
     'bg-background/90 border-white/15 text-white shadow-lg shadow-black/40';
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = <K extends keyof typeof formData>(field: K, value: (typeof formData)[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleAddTag = () => {
@@ -258,10 +259,12 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
           </div>
           {formData.image && (
             <div className="relative w-full h-48 border rounded-lg overflow-hidden mt-2">
-              <img
+              <Image
                 src={formData.image}
                 alt="Bild-Vorschau"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
               />
             </div>
           )}
@@ -301,10 +304,12 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
                 {formData.contentImages.map((imageUrl, index) => (
                   <div key={index} className="relative group">
                     <div className="relative w-full h-32 border rounded-lg overflow-hidden">
-                      <img
+                      <Image
                         src={imageUrl}
                         alt={`Content Bild ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover"
                       />
                       <Button
                         type="button"
