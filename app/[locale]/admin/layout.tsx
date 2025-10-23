@@ -11,29 +11,25 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   const menuItems = [
-    { href: '/de/admin', label: '🏠 Dashboard', section: 'main' },
-    { href: '/de/admin/overview', label: '📊 Übersicht', section: 'main' },
-    { href: '/de/admin/dashboard', label: '📈 Statistiken', section: 'main' },
-    
-    { href: '/de/admin/header', label: '🔝 Header', section: 'content' },
-    { href: '/de/admin/about', label: 'ℹ️ Über uns', section: 'content' },
-    { href: '/de/admin/blogs', label: '📝 Blog', section: 'content' },
-    { href: '/de/admin/wissenswertes', label: '📚 Wissenswertes', section: 'content' },
-    { href: '/de/admin/stories', label: '📖 Stories', section: 'content' },
-    { href: '/de/admin/newsticker', label: '📰 Newsticker', section: 'content' },
-    { href: '/de/admin/worldmap', label: '🗺️ Weltkarte', section: 'content' },
-    { href: '/de/admin/pictogram-descriptions', label: '🔣 Piktogramme', section: 'content' },
-    
-    { href: '/de/admin/gemstones', label: '💎 Edelsteine', section: 'shop' },
-    { href: '/de/admin/customers', label: '👥 Kunden', section: 'shop' },
-    { href: '/de/admin/orders', label: '🛒 Bestellungen', section: 'shop' },
-    
-    { href: '/de/admin/newsletter', label: '📧 Newsletter', section: 'marketing' },
-    { href: '/de/admin/reports', label: '📊 Reports', section: 'marketing' },
-    
-    { href: '/de/admin/settings', label: '⚙️ Einstellungen', section: 'system' },
-    { href: '/de/admin/audit', label: '🔍 Audit Logs', section: 'system' },
-    { href: '/de/admin/select-options', label: '📋 Select Options', section: 'system' },
+    { href: '/de/admin/audit', label: '🔍 Audit Logs' },
+    { href: '/de/admin/about', label: 'ℹ️ Über uns' },
+    { href: '/de/admin/blogs', label: '📝 Blog' },
+    { href: '/de/admin/customers', label: '👥 Kunden' },
+    { href: '/de/admin/dashboard', label: '📈 Statistiken' },
+    { href: '/de/admin', label: '🏠 Dashboard' },
+    { href: '/de/admin/gemstones', label: '💎 Edelsteine' },
+    { href: '/de/admin/header', label: '🔝 Header' },
+    { href: '/de/admin/newsletter', label: '📧 Newsletter' },
+    { href: '/de/admin/newsticker', label: '📰 Newsticker' },
+    { href: '/de/admin/orders', label: '🛒 Bestellungen' },
+    { href: '/de/admin/overview', label: '📊 Übersicht' },
+    { href: '/de/admin/pictogram-descriptions', label: '🔣 Piktogramme' },
+    { href: '/de/admin/reports', label: '📊 Reports' },
+    { href: '/de/admin/select-options', label: '📋 Select Options' },
+    { href: '/de/admin/settings', label: '⚙️ Einstellungen' },
+    { href: '/de/admin/stories', label: '📖 Stories' },
+    { href: '/de/admin/wissenswertes', label: '📚 Wissenswertes' },
+    { href: '/de/admin/worldmap', label: '🗺️ Weltkarte' },
   ];
 
   return (
@@ -52,61 +48,60 @@ export default function AdminLayout({
         overflowY: 'auto'
       }}>
         <div style={{ padding: '24px' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <Link href="/de" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              fontSize: '14px', 
+              color: '#9ca3af', 
+              textDecoration: 'none',
+              marginBottom: '8px',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              backgroundColor: '#374151',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#4b5563';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#374151';
+            }}>
+              ← Zur Website
+            </Link>
+          </div>
           <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Admin Panel</h2>
           <p style={{ fontSize: '14px', color: '#9ca3af' }}>Gemilike</p>
         </div>
         <nav style={{ marginTop: '24px', paddingBottom: '120px' }}>
-          {menuItems.map((item, index) => {
-            const showSectionDivider = 
-              index > 0 && 
-              item.section !== menuItems[index - 1].section;
-            
-            return (
-              <div key={item.href}>
-                {showSectionDivider && (
-                  <div style={{ margin: '12px 0', borderTop: '1px solid #374151' }}></div>
-                )}
-                <Link
-                  href={item.href}
-                  style={{
-                    display: 'block',
-                    padding: '12px 24px',
-                    textDecoration: 'none',
-                    color: 'white',
-                    backgroundColor: pathname === item.href ? '#374151' : 'transparent',
-                    borderLeft: pathname === item.href ? '4px solid #3b82f6' : '4px solid transparent',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (pathname !== item.href) {
-                      e.currentTarget.style.backgroundColor = '#374151';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (pathname !== item.href) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }
-                  }}
-                >
-                  {item.label}
-                </Link>
-              </div>
-            );
-          })}
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{
+                display: 'block',
+                padding: '12px 24px',
+                textDecoration: 'none',
+                color: 'white',
+                backgroundColor: pathname === item.href ? '#374151' : 'transparent',
+                borderLeft: pathname === item.href ? '4px solid #3b82f6' : '4px solid transparent',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                if (pathname !== item.href) {
+                  e.currentTarget.style.backgroundColor = '#374151';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (pathname !== item.href) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
-        <div style={{ 
-          position: 'absolute', 
-          bottom: 0, 
-          left: 0, 
-          right: 0, 
-          padding: '24px', 
-          backgroundColor: '#1f2937', 
-          borderTop: '1px solid #374151' 
-        }}>
-          <Link href="/de" style={{ fontSize: '14px', color: '#9ca3af', textDecoration: 'none' }}>
-            ← Zur Website
-          </Link>
-        </div>
       </aside>
 
       {/* Main Content */}

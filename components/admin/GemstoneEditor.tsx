@@ -1,511 +1,395 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { AdminGemstone } from '@/lib/types/admin-gemstone';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 
-interface GemstoneEditorProps {
-  gemstone: AdminGemstone | null;
-  onClose: () => void;
-  onSaved: () => void;
-}
-
-type GemstoneFormState = {
+export type GemstoneFormValues = {
+  id?: string;
   name: string;
-  category: string;
+  gemstoneType: string;
   type: 'cut' | 'rough';
+  origin: string;
   price: string;
   weight: string;
+  dimensions: {
+    length: string;
+    width: string;
+    height: string;
+  };
   color: string;
-  cut: string;
-  origin: string;
-  stock: string;
-  inStock: boolean;
-  isNew: boolean;
-  sku: string;
-  description: string;
+  colorSaturation: string;
+  treatment: string;
   certification: string;
-  rarity: string;
-  imageUrls: string[];
-  videoUrls: string[];
+  images: string[];
+  videos: string[];
+  isNew: boolean;
+  isSold: boolean;
+  description: string;
 };
 
-const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
+interface GemstoneEditorProps {
+  initialValues?: GemstoneFormValues | null;
+  onCancel: () => void;
+  onSubmit: (values: GemstoneFormValues) => void;
+}
 
-const DEFAULT_FORM_STATE: GemstoneFormState = {
+const EMPTY_FORM: GemstoneFormValues = {
   name: '',
-  category: '',
+  gemstoneType: '',
   type: 'cut',
+  origin: '',
   price: '',
   weight: '',
+  dimensions: {
+    length: '',
+    width: '',
+    height: '',
+  },
   color: '',
-  cut: '',
-  origin: '',
-  stock: '0',
-  inStock: true,
-  isNew: false,
-  sku: '',
-  description: '',
+  colorSaturation: '',
+  treatment: '',
   certification: '',
-  rarity: '',
-  imageUrls: [],
-  videoUrls: [],
+  images: [''],
+  videos: [''],
+  isNew: false,
+  isSold: false,
+  description: '',
 };
 
-export function GemstoneEditor({ gemstone, onClose, onSaved }: GemstoneEditorProps) {
-  const t = useTranslations();
-  const [formState, setFormState] = useState<GemstoneFormState>(DEFAULT_FORM_STATE);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [imageUrlsInput, setImageUrlsInput] = useState('');
-  const [videoUrlsInput, setVideoUrlsInput] = useState('');
+export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEditorProps) {
+  const [formValues, setFormValues] = useState<GemstoneFormValues>(EMPTY_FORM);
 
   useEffect(() => {
-    if (!gemstone) {
-      setFormState(DEFAULT_FORM_STATE);
-      setImagePreview(null);
-      setImageFile(null);
-      setImageUrlsInput('');
-      setVideoUrlsInput('');
-      return;
-    }
-
-    setFormState({
-      name: gemstone.name ?? '',
-      category: gemstone.category ?? '',
-      type: (gemstone.type as 'cut' | 'rough') ?? 'cut',
-      price: gemstone.price?.toString() ?? '',
-      weight: gemstone.weight != null ? gemstone.weight.toString() : '',
-      color: gemstone.color ?? '',
-      cut: gemstone.cut ?? '',
-      origin: gemstone.origin ?? '',
-      stock: gemstone.stock?.toString() ?? '0',
-      inStock: gemstone.inStock ?? true,
-      isNew: gemstone.isNew ?? false,
-      sku: gemstone.sku ?? '',
-      description: gemstone.description ?? '',
-      certification: gemstone.certification ?? '',
-      rarity: gemstone.rarity ?? '',
-      imageUrls: gemstone.images ?? [],
-      videoUrls: gemstone.videos ?? [],
-    });
-    setImageUrlsInput((gemstone.images ?? []).join('\n'));
-    setVideoUrlsInput((gemstone.videos ?? []).join('\n'));
-    setImagePreview((gemstone.images ?? [])[0] ?? null);
-    setImageFile(null);
-  }, [gemstone]);
-
-  useEffect(() => {
-    if (!imageFile) {
-      return;
-    }
-    const previewUrl = URL.createObjectURL(imageFile);
-    setImagePreview(previewUrl);
-    return () => URL.revokeObjectURL(previewUrl);
-  }, [imageFile]);
-
-  const handleChange = (field: keyof GemstoneFormState, value: any) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const parseListInput = (value: string) =>
-    value
-      .split(/\r?\n|,/)
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-
-  const handleImageUrlsChange = (value: string) => {
-    setImageUrlsInput(value);
-    const list = parseListInput(value).slice(0, 10);
-    setFormState((prev) => ({ ...prev, imageUrls: list }));
-    if (!imageFile) {
-      setImagePreview(list[0] ?? null);
-    }
-  };
-
-  const handleVideoUrlsChange = (value: string) => {
-    setVideoUrlsInput(value);
-    const list = parseListInput(value).slice(0, 2);
-    setFormState((prev) => ({ ...prev, videoUrls: list }));
-  };
-
-  const apiUrl = useMemo(() => {
-    if (!gemstone) {
-      return '/api/admin/gemstones';
-    }
-    return `/api/admin/gemstones/${gemstone.id}`;
-  }, [gemstone]);
-
-  const method = gemstone ? 'PUT' : 'POST';
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append('name', formState.name);
-      formData.append('category', formState.category || 'Edelstein');
-      formData.append('type', formState.type);
-      formData.append('price', formState.price || '0');
-      formData.append('weight', formState.weight || '');
-      formData.append('color', formState.color || '');
-      formData.append('cut', formState.cut || '');
-      formData.append('origin', formState.origin || '');
-      formData.append('stock', formState.stock || '0');
-      formData.append('inStock', formState.inStock ? 'true' : 'false');
-      formData.append('isNew', formState.isNew ? 'true' : 'false');
-      formData.append('sku', formState.sku || '');
-      formData.append('description', formState.description || '');
-      formData.append('certification', formState.certification || '');
-      formData.append('rarity', formState.rarity || '');
-
-      if (formState.imageUrls.length > 0) {
-        formData.append('images', JSON.stringify(formState.imageUrls.slice(0, 10)));
-      }
-
-      if (formState.videoUrls.length > 0) {
-        formData.append('videos', JSON.stringify(formState.videoUrls.slice(0, 2)));
-      }
-
-      if (imageFile) {
-        formData.append('image', imageFile);
-      }
-
-      const response = await fetch(apiUrl, {
-        method,
-        body: formData,
+    if (initialValues) {
+      setFormValues({
+        ...EMPTY_FORM,
+        ...initialValues,
+        images: initialValues.images.length ? initialValues.images.slice(0, 10) : [''],
+        videos: initialValues.videos.length ? initialValues.videos.slice(0, 2) : [''],
       });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Unbekannter Fehler');
-      }
-
-      onSaved();
-      onClose();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Fehler beim Speichern';
-      setError(message);
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      setFormValues(EMPTY_FORM);
     }
+  }, [initialValues]);
+
+  const handleChange = <K extends keyof GemstoneFormValues>(field: K, value: GemstoneFormValues[K]) => {
+    setFormValues((prev) => ({ ...prev, [field]: value }));
   };
+
+  const updateDimension = (field: keyof GemstoneFormValues['dimensions'], value: string) => {
+    setFormValues((prev) => ({
+      ...prev,
+      dimensions: { ...prev.dimensions, [field]: value },
+    }));
+  };
+
+  const updateArrayValue = (field: 'images' | 'videos', index: number, value: string) => {
+    setFormValues((prev) => {
+      const next = [...prev[field]];
+      next[index] = value;
+      return { ...prev, [field]: next };
+    });
+  };
+
+  const addArrayField = (field: 'images' | 'videos', limit: number) => {
+    setFormValues((prev) => {
+      if (prev[field].length >= limit) return prev;
+      return { ...prev, [field]: [...prev[field], ''] };
+    });
+  };
+
+  const removeArrayField = (field: 'images' | 'videos', index: number) => {
+    setFormValues((prev) => {
+      const next = prev[field].filter((_, idx) => idx !== index);
+      return { ...prev, [field]: next.length ? next : [''] };
+    });
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const sanitized: GemstoneFormValues = {
+      ...formValues,
+      images: formValues.images.filter((url) => url.trim()).slice(0, 10),
+      videos: formValues.videos.filter((url) => url.trim()).slice(0, 2),
+    };
+    onSubmit(sanitized);
+  };
+
+  const weightLabel = formValues.type === 'cut' ? 'Gewicht (ct)' : 'Gewicht (g)';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-[#111111] text-white shadow-2xl">
-        <div className="flex justify-between border-b border-white/10 px-6 py-4">
-          <div>
-            <h2 className="text-2xl font-semibold">
-              {gemstone ? 'Edelstein bearbeiten' : 'Neuen Edelstein anlegen'}
-            </h2>
-            <p className="text-sm text-white/60">
-              Füllen Sie die folgenden Angaben aus, um den Edelstein im Sortiment zu verwalten.
-            </p>
-          </div>
-          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10" onClick={onClose}>
-            {t('admin.cancel')}
+    <div className="rounded-2xl border border-white/10 bg-black/50 p-8 text-white shadow-xl shadow-black/40">
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+        <div>
+          <h2 className="text-2xl font-semibold">
+            {formValues.id ? 'Edelstein bearbeiten' : 'Neuen Edelstein anlegen'}
+          </h2>
+          <p className="text-sm text-white/60">
+            Legen Sie die zentralen Eigenschaften fest. Bilder und Videos werden über öffentliche URLs eingebunden.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" className="border-white/30 text-white hover:bg-white/10" onClick={onCancel}>
+            Abbrechen
+          </Button>
+          <Button type="submit" form="gemstone-editor-form" className="bg-primary text-primary-foreground hover:bg-primary/90">
+            {formValues.id ? 'Änderungen speichern' : 'Edelstein speichern'}
           </Button>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-6 px-6 py-6 md:grid-cols-2">
-          <div className="space-y-4">
+      <form id="gemstone-editor-form" onSubmit={handleSubmit} className="mt-6 grid gap-6 md:grid-cols-2">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="gem-name">Name *</Label>
+            <Input
+              id="gem-name"
+              value={formValues.name}
+              onChange={(event) => handleChange('name', event.target.value)}
+              required
+              className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              placeholder="z. B. Kolumbianischer Smaragd"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="gemstone-type">Edelsteinart *</Label>
+            <Input
+              id="gemstone-type"
+              value={formValues.gemstoneType}
+              onChange={(event) => handleChange('gemstoneType', event.target.value)}
+              required
+              className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              placeholder="z. B. Amethyst"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="gem-name" className="text-white/80">
-                Name *
-              </Label>
-              <Input
-                id="gem-name"
-                value={formState.name}
-                onChange={(event) => handleChange('name', event.target.value)}
-                required
-                className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-              />
+              <Label htmlFor="gem-type">Art *</Label>
+              <Select
+                value={formValues.type}
+                onValueChange={(value: 'cut' | 'rough') => handleChange('type', value)}
+              >
+                <SelectTrigger id="gem-type" className="border-white/20 bg-black/40 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cut">Geschliffen</SelectItem>
+                  <SelectItem value="rough">Rohstein</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="gem-type" className="text-white/80">
-                  Typ *
-                </Label>
-                <select
-                  id="gem-type"
-                  value={formState.type}
-                  onChange={(event) => handleChange('type', event.target.value as 'cut' | 'rough')}
-                  className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
-                >
-                  <option value="cut">Geschliffen</option>
-                  <option value="rough">Rohstein</option>
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="gem-category" className="text-white/80">
-                  Kategorie
-                </Label>
-                <Input
-                  id="gem-category"
-                  value={formState.category}
-                  onChange={(event) => handleChange('category', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="gem-price" className="text-white/80">
-                  Preis (€)
-                </Label>
-                <Input
-                  id="gem-price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formState.price}
-                  onChange={(event) => handleChange('price', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-              <div>
-                <Label htmlFor="gem-weight" className="text-white/80">
-                  Gewicht (ct)
-                </Label>
-                <Input
-                  id="gem-weight"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formState.weight}
-                  onChange={(event) => handleChange('weight', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="gem-color" className="text-white/80">
-                  Farbe
-                </Label>
-                <Input
-                  id="gem-color"
-                  value={formState.color}
-                  onChange={(event) => handleChange('color', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-              <div>
-                <Label htmlFor="gem-cut" className="text-white/80">
-                  Schliff
-                </Label>
-                <Input
-                  id="gem-cut"
-                  value={formState.cut}
-                  onChange={(event) => handleChange('cut', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-            </div>
-
             <div>
-              <Label htmlFor="gem-origin" className="text-white/80">
-                Herkunft
-              </Label>
+              <Label htmlFor="gem-origin">Herkunft (Land)</Label>
               <Input
                 id="gem-origin"
-                value={formState.origin}
+                value={formValues.origin}
                 onChange={(event) => handleChange('origin', event.target.value)}
-                className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+                placeholder="z. B. Kolumbien"
               />
             </div>
+          </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="gem-cert" className="text-white/80">
-                  Zertifizierung
-                </Label>
-                <Input
-                  id="gem-cert"
-                  value={formState.certification}
-                  onChange={(event) => handleChange('certification', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-              <div>
-                <Label htmlFor="gem-rarity" className="text-white/80">
-                  Seltenheit
-                </Label>
-                <Input
-                  id="gem-rarity"
-                  value={formState.rarity}
-                  onChange={(event) => handleChange('rarity', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="gem-stock" className="text-white/80">
-                  Bestand
-                </Label>
-                <Input
-                  id="gem-stock"
-                  type="number"
-                  min="0"
-                  value={formState.stock}
-                  onChange={(event) => handleChange('stock', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-              <div>
-                <Label htmlFor="gem-sku" className="text-white/80">
-                  SKU / Artikelnummer
-                </Label>
-                <Input
-                  id="gem-sku"
-                  value={formState.sku}
-                  onChange={(event) => handleChange('sku', event.target.value)}
-                  className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                />
-              </div>
-            </div>
-
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="gem-description" className="text-white/80">
-                Beschreibung
-              </Label>
-              <Textarea
-                id="gem-description"
-                value={formState.description}
-                onChange={(event) => handleChange('description', event.target.value)}
-                rows={4}
-                className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col justify-between space-y-6">
-            <div className="space-y-4 rounded-xl border border-white/10 bg-black/30 p-4">
-              <Label className="text-white/80">Bild</Label>
-              <div className="relative h-48 w-full overflow-hidden rounded-xl border border-dashed border-white/20 bg-black/40">
-                <Image
-                  src={imagePreview || formState.imageUrls[0] || PLACEHOLDER_IMAGE}
-                  alt={formState.name || 'Edelstein'}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              <Label htmlFor="gem-price">Preis (€)</Label>
               <Input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null;
-                  setImageFile(file);
-                }}
-                className="cursor-pointer border-white/10 bg-black/40 text-white"
-              />
-            <p className="text-xs text-white/50">
-              Unterstützt JPG, PNG oder WEBP. Das Bild wird optimiert im Verzeichnis <code>/public/uploads/gemstones</code> gespeichert.
-            </p>
-
-            <div className="space-y-2">
-              <Label htmlFor="gem-images" className="text-white/80">
-                Zusätzliche Bild-URLs (max. 10, eine pro Zeile)
-              </Label>
-              <Textarea
-                id="gem-images"
-                value={imageUrlsInput}
-                onChange={(event) => handleImageUrlsChange(event.target.value)}
-                rows={4}
-                className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                placeholder="https://...jpg"
+                id="gem-price"
+                type="number"
+                value={formValues.price}
+                onChange={(event) => handleChange('price', event.target.value)}
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+                placeholder="z. B. 12500"
+                min="0"
+                step="0.01"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="gem-videos" className="text-white/80">
-                Video-URLs (max. 2, MP4/HLS)
-              </Label>
-              <Textarea
-                id="gem-videos"
-                value={videoUrlsInput}
-                onChange={(event) => handleVideoUrlsChange(event.target.value)}
-                rows={2}
-                className="border-white/10 bg-black/40 text-white placeholder:text-white/40"
-                placeholder="https://...mp4"
+            <div>
+              <Label htmlFor="gem-weight">{weightLabel}</Label>
+              <Input
+                id="gem-weight"
+                value={formValues.weight}
+                onChange={(event) => handleChange('weight', event.target.value)}
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+                placeholder="z. B. 2.35"
               />
-              <p className="text-xs text-white/40">
-                Für Videos bitte öffentlich abrufbare MP4- oder HLS-Links verwenden. Maximal zwei Videos werden in der Galerie angezeigt.
-              </p>
-            </div>
-            </div>
-
-            <div className="grid gap-4 rounded-xl border border-white/10 bg-black/30 p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-white/80">Auf Lager</Label>
-                  <p className="text-xs text-white/50">Steuert die Sichtbarkeit im Shop.</p>
-                </div>
-                <Switch
-                  checked={formState.inStock}
-                  onCheckedChange={(value) => handleChange('inStock', value)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-white/80">Neu im Sortiment</Label>
-                  <p className="text-xs text-white/50">Markiert Edelsteine als Highlight.</p>
-                </div>
-                <Switch
-                  checked={formState.isNew}
-                  onCheckedChange={(value) => handleChange('isNew', value)}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                {error}
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                {isSubmitting
-                  ? 'Speichern …'
-                  : gemstone
-                    ? 'Edelstein aktualisieren'
-                    : 'Edelstein anlegen'}
-              </Button>
-              <Button
-                type="button"
-                onClick={onClose}
-                variant="outline"
-                className="flex-1 border-white/20 text-white hover:bg-white/10"
-                disabled={isSubmitting}
-              >
-                Abbrechen
-              </Button>
             </div>
           </div>
-        </form>
+
+          <div>
+            <Label>Maße (mm)</Label>
+            <div className="mt-1 grid grid-cols-3 gap-2">
+              <Input
+                placeholder="Länge"
+                value={formValues.dimensions.length}
+                onChange={(event) => updateDimension('length', event.target.value)}
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              />
+              <Input
+                placeholder="Breite"
+                value={formValues.dimensions.width}
+                onChange={(event) => updateDimension('width', event.target.value)}
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              />
+              <Input
+                placeholder="Höhe"
+                value={formValues.dimensions.height}
+                onChange={(event) => updateDimension('height', event.target.value)}
+                className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="gem-color">Farbe</Label>
+            <Input
+              id="gem-color"
+              value={formValues.color}
+              onChange={(event) => handleChange('color', event.target.value)}
+              className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              placeholder="z. B. Tiefgrün"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="gem-saturation">Farbsättigung</Label>
+            <Input
+              id="gem-saturation"
+              value={formValues.colorSaturation}
+              onChange={(event) => handleChange('colorSaturation', event.target.value)}
+              className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              placeholder="z. B. Vivid"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="gem-treatment">Behandlung</Label>
+            <Input
+              id="gem-treatment"
+              value={formValues.treatment}
+              onChange={(event) => handleChange('treatment', event.target.value)}
+              className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              placeholder="z. B. geölt"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="gem-certification">Zertifizierung</Label>
+            <Input
+              id="gem-certification"
+              value={formValues.certification}
+              onChange={(event) => handleChange('certification', event.target.value)}
+              className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              placeholder="z. B. GIA"
+            />
+          </div>
+
+          <MediaInputList
+            label="Bilder (bis zu 10)"
+            items={formValues.images}
+            onChange={(index, value) => updateArrayValue('images', index, value)}
+            onAdd={() => addArrayField('images', 10)}
+            onRemove={(index) => removeArrayField('images', index)}
+          />
+
+          <MediaInputList
+            label="Videos (bis zu 2)"
+            items={formValues.videos}
+            onChange={(index, value) => updateArrayValue('videos', index, value)}
+            onAdd={() => addArrayField('videos', 2)}
+            onRemove={(index) => removeArrayField('videos', index)}
+          />
+
+          <div className="rounded-xl border border-white/15 bg-black/40 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-white">Neu im Sortiment</Label>
+                <p className="text-xs text-white/50">Nur Edelsteine mit „Neu“ werden auf der Startseite gezeigt.</p>
+              </div>
+              <Switch checked={formValues.isNew} onCheckedChange={(value) => handleChange('isNew', value)} />
+            </div>
+            <div className="mt-4 flex items-center justify-between">
+              <div>
+                <Label className="text-white">Verkauft</Label>
+                <p className="text-xs text-white/50">Markiert den Edelstein als verkauft (erscheint nicht mehr verfügbar).</p>
+              </div>
+              <Switch checked={formValues.isSold} onCheckedChange={(value) => handleChange('isSold', value)} />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="gem-description">Beschreibung</Label>
+            <Textarea
+              id="gem-description"
+              value={formValues.description}
+              onChange={(event) => handleChange('description', event.target.value)}
+              rows={6}
+              className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              placeholder="Ausführliche Beschreibung des Edelsteins …"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+interface MediaInputListProps {
+  label: string;
+  items: string[];
+  onChange: (index: number, value: string) => void;
+  onAdd: () => void;
+  onRemove: (index: number) => void;
+}
+
+function MediaInputList({ label, items, onChange, onAdd, onRemove }: MediaInputListProps) {
+  const limitReached = items.length >= (label.includes('Video') ? 2 : 10);
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex flex-col gap-2">
+        {items.map((item, index) => (
+          <div key={index} className="flex gap-2">
+            <Input
+              value={item}
+              onChange={(event) => onChange(index, event.target.value)}
+              className="border-white/20 bg-black/40 text-white placeholder:text-white/40"
+              placeholder="https://…"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                'border-white/20 text-white hover:bg-white/10',
+                items.length === 1 && item === '' && 'opacity-50'
+              )}
+              onClick={() => onRemove(index)}
+              disabled={items.length === 1 && item === ''}
+            >
+              Entfernen
+            </Button>
+          </div>
+        ))}
       </div>
+      <Button
+        type="button"
+        variant="outline"
+        className="border-white/30 text-white hover:bg-white/10"
+        onClick={onAdd}
+        disabled={limitReached}
+      >
+        Weiteres {label.includes('Video') ? 'Video' : 'Bild'} hinzufügen
+      </Button>
     </div>
   );
 }
