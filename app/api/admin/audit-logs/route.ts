@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { PrismaClient } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
@@ -8,20 +7,20 @@ export async function GET(request: NextRequest) {
     console.log('🔍 Starting audit logs API request...');
     
     // Temporäre Lösung für Entwicklung - in Produktion sollte Authentifizierung aktiviert werden
-    const session = await getServerSession(authOptions);
+    const { session, userId: currentUserId } = await getSessionWithUser();
     
     // Für Entwicklung: Erlaube Zugriff ohne Authentifizierung
     if (process.env.NODE_ENV === 'development') {
       console.log('🔓 Development mode: Skipping authentication for audit logs');
     } else {
-      if (!session?.user?.id) {
+      if (!currentUserId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
 
       // Check if user is admin
       const { prisma } = await import('@/lib/prisma');
       const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
+        where: { id: currentUserId },
         select: { role: true }
       });
 

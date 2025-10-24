@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId, session } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user is admin
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: { role: true }
     });
 
@@ -36,7 +35,7 @@ export async function POST(request: NextRequest) {
     // Log the action
     await prisma.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: 'UPDATE_CUSTOMER_NOTES',
         entityType: 'USER',
         entityId: customerId,

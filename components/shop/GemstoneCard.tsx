@@ -5,7 +5,7 @@ import { ShoppingCart, Eye } from 'lucide-react';
 import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 import { MediaGallery } from './MediaGallery';
 import { TreatmentIcon } from './TreatmentIcon';
-import { WishlistButton } from './WishlistButton';
+import { WishlistButton } from '@/components/cart/WishlistButton';
 import { PictogramWithTooltip } from './PictogramWithTooltip';
 import { useTranslations } from 'next-intl';
 import { getColorBadgeStyle, getColorIntensityBadgeStyle } from '@/lib/utils/colorBadge';
@@ -55,8 +55,15 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           
           {/* Wishlist Button oben rechts des Bildes */}
           <div className="absolute top-2 right-8 z-10">
-            <WishlistButton 
-              gemstoneId={gemstone.id}
+            <WishlistButton
+              item={{
+                id: gemstone.id,
+                name: gemstone.name,
+                price: gemstone.price,
+                image: gemstone.images?.[0],
+                category: gemstone.category,
+                origin: gemstone.origin ?? undefined,
+              }}
               className="bg-gem-purple/90 hover:bg-gem-purple/80 shadow-sm h-6 w-6"
             />
           </div>

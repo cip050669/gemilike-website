@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -16,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     const addresses = await prisma.address.findMany({
       where: {
-        userId: session.user.id
+        userId
       },
       orderBy: {
         isDefault: 'desc'
@@ -38,9 +37,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -54,7 +53,7 @@ export async function POST(request: NextRequest) {
     if (isDefault) {
       await prisma.address.updateMany({
         where: {
-          userId: session.user.id,
+          userId,
           type: type
         },
         data: {
@@ -65,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     const address = await prisma.address.create({
       data: {
-        userId: session.user.id,
+        userId,
         type,
         firstName,
         lastName,
@@ -77,7 +76,7 @@ export async function POST(request: NextRequest) {
         postalCode,
         country,
         phone,
-        isDefault: isDefault || false
+        isDefault: isDefault ?? false
       }
     });
 

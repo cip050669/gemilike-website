@@ -41,7 +41,7 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-800/50 flex items-center justify-center">
+      <div className="min-h-screen public-page-bg flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Ihr Warenkorb ist leer</h1>
           <p className="text-muted-foreground mb-6">
@@ -56,7 +56,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-800/50">
+    <div className="min-h-screen public-page-bg">
       <div className="container mx-auto px-4 py-8">
         <h1 className="gemilike-text-gradient text-3xl font-bold mb-8">Checkout</h1>
         

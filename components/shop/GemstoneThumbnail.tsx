@@ -84,7 +84,7 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
             {/* Lab Zertifizierung Badge */}
             {gemstone.certification?.certified && gemstone.certification.lab && (
               <Badge className="absolute bottom-2 right-2 text-[10px] bg-slate-600/90 text-white px-1.5 py-0.5 shadow-sm flex items-center gap-1">
-                <PictogramWithTooltip iconName="Award" size="xs" />
+            <PictogramWithTooltip iconName="Award" size="sm" />
                 {gemstone.certification.lab}
               </Badge>
             )}
@@ -123,12 +123,12 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
         {/* Kategorie und Farbe */}
         <div className="flex items-center gap-2 mb-2">
           <div className="flex items-center gap-1">
-            <PictogramWithTooltip iconName="Tag" size="xs" />
+            <PictogramWithTooltip iconName="Tag" size="sm" />
             <span className="text-xs text-muted-foreground">{gemstone.category}</span>
           </div>
           {gemstone.color && colorStyle && (
             <div className="flex items-center gap-1">
-              <PictogramWithTooltip iconName="Palette" size="xs" />
+              <PictogramWithTooltip iconName="Palette" size="sm" />
               <Badge 
                 className={`text-[10px] px-0.5 py-0.5 ${colorStyle.bg} ${colorStyle.text} ${colorStyle.border} border`}
               >
@@ -147,14 +147,14 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
         <div className="space-y-1 text-xs">
           {/* Herkunft */}
           <div className="flex items-center gap-1">
-            <PictogramWithTooltip iconName="MapPin" size="xs" />
+            <PictogramWithTooltip iconName="MapPin" size="sm" />
             <span className="text-muted-foreground">{t('origin')}:</span>
             <span className="font-medium truncate">{gemstone.origin}</span>
           </div>
 
           {/* Gewicht */}
           <div className="flex items-center gap-1">
-            <PictogramWithTooltip iconName="Weight" size="xs" />
+            <PictogramWithTooltip iconName="Weight" size="sm" />
             <span className="text-muted-foreground">{t('weight')}:</span>
             <span className="font-medium">
               {gemstone.type === 'cut' && 'caratWeight' in gemstone ? `${gemstone.caratWeight} ct` : 

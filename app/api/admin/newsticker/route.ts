@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { loadNewstickerData, saveNewstickerData } from '@/lib/newsticker/data';
 import type { NewstickerItem } from '@/lib/types/newsticker';
 
+const TYPE_VALUES = new Set<NewstickerItem['type']>(['info', 'warning', 'success', 'error']);
+const PRIORITY_VALUES = new Set<NewstickerItem['priority']>(['low', 'medium', 'high']);
+
+const normalizeType = (value: unknown, fallback: NewstickerItem['type']): NewstickerItem['type'] => {
+  return typeof value === 'string' && TYPE_VALUES.has(value as NewstickerItem['type'])
+    ? (value as NewstickerItem['type'])
+    : fallback;
+};
+
+const normalizePriority = (
+  value: unknown,
+  fallback: NewstickerItem['priority']
+): NewstickerItem['priority'] => {
+  return typeof value === 'string' && PRIORITY_VALUES.has(value as NewstickerItem['priority'])
+    ? (value as NewstickerItem['priority'])
+    : fallback;
+};
+
 // GET - Fetch all newsticker items
 export async function GET() {
   try {
@@ -20,7 +38,12 @@ export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type');
     
-    let text, type, priority = 'medium', isActive = true, startDate, endDate;
+    let text: unknown;
+    let type: unknown;
+    let priority: unknown = 'medium';
+    let isActive: unknown = true;
+    let startDate: unknown;
+    let endDate: unknown;
     
     if (contentType?.includes('application/json')) {
       // Handle JSON requests
@@ -29,30 +52,34 @@ export async function POST(request: NextRequest) {
     } else {
       // Handle form data requests
       const formData = await request.formData();
-      text = formData.get('text') as string;
-      type = formData.get('type') as string;
-      priority = formData.get('priority') as string || 'medium';
+      text = formData.get('text');
+      type = formData.get('type');
+      priority = formData.get('priority') || 'medium';
       isActive = formData.get('isActive') === 'on';
-      startDate = formData.get('startDate') as string;
-      endDate = formData.get('endDate') as string;
+      startDate = formData.get('startDate');
+      endDate = formData.get('endDate');
     }
 
-    if (!text || !type) {
+    if (typeof text !== 'string' || !text.trim()) {
       return NextResponse.json(
-        { success: false, error: 'Text and type are required' },
+        { success: false, error: 'Text is required' },
         { status: 400 }
       );
     }
 
+    const resolvedType = normalizeType(type, 'info');
+    const resolvedPriority = normalizePriority(priority, 'medium');
+    const active = typeof isActive === 'boolean' ? isActive : Boolean(isActive);
+
     const items = loadNewstickerData();
     const newItem: NewstickerItem = {
       id: `newsticker-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      text,
-      type,
-      priority,
-      isActive,
-      startDate: startDate ? new Date(startDate).toISOString() : undefined,
-      endDate: endDate ? new Date(endDate).toISOString() : undefined,
+      text: text.trim(),
+      type: resolvedType,
+      priority: resolvedPriority,
+      isActive: active,
+      startDate: typeof startDate === 'string' && startDate ? new Date(startDate).toISOString() : undefined,
+      endDate: typeof endDate === 'string' && endDate ? new Date(endDate).toISOString() : undefined,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -80,7 +107,13 @@ export async function PUT(request: NextRequest) {
   try {
 
     const body = await request.json();
-    const { id, text, type, isActive } = body;
+    const { id, text, type, isActive, priority } = body as {
+      id?: string;
+      text?: unknown;
+      type?: unknown;
+      isActive?: unknown;
+      priority?: unknown;
+    };
 
     if (!id) {
       return NextResponse.json(
@@ -102,10 +135,17 @@ export async function PUT(request: NextRequest) {
     // Update item
     items[itemIndex] = {
       ...items[itemIndex],
-      text: text !== undefined ? text : items[itemIndex].text,
-      type: type !== undefined ? type : items[itemIndex].type,
-      isActive: isActive !== undefined ? isActive : items[itemIndex].isActive,
-      updatedAt: new Date()
+      text:
+        typeof text === 'string' && text.trim()
+          ? text.trim()
+          : items[itemIndex].text,
+      type: type !== undefined ? normalizeType(type, items[itemIndex].type) : items[itemIndex].type,
+      priority:
+        priority !== undefined
+          ? normalizePriority(priority, items[itemIndex].priority)
+          : items[itemIndex].priority,
+      isActive: typeof isActive === 'boolean' ? isActive : items[itemIndex].isActive,
+      updatedAt: new Date(),
     };
 
     saveNewstickerData(items);

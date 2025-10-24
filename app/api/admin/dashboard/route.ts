@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { allGemstones } from '@/lib/data/gemstones';
 import { Gemstone } from '@/lib/types/gemstone';
 
@@ -81,9 +80,9 @@ export interface DashboardStats {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { session, userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -91,7 +90,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin
-    if (session.user.role !== 'admin') {
+    if (session?.user?.role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }

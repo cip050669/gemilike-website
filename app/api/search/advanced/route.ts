@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { allGemstones } from '@/lib/data/gemstones';
 import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 
@@ -56,7 +55,7 @@ export interface SearchResult {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    await getSessionWithUser();
     
     // Log search for analytics (optional authentication)
     const userAgent = request.headers.get('user-agent') || '';

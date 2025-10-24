@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const wishlistItems = await prisma.wishlistItem.findMany({
-      where: { userId: session.user.id },
+      where: { userId },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -28,9 +27,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -39,7 +38,7 @@ export async function POST(request: NextRequest) {
     // Check if item already exists
     const existingItem = await prisma.wishlistItem.findFirst({
       where: {
-        userId: session.user.id,
+        userId,
         gemstoneId
       }
     });
@@ -53,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const wishlistItem = await prisma.wishlistItem.create({
       data: {
-        userId: session.user.id,
+        userId,
         gemstoneId,
         notes
       }
@@ -71,9 +70,9 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -89,7 +88,7 @@ export async function DELETE(request: NextRequest) {
 
     await prisma.wishlistItem.deleteMany({
       where: {
-        userId: session.user.id,
+        userId,
         gemstoneId
       }
     });

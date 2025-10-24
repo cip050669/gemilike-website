@@ -146,7 +146,6 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
             <div className="grid gap-8 lg:grid-cols-2">
               <div className="space-y-6">
                 <MediaGallery
-                  locale="de"
                   gemName={selectedGemstone.name}
                   images={selectedGemstone.images.length ? selectedGemstone.images : [PLACEHOLDER_IMAGE]}
                   videos={selectedGemstone.videos}

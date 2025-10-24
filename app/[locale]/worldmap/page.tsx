@@ -43,7 +43,7 @@ export default async function WorldMapPage({ params }: { params: Promise<{ local
   }));
 
   return (
-    <div className="min-h-screen bg-gray-800/50">
+    <div className="min-h-screen public-page-bg">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">

@@ -73,14 +73,14 @@ export function InteractiveWorldMap({ locations, gemTypes }: InteractiveWorldMap
   // Erstelle benutzerdefinierte Marker-Icons für verschiedene Edelstein-Typen
   const createGemIcon = (gemType: GemType) => {
     const color = gemType.color || '#3b82f6';
+    const svgString = `<svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 12.5 12.5 28.5 12.5 28.5s12.5-16 12.5-28.5C25 5.6 19.4 0 12.5 0z" fill="${color}"/>
+      <circle cx="12.5" cy="12.5" r="6" fill="white"/>
+      <text x="12.5" y="16" text-anchor="middle" font-size="8" fill="${color}" font-weight="bold">💎</text>
+    </svg>`;
+    
     return new Icon({
-      iconUrl: `data:image/svg+xml;base64,${btoa(`
-        <svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 12.5 12.5 28.5 12.5 28.5s12.5-16 12.5-28.5C25 5.6 19.4 0 12.5 0z" fill="${color}"/>
-          <circle cx="12.5" cy="12.5" r="6" fill="white"/>
-          <text x="12.5" y="16" text-anchor="middle" font-size="8" fill="${color}" font-weight="bold">💎</text>
-        </svg>
-      `)}`,
+      iconUrl: `data:image/svg+xml;base64,${btoa(svgString)}`,
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [0, -41]

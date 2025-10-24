@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { SearchFilters } from '../advanced/route';
 
 export interface SavedSearch {
@@ -19,9 +18,9 @@ const savedSearches: SavedSearch[] = [];
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     // Get user's saved searches
     const userSearches = savedSearches
-      .filter(search => search.userId === session.user.id)
+      .filter(search => search.userId === userId)
       .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
     return NextResponse.json({ searches: userSearches });
@@ -46,9 +45,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -66,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user already has a search with this name
     const existingSearch = savedSearches.find(
-      search => search.userId === session.user.id && search.name === name
+      search => search.userId === userId && search.name === name
     );
 
     if (existingSearch) {
@@ -80,7 +79,7 @@ export async function POST(request: NextRequest) {
       id: `search_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name,
       filters,
-      userId: session.user.id,
+      userId,
       createdAt: new Date(),
       updatedAt: new Date(),
       usageCount: 0
@@ -101,9 +100,9 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -120,7 +119,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const searchIndex = savedSearches.findIndex(
-      search => search.id === id && search.userId === session.user.id
+      search => search.id === id && search.userId === userId
     );
 
     if (searchIndex === -1) {
@@ -148,9 +147,9 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -168,7 +167,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const searchIndex = savedSearches.findIndex(
-      search => search.id === id && search.userId === session.user.id
+      search => search.id === id && search.userId === userId
     );
 
     if (searchIndex === -1) {

@@ -99,13 +99,13 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
   );
 
   return (
-    <div className="min-h-screen bg-gray-800/50/80 px-4 py-12 text-white backdrop-blur-md flex items-center justify-center overflow-y-auto">
+    <div className="min-h-screen public-page-bg/80 px-4 py-12 text-white backdrop-blur-md flex items-center justify-center overflow-y-auto">
       <div className="relative w-full sm:w-auto max-w-4xl">
         <div className="main-container !m-0 !rounded-3xl !border-white/10 !bg-[#2D2D2DDF] relative shadow-2xl">
           <Button
             size="icon"
             variant="secondary"
-            className="absolute right-6 top-6 h-10 w-10 rounded-full border border-white/10 bg-gray-800/50/50 text-white transition hover:bg-gray-800/30/15"
+            className="absolute right-6 top-6 h-10 w-10 rounded-full border border-white/10 public-page-bg/50 text-white transition hover:bg-gray-800/30/15"
             asChild
           >
             <Link href={`/${locale}/shop`} aria-label="Detailansicht schließen">
@@ -185,7 +185,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
 
 function DetailBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-gray-800/50/40 p-4">
+    <div className="rounded-lg border border-white/10 public-page-bg/40 p-4">
       <p className="text-xs uppercase tracking-wide text-white/45">{title}</p>
       <p className="mt-2 text-sm text-white/90 leading-relaxed">{children}</p>
     </div>

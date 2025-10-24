@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 interface ImportData {
@@ -17,8 +16,8 @@ interface ImportData {
 export async function POST(request: NextRequest) {
   try {
     // Authentifizierung - in Entwicklung optional
-    const session = await getServerSession(authOptions);
-    if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+    if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

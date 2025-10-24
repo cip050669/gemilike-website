@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { writeFile, readFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -174,18 +173,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Für Development: Authentifizierung temporär deaktiviert
-    // In Production sollte hier die Session-Überprüfung aktiviert werden
-    const session = await getServerSession(authOptions);
-    
-    // Temporär: Erlaube POST-Requests ohne Authentifizierung für Development
-    // TODO: In Production wieder aktivieren
-    // if (!session?.user?.id) {
-    //   return NextResponse.json(
-    //     { error: 'Authentication required' },
-    //     { status: 401 }
-    //   );
-    // }
+    // Optional Authentication (currently disabled for development)
+    await getSessionWithUser();
 
     const { name, value, bg, text, border } = await request.json();
 
@@ -235,17 +224,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    // Für Development: Authentifizierung temporär deaktiviert
-    const session = await getServerSession(authOptions);
-    
-    // Temporär: Erlaube PUT-Requests ohne Authentifizierung für Development
-    // TODO: In Production wieder aktivieren
-    // if (!session?.user?.id) {
-    //   return NextResponse.json(
-    //     { error: 'Authentication required' },
-    //     { status: 401 }
-    //   );
-    // }
+    await getSessionWithUser();
 
     const { id, name, value, bg, text, border } = await request.json();
 
@@ -297,17 +276,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // Für Development: Authentifizierung temporär deaktiviert
-    const session = await getServerSession(authOptions);
-    
-    // Temporär: Erlaube DELETE-Requests ohne Authentifizierung für Development
-    // TODO: In Production wieder aktivieren
-    // if (!session?.user?.id) {
-    //   return NextResponse.json(
-    //     { error: 'Authentication required' },
-    //     { status: 401 }
-    //   );
-    // }
+    await getSessionWithUser();
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

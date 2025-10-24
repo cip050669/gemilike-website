@@ -1,5 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loadNewstickerData, saveNewstickerData } from '@/lib/newsticker/data';
+import type { NewstickerItem } from '@/lib/types/newsticker';
+
+const TYPE_VALUES = new Set<NewstickerItem['type']>(['info', 'warning', 'success', 'error']);
+const PRIORITY_VALUES = new Set<NewstickerItem['priority']>(['low', 'medium', 'high']);
+
+const normalizeType = (value: unknown, fallback: NewstickerItem['type']): NewstickerItem['type'] =>
+  typeof value === 'string' && TYPE_VALUES.has(value as NewstickerItem['type'])
+    ? (value as NewstickerItem['type'])
+    : fallback;
+
+const normalizePriority = (
+  value: unknown,
+  fallback: NewstickerItem['priority']
+): NewstickerItem['priority'] =>
+  typeof value === 'string' && PRIORITY_VALUES.has(value as NewstickerItem['priority'])
+    ? (value as NewstickerItem['priority'])
+    : fallback;
 
 // GET - Fetch single newsticker item
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -30,9 +47,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id } = await params;
     const body = await request.json();
-    const { text, type, priority, isActive, startDate, endDate } = body;
+    const { text, type, priority, isActive, startDate, endDate } = body as {
+      text?: unknown;
+      type?: unknown;
+      priority?: unknown;
+      isActive?: unknown;
+      startDate?: unknown;
+      endDate?: unknown;
+    };
 
-    if (!text || !type) {
+    if (typeof text !== 'string' || !text.trim() || typeof type !== 'string') {
       return NextResponse.json(
         { success: false, error: 'Text and type are required' },
         { status: 400 }
@@ -52,12 +76,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     // Update the item
     items[itemIndex] = {
       ...items[itemIndex],
-      text,
-      type,
-      priority: priority || 'medium',
-      isActive: isActive ?? true,
-      startDate: startDate ? new Date(startDate).toISOString() : undefined,
-      endDate: endDate ? new Date(endDate).toISOString() : undefined,
+      text: text.trim(),
+      type: normalizeType(type, items[itemIndex].type),
+      priority: normalizePriority(priority, items[itemIndex].priority),
+      isActive: typeof isActive === 'boolean' ? isActive : items[itemIndex].isActive,
+      startDate: typeof startDate === 'string' && startDate ? new Date(startDate).toISOString() : undefined,
+      endDate: typeof endDate === 'string' && endDate ? new Date(endDate).toISOString() : undefined,
       updatedAt: new Date()
     };
 
@@ -81,14 +105,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const method = formData.get('_method') as string;
 
     if (method === 'PUT') {
-      const text = formData.get('text') as string;
-      const type = formData.get('type') as string;
-      const priority = formData.get('priority') as string;
+      const text = formData.get('text');
+      const type = formData.get('type');
+      const priority = formData.get('priority');
       const isActive = formData.get('isActive') === 'on';
-      const startDate = formData.get('startDate') as string;
-      const endDate = formData.get('endDate') as string;
+      const startDate = formData.get('startDate');
+      const endDate = formData.get('endDate');
 
-      if (!text || !type) {
+      if (typeof text !== 'string' || !text.trim() || typeof type !== 'string') {
         return NextResponse.json(
           { success: false, error: 'Text and type are required' },
           { status: 400 }
@@ -108,12 +132,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       // Update the item
       items[itemIndex] = {
         ...items[itemIndex],
-        text,
-        type,
-        priority: priority || 'medium',
+        text: text.trim(),
+        type: normalizeType(type, items[itemIndex].type),
+        priority: normalizePriority(priority, items[itemIndex].priority),
         isActive,
-        startDate: startDate ? new Date(startDate).toISOString() : undefined,
-        endDate: endDate ? new Date(endDate).toISOString() : undefined,
+        startDate:
+          typeof startDate === 'string' && startDate
+            ? new Date(startDate).toISOString()
+            : undefined,
+        endDate:
+          typeof endDate === 'string' && endDate ? new Date(endDate).toISOString() : undefined,
         updatedAt: new Date()
       };
 

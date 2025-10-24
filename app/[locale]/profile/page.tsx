@@ -184,7 +184,7 @@ export default function ProfilePage() {
                       id="name"
                       value={session.user?.name || ''}
                       disabled
-                      className="bg-gray-800/50"
+                      className="public-page-bg"
                     />
                   </div>
                   <div>
@@ -193,7 +193,7 @@ export default function ProfilePage() {
                       id="email"
                       value={session.user?.email || ''}
                       disabled
-                      className="bg-gray-800/50"
+                      className="public-page-bg"
                     />
                   </div>
                 </div>

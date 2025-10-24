@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { NewstickerItem } from '@/lib/types/newsticker';
 import { Info, AlertTriangle, CheckCircle, Megaphone, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const TYPE_ICONS: Record<NewstickerItem['type'], JSX.Element> = {
+const TYPE_ICONS: Record<NewstickerItem['type'], ReactNode> = {
   info: <Info className="h-4 w-4" />,
   warning: <AlertTriangle className="h-4 w-4" />,
   success: <CheckCircle className="h-4 w-4" />,

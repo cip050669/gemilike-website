@@ -60,7 +60,7 @@ export default async function HomePage({
 
   return (
     <PublicLayout>
-    <div className="min-h-screen bg-gray-800/50">
+    <div className="min-h-screen public-page-bg">
       {/* Hero Section */}
       <HeroSection locale={locale} />
 
@@ -88,7 +88,7 @@ export default async function HomePage({
                   className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
                 >
                   <div className="flex gap-[50px] items-center">
-                    <div className="overflow-hidden rounded-lg border border-white/10 bg-gray-800/50/20 h-[180px] w-[204px] flex-shrink-0">
+                    <div className="overflow-hidden rounded-lg border border-white/10 public-page-bg/20 h-[180px] w-[204px] flex-shrink-0">
                       <img
                         src={story.image}
                         alt={story.title}

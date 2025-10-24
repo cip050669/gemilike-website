@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 // GET - Länder und Lagerstätten abrufen
@@ -8,8 +7,8 @@ export async function GET(request: NextRequest) {
   
   try {
     // Authentifizierung - in Entwicklung optional
-    const session = await getServerSession(authOptions);
-    if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+    if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -68,8 +67,8 @@ export async function POST(request: NextRequest) {
   
   try {
     // Authentifizierung - in Entwicklung optional
-    const session = await getServerSession(authOptions);
-    if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+    if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -102,8 +101,8 @@ export async function PUT(request: NextRequest) {
   
   try {
     // Authentifizierung - in Entwicklung optional
-    const session = await getServerSession(authOptions);
-    if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+    if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -137,8 +136,8 @@ export async function DELETE(request: NextRequest) {
   
   try {
     // Authentifizierung - in Entwicklung optional
-    const session = await getServerSession(authOptions);
-    if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+    if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

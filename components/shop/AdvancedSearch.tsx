@@ -351,7 +351,7 @@ export function AdvancedSearch({
 
   const resetFilters = () => {
     setFilters(defaultFilters);
-    onFilter(defaultFilters);
+    onFilter(gemstones);
   };
 
   const getActiveFiltersCount = () => {

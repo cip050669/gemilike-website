@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { readFile } from 'fs/promises';
-import { join } from 'next/server';
+import { join } from 'path';
 import { cookies } from 'next/headers';
 
 const prisma = new PrismaClient();
@@ -15,7 +15,7 @@ export async function POST(
     const { projectId, userEmail, userName } = await request.json();
     
     // Check authentication
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get('download-auth');
     
     if (!authCookie) {
@@ -87,5 +87,4 @@ export async function POST(
     );
   }
 }
-
 

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
@@ -8,19 +7,17 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
-    const userId = (session.user as any).id;
-
     const order = await prisma.order.findFirst({
       where: { 
         id,
-        userId: userId 
+        userId
       },
       include: {
         orderItems: true,
@@ -48,20 +45,19 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
-    const userId = (session.user as any).id;
     const { status, notes } = await request.json();
 
     const order = await prisma.order.findFirst({
       where: { 
         id,
-        userId: userId 
+        userId
       }
     });
 

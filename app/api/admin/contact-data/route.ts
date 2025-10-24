@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -8,8 +7,8 @@ export async function GET(request: NextRequest) {
     console.log('Contact data API called');
     
     // Authentifizierung - in Entwicklung optional
-    const session = await getServerSession(authOptions);
-    if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+    const { session, userId } = await getSessionWithUser();
+    if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -54,8 +53,8 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Authentifizierung - in Entwicklung optional
-    const session = await getServerSession(authOptions);
-    if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+    const { session, userId } = await getSessionWithUser();
+    if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Heart, ShoppingCart, Eye, Trash2, Share2, Plus } from 'lucide-react';
 import { useWishlistStore } from '@/lib/store/wishlist';
 import { useCartStore } from '@/lib/store/cart';
-import { Gemstone, Treatment } from '@/lib/types/gemstone';
+import { Gemstone, Treatment, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 import { allGemstones } from '@/lib/data/gemstones';
 
 export default function WishlistManager() {
@@ -36,18 +36,14 @@ export default function WishlistManager() {
     removeItem(gemstoneId);
   };
 
-  const handleAddToCart = async (gemstone: Gemstone) => {
+  const handleAddToCart = (gemstone: Gemstone) => {
     try {
-      await addItem({
+      addItem({
         id: gemstone.id,
         name: gemstone.name,
         price: gemstone.price,
-        image: gemstone.images[0],
-        quantity: 1,
+        image: gemstone.images?.[0] || gemstone.mainImage,
       });
-      
-      // Optional: Remove from wishlist after adding to cart
-      // removeItem(gemstone.id);
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
@@ -204,7 +200,7 @@ export default function WishlistManager() {
                     />
                   </div>
                   <div className="absolute top-2 right-2 flex gap-1">
-                    {gemstone.certified && (
+                    {gemstone.certification?.certified && (
                       <Badge variant="secondary" className="text-xs">
                         Zertifiziert
                       </Badge>
@@ -244,7 +240,11 @@ export default function WishlistManager() {
                     {formatPrice(gemstone.price)}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {gemstone.weight} ct
+                    {isCutGemstone(gemstone)
+                      ? `${gemstone.caratWeight} ct`
+                      : isRoughGemstone(gemstone)
+                        ? `${gemstone.gramWeight} g`
+                        : '—'}
                   </div>
                 </div>
 

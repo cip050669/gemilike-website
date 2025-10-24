@@ -9,6 +9,10 @@ import { Cloud, CloudOff, RefreshCw } from 'lucide-react';
 
 export function CartSync() {
   const { data: session } = useSession();
+  const userId =
+    session?.user && typeof (session.user as { id?: unknown }).id === 'string'
+      ? ((session.user as { id: string }).id)
+      : undefined;
   const { 
     isSyncing, 
     lastSynced, 
@@ -21,25 +25,25 @@ export function CartSync() {
 
   // Auto-save cart when items change
   useEffect(() => {
-    if (session?.user?.id && autoSave && items.length > 0) {
+    if (userId && autoSave && items.length > 0) {
       const timeoutId = setTimeout(() => {
-        saveCartToServer(session.user.id);
+        saveCartToServer(userId);
       }, 2000); // Debounce for 2 seconds
 
       return () => clearTimeout(timeoutId);
     }
-  }, [items, session?.user?.id, autoSave, saveCartToServer]);
+  }, [items, userId, autoSave, saveCartToServer]);
 
   // Load cart from server when user logs in
   useEffect(() => {
-    if (session?.user?.id) {
-      loadCartFromServer(session.user.id);
+    if (userId) {
+      loadCartFromServer(userId);
     }
-  }, [session?.user?.id, loadCartFromServer]);
+  }, [userId, loadCartFromServer]);
 
   const handleManualSync = () => {
-    if (session?.user?.id) {
-      saveCartToServer(session.user.id);
+    if (userId) {
+      saveCartToServer(userId);
     }
   };
 

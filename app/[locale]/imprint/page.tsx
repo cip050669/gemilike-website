@@ -1,6 +1,6 @@
 export default function ImprintPage() {
   return (
-    <div className="min-h-screen bg-gray-800/50">
+    <div className="min-h-screen public-page-bg">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="gemilike-text-gradient text-3xl font-bold mb-8">Impressum</h1>

@@ -65,7 +65,7 @@ export default function KnowledgeArticlePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-800/50 text-foreground">
+      <div className="min-h-screen public-page-bg text-foreground">
         <div className="container py-12 md:py-20">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -80,7 +80,7 @@ export default function KnowledgeArticlePage() {
 
   if (!article) {
     return (
-      <div className="min-h-screen bg-gray-800/50 text-foreground">
+      <div className="min-h-screen public-page-bg text-foreground">
         <div className="container py-12 md:py-20">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">{t('notFound')}</h1>
@@ -98,7 +98,7 @@ export default function KnowledgeArticlePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-800/50 text-foreground">
+    <div className="min-h-screen public-page-bg text-foreground">
       <div className="container py-12 md:py-20">
         <div className="mb-8">
           <Button asChild variant="outline" className="bg-card text-card-foreground border-border hover:bg-accent hover:text-accent-foreground">

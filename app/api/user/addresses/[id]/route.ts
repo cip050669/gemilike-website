@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 export async function DELETE(
@@ -9,9 +8,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -21,8 +20,8 @@ export async function DELETE(
     // Check if address belongs to user
     const address = await prisma.address.findFirst({
       where: {
-        id: id,
-        userId: session.user.id
+        id,
+        userId
       }
     });
 
@@ -34,9 +33,7 @@ export async function DELETE(
     }
 
     await prisma.address.delete({
-      where: {
-        id: id
-      }
+      where: { id }
     });
 
     return NextResponse.json({
@@ -58,9 +55,9 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const { userId } = await getSessionWithUser();
+
+    if (!userId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -73,8 +70,8 @@ export async function PUT(
     // Check if address belongs to user
     const existingAddress = await prisma.address.findFirst({
       where: {
-        id: id,
-        userId: session.user.id
+        id,
+        userId
       }
     });
 
@@ -88,11 +85,7 @@ export async function PUT(
     // If this is set as default, unset other defaults of the same type
     if (isDefault) {
       await prisma.address.updateMany({
-        where: {
-          userId: session.user.id,
-          type: type,
-          id: { not: id }
-        },
+        where: { userId, type, id: { not: id } },
         data: {
           isDefault: false
         }
@@ -100,9 +93,7 @@ export async function PUT(
     }
 
     const address = await prisma.address.update({
-      where: {
-        id: id
-      },
+      where: { id },
       data: {
         type,
         firstName,
@@ -115,7 +106,7 @@ export async function PUT(
         postalCode,
         country,
         phone,
-        isDefault: isDefault || false
+        isDefault: isDefault ?? false
       }
     });
 

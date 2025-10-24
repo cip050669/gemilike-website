@@ -5,7 +5,7 @@ export default async function ShopPage() {
   const { gemstones, fallback } = await loadShopGemstones();
 
   return (
-    <div className="min-h-screen bg-gray-800/50 text-white py-16">
+    <div className="min-h-screen public-page-bg text-white py-16">
       <div className="max-w-6xl mx-auto space-y-12 px-4">
         <section className="main-container text-center space-y-3">
           <h1 className="text-4xl md:text-5xl font-impact font-weight-impact text-white">

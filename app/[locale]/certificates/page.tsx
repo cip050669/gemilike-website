@@ -192,7 +192,7 @@ export default function CertificatesPage() {
                   <p className="text-gray-300 dark:text-gray-300 mb-4">
                     {t('verificationDesc')}
                   </p>
-                  <button className="bg-gray-800/500/50 text-white py-2 px-4 rounded-md hover:bg-gray-700/300/70 transition-colors">
+                  <button className="public-page-bg0/50 text-white py-2 px-4 rounded-md hover:bg-gray-700/300/70 transition-colors">
                     {t('verifyCertificate')}
                   </button>
                 </div>

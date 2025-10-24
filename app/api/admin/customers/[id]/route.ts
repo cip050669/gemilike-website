@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 type ParamsPromise = Promise<{ id: string }>;
@@ -62,39 +63,31 @@ export async function POST(request: NextRequest, { params }: { params: ParamsPro
     const formData = await request.formData();
     const method = formData.get('_method') as string;
 
+    const getValue = (key: string) => {
+      const value = formData.get(key);
+      return typeof value === 'string' ? value : undefined;
+    };
+
     if (method === 'PUT') {
       // Handle PUT request via POST with _method override
-      const body = {
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        company: formData.get('company'),
-        address: formData.get('address'),
-        city: formData.get('city'),
-        postalCode: formData.get('postalCode'),
-        country: formData.get('country'),
-        taxId: formData.get('taxId'),
-        notes: formData.get('notes'),
-        isActive: formData.get('isActive') === 'on'
+      const updateData: Prisma.CustomerUpdateInput = {
+        firstName: getValue('firstName'),
+        lastName: getValue('lastName'),
+        email: getValue('email'),
+        phone: getValue('phone'),
+        company: getValue('company'),
+        address: getValue('address'),
+        city: getValue('city'),
+        postalCode: getValue('postalCode'),
+        country: getValue('country'),
+        taxId: getValue('taxId'),
+        notes: getValue('notes'),
+        isActive: formData.get('isActive') === 'on',
       };
 
       const updatedCustomer = await prisma.customer.update({
         where: { id },
-        data: {
-          firstName: body.firstName,
-          lastName: body.lastName,
-          email: body.email,
-          phone: body.phone,
-          company: body.company,
-          address: body.address,
-          city: body.city,
-          postalCode: body.postalCode,
-          country: body.country,
-          taxId: body.taxId,
-          notes: body.notes,
-          isActive: body.isActive,
-        },
+        data: updateData,
       });
 
       return NextResponse.json({ success: true, data: updatedCustomer, message: 'Kunde erfolgreich aktualisiert' });

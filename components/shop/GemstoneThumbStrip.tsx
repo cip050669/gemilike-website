@@ -52,7 +52,7 @@ export function GemstoneThumbStrip({ gemstones, onThumbnailClick }: GemstoneThum
             <div key={gemstone.id} className="w-full flex-shrink-0 px-2">
               <GemstoneThumbnail
                 gemstone={gemstone}
-                onClick={() => onThumbnailClick(gemstone)}
+                onOpenCard={onThumbnailClick}
               />
             </div>
           ))}

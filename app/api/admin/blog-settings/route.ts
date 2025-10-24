@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionWithUser } from '@/lib/session';
 import { loadBlogSectionSettings, saveBlogSectionSettings } from '@/lib/data/blog-settings';
 
 export async function GET() {
@@ -18,10 +17,10 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { userId } = await getSessionWithUser();
 
     // Optional TODO: enforce auth when activated
-    // if (!session?.user?.id) {
+    // if (!userId) {
     //   return NextResponse.json({ success: false, error: 'Not authorized' }, { status: 401 });
     // }
 

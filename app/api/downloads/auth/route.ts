@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get('download-auth');
     
     if (!authCookie) {
@@ -53,5 +53,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
 

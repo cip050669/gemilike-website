@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 import { MediaGallery } from './MediaGallery';
 import { TreatmentIcon } from './TreatmentIcon';
-import { WishlistButton } from './WishlistButton';
+import { WishlistButton } from '@/components/cart/WishlistButton';
 import { ShoppingCart, Eye, Award, Ruler, Weight, MapPin, FlaskConical } from 'lucide-react';
 
 interface QuickViewModalProps {
@@ -51,7 +51,16 @@ export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded
             <div>
               <div className="flex items-start justify-between mb-2">
                 <h2 className="text-2xl font-bold">{gemstone.name}</h2>
-                <WishlistButton gemstoneId={gemstone.id} />
+                <WishlistButton
+                  item={{
+                    id: gemstone.id,
+                    name: gemstone.name,
+                    price: gemstone.price,
+                    image: gemstone.images?.[0],
+                    category: gemstone.category,
+                    origin: gemstone.origin ?? undefined,
+                  }}
+                />
               </div>
               
               <div className="flex items-center gap-2 mb-4">
@@ -103,14 +112,16 @@ export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded
                   <div className="flex items-center gap-2">
                     <Ruler className="w-4 h-4 text-muted-foreground" />
                     <span className="text-muted-foreground">{t('dimensions')}:</span>
-                    <span>{gemstone.dimensions.length}×{gemstone.dimensions.width}×{gemstone.dimensions.height} mm</span>
+                    <span>
+                      {gemstone.dimensions.length}×{gemstone.dimensions.width}×{gemstone.dimensions.height} mm
+                    </span>
                   </div>
                   
-                  {gemstone.certification.certified && (
+                  {gemstone.certification?.certified && (
                     <div className="flex items-center gap-2">
                       <Award className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">{t('certification')}:</span>
-                      <span>{gemstone.certification.laboratory}</span>
+                      <span>{gemstone.certification.lab}</span>
                     </div>
                   )}
                   
@@ -119,7 +130,9 @@ export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded
                     <span className="text-muted-foreground">{t('treatment')}:</span>
                     <div className="flex items-center gap-1">
                       <TreatmentIcon treatment={gemstone.treatment} />
-                      <span>{gemstone.treatment.treated ? gemstone.treatment.type : t('untreated')}</span>
+                      <span>
+                        {gemstone.treatment?.treated ? gemstone.treatment.type : t('untreated')}
+                      </span>
                     </div>
                   </div>
                 </div>
