@@ -132,8 +132,9 @@ export default function NewGemstonePage() {
               </div>
             </div>
 
-            {/* Select Lists - Separate Layout */}
+            {/* Select Lists - Completely Separate from Grid */}
             <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white mb-4">Edelstein-Eigenschaften</h3>
               {/* Farbe */}
               <div className="flex flex-col">
                 <label htmlFor="color" className="block text-sm font-medium text-gray-200 mb-2">
