@@ -316,7 +316,7 @@ export function HeroImageManager() {
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-black/40" />
+              <div className="absolute inset-0 bg-gray-800/50/40" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
                   <h1 className="text-3xl md:text-5xl font-bold mb-4">
@@ -326,10 +326,10 @@ export function HeroImageManager() {
                     {settings.subtitle}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-white text-black hover:bg-gray-100">
+                    <Button className="bg-gray-800/30 text-black hover:bg-gray-100">
                       {settings.primaryButtonText}
                     </Button>
-                    <Button variant="outline" className="border-white text-white hover:bg-white hover:text-black">
+                    <Button variant="outline" className="border-white text-white hover:bg-gray-800/30 hover:text-black">
                       {settings.secondaryButtonText}
                     </Button>
                   </div>

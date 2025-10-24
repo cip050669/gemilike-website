@@ -14,7 +14,7 @@ export default function CertificatesPage() {
             <h1 className="text-4xl md:text-5xl font-bold gradient-text animate-glow mb-6">
               {t('title')}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-300 dark:text-gray-300 max-w-3xl mx-auto">
               {t('subtitle')}
             </p>
           </div>
@@ -29,7 +29,7 @@ export default function CertificatesPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-300 dark:text-gray-300 mb-4">
                   {t('gemologicalCertificateDesc')}
                 </p>
                 <ul className="space-y-2 text-sm">
@@ -57,7 +57,7 @@ export default function CertificatesPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-300 dark:text-gray-300 mb-4">
                   {t('qualityCertificateDesc')}
                 </p>
                 <ul className="space-y-2 text-sm">
@@ -85,7 +85,7 @@ export default function CertificatesPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-300 dark:text-gray-300 mb-4">
                   {t('originCertificateDesc')}
                 </p>
                 <ul className="space-y-2 text-sm">
@@ -115,25 +115,25 @@ export default function CertificatesPage() {
               <CardContent className="space-y-4">
                 <div>
                   <h4 className="font-semibold mb-2">{t('step1')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('step1Desc')}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">{t('step2')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('step2Desc')}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">{t('step3')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('step3Desc')}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">{t('step4')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('step4Desc')}
                   </p>
                 </div>
@@ -180,7 +180,7 @@ export default function CertificatesPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <h4 className="font-semibold mb-2">{t('certificationRequest')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  <p className="text-gray-300 dark:text-gray-300 mb-4">
                     {t('certificationRequestDesc')}
                   </p>
                   <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
@@ -189,10 +189,10 @@ export default function CertificatesPage() {
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">{t('verification')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  <p className="text-gray-300 dark:text-gray-300 mb-4">
                     {t('verificationDesc')}
                   </p>
-                  <button className="bg-gray-500/50 text-white py-2 px-4 rounded-md hover:bg-gray-500/70 transition-colors">
+                  <button className="bg-gray-800/500/50 text-white py-2 px-4 rounded-md hover:bg-gray-700/300/70 transition-colors">
                     {t('verifyCertificate')}
                   </button>
                 </div>

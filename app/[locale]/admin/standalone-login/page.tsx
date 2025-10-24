@@ -32,7 +32,7 @@ export default function StandaloneAdminLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="w-full max-w-md">
-        <Card className="border-0 shadow-2xl bg-white/10 backdrop-blur-lg">
+        <Card className="border-0 shadow-2xl bg-gray-800/30/10 backdrop-blur-lg">
           <CardHeader className="text-center space-y-4">
             <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <Shield className="w-8 h-8 text-white" />
@@ -69,7 +69,7 @@ export default function StandaloneAdminLoginPage() {
                     placeholder="admin@gemilike.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-blue-500"
+                    className="pl-10 bg-gray-800/30/10 border-white/20 text-white placeholder-gray-400 focus:border-blue-500"
                     required
                   />
                 </div>
@@ -87,7 +87,7 @@ export default function StandaloneAdminLoginPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-blue-500"
+                    className="pl-10 pr-10 bg-gray-800/30/10 border-white/20 text-white placeholder-gray-400 focus:border-blue-500"
                     required
                   />
                   <button

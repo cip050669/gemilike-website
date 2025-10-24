@@ -71,7 +71,7 @@ export function KnowledgeSettingsForm({
               value={formData.heading}
               onChange={(event) => setFormData((prev) => ({ ...prev, heading: event.target.value }))}
               placeholder="z. B. Wissenswertes rund um Edelsteine"
-              className="bg-white text-black"
+              className="bg-gray-800/30 text-black"
             />
           </div>
           <div className="space-y-2">
@@ -84,7 +84,7 @@ export function KnowledgeSettingsForm({
                 setFormData((prev) => ({ ...prev, subheading: event.target.value }))
               }
               placeholder="Kurzer Teasertext für Wissenswertes"
-              className="bg-white text-black"
+              className="bg-gray-800/30 text-black"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

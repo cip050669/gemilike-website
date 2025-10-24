@@ -15,14 +15,14 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">Kunde bearbeiten</h1>
-              <p className="text-gray-600">
+              <h1 className="text-4xl font-bold mb-4 text-white">Kunde bearbeiten</h1>
+              <p className="text-gray-300">
                 Bearbeiten Sie die Daten für {customer.firstName} {customer.lastName}
               </p>
             </div>
@@ -39,7 +39,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
 
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Kunden-Informationen</h2>
           </div>
@@ -49,11 +49,11 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Persönliche Daten */}
               <div className="md:col-span-2">
-                <h3 className="text-md font-medium text-gray-900 mb-4">Persönliche Daten</h3>
+                <h3 className="text-md font-medium text-white mb-4">Persönliche Daten</h3>
               </div>
               
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-200 mb-2">
                   Vorname *
                 </label>
                 <input
@@ -62,12 +62,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   name="firstName"
                   required
                   defaultValue={customer.firstName}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-200 mb-2">
                   Nachname *
                 </label>
                 <input
@@ -76,12 +76,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   name="lastName"
                   required
                   defaultValue={customer.lastName}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
                   E-Mail *
                 </label>
                 <input
@@ -90,12 +90,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   name="email"
                   required
                   defaultValue={customer.email}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-200 mb-2">
                   Telefon
                 </label>
                 <input
@@ -103,12 +103,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   id="phone"
                   name="phone"
                   defaultValue={customer.phone || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="company" className="block text-sm font-medium text-gray-200 mb-2">
                   Unternehmen
                 </label>
                 <input
@@ -116,17 +116,17 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   id="company"
                   name="company"
                   defaultValue={customer.company || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               {/* Adressdaten */}
               <div className="md:col-span-2">
-                <h3 className="text-md font-medium text-gray-900 mb-4 mt-6">Adressdaten</h3>
+                <h3 className="text-md font-medium text-white mb-4 mt-6">Adressdaten</h3>
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="address" className="block text-sm font-medium text-gray-200 mb-2">
                   Straße und Hausnummer *
                 </label>
                 <input
@@ -135,12 +135,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   name="address"
                   required
                   defaultValue={customer.address}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="city" className="block text-sm font-medium text-gray-200 mb-2">
                   Stadt *
                 </label>
                 <input
@@ -149,12 +149,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   name="city"
                   required
                   defaultValue={customer.city}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-200 mb-2">
                   Postleitzahl *
                 </label>
                 <input
@@ -163,12 +163,12 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   name="postalCode"
                   required
                   defaultValue={customer.postalCode}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="country" className="block text-sm font-medium text-gray-200 mb-2">
                   Land *
                 </label>
                 <select
@@ -176,7 +176,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   name="country"
                   required
                   defaultValue={customer.country}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Deutschland">Deutschland</option>
                   <option value="Österreich">Österreich</option>
@@ -195,7 +195,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
               </div>
 
               <div>
-                <label htmlFor="taxId" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="taxId" className="block text-sm font-medium text-gray-200 mb-2">
                   Steuernummer
                 </label>
                 <input
@@ -203,17 +203,17 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   id="taxId"
                   name="taxId"
                   defaultValue={customer.taxId || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               {/* Zusätzliche Informationen */}
               <div className="md:col-span-2">
-                <h3 className="text-md font-medium text-gray-900 mb-4 mt-6">Zusätzliche Informationen</h3>
+                <h3 className="text-md font-medium text-white mb-4 mt-6">Zusätzliche Informationen</h3>
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-200 mb-2">
                   Notizen
                 </label>
                 <textarea
@@ -221,7 +221,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                   name="notes"
                   rows={4}
                   defaultValue={customer.notes || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -232,9 +232,9 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                     id="isActive"
                     name="isActive"
                     defaultChecked={customer.isActive}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
                   />
-                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                  <label htmlFor="isActive" className="ml-2 block text-sm text-white">
                     Kunde ist aktiv
                   </label>
                 </div>
@@ -245,7 +245,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
             <div className="flex justify-end gap-4 mt-8 pt-6 border-t">
               <Link
                 href="/de/admin/customers"
-                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 inline-block"
+                className="px-6 py-2 border border-gray-600 rounded-lg text-gray-200 hover:bg-gray-800/50 inline-block"
               >
                 Abbrechen
               </Link>

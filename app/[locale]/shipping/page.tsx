@@ -14,7 +14,7 @@ export default function ShippingPage() {
             <h1 className="text-4xl md:text-5xl font-bold gradient-text animate-glow mb-6">
               {t('title')}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-300 dark:text-gray-300 max-w-3xl mx-auto">
               {t('subtitle')}
             </p>
           </div>
@@ -29,7 +29,7 @@ export default function ShippingPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-300 dark:text-gray-300 mb-4">
                   {t('standardShippingDesc')}
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -50,7 +50,7 @@ export default function ShippingPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-300 dark:text-gray-300 mb-4">
                   {t('expressShippingDesc')}
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -71,7 +71,7 @@ export default function ShippingPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-300 dark:text-gray-300 mb-4">
                   {t('insuredShippingDesc')}
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -94,19 +94,19 @@ export default function ShippingPage() {
               <CardContent className="space-y-4">
                 <div>
                   <h4 className="font-semibold mb-2">{t('processingTime')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('processingTimeDesc')}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">{t('tracking')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('trackingDesc')}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">{t('internationalShipping')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('internationalShippingDesc')}
                   </p>
                 </div>

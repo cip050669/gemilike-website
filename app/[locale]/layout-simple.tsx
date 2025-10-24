@@ -41,7 +41,7 @@ export default async function SimpleLocaleLayout({
       </head>
       <body className={inter.className} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
-          <div className="min-h-screen bg-background text-foreground">
+          <div className="min-h-screen bg-gray-800/50 text-foreground">
             {children}
           </div>
         </NextIntlClientProvider>

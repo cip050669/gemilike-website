@@ -519,14 +519,14 @@ export default function WorldMap() {
         <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-200">
           <button
             onClick={backToCountries}
-            className="flex items-center gap-2 rounded-2xl bg-white hover:bg-gray-50 text-gray-800 px-4 py-2 text-sm font-medium shadow-sm border border-gray-200 transition-all"
+            className="flex items-center gap-2 rounded-2xl bg-gray-800/30 hover:bg-gray-50 text-gray-800 px-4 py-2 text-sm font-medium shadow-sm border border-gray-200 transition-all"
           >
             <ArrowLeft className="h-4 w-4" />
             Zurück zur Länderübersicht
           </button>
           <div className="flex-1">
             <h3 className="text-lg font-bold text-gray-800">{selectedCountry.country}</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-300">
               {selectedCountry.locationCount} Lagerstätten • {selectedCountry.gemTypes.length} Edelstein-Typen
             </p>
           </div>
@@ -572,7 +572,7 @@ export default function WorldMap() {
                   <Popup>
                     <div className="text-sm">
                       <div className="font-bold text-base mb-2">{country.country}</div>
-                      <div className="text-gray-600 mb-1">
+                      <div className="text-gray-300 mb-1">
                         <span className="font-semibold">{country.locationCount}</span> Lagerstätten
                       </div>
                       <div className="flex flex-wrap gap-1 mt-2">

@@ -110,8 +110,8 @@ export default function CustomersPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Kunden</h1>
-          <p className="text-gray-600 mt-2">Verwalten Sie Ihre Kunden und deren Informationen</p>
+          <h1 className="text-3xl font-bold text-white">Kunden</h1>
+          <p className="text-gray-300 mt-2">Verwalten Sie Ihre Kunden und deren Informationen</p>
         </div>
         <Link href="/de/admin/kunden/neu">
           <Button className="bg-primary hover:bg-primary/90">
@@ -181,7 +181,7 @@ export default function CustomersPage() {
         {filteredCustomers.length === 0 ? (
           <div className="col-span-full text-center py-12">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Keine Kunden gefunden</h3>
+            <h3 className="mt-2 text-sm font-medium text-white">Keine Kunden gefunden</h3>
             <p className="mt-1 text-sm text-gray-500">
               {customers.length === 0 
                 ? 'Erstellen Sie Ihren ersten Kunden.' 
@@ -227,19 +227,19 @@ export default function CustomersPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm text-gray-300">
                   <Mail className="w-4 h-4" />
                   <span>{customer.email}</span>
                 </div>
                 
                 {customer.phone && (
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2 text-sm text-gray-300">
                     <Phone className="w-4 h-4" />
                     <span>{customer.phone}</span>
                   </div>
                 )}
                 
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm text-gray-300">
                   <MapPin className="w-4 h-4" />
                   <span>{customer.postalCode} {customer.city}</span>
                 </div>

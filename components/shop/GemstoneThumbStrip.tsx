@@ -24,7 +24,7 @@ export function GemstoneThumbStrip({ gemstones, onThumbnailClick }: GemstoneThum
   return (
     <div className="relative w-full">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h2 className="text-2xl font-bold text-white dark:text-white">
           Unser Sortiment
         </h2>
         <div className="flex gap-2">

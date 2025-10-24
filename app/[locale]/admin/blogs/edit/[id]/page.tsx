@@ -24,20 +24,20 @@ export default async function BlogEditPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8 space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Blog-Beitrag bearbeiten
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-300">
               Aktualisieren oder veröffentlichen Sie den ausgewählten Beitrag.
             </p>
           </div>
           <Link
             href={`/${locale}/admin/blogs`}
-            className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+            className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-600 text-gray-200 hover:bg-gray-100"
           >
             Zurück zur Übersicht
           </Link>

@@ -136,7 +136,7 @@ export default function FileUpload({
         />
         <div className="space-y-2">
           {getFileIcon()}
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-300">
             <span 
               className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer"
               onClick={handleClick}

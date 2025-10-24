@@ -526,7 +526,7 @@ export default function HeaderManagement() {
               {/* Search Settings */}
               <div className="rounded-xl p-6 border">
                 <div className="flex items-center space-x-3 mb-4">
-                  <Search className="w-5 h-5 text-gray-600" />
+                  <Search className="w-5 h-5 text-gray-300" />
                   <h4 className="text-lg font-semibold ">Suchfunktion</h4>
                 </div>
                 <div className="space-y-4">
@@ -560,7 +560,7 @@ export default function HeaderManagement() {
               {/* Cart Settings */}
               <div className="rounded-xl p-6 border">
                 <div className="flex items-center space-x-3 mb-4">
-                  <ShoppingCart className="w-5 h-5 text-gray-600" />
+                  <ShoppingCart className="w-5 h-5 text-gray-300" />
                   <h4 className="text-lg font-semibold ">Warenkorb</h4>
                 </div>
                 <div className="space-y-4">
@@ -600,7 +600,7 @@ export default function HeaderManagement() {
               {/* User Account */}
               <div className="rounded-xl p-6 border">
                 <div className="flex items-center space-x-3 mb-4">
-                  <User className="w-5 h-5 text-gray-600" />
+                  <User className="w-5 h-5 text-gray-300" />
                   <h4 className="text-lg font-semibold ">Benutzerkonto</h4>
                 </div>
                 <div className="space-y-4">
@@ -640,7 +640,7 @@ export default function HeaderManagement() {
               {/* Wishlist */}
               <div className="rounded-xl p-6 border">
                 <div className="flex items-center space-x-3 mb-4">
-                  <Heart className="w-5 h-5 text-gray-600" />
+                  <Heart className="w-5 h-5 text-gray-300" />
                   <h4 className="text-lg font-semibold ">Wunschliste</h4>
                 </div>
                 <div className="space-y-4">
@@ -703,7 +703,7 @@ export default function HeaderManagement() {
         </button>
         
         {saveStatus === 'success' && (
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-300 text-sm">
             ✓ Header wurde erfolgreich aktualisiert
           </p>
         )}

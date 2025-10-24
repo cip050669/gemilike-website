@@ -9,7 +9,7 @@ export default function SimpleHomePage() {
   const t = useTranslations('home');
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-gray-800/50 text-foreground">
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-primary/10 to-primary/5">
         <div className="container mx-auto px-4 text-center">
@@ -40,7 +40,7 @@ export default function SimpleHomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-gray-800/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">

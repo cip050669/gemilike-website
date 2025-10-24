@@ -68,7 +68,7 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
           return (
             <article
               key={gem.id}
-              className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-surface-alt/80 shadow-lg ring-1 ring-black/30 transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl"
+              className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-gray-800/50-alt/80 shadow-lg ring-1 ring-black/30 transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl"
             >
               <button
                 type="button"
@@ -129,7 +129,7 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
 
                 <Button
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="border-white/20 text-white hover:bg-gray-800/30/10"
                   onClick={() => setSelectedGemstone(gem)}
                 >
                   Details öffnen
@@ -208,7 +208,7 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
                   <AddToCartButton item={cardGem(selectedGemstone)} />
                   <Button
                     variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10"
+                    className="border-white/20 text-white hover:bg-gray-800/30/10"
                     onClick={() => setSelectedGemstone(null)}
                   >
                     Schließen
@@ -225,7 +225,7 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2 rounded-lg bg-white/5 p-3">
+    <div className="flex items-start gap-2 rounded-lg bg-gray-800/30/5 p-3">
       <GemIcon className="mt-0.5 h-4 w-4 text-primary" />
       <div>
         <p className="text-xs uppercase tracking-wide text-white/40">{label}</p>

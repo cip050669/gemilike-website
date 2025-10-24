@@ -96,8 +96,8 @@ export default function NewCustomerPage() {
           Zurück
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Neuer Kunde</h1>
-          <p className="text-gray-600 mt-2">Erstellen Sie einen neuen Kunden</p>
+          <h1 className="text-3xl font-bold text-white">Neuer Kunde</h1>
+          <p className="text-gray-300 mt-2">Erstellen Sie einen neuen Kunden</p>
         </div>
       </div>
 
@@ -292,32 +292,32 @@ export default function NewCustomerPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium text-gray-900">
+                <h4 className="font-medium text-white">
                   {formData.company || `${formData.firstName} ${formData.lastName}`}
                 </h4>
                 {formData.company && (
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-300">
                     {formData.firstName} {formData.lastName}
                   </p>
                 )}
               </div>
               
               {formData.email && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm text-gray-300">
                   <Mail className="w-4 h-4" />
                   <span>{formData.email}</span>
                 </div>
               )}
               
               {formData.phone && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm text-gray-300">
                   <Phone className="w-4 h-4" />
                   <span>{formData.phone}</span>
                 </div>
               )}
               
               {(formData.address || formData.city) && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm text-gray-300">
                   <MapPin className="w-4 h-4" />
                   <span>
                     {formData.address && `${formData.address}, `}
@@ -330,7 +330,7 @@ export default function NewCustomerPage() {
               <div className="pt-2 border-t">
                 <div className="flex items-center space-x-2">
                   <div className={`w-2 h-2 rounded-full ${formData.isActive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-300">
                     {formData.isActive ? 'Aktiv' : 'Inaktiv'}
                   </span>
                 </div>

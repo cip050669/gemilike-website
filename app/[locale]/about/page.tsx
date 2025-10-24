@@ -4,7 +4,7 @@ import { Gem, Sparkles, Diamond, Mountain, Award, Package, Users, Target, Heart 
 import Link from 'next/link';
 
 type LocaleMessages = typeof import('@/messages/de.json');
-type ServicesMessages = LocaleMessages['default']['services'];
+type ServicesMessages = LocaleMessages['services'];
 
 const getServices = (translations: ServicesMessages) => [
   {
@@ -47,7 +47,8 @@ const getServices = (translations: ServicesMessages) => [
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = await import(`@/messages/${locale}.json`).then(m => m.default);
+  const module = await import(`@/messages/${locale}.json`);
+  const t = (module.default ?? module) as LocaleMessages;
   const services = getServices(t.services);
   
   return (

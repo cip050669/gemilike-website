@@ -354,7 +354,7 @@ export function GemstoneManagementSection() {
         </Button>
       </div>
 
-      <Card className="border-white/10 bg-black/50 p-0">
+      <Card className="border-white/10 bg-gray-800/50/50 p-0">
         <div className="divide-y divide-white/5">
           {gemstones.map((gemstone) => (
             <div
@@ -362,7 +362,7 @@ export function GemstoneManagementSection() {
               className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex flex-1 items-center gap-4">
-                <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-white/15 bg-black/40">
+                <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-white/15 bg-gray-800/50/40">
                   <Image
                     src={gemstone.mainImage}
                     alt={gemstone.name}
@@ -409,7 +409,7 @@ export function GemstoneManagementSection() {
                   type="button"
                   size="icon"
                   variant="outline"
-                  className="h-9 w-9 border-white/15 bg-white/10 text-white hover:bg-white/20"
+                  className="h-9 w-9 border-white/15 bg-gray-800/30/10 text-white hover:bg-gray-800/30/20"
                   onClick={() => setDetailGemstone(gemstone)}
                   aria-label={`${gemstone.name} anzeigen`}
                 >
@@ -419,7 +419,7 @@ export function GemstoneManagementSection() {
                   type="button"
                   size="icon"
                   variant="outline"
-                  className="h-9 w-9 border-white/15 bg-white/10 text-white hover:bg-white/20"
+                  className="h-9 w-9 border-white/15 bg-gray-800/30/10 text-white hover:bg-gray-800/30/20"
                   onClick={() => handleOpenEditor(gemstone)}
                   aria-label={`${gemstone.name} bearbeiten`}
                   disabled={actionsDisabled}
@@ -444,7 +444,7 @@ export function GemstoneManagementSection() {
       </Card>
 
       {detailGemstone && (
-        <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
+        <div className="rounded-2xl border border-white/10 bg-gray-800/50/40 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-white/50">Detailansicht</p>
@@ -453,7 +453,7 @@ export function GemstoneManagementSection() {
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
+                className="border-white/20 text-white hover:bg-gray-800/30/10"
                 onClick={() => handleToggleNew(detailGemstone, !detailGemstone.isNew)}
                 disabled={actionsDisabled}
               >
@@ -461,7 +461,7 @@ export function GemstoneManagementSection() {
               </Button>
               <Button
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
+                className="border-white/20 text-white hover:bg-gray-800/30/10"
                 onClick={() => handleToggleSold(detailGemstone, !detailGemstone.isSold)}
                 disabled={actionsDisabled}
               >
@@ -469,7 +469,7 @@ export function GemstoneManagementSection() {
               </Button>
               <Button
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
+                className="border-white/20 text-white hover:bg-gray-800/30/10"
                 onClick={() => setDetailGemstone(null)}
               >
                 Detailansicht schließen
@@ -477,7 +477,7 @@ export function GemstoneManagementSection() {
             </div>
           </div>
           <div className="mt-6 grid gap-6 md:grid-cols-[240px_1fr]">
-            <div className="relative h-56 overflow-hidden rounded-xl border border-white/10 bg-black/40">
+            <div className="relative h-56 overflow-hidden rounded-xl border border-white/10 bg-gray-800/50/40">
               <Image
                 src={detailGemstone.mainImage}
                 alt={detailGemstone.name}
@@ -520,7 +520,7 @@ export function GemstoneManagementSection() {
                 <div className="mt-4 space-y-2">
                   <p className="text-white/50">Videos</p>
                   {detailGemstone.videos.map((video, index) => (
-                    <video key={index} src={video} controls className="w-full rounded-lg border border-white/10 bg-black/60" />
+                    <video key={index} src={video} controls className="w-full rounded-lg border border-white/10 bg-gray-800/50/60" />
                   ))}
                 </div>
               )}

@@ -57,11 +57,11 @@ export function StoryDetailCard({
           <div className="space-y-6">
             {/* Header */}
             <div className="text-center space-y-4">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-white dark:text-white">
                 {story.title}
               </h1>
               
-              <div className="flex items-center justify-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center justify-center gap-4 text-sm text-gray-300 dark:text-gray-400">
                 <div className="flex items-center gap-1">
                   <User className="h-4 w-4" />
                   {story.author}

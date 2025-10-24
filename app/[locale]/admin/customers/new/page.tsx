@@ -56,12 +56,12 @@ export default function NewCustomerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4 text-gray-900">Neuer Kunde</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-bold mb-4 text-white">Neuer Kunde</h1>
+          <p className="text-gray-300">
             Fügen Sie einen neuen Kunden zu Ihrer Datenbank hinzu
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function NewCustomerPage() {
         )}
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Kunden-Informationen</h2>
           </div>
@@ -85,11 +85,11 @@ export default function NewCustomerPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Persönliche Daten */}
               <div className="md:col-span-2">
-                <h3 className="text-md font-medium text-gray-900 mb-4">Persönliche Daten</h3>
+                <h3 className="text-md font-medium text-white mb-4">Persönliche Daten</h3>
               </div>
               
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-200 mb-2">
                   Vorname *
                 </label>
                 <input
@@ -97,13 +97,13 @@ export default function NewCustomerPage() {
                   id="firstName"
                   name="firstName"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Max"
                 />
               </div>
 
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-200 mb-2">
                   Nachname *
                 </label>
                 <input
@@ -111,13 +111,13 @@ export default function NewCustomerPage() {
                   id="lastName"
                   name="lastName"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Mustermann"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
                   E-Mail *
                 </label>
                 <input
@@ -125,89 +125,89 @@ export default function NewCustomerPage() {
                   id="email"
                   name="email"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="max@example.com"
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-200 mb-2">
                   Telefon
                 </label>
                 <input
                   type="tel"
                   id="phone"
                   name="phone"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="+49 123 456789"
                 />
               </div>
 
               <div>
-                <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="company" className="block text-sm font-medium text-gray-200 mb-2">
                   Unternehmen
                 </label>
                 <input
                   type="text"
                   id="company"
                   name="company"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Muster GmbH"
                 />
               </div>
 
               {/* Adressdaten */}
               <div className="md:col-span-2">
-                <h3 className="text-md font-medium text-gray-900 mb-4 mt-6">Adressdaten</h3>
+                <h3 className="text-md font-medium text-white mb-4 mt-6">Adressdaten</h3>
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="address" className="block text-sm font-medium text-gray-200 mb-2">
                   Straße und Hausnummer
                 </label>
                 <input
                   type="text"
                   id="address"
                   name="address"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Musterstraße 123"
                 />
               </div>
 
               <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="city" className="block text-sm font-medium text-gray-200 mb-2">
                   Stadt
                 </label>
                 <input
                   type="text"
                   id="city"
                   name="city"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="München"
                 />
               </div>
 
               <div>
-                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-200 mb-2">
                   Postleitzahl
                 </label>
                 <input
                   type="text"
                   id="postalCode"
                   name="postalCode"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="80331"
                 />
               </div>
 
               <div>
-                <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="country" className="block text-sm font-medium text-gray-200 mb-2">
                   Land
                 </label>
                 <select
                   id="country"
                   name="country"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Land wählen</option>
                   <option value="Deutschland">Deutschland</option>
@@ -228,18 +228,18 @@ export default function NewCustomerPage() {
 
               {/* Zusätzliche Informationen */}
               <div className="md:col-span-2">
-                <h3 className="text-md font-medium text-gray-900 mb-4 mt-6">Zusätzliche Informationen</h3>
+                <h3 className="text-md font-medium text-white mb-4 mt-6">Zusätzliche Informationen</h3>
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-200 mb-2">
                   Notizen
                 </label>
                 <textarea
                   id="notes"
                   name="notes"
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Zusätzliche Informationen über den Kunden..."
                 />
               </div>
@@ -251,9 +251,9 @@ export default function NewCustomerPage() {
                     id="isActive"
                     name="isActive"
                     defaultChecked
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
                   />
-                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                  <label htmlFor="isActive" className="ml-2 block text-sm text-white">
                     Kunde ist aktiv
                   </label>
                 </div>
@@ -265,7 +265,7 @@ export default function NewCustomerPage() {
               <button
                 type="button"
                 onClick={() => router.push('/de/admin/customers')}
-                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                className="px-6 py-2 border border-gray-600 rounded-lg text-gray-200 hover:bg-gray-800/50"
               >
                 Abbrechen
               </button>

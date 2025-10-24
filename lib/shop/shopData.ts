@@ -2,6 +2,8 @@ import type { Gemstone as PrismaGemstone } from '@prisma/client';
 import type { ShopGemstone } from '@/components/shop/GemstoneGrid';
 import { prisma } from '@/lib/prisma';
 import { allGemstones, getGemstoneById } from '@/lib/data/gemstones';
+import { isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
+import type { Gemstone } from '@/lib/types/gemstone';
 
 export const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
 
@@ -14,6 +16,30 @@ const parseJsonList = (value?: string | null): string[] => {
     return [];
   }
 };
+
+const fromLibraryGemstone = (gem: Gemstone): GemstoneSource => ({
+  id: gem.id,
+  name: gem.name,
+  category: gem.category,
+  type: gem.type,
+  price: gem.price,
+  origin: gem.origin,
+  color: gem.color ?? null,
+  clarity: isCutGemstone(gem) ? gem.clarity : null,
+  cut: isCutGemstone(gem) ? gem.cut : null,
+  cutForm: isCutGemstone(gem) ? gem.cutForm ?? null : null,
+  treatment: gem.treatment?.type ?? null,
+  description: gem.description ?? null,
+  certification: gem.certification?.lab ?? null,
+  rarity: gem.rarity ?? null,
+  inStock: gem.inStock,
+  quantity: gem.quantity,
+  images: [gem.mainImage, ...(gem.images ?? [])].filter(Boolean),
+  videos: gem.videos ?? [],
+  caratWeight: isCutGemstone(gem) ? gem.caratWeight : null,
+  gramWeight: isRoughGemstone(gem) ? gem.gramWeight : null,
+  mainImage: gem.mainImage,
+});
 
 type GemstoneSource = Partial<PrismaGemstone> & {
   id: string | number;
@@ -106,29 +132,7 @@ export async function loadShopGemstones(): Promise<{ gemstones: ShopGemstone[]; 
   } catch (error) {
     console.error('Shop: Fallback auf statische Edelsteine', error);
     return {
-      gemstones: allGemstones.map((gem) =>
-        toShopGemstone({
-          id: gem.id,
-          name: gem.name,
-          category: gem.category,
-          type: gem.type,
-          price: gem.price,
-          weight: 'caratWeight' in gem ? gem.caratWeight : 'gramWeight' in gem ? gem.gramWeight : null,
-          origin: gem.origin,
-          color: (gem as Record<string, unknown>).color ?? null,
-          clarity: (gem as Record<string, unknown>).clarity ?? null,
-          cut: (gem as Record<string, unknown>).cut ?? (gem as Record<string, unknown>).cutForm ?? null,
-          treatment: gem.treatment?.type ?? null,
-          description: gem.description,
-          certification: gem.certification?.lab ?? null,
-          rarity: (gem as Record<string, unknown>).rarity ?? null,
-          inStock: gem.inStock ?? true,
-          stock: gem.quantity ?? 0,
-          isNew: gem.isNew ?? false,
-          images: [gem.mainImage, ...(gem.images ?? [])].filter(Boolean),
-          videos: (gem as Record<string, unknown>).videos ?? [],
-        })
-      ),
+      gemstones: allGemstones.map((gem) => toShopGemstone(fromLibraryGemstone(gem))),
       fallback: true,
     };
   }
@@ -155,35 +159,7 @@ export async function loadShopGemstoneById(
   const fallbackGem = getGemstoneById(id);
   if (fallbackGem) {
     return {
-      gemstone: toShopGemstone({
-        id: fallbackGem.id,
-        name: fallbackGem.name,
-        category: fallbackGem.category,
-        type: fallbackGem.type,
-        price: fallbackGem.price,
-        weight:
-          'caratWeight' in fallbackGem
-            ? fallbackGem.caratWeight
-            : 'gramWeight' in fallbackGem
-            ? fallbackGem.gramWeight
-            : null,
-        origin: fallbackGem.origin,
-        color: (fallbackGem as Record<string, unknown>).color ?? null,
-        clarity: (fallbackGem as Record<string, unknown>).clarity ?? null,
-        cut:
-          (fallbackGem as Record<string, unknown>).cut ??
-          (fallbackGem as Record<string, unknown>).cutForm ??
-          null,
-        treatment: fallbackGem.treatment?.type ?? null,
-        description: fallbackGem.description,
-        certification: fallbackGem.certification?.lab ?? null,
-        rarity: (fallbackGem as Record<string, unknown>).rarity ?? null,
-        inStock: fallbackGem.inStock ?? true,
-        stock: fallbackGem.quantity ?? 0,
-        isNew: fallbackGem.isNew ?? false,
-        images: [fallbackGem.mainImage, ...(fallbackGem.images ?? [])].filter(Boolean),
-        videos: (fallbackGem as Record<string, unknown>).videos ?? [],
-      }),
+      gemstone: toShopGemstone(fromLibraryGemstone(fallbackGem)),
       fallback: true,
     };
   }

@@ -65,7 +65,7 @@ export default function NewGemstonePage() {
     }
   };
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <style jsx>{`
         input[type="range"]::-webkit-slider-thumb {
           appearance: none;
@@ -91,33 +91,33 @@ export default function NewGemstonePage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4 text-gray-900">Neuer Edelstein</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-bold mb-4 text-white">Neuer Edelstein</h1>
+          <p className="text-gray-300">
             Fügen Sie einen neuen Edelstein zu Ihrer Kollektion hinzu
           </p>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-2">
                   Name des Edelsteins
                 </label>
                 <input
                   type="text"
                   id="name"
                   name="name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. Smaragd, Rubin, Diamant"
                 />
               </div>
 
               {/* Karat */}
               <div>
-                <label htmlFor="carat" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="carat" className="block text-sm font-medium text-gray-200 mb-2">
                   Karat
                 </label>
                 <input
@@ -125,20 +125,20 @@ export default function NewGemstonePage() {
                   id="carat"
                   name="carat"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. 2.5"
                 />
               </div>
 
               {/* Farbe */}
               <div>
-                <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="color" className="block text-sm font-medium text-gray-200 mb-2">
                   Farbe
                 </label>
                 <select
                   id="color"
                   name="color"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Farbe wählen</option>
                   <option value="rot">Rot</option>
@@ -154,13 +154,13 @@ export default function NewGemstonePage() {
 
               {/* Farbsättigung */}
               <div>
-                <label htmlFor="colorIntensity" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="colorIntensity" className="block text-sm font-medium text-gray-200 mb-2">
                   Farbsättigung
                 </label>
                 <select
                   id="colorIntensity"
                   name="colorIntensity"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Farbsättigung wählen</option>
                   <option value="Pale">Pale (Blass)</option>
@@ -174,7 +174,7 @@ export default function NewGemstonePage() {
 
               {/* Farbhelligkeit */}
               <div>
-                <label htmlFor="colorBrightness" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="colorBrightness" className="block text-sm font-medium text-gray-200 mb-2">
                   Farbhelligkeit
                 </label>
                 <div className="space-y-2">
@@ -202,7 +202,7 @@ export default function NewGemstonePage() {
                     <span className="font-medium text-blue-600">{brightnessValue}</span>
                     <span>Schwarz (10)</span>
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-300">
                     Aktueller Wert: {brightnessValue} ({brightnessValue === 0 ? 'Weiß' : brightnessValue === 10 ? 'Schwarz' : `Stufe ${brightnessValue}`})
                   </div>
                 </div>
@@ -210,13 +210,13 @@ export default function NewGemstonePage() {
 
               {/* Schliff */}
               <div>
-                <label htmlFor="cut" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="cut" className="block text-sm font-medium text-gray-200 mb-2">
                   Schliff
                 </label>
                 <select
                   id="cut"
                   name="cut"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Schliff wählen</option>
                   <option value="brillant">Brillant</option>
@@ -232,13 +232,13 @@ export default function NewGemstonePage() {
 
               {/* Reinheit */}
               <div>
-                <label htmlFor="clarity" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="clarity" className="block text-sm font-medium text-gray-200 mb-2">
                   Reinheit
                 </label>
                 <select
                   id="clarity"
                   name="clarity"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Reinheit wählen</option>
                   <option value="FL">FL - Flawless</option>
@@ -254,7 +254,7 @@ export default function NewGemstonePage() {
 
               {/* Preis */}
               <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">
                   Preis (€)
                 </label>
                 <input
@@ -262,20 +262,20 @@ export default function NewGemstonePage() {
                   id="price"
                   name="price"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. 1500.00"
                 />
               </div>
 
               {/* Herkunft */}
               <div>
-                <label htmlFor="origin" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="origin" className="block text-sm font-medium text-gray-200 mb-2">
                   Herkunft
                 </label>
                 <select
                   id="origin"
                   name="origin"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Herkunft wählen</option>
                   <option value="Afghanistan">Afghanistan</option>
@@ -304,13 +304,13 @@ export default function NewGemstonePage() {
 
               {/* Zertifizierung */}
               <div>
-                <label htmlFor="certification" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="certification" className="block text-sm font-medium text-gray-200 mb-2">
                   Zertifizierung
                 </label>
                 <select
                   id="certification"
                   name="certification"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Zertifizierung wählen</option>
                   <option value="GIA">GIA - Gemological Institute of America</option>
@@ -326,13 +326,13 @@ export default function NewGemstonePage() {
 
               {/* Behandlung */}
               <div>
-                <label htmlFor="treatment" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="treatment" className="block text-sm font-medium text-gray-200 mb-2">
                   Behandlung
                 </label>
                 <select
                   id="treatment"
                   name="treatment"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Behandlung wählen</option>
                   <option value="Keine">Keine Behandlung</option>
@@ -349,21 +349,21 @@ export default function NewGemstonePage() {
 
             {/* Beschreibung */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-200 mb-2">
                 Beschreibung
               </label>
               <textarea
                 id="description"
                 name="description"
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Beschreiben Sie den Edelstein..."
               ></textarea>
             </div>
 
             {/* Bilder Upload */}
             <div>
-              <label htmlFor="images" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="images" className="block text-sm font-medium text-gray-200 mb-2">
                 Bilder
               </label>
               <input
@@ -372,7 +372,7 @@ export default function NewGemstonePage() {
                 name="images"
                 multiple
                 accept="image/*"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <p className="text-sm text-gray-500 mt-1">
                 Sie können mehrere Bilder gleichzeitig auswählen

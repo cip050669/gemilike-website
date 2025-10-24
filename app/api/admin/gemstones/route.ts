@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { extractPayload, normaliseGemstonePayload } from './utils';
 import { allGemstones } from '@/lib/data/gemstones';
@@ -10,56 +9,52 @@ export async function GET(request: NextRequest) {
     console.log('API: Fetching gemstones...');
     
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '25');
-    const search = searchParams.get('search') || '';
-    const color = searchParams.get('color') || '';
-    const cut = searchParams.get('cut') || '';
+    const rawPage = Number.parseInt(searchParams.get('page') || '1', 10);
+    const rawLimit = Number.parseInt(searchParams.get('limit') || '25', 10);
+    const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+    const limit = Number.isNaN(rawLimit) || rawLimit < 1 ? 25 : rawLimit;
+    const search = (searchParams.get('search') || '').trim().toLowerCase();
+    const color = (searchParams.get('color') || '').trim().toLowerCase();
+    const cut = (searchParams.get('cut') || '').trim().toLowerCase();
 
     const skip = (page - 1) * limit;
 
-    // Build where clause
-    const where: Prisma.GemstoneWhereInput = {};
-    
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { category: { contains: search, mode: 'insensitive' } }
-      ];
-    }
-    
-    if (color) {
-      where.color = { contains: color, mode: 'insensitive' };
-    }
-    
-    if (cut) {
-      where.cut = { contains: cut, mode: 'insensitive' };
-    }
+    const gemstones = await prisma.gemstone.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
 
-    console.log('API: Where clause:', where);
+    const filtered = gemstones.filter((gemstone) => {
+      const name = gemstone.name?.toLowerCase() ?? '';
+      const description = gemstone.description?.toLowerCase() ?? '';
+      const category = gemstone.category?.toLowerCase() ?? '';
+      const gemstoneColor = gemstone.color?.toLowerCase() ?? '';
+      const gemstoneCut = gemstone.cut?.toLowerCase() ?? '';
 
-    // Get gemstones with pagination
-    const [gemstones, total] = await Promise.all([
-      prisma.gemstone.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' }
-      }),
-      prisma.gemstone.count({ where })
-    ]);
+      const matchesSearch =
+        !search ||
+        name.includes(search) ||
+        description.includes(search) ||
+        category.includes(search);
 
-    console.log('API: Found gemstones:', gemstones.length);
+      const matchesColor = !color || gemstoneColor.includes(color);
+      const matchesCut = !cut || gemstoneCut.includes(cut);
+
+      return matchesSearch && matchesColor && matchesCut;
+    });
+
+    const total = filtered.length;
+    const paginated = filtered.slice(skip, skip + limit);
+
+    console.log('API: Found gemstones:', paginated.length);
 
     return NextResponse.json({
       success: true,
-      data: gemstones,
+      data: paginated,
       pagination: {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
+        pages: Math.max(1, Math.ceil(total / limit))
       }
     });
   } catch (error) {

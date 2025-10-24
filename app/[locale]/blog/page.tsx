@@ -2,7 +2,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-gray-800/50 text-foreground">
       <div className="container py-12 md:py-20 flex justify-center">
         <div className="w-full max-w-6xl container-dark px-4">
           <div className="mb-12 text-center">

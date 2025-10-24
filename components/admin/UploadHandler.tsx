@@ -107,7 +107,7 @@ export default function UploadHandler() {
       reader.onload = function(e) {
         imagePreview.innerHTML = `
           <div class="mt-2">
-            <p class="text-sm text-gray-600 mb-2">Ausgewähltes Bild:</p>
+            <p class="text-sm text-gray-300 mb-2">Ausgewähltes Bild:</p>
             <img src="${e.target?.result}" alt="Preview" class="h-32 w-32 object-cover rounded border" />
             <p class="text-xs text-gray-500 mt-1">${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>
           </div>

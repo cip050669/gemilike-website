@@ -126,7 +126,7 @@ export function PictogramExplanation({ className = '' }: PictogramExplanationPro
               {descriptions.map((description) => (
                 <div
                   key={description.id}
-                  className="flex items-start space-x-3 p-3 bg-background/50 rounded-lg border border-border/50"
+                  className="flex items-start space-x-3 p-3 bg-gray-800/50/50 rounded-lg border border-border/50"
                 >
                   {getIconComponent(description.icon)}
                   <div className="flex-1 min-w-0">

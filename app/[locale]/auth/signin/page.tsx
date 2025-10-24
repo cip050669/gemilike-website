@@ -44,7 +44,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-800/50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">{t('signInTitle')}</CardTitle>
@@ -94,7 +94,7 @@ export default function SignInPage() {
           </form>
           
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-300">
               {t('noAccount')}{' '}
               <Link href="/auth/signup" className="text-primary hover:underline">
                 {t('signUpLink')}

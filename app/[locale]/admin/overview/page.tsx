@@ -19,7 +19,7 @@ export default async function AdminOverviewPage({ params }: { params: Promise<{ 
     {
       title: 'Edelsteine',
       description: 'Verwalten Sie Ihr Edelstein-Inventar',
-      href: `/${locale}/admin`,
+      href: `/${locale}/admin/gemstones`,
       icon: Gem,
       stats: '156 Edelsteine',
       color: 'bg-blue-500'
@@ -70,7 +70,7 @@ export default async function AdminOverviewPage({ params }: { params: Promise<{ 
       href: `/${locale}/admin/settings`,
       icon: Settings,
       stats: 'Konfiguration',
-      color: 'bg-gray-500'
+      color: 'bg-gray-800/500'
     }
   ];
 

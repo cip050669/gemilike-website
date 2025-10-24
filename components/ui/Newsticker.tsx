@@ -86,7 +86,7 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
       >
         <div className="flex items-center gap-3 flex-1 overflow-hidden">
           <div
-            className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/10"
+            className="flex h-6 w-6 items-center justify-center rounded-lg bg-gray-800/30/10"
             style={{ color: item.resolvedColor }}
           >
             {TYPE_ICONS[item.type]}
@@ -104,7 +104,7 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
             <button
               type="button"
               onClick={handlePrev}
-              className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40 bg-gray-800/50/60 text-white transition hover:bg-gray-800/50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               aria-label="Vorherige Meldung"
             >
               <ChevronLeft className="h-3 w-3" />
@@ -112,7 +112,7 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
             <button
               type="button"
               onClick={handleNext}
-              className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40 bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40 bg-gray-800/50/60 text-white transition hover:bg-gray-800/50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               aria-label="Nächste Meldung"
             >
               <ChevronRight className="h-3 w-3" />

@@ -1,13 +1,13 @@
 export default function NewsletterAdminPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">Newsletter-Verwaltung</h1>
-              <p className="text-gray-600">
+              <h1 className="text-4xl font-bold mb-4 text-white">Newsletter-Verwaltung</h1>
+              <p className="text-gray-300">
                 Verwalten Sie Newsletter und Abonnements
               </p>
             </div>
@@ -24,33 +24,33 @@ export default function NewsletterAdminPage() {
 
         {/* Newsletter Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-blue-600">1,247</h3>
-            <p className="text-gray-600">Abonnenten</p>
+            <p className="text-gray-300">Abonnenten</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-green-600">23</h3>
-            <p className="text-gray-600">Newsletter gesendet</p>
+            <p className="text-gray-300">Newsletter gesendet</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-purple-600">68%</h3>
-            <p className="text-gray-600">Öffnungsrate</p>
+            <p className="text-gray-300">Öffnungsrate</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-orange-600">12%</h3>
-            <p className="text-gray-600">Klickrate</p>
+            <p className="text-gray-300">Klickrate</p>
           </div>
         </div>
 
         {/* Newsletter Management */}
-        <div className="bg-white rounded-lg shadow-sm border mb-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border mb-6">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Newsletter (23 gesendet)</h2>
           </div>
           
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-800/50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Betreff
@@ -72,14 +72,14 @@ export default function NewsletterAdminPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-gray-800/30 divide-y divide-gray-200">
                 {/* Example Newsletters */}
                 <tr>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">Neue Edelstein-Kollektion</div>
+                    <div className="text-sm font-medium text-white">Neue Edelstein-Kollektion</div>
                     <div className="text-sm text-gray-500">Entdecken Sie unsere neuesten Diamanten</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     1,247
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -87,10 +87,10 @@ export default function NewsletterAdminPage() {
                       Gesendet
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     20.10.2025
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     72%
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -106,10 +106,10 @@ export default function NewsletterAdminPage() {
                 </tr>
                 <tr>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">Sonderangebote im November</div>
+                    <div className="text-sm font-medium text-white">Sonderangebote im November</div>
                     <div className="text-sm text-gray-500">Bis zu 30% Rabatt auf ausgewählte Edelsteine</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     1,200
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -117,10 +117,10 @@ export default function NewsletterAdminPage() {
                       Gesendet
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     15.10.2025
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     65%
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -136,10 +136,10 @@ export default function NewsletterAdminPage() {
                 </tr>
                 <tr>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">Edelstein-Pflege Tipps</div>
+                    <div className="text-sm font-medium text-white">Edelstein-Pflege Tipps</div>
                     <div className="text-sm text-gray-500">Wie Sie Ihre Edelsteine richtig pflegen</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     1,180
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -147,10 +147,10 @@ export default function NewsletterAdminPage() {
                       Entwurf
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     -
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     -
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -166,10 +166,10 @@ export default function NewsletterAdminPage() {
                 </tr>
                 <tr>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">Willkommen bei Gemilike</div>
+                    <div className="text-sm font-medium text-white">Willkommen bei Gemilike</div>
                     <div className="text-sm text-gray-500">Ihr erster Newsletter</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     1,100
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -177,10 +177,10 @@ export default function NewsletterAdminPage() {
                       Gesendet
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     01.10.2025
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     68%
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -201,13 +201,13 @@ export default function NewsletterAdminPage() {
           {/* Pagination */}
           <div className="px-6 py-4 border-t">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-200">
                 Zeige 1-4 von 23 Ergebnissen
               </div>
               <div className="flex gap-2">
                 <form action="/de/admin/newsletter" method="get" className="inline">
                   <input type="hidden" name="page" value="1" />
-                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                  <button type="submit" className="px-3 py-1 border border-gray-600 rounded text-sm hover:bg-gray-800/50">
                     Vorherige
                   </button>
                 </form>
@@ -219,19 +219,19 @@ export default function NewsletterAdminPage() {
                 </form>
                 <form action="/de/admin/newsletter" method="get" className="inline">
                   <input type="hidden" name="page" value="2" />
-                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                  <button type="submit" className="px-3 py-1 border border-gray-600 rounded text-sm hover:bg-gray-800/50">
                     2
                   </button>
                 </form>
                 <form action="/de/admin/newsletter" method="get" className="inline">
                   <input type="hidden" name="page" value="3" />
-                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                  <button type="submit" className="px-3 py-1 border border-gray-600 rounded text-sm hover:bg-gray-800/50">
                     3
                   </button>
                 </form>
                 <form action="/de/admin/newsletter" method="get" className="inline">
                   <input type="hidden" name="page" value="2" />
-                  <button type="submit" className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                  <button type="submit" className="px-3 py-1 border border-gray-600 rounded text-sm hover:bg-gray-800/50">
                     Nächste
                   </button>
                 </form>
@@ -241,7 +241,7 @@ export default function NewsletterAdminPage() {
         </div>
 
         {/* Subscribers Management */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Abonnenten (1,247)</h2>
           </div>
@@ -264,7 +264,7 @@ export default function NewsletterAdminPage() {
                 <input
                   type="text"
                   placeholder="Abonnenten suchen..."
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <form action="/de/admin/newsletter" method="get" className="inline">
                   <button type="submit" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
@@ -276,7 +276,7 @@ export default function NewsletterAdminPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-800/50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       E-Mail
@@ -295,15 +295,15 @@ export default function NewsletterAdminPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-gray-800/30 divide-y divide-gray-200">
                   <tr>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       max@example.com
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       Max Mustermann
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       15.08.2025
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -318,13 +318,13 @@ export default function NewsletterAdminPage() {
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       anna@example.com
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       Anna Schmidt
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       22.09.2025
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

@@ -407,7 +407,7 @@ export function ShopFilters({ gemstones, onFilter }: ShopFiltersProps) {
               </div>
               <div 
                 onClick={resetFilters} 
-                className="flex-1 h-8 text-sm px-1 py-0 border border-input bg-background text-foreground rounded cursor-pointer flex items-center justify-center hover:bg-accent"
+                className="flex-1 h-8 text-sm px-1 py-0 border border-input bg-gray-800/50 text-foreground rounded cursor-pointer flex items-center justify-center hover:bg-accent"
               >
 {t('clearFilters')}
               </div>

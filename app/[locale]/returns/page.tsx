@@ -14,7 +14,7 @@ export default function ReturnsPage() {
             <h1 className="text-4xl md:text-5xl font-bold gradient-text animate-glow mb-6">
               {t('title')}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-300 dark:text-gray-300 max-w-3xl mx-auto">
               {t('subtitle')}
             </p>
           </div>
@@ -29,7 +29,7 @@ export default function ReturnsPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-300 dark:text-gray-300">
                   {t('step1Desc')}
                 </p>
               </CardContent>
@@ -43,7 +43,7 @@ export default function ReturnsPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-300 dark:text-gray-300">
                   {t('step2Desc')}
                 </p>
               </CardContent>
@@ -57,7 +57,7 @@ export default function ReturnsPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-300 dark:text-gray-300">
                   {t('step3Desc')}
                 </p>
               </CardContent>
@@ -73,19 +73,19 @@ export default function ReturnsPage() {
               <CardContent className="space-y-4">
                 <div>
                   <h4 className="font-semibold mb-2">{t('returnPeriod')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('returnPeriodDesc')}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">{t('returnConditions')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('returnConditionsDesc')}
                   </p>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">{t('refundProcess')}</h4>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-300 dark:text-gray-300">
                     {t('refundProcessDesc')}
                   </p>
                 </div>
@@ -134,7 +134,7 @@ export default function ReturnsPage() {
                   <label className="block text-sm font-medium mb-2">{t('orderNumber')}</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder={t('orderNumberPlaceholder')}
                   />
                 </div>
@@ -142,13 +142,13 @@ export default function ReturnsPage() {
                   <label className="block text-sm font-medium mb-2">{t('email')}</label>
                   <input
                     type="email"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder={t('emailPlaceholder')}
                   />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium mb-2">{t('returnReason')}</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <select className="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">{t('selectReason')}</option>
                     <option value="defective">{t('defective')}</option>
                     <option value="wrong-item">{t('wrongItem')}</option>
@@ -161,7 +161,7 @@ export default function ReturnsPage() {
                   <label className="block text-sm font-medium mb-2">{t('additionalInfo')}</label>
                   <textarea
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder={t('additionalInfoPlaceholder')}
                   ></textarea>
                 </div>

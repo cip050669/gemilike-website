@@ -1,82 +1,82 @@
 export default function SettingsAdminPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4 text-gray-900">System-Einstellungen</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-bold mb-4 text-white">System-Einstellungen</h1>
+          <p className="text-gray-300">
             Verwalten Sie die System-Konfiguration
           </p>
         </div>
 
         {/* General Settings */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Allgemeine Einstellungen</h2>
           
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="site-name" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="site-name" className="block text-sm font-medium text-gray-200 mb-2">
                   Website-Name
                 </label>
                 <input
                   type="text"
                   id="site-name"
                   name="site-name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Gemilike - Heroes in Gems"
                 />
               </div>
               <div>
-                <label htmlFor="site-url" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="site-url" className="block text-sm font-medium text-gray-200 mb-2">
                   Website-URL
                 </label>
                 <input
                   type="url"
                   id="site-url"
                   name="site-url"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="https://gemilike.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="site-description" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="site-description" className="block text-sm font-medium text-gray-200 mb-2">
                 Website-Beschreibung
               </label>
               <textarea
                 id="site-description"
                 name="site-description"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Ihr Spezialist für rohe und geschliffene Edelsteine..."
               ></textarea>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="default-language" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="default-language" className="block text-sm font-medium text-gray-200 mb-2">
                   Standard-Sprache
                 </label>
                 <select
                   id="default-language"
                   name="default-language"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="de">Deutsch</option>
                   <option value="en">English</option>
                 </select>
               </div>
               <div>
-                <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="timezone" className="block text-sm font-medium text-gray-200 mb-2">
                   Zeitzone
                 </label>
                 <select
                   id="timezone"
                   name="timezone"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Europe/Berlin">Europe/Berlin</option>
                   <option value="Europe/London">Europe/London</option>
@@ -88,32 +88,32 @@ export default function SettingsAdminPage() {
         </div>
 
         {/* Email Settings */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">E-Mail-Einstellungen</h2>
           
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="smtp-host" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="smtp-host" className="block text-sm font-medium text-gray-200 mb-2">
                   SMTP-Host
                 </label>
                 <input
                   type="text"
                   id="smtp-host"
                   name="smtp-host"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="smtp.gmail.com"
                 />
               </div>
               <div>
-                <label htmlFor="smtp-port" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="smtp-port" className="block text-sm font-medium text-gray-200 mb-2">
                   SMTP-Port
                 </label>
                 <input
                   type="number"
                   id="smtp-port"
                   name="smtp-port"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="587"
                 />
               </div>
@@ -121,40 +121,40 @@ export default function SettingsAdminPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="smtp-username" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="smtp-username" className="block text-sm font-medium text-gray-200 mb-2">
                   SMTP-Benutzername
                 </label>
                 <input
                   type="text"
                   id="smtp-username"
                   name="smtp-username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="noreply@gemilike.com"
                 />
               </div>
               <div>
-                <label htmlFor="smtp-password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="smtp-password" className="block text-sm font-medium text-gray-200 mb-2">
                   SMTP-Passwort
                 </label>
                 <input
                   type="password"
                   id="smtp-password"
                   name="smtp-password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="••••••••"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="from-email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="from-email" className="block text-sm font-medium text-gray-200 mb-2">
                 Absender-E-Mail
               </label>
               <input
                 type="email"
                 id="from-email"
                 name="from-email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="noreply@gemilike.com"
               />
             </div>
@@ -166,7 +166,7 @@ export default function SettingsAdminPage() {
                 name="smtp-ssl"
                 className="mr-2"
               />
-              <label htmlFor="smtp-ssl" className="text-sm font-medium text-gray-700">
+              <label htmlFor="smtp-ssl" className="text-sm font-medium text-gray-200">
                 SSL/TLS verwenden
               </label>
             </div>
@@ -174,19 +174,19 @@ export default function SettingsAdminPage() {
         </div>
 
         {/* Payment Settings */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Zahlungseinstellungen</h2>
           
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="currency" className="block text-sm font-medium text-gray-200 mb-2">
                   Währung
                 </label>
                 <select
                   id="currency"
                   name="currency"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="EUR">Euro (€)</option>
                   <option value="USD">US Dollar ($)</option>
@@ -194,7 +194,7 @@ export default function SettingsAdminPage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="tax-rate" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="tax-rate" className="block text-sm font-medium text-gray-200 mb-2">
                   Steuersatz (%)
                 </label>
                 <input
@@ -202,7 +202,7 @@ export default function SettingsAdminPage() {
                   id="tax-rate"
                   name="tax-rate"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="19.00"
                 />
               </div>
@@ -218,7 +218,7 @@ export default function SettingsAdminPage() {
                     name="paypal-enabled"
                     className="mr-2"
                   />
-                  <label htmlFor="paypal-enabled" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="paypal-enabled" className="text-sm font-medium text-gray-200">
                     PayPal
                   </label>
                 </div>
@@ -229,7 +229,7 @@ export default function SettingsAdminPage() {
                     name="stripe-enabled"
                     className="mr-2"
                   />
-                  <label htmlFor="stripe-enabled" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="stripe-enabled" className="text-sm font-medium text-gray-200">
                     Stripe (Kreditkarte)
                   </label>
                 </div>
@@ -240,7 +240,7 @@ export default function SettingsAdminPage() {
                     name="bank-transfer-enabled"
                     className="mr-2"
                   />
-                  <label htmlFor="bank-transfer-enabled" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="bank-transfer-enabled" className="text-sm font-medium text-gray-200">
                     Banküberweisung
                   </label>
                 </div>
@@ -250,19 +250,19 @@ export default function SettingsAdminPage() {
         </div>
 
         {/* Security Settings */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Sicherheitseinstellungen</h2>
           
           <div className="space-y-6">
             <div>
-              <label htmlFor="session-timeout" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="session-timeout" className="block text-sm font-medium text-gray-200 mb-2">
                 Session-Timeout (Minuten)
               </label>
               <input
                 type="number"
                 id="session-timeout"
                 name="session-timeout"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="30"
               />
             </div>
@@ -274,7 +274,7 @@ export default function SettingsAdminPage() {
                 name="two-factor-auth"
                 className="mr-2"
               />
-              <label htmlFor="two-factor-auth" className="text-sm font-medium text-gray-700">
+              <label htmlFor="two-factor-auth" className="text-sm font-medium text-gray-200">
                 Zwei-Faktor-Authentifizierung aktivieren
               </label>
             </div>
@@ -286,7 +286,7 @@ export default function SettingsAdminPage() {
                 name="password-policy"
                 className="mr-2"
               />
-              <label htmlFor="password-policy" className="text-sm font-medium text-gray-700">
+              <label htmlFor="password-policy" className="text-sm font-medium text-gray-200">
                 Starke Passwort-Richtlinien
               </label>
             </div>
@@ -298,7 +298,7 @@ export default function SettingsAdminPage() {
                 name="login-attempts"
                 className="mr-2"
               />
-              <label htmlFor="login-attempts" className="text-sm font-medium text-gray-700">
+              <label htmlFor="login-attempts" className="text-sm font-medium text-gray-200">
                 Login-Versuche begrenzen
               </label>
             </div>
@@ -306,19 +306,19 @@ export default function SettingsAdminPage() {
         </div>
 
         {/* Backup Settings */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Backup-Einstellungen</h2>
           
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="backup-frequency" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="backup-frequency" className="block text-sm font-medium text-gray-200 mb-2">
                   Backup-Häufigkeit
                 </label>
                 <select
                   id="backup-frequency"
                   name="backup-frequency"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="daily">Täglich</option>
                   <option value="weekly">Wöchentlich</option>
@@ -326,14 +326,14 @@ export default function SettingsAdminPage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="backup-retention" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="backup-retention" className="block text-sm font-medium text-gray-200 mb-2">
                   Aufbewahrungszeit (Tage)
                 </label>
                 <input
                   type="number"
                   id="backup-retention"
                   name="backup-retention"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="30"
                 />
               </div>
@@ -346,7 +346,7 @@ export default function SettingsAdminPage() {
                 name="auto-backup"
                 className="mr-2"
               />
-              <label htmlFor="auto-backup" className="text-sm font-medium text-gray-700">
+              <label htmlFor="auto-backup" className="text-sm font-medium text-gray-200">
                 Automatische Backups aktivieren
               </label>
             </div>

@@ -11,7 +11,7 @@ import Link from 'next/link';
 export default function CartPage() {
   const t = useTranslations('shop');
   const locale = useLocale();
-  const { items, removeItem, updateQuantity, total, clearCart } = useCartStore();
+  const { items, removeItem, updateQuantity, getTotalPrice, clearCart } = useCartStore();
 
   if (items.length === 0) {
     return (
@@ -97,7 +97,7 @@ export default function CartPage() {
               <CardContent className="space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t('subtotal')}</span>
-                  <span>€{total().toFixed(2)}</span>
+                  <span>€{getTotalPrice().toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t('shipping')}</span>
@@ -106,7 +106,7 @@ export default function CartPage() {
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-bold text-lg">
                     <span>{t('total')}</span>
-                    <span className="text-primary">€{total().toFixed(2)}</span>
+                    <span className="text-primary">€{getTotalPrice().toFixed(2)}</span>
                   </div>
                 </div>
               </CardContent>

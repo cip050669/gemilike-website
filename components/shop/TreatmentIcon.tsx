@@ -44,11 +44,11 @@ export function TreatmentIcon({ treatment, size = 'md', showText = true }: Treat
       case 'diffused':
         return <Layers className="w-3 h-3 text-purple-600" aria-hidden="true" />;
       case 'filled':
-        return <Shield className="w-3 h-3 text-gray-600" aria-hidden="true" />;
+        return <Shield className="w-3 h-3 text-gray-300" aria-hidden="true" />;
       case 'coated':
         return <Paintbrush className="w-3 h-3 text-pink-600" aria-hidden="true" />;
       default:
-        return <HelpCircle className="w-3 h-3 text-gray-600" aria-hidden="true" />;
+        return <HelpCircle className="w-3 h-3 text-gray-300" aria-hidden="true" />;
     }
   };
 

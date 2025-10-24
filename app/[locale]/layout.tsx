@@ -66,7 +66,7 @@ export default async function LocaleLayout({
           }}
         />
       </head>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={`${inter.className} bg-gray-800/50`} suppressHydrationWarning>
         <HydrationHandler />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>

@@ -123,7 +123,7 @@ export default function WishlistManager() {
       case 'coated':
         return 'text-blue-600';
       case 'filled':
-        return 'text-gray-600';
+        return 'text-gray-300';
       case 'oiled':
         return 'text-emerald-600';
       case 'diffused':

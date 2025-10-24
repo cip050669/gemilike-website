@@ -80,6 +80,42 @@
     "message": "Diese Website verwendet Cookies, um Ihnen die beste Erfahrung zu bieten.",
     "accept": "Akzeptieren"
   },
+  "about": {
+    "title": "Über Gemilike",
+    "subtitle": "Exklusive Edelsteine, jahrzehntelange Erfahrung und persönliche Beratung",
+    "intro1": "Seit über 20 Jahren kuratieren wir außergewöhnliche Edelsteine für Sammler, Juweliere und Liebhaber feinster Kostbarkeiten. Unser Fokus liegt auf authentischen Herkunftsnachweisen, exzellenten Schliffen und transparenten Beschaffungswegen.",
+    "intro2": "Mit einem internationalen Netzwerk aus vertrauensvollen Minenpartnern und gemmologischen Instituten begleiten wir Sie von der ersten Beratung bis zur sicheren Lieferung Ihrer ausgewählten Einzelstücke.",
+    "mission": "Unsere Mission",
+    "missionDesc": "Wir möchten die Schönheit seltener Edelsteine bewahren und verantwortungsvoll in die Hände unserer Kunden legen.",
+    "values": "Unsere Werte",
+    "valuesDesc": "Integrität, Nachhaltigkeit und die Faszination für natürliche Schätze prägen jede unserer Entscheidungen.",
+    "expertise": "Unsere Expertise",
+    "expertiseDesc": "Zertifizierte Gemmologen mit tiefem Marktwissen begleiten Sie bei der Auswahl und Bewertung.",
+    "quality": "Qualitätsversprechen",
+    "qualityDesc": "Alle Edelsteine werden von unabhängigen Laboren geprüft und mit den passenden Zertifikaten ausgeliefert.",
+    "services": {
+      "intro": "Unser Serviceportfolio"
+    }
+  },
+  "services": {
+    "title": "Unser Edelstein-Service",
+    "subtitle": "Vom Rohstein bis zur Sammlungsbetreuung – wir begleiten Sie persönlich",
+    "rough": "Rohsteine",
+    "roughDesc": "Seltene Fundstücke für Sammler, Schleifereien und Investoren",
+    "cut": "Geschliffene Edelsteine",
+    "cutDesc": "Brillant geschliffene Einzelsteine in geprüfter Spitzenqualität",
+    "diamonds": "Diamanten",
+    "diamondsDesc": "Farblose und farbige Diamanten mit international anerkannten Zertifikaten",
+    "colored": "Farbedelsteine",
+    "coloredDesc": "Intensiv leuchtende Smaragde, Rubine, Saphire und weitere Raritäten",
+    "collector": "Sammler-Service",
+    "collectorDesc": "Kuratorenservice für museale Stücke mit Provenienz und Dokumentation",
+    "wholesale": "Großhandel",
+    "wholesaleDesc": "Individuelle Auswahl und faire Konditionen für Goldschmiede und Händler",
+    "ctaTitle": "Lassen Sie sich persönlich beraten",
+    "ctaDesc": "Gemeinsam finden wir den passenden Edelstein für Ihr Projekt oder Ihre Sammlung.",
+    "ctaButton": "Kontakt aufnehmen"
+  },
   "knowledge": {
     "loading": "Artikel wird geladen...",
     "notFound": "Artikel nicht gefunden",

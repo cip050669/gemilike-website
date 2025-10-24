@@ -160,7 +160,7 @@ export default function StoryForm({ story, isEdit = false }: StoryFormProps) {
           />
           {story?.imageUrl && !selectedImage && (
             <div className="mt-2">
-              <p className="text-sm text-gray-600">Aktuelles Bild:</p>
+              <p className="text-sm text-gray-300">Aktuelles Bild:</p>
               <div className="mt-1 h-20 w-20 overflow-hidden rounded relative">
                 <Image
                   src={story.imageUrl}

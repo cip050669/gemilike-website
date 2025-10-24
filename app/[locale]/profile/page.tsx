@@ -56,6 +56,8 @@ export default function ProfilePage() {
     type: 'shipping',
     country: 'Deutschland'
   });
+  const userRole =
+    (session?.user as { role?: string } | null | undefined)?.role ?? 'Kunde';
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -150,8 +152,8 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Mein Profil</h1>
-          <p className="text-gray-600 mt-2">Verwalten Sie Ihre persönlichen Daten und Einstellungen</p>
+          <h1 className="text-3xl font-bold text-white">Mein Profil</h1>
+          <p className="text-gray-300 mt-2">Verwalten Sie Ihre persönlichen Daten und Einstellungen</p>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
@@ -182,7 +184,7 @@ export default function ProfilePage() {
                       id="name"
                       value={session.user?.name || ''}
                       disabled
-                      className="bg-gray-50"
+                      className="bg-gray-800/50"
                     />
                   </div>
                   <div>
@@ -191,13 +193,13 @@ export default function ProfilePage() {
                       id="email"
                       value={session.user?.email || ''}
                       disabled
-                      className="bg-gray-50"
+                      className="bg-gray-800/50"
                     />
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">
-                    {session.user?.role || 'Kunde'}
+                    {userRole}
                   </Badge>
                 </div>
               </CardContent>
@@ -231,7 +233,7 @@ export default function ProfilePage() {
                         id="type"
                         value={newAddress.type}
                         onChange={(e) => setNewAddress({...newAddress, type: e.target.value as 'billing' | 'shipping'})}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="w-full p-2 border border-gray-600 rounded-md"
                       >
                         <option value="shipping">Lieferadresse</option>
                         <option value="billing">Rechnungsadresse</option>
@@ -390,7 +392,7 @@ export default function ProfilePage() {
               <Card>
                 <CardContent className="text-center py-12">
                   <MapPin className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">Keine Adressen</h3>
+                  <h3 className="mt-2 text-sm font-medium text-white">Keine Adressen</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Fügen Sie Ihre erste Adresse hinzu.
                   </p>
@@ -421,7 +423,7 @@ export default function ProfilePage() {
                 {orders.length === 0 ? (
                   <div className="text-center py-12">
                     <ShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">Keine Bestellungen</h3>
+                    <h3 className="mt-2 text-sm font-medium text-white">Keine Bestellungen</h3>
                     <p className="mt-1 text-sm text-gray-500">
                       Sie haben noch keine Bestellungen aufgegeben.
                     </p>
@@ -433,7 +435,7 @@ export default function ProfilePage() {
                         <div className="flex justify-between items-start">
                           <div>
                             <h4 className="font-medium">Bestellung #{order.orderNumber}</h4>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-300">
                               {new Date(order.createdAt).toLocaleDateString('de-DE')}
                             </p>
                           </div>
@@ -465,7 +467,7 @@ export default function ProfilePage() {
               <CardContent>
                 <div className="text-center py-12">
                   <Heart className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">Wunschliste ist leer</h3>
+                  <h3 className="mt-2 text-sm font-medium text-white">Wunschliste ist leer</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Fügen Sie Edelsteine zu Ihrer Wunschliste hinzu.
                   </p>

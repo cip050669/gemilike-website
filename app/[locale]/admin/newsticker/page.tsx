@@ -1,4 +1,4 @@
-import { loadNewstickerData } from '@/app/api/admin/newsticker/route';
+import { loadNewstickerData } from '@/lib/newsticker/data';
 import Link from 'next/link';
 
 export default function NewstickerAdminPage() {
@@ -20,9 +20,11 @@ export default function NewstickerAdminPage() {
       : 'bg-gray-100 text-gray-800';
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('de-DE', {
+  const formatDate = (input?: string | Date) => {
+    if (!input) return '';
+    const date = typeof input === 'string' ? new Date(input) : input;
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('de-DE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -32,14 +34,14 @@ export default function NewstickerAdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">Newsticker-Verwaltung</h1>
-              <p className="text-gray-600">Verwalten Sie die Newsticker-Nachrichten</p>
+              <h1 className="text-4xl font-bold mb-4 text-white">Newsticker-Verwaltung</h1>
+              <p className="text-gray-300">Verwalten Sie die Newsticker-Nachrichten</p>
             </div>
             <Link
               href="/de/admin/newsticker/new"
@@ -51,36 +53,36 @@ export default function NewstickerAdminPage() {
         </div>
 
         {/* Newsticker Settings (static for now) */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Newsticker-Einstellungen</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Newsticker aktivieren
               </label>
               <input
                 type="checkbox"
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-600 text-blue-600 focus:ring-blue-500"
                 defaultChecked
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Auto-Rotation
               </label>
               <input
                 type="checkbox"
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-600 text-blue-600 focus:ring-blue-500"
                 defaultChecked
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Rotationsintervall (Sekunden)
               </label>
               <input
                 type="number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="5"
                 min="1"
                 max="60"
@@ -90,7 +92,7 @@ export default function NewstickerAdminPage() {
         </div>
 
         {/* Newsticker Messages */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Newsticker-Nachrichten ({items.length} gefunden)</h2>
           </div>
@@ -102,7 +104,7 @@ export default function NewstickerAdminPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Newsticker-Nachrichten</h3>
+              <h3 className="text-lg font-medium text-white mb-2">Keine Newsticker-Nachrichten</h3>
               <p className="text-gray-500 mb-4">Erstellen Sie Ihre erste Newsticker-Nachricht</p>
               <Link
                 href="/de/admin/newsticker/new"
@@ -115,11 +117,11 @@ export default function NewstickerAdminPage() {
             <div className="max-h-96 overflow-y-auto">
               <div className="divide-y divide-gray-200">
                 {items.map((item) => (
-                  <div key={item.id} className="p-6 hover:bg-gray-50">
+                  <div key={item.id} className="p-6 hover:bg-gray-800/50">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-sm font-medium text-gray-900">{item.text}</h3>
+                          <h3 className="text-sm font-medium text-white">{item.text}</h3>
                           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(item.priority)}`}>
                             {item.priority === 'high' ? 'Hoch' : item.priority === 'medium' ? 'Mittel' : 'Niedrig'}
                           </span>

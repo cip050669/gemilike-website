@@ -40,14 +40,14 @@ export default function StoriesAdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">Stories-Verwaltung</h1>
-              <p className="text-gray-600">
+              <h1 className="text-4xl font-bold mb-4 text-white">Stories-Verwaltung</h1>
+              <p className="text-gray-300">
                 Verwalten Sie die Geschichten hinter den Edelsteinen
               </p>
             </div>
@@ -61,28 +61,28 @@ export default function StoriesAdminPage() {
         </div>
 
         {/* Filter and Search */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="search" className="block text-sm font-medium text-gray-200 mb-2">
                 Suche
               </label>
               <input
                 type="text"
                 id="search"
                 name="search"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Stories suchen..."
               />
             </div>
             <div>
-              <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="status-filter" className="block text-sm font-medium text-gray-200 mb-2">
                 Status
               </label>
               <select
                 id="status-filter"
                 name="status"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Alle Status</option>
                 <option value="published">Veröffentlicht</option>
@@ -99,7 +99,7 @@ export default function StoriesAdminPage() {
         </div>
 
         {/* Stories List */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Stories ({stories.length} gefunden)</h2>
           </div>
@@ -111,7 +111,7 @@ export default function StoriesAdminPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Stories gefunden</h3>
+              <h3 className="text-lg font-medium text-white mb-2">Keine Stories gefunden</h3>
               <p className="text-gray-500 mb-4">Erstellen Sie Ihre erste Story, um zu beginnen.</p>
               <Link
                 href="/de/admin/stories/new"
@@ -124,11 +124,11 @@ export default function StoriesAdminPage() {
             <div className="max-h-96 overflow-y-auto">
               <div className="divide-y divide-gray-200">
                 {stories.map((story) => (
-                  <div key={story.id} className="p-6 hover:bg-gray-50">
+                  <div key={story.id} className="p-6 hover:bg-gray-800/50">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-medium text-gray-900">{story.title}</h3>
+                          <h3 className="text-lg font-medium text-white">{story.title}</h3>
                           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(story.status)}`}>
                             {getStatusText(story.status)}
                           </span>
@@ -136,7 +136,7 @@ export default function StoriesAdminPage() {
                         <div className="text-sm text-gray-500 mb-2">
                           Autor: {story.author} | Erstellt: {formatDate(story.createdAt)}
                         </div>
-                        <p className="text-sm text-gray-700 line-clamp-2">
+                        <p className="text-sm text-gray-200 line-clamp-2">
                           {story.content.substring(0, 150)}...
                         </p>
                       </div>

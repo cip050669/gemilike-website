@@ -74,8 +74,8 @@ export default function EditStoryPage({
         e.preventDefault();
         imageDropZone.classList.remove('border-blue-400', 'bg-blue-50');
         
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0) {
           handleImageFile(files[0]);
         }
       });
@@ -108,8 +108,8 @@ export default function EditStoryPage({
         e.preventDefault();
         markdownDropZone.classList.remove('border-blue-400', 'bg-blue-50');
         
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0) {
           handleMarkdownFile(files[0]);
         }
       });
@@ -145,7 +145,7 @@ export default function EditStoryPage({
         reader.onload = function(e) {
           imagePreview.innerHTML = `
             <div class="mt-2">
-              <p class="text-sm text-gray-600 mb-2">Ausgewähltes Bild:</p>
+              <p class="text-sm text-gray-300 mb-2">Ausgewähltes Bild:</p>
               <img src="${e.target?.result}" alt="Preview" class="h-32 w-32 object-cover rounded border" />
               <p class="text-xs text-gray-500 mt-1">${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>
             </div>
@@ -199,10 +199,10 @@ export default function EditStoryPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-800/50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Lade Story...</p>
+          <p className="mt-4 text-gray-300">Lade Story...</p>
         </div>
       </div>
     );
@@ -210,9 +210,9 @@ export default function EditStoryPage({
 
   if (!story) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-800/50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Story nicht gefunden</h1>
+          <h1 className="text-2xl font-bold text-white mb-4">Story nicht gefunden</h1>
           <Link href="/de/admin/stories" className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium">
             ← Zurück zu Stories
           </Link>
@@ -222,14 +222,14 @@ export default function EditStoryPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">Story bearbeiten</h1>
-              <p className="text-gray-600">Bearbeiten Sie die Story</p>
+              <h1 className="text-4xl font-bold mb-4 text-white">Story bearbeiten</h1>
+              <p className="text-gray-300">Bearbeiten Sie die Story</p>
             </div>
             <Link
               href="/de/admin/stories"
@@ -241,7 +241,7 @@ export default function EditStoryPage({
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
           <form action={`/api/admin/stories/${story.id}`} method="POST" className="space-y-6" encType="multipart/form-data" onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
@@ -263,7 +263,7 @@ export default function EditStoryPage({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Titel */}
               <div className="md:col-span-2">
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-200 mb-2">
                   Titel *
                 </label>
                 <input
@@ -272,13 +272,13 @@ export default function EditStoryPage({
                   name="title"
                   defaultValue={story.title}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               {/* Autor */}
               <div>
-                <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="author" className="block text-sm font-medium text-gray-200 mb-2">
                   Autor *
                 </label>
                 <input
@@ -287,13 +287,13 @@ export default function EditStoryPage({
                   name="author"
                   defaultValue={story.author}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               {/* Status */}
               <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="status" className="block text-sm font-medium text-gray-200 mb-2">
                   Status *
                 </label>
                 <select
@@ -301,7 +301,7 @@ export default function EditStoryPage({
                   name="status"
                   defaultValue={story.status}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="draft">Entwurf</option>
                   <option value="published">Veröffentlicht</option>
@@ -311,10 +311,10 @@ export default function EditStoryPage({
 
               {/* Bild-URL */}
               <div className="md:col-span-2">
-                <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-200 mb-2">
                   Bild-Upload
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
+                <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
                   <input
                     type="file"
                     id="imageUpload"
@@ -326,7 +326,7 @@ export default function EditStoryPage({
                     <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                       <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-300">
                       <span className="font-medium text-blue-600 hover:text-blue-500">Klicken Sie hier</span> oder ziehen Sie ein Bild hierher
                     </p>
                     <p className="text-xs text-gray-500">PNG, JPG, GIF bis zu 10MB</p>
@@ -334,7 +334,7 @@ export default function EditStoryPage({
                 </div>
                 {story.imageUrl && (
                   <div className="mt-2">
-                    <p className="text-sm text-gray-600 mb-2">Aktuelles Bild:</p>
+                    <p className="text-sm text-gray-300 mb-2">Aktuelles Bild:</p>
                     <img src={story.imageUrl} alt="Current" className="h-32 w-32 object-cover rounded border" />
                   </div>
                 )}
@@ -342,10 +342,10 @@ export default function EditStoryPage({
 
               {/* Inhalt */}
               <div className="md:col-span-2">
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="content" className="block text-sm font-medium text-gray-200 mb-2">
                   Inhalt *
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer mb-4">
+                <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer mb-4">
                   <input
                     type="file"
                     id="markdownUpload"
@@ -357,7 +357,7 @@ export default function EditStoryPage({
                     <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                       <path d="M9 12h6m-6 4h6m2 5H7m5 5v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3m0 0H7m2 0h2m6-5v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3m0 0H7m2 0h2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-300">
                       <span className="font-medium text-blue-600 hover:text-blue-500">Klicken Sie hier</span> oder ziehen Sie eine Markdown-Datei hierher
                     </p>
                     <p className="text-xs text-gray-500">.md, .txt bis zu 5MB</p>
@@ -369,7 +369,7 @@ export default function EditStoryPage({
                   defaultValue={story.content}
                   required
                   rows={10}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Geben Sie den Inhalt der Story ein..."
                 />
               </div>
@@ -379,7 +379,7 @@ export default function EditStoryPage({
             <div className="flex justify-end space-x-4 pt-6">
               <Link
                 href="/de/admin/stories"
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium"
+                className="px-6 py-2 border border-gray-600 rounded-md text-gray-200 hover:bg-gray-800/50 font-medium"
               >
                 Abbrechen
               </Link>

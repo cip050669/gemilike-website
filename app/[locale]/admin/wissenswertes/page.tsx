@@ -55,15 +55,15 @@ export default async function KnowledgeAdminPage({
   const stats = countByStatus(sorted);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">
+              <h1 className="text-4xl font-bold mb-4 text-white">
                 Wissenswertes-Verwaltung
               </h1>
-              <p className="text-gray-600">Verwalten Sie Wissensartikel rund um Edelsteine</p>
+              <p className="text-gray-300">Verwalten Sie Wissensartikel rund um Edelsteine</p>
             </div>
             <Link
               href={`/${locale}/admin/wissenswertes/new`}
@@ -75,19 +75,19 @@ export default async function KnowledgeAdminPage({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-sm font-medium text-gray-500">Gesamt</h3>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total}</p>
+            <p className="text-3xl font-bold text-white mt-2">{stats.total}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-sm font-medium text-gray-500">Veröffentlicht</h3>
             <p className="text-3xl font-bold text-green-600 mt-2">{stats.published}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-sm font-medium text-gray-500">Entwürfe</h3>
             <p className="text-3xl font-bold text-yellow-500 mt-2">{stats.draft}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-sm font-medium text-gray-500">Hervorgehoben</h3>
             <p className="text-3xl font-bold text-purple-600 mt-2">{stats.featured}</p>
           </div>

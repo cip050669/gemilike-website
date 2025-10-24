@@ -41,9 +41,9 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
   const [isLoading, setIsLoading] = useState(false);
 
   const inputStyles =
-    'bg-background border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/40 focus-visible:border-white/40';
+    'bg-gray-800/50 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/40 focus-visible:border-white/40';
   const cardStyles =
-    'bg-background/90 border-white/15 text-white shadow-lg shadow-black/40';
+    'bg-gray-800/50/90 border-white/15 text-white shadow-lg shadow-black/40';
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -228,14 +228,14 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
             {isLoading && <span className="text-xs text-white/60">Lade...</span>}
           </Label>
           <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-black/30">
+            <div className="h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-gray-800/50/30">
               <img
                 src={formData.image || PLACEHOLDER_IMAGE}
                 alt="Titelbild"
                 className="h-full w-full object-cover"
               />
             </div>
-            <label className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/25 rounded-md cursor-pointer hover:bg-white/20 transition">
+            <label className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/30/10 border border-white/25 rounded-md cursor-pointer hover:bg-gray-800/30/20 transition">
               <Upload className="h-4 w-4" />
               Titelbild hochladen
               <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -251,7 +251,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
                 <img src={img} alt={`content-${index}`} className="h-full w-full object-cover" />
                 <button
                   type="button"
-                  className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white"
+                  className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-800/50/70 text-white"
                   onClick={() => handleRemoveContentImage(index)}
                 >
                   <X className="h-3 w-3" />
@@ -295,7 +295,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
               <button
                 key={tag.id}
                 type="button"
-                className="rounded-full border border-white/20 px-3 py-1 hover:bg-white/10"
+                className="rounded-full border border-white/20 px-3 py-1 hover:bg-gray-800/30/10"
                 onClick={() => handleInputChange('tags', Array.from(new Set([...formData.tags, tag.name])))}
               >
                 #{tag.name}

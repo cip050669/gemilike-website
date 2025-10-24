@@ -113,7 +113,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
       <select
         value={selectedCategory}
         onChange={(e) => setSelectedCategory(e.target.value)}
-        className="px-3 py-2 border rounded-md bg-black text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        className="px-3 py-2 border rounded-md bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
         <option value="all">Kategorien</option>
         {categories.map(category => (
@@ -124,7 +124,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
       <select
         value={selectedPriceRange}
         onChange={(e) => setSelectedPriceRange(e.target.value)}
-        className="px-3 py-2 border rounded-md bg-black text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        className="px-3 py-2 border rounded-md bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
         {priceRanges.map(range => (
           <option key={range.value} value={range.value}>{range.label}</option>
@@ -134,7 +134,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
       <select
         value={selectedOrigin}
         onChange={(e) => setSelectedOrigin(e.target.value)}
-        className="px-3 py-2 border rounded-md bg-black text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        className="px-3 py-2 border rounded-md bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
         <option value="all">Herkünfte</option>
         {origins.map(origin => (
@@ -145,7 +145,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
       <select
         value={selectedCut}
         onChange={(e) => setSelectedCut(e.target.value)}
-        className="px-3 py-2 border rounded-md bg-black text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        className="px-3 py-2 border rounded-md bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
         <option value="all">Schliff-Formen</option>
         {cuts.map(cut => (
@@ -156,7 +156,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
       <select
         value={selectedClarity}
         onChange={(e) => setSelectedClarity(e.target.value)}
-        className="px-3 py-2 border rounded-md bg-black text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        className="px-3 py-2 border rounded-md bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
         <option value="all">Reinheitsgrade</option>
         {clarities.map(clarity => (
@@ -167,7 +167,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
       <select
         value={selectedTreatment}
         onChange={(e) => setSelectedTreatment(e.target.value)}
-        className="px-3 py-2 border rounded-md bg-black text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        className="px-3 py-2 border rounded-md bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
         <option value="all">Behandlungen</option>
         {treatments.map(treatment => (
@@ -180,7 +180,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
       <select
         value={selectedCertification}
         onChange={(e) => setSelectedCertification(e.target.value)}
-        className="px-3 py-2 border rounded-md bg-black text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        className="px-3 py-2 border rounded-md bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
         <option value="all">Zertifikate</option>
         {certifications.map(cert => (
@@ -194,7 +194,7 @@ export function SimpleShopFilters({ gemstones, onFilter }: SimpleShopFiltersProp
         <Button
           variant="outline"
           onClick={clearFilters}
-          className="flex items-center gap-2 bg-black text-white border-gray-600 hover:bg-gray-800"
+          className="flex items-center gap-2 bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800"
         >
           <X className="h-4 w-4" />
           Zurücksetzen

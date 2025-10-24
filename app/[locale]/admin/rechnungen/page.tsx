@@ -137,8 +137,8 @@ export default function InvoicesPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Rechnungen</h1>
-          <p className="text-gray-600 mt-2">Verwalten Sie Ihre Rechnungen und Zahlungen</p>
+          <h1 className="text-3xl font-bold text-white">Rechnungen</h1>
+          <p className="text-gray-300 mt-2">Verwalten Sie Ihre Rechnungen und Zahlungen</p>
         </div>
         <Link href="/de/admin/rechnungen/neu">
           <Button className="bg-primary hover:bg-primary/90">
@@ -213,7 +213,10 @@ export default function InvoicesPage() {
               />
             </div>
             
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value as 'ALL' | Invoice['status'])}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Status filtern" />
               </SelectTrigger>
@@ -226,7 +229,10 @@ export default function InvoicesPage() {
               </SelectContent>
             </Select>
             
-            <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+            <Select
+              value={paymentFilter}
+              onValueChange={(value) => setPaymentFilter(value as 'ALL' | Invoice['paymentStatus'])}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Zahlungsstatus filtern" />
               </SelectTrigger>
@@ -253,7 +259,7 @@ export default function InvoicesPage() {
           {filteredInvoices.length === 0 ? (
             <div className="text-center py-12">
               <FileText className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">Keine Rechnungen gefunden</h3>
+              <h3 className="mt-2 text-sm font-medium text-white">Keine Rechnungen gefunden</h3>
               <p className="mt-1 text-sm text-gray-500">
                 {invoices.length === 0 
                   ? 'Erstellen Sie Ihre erste Rechnung.' 
@@ -275,24 +281,24 @@ export default function InvoicesPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Rechnungsnummer</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Kunde</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Datum</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Fällig</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Betrag</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Zahlung</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-900">Aktionen</th>
+                    <th className="text-left py-3 px-4 font-medium text-white">Rechnungsnummer</th>
+                    <th className="text-left py-3 px-4 font-medium text-white">Kunde</th>
+                    <th className="text-left py-3 px-4 font-medium text-white">Datum</th>
+                    <th className="text-left py-3 px-4 font-medium text-white">Fällig</th>
+                    <th className="text-left py-3 px-4 font-medium text-white">Betrag</th>
+                    <th className="text-left py-3 px-4 font-medium text-white">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-white">Zahlung</th>
+                    <th className="text-right py-3 px-4 font-medium text-white">Aktionen</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredInvoices.map((invoice) => (
-                    <tr key={invoice.id} className="border-b hover:bg-gray-50">
+                    <tr key={invoice.id} className="border-b hover:bg-gray-800/50">
                       <td className="py-3 px-4">
-                        <div className="font-medium text-gray-900">{invoice.invoiceNumber}</div>
+                        <div className="font-medium text-white">{invoice.invoiceNumber}</div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-white">
                           {invoice.customer.company || `${invoice.customer.firstName} ${invoice.customer.lastName}`}
                         </div>
                         {invoice.customer.company && (
@@ -301,13 +307,13 @@ export default function InvoicesPage() {
                           </div>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-sm text-gray-900">
+                      <td className="py-3 px-4 text-sm text-white">
                         {formatDate(invoice.invoiceDate)}
                       </td>
-                      <td className="py-3 px-4 text-sm text-gray-900">
+                      <td className="py-3 px-4 text-sm text-white">
                         {formatDate(invoice.dueDate)}
                       </td>
-                      <td className="py-3 px-4 text-sm font-medium text-gray-900">
+                      <td className="py-3 px-4 text-sm font-medium text-white">
                         {formatCurrency(invoice.total)}
                       </td>
                       <td className="py-3 px-4">

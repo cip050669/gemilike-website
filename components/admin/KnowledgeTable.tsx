@@ -78,7 +78,7 @@ export function KnowledgeTable({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
+    <div className="bg-gray-800/30 rounded-lg shadow-sm border">
       <div className="p-6 border-b space-y-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -97,7 +97,7 @@ export function KnowledgeTable({
               onChange={(event) => setSearch(event.target.value)}
               className="w-full sm:w-72 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <label className="inline-flex items-center gap-2 text-sm text-gray-600">
+            <label className="inline-flex items-center gap-2 text-sm text-gray-300">
               <input
                 type="checkbox"
                 checked={onlyPublished}
@@ -142,7 +142,7 @@ export function KnowledgeTable({
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-gray-800/30 divide-y divide-gray-200">
               {filtered.map((article) => (
                 <tr key={article.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
@@ -155,11 +155,11 @@ export function KnowledgeTable({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm font-semibold text-gray-900">
+                    <div className="text-sm font-semibold text-white">
                       {article.title}
                     </div>
                     <div className="text-xs text-blue-500 mb-1">{`/wissenswertes/${article.slug}`}</div>
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className="text-sm text-gray-300 line-clamp-2">
                       {article.excerpt}
                     </p>
                     {article.tags.length > 0 && (
@@ -175,10 +175,10 @@ export function KnowledgeTable({
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {article.category}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {article.author}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -190,7 +190,7 @@ export function KnowledgeTable({
                       {statusLabel(article.published)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {formatDate(article.updatedAt)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">

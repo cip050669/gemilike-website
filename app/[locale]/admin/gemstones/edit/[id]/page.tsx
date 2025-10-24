@@ -20,14 +20,14 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">Edelstein bearbeiten</h1>
-              <p className="text-gray-600">
+              <h1 className="text-4xl font-bold mb-4 text-white">Edelstein bearbeiten</h1>
+              <p className="text-gray-300">
                 Bearbeiten Sie die Details des Edelsteins
               </p>
             </div>
@@ -43,11 +43,11 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
         </div>
 
         {/* Edit Form */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
           <form className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-2">
                   Name
                 </label>
                 <input
@@ -55,13 +55,13 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
                   id="name"
                   name="name"
                   defaultValue={gemstone.name}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. Smaragd 2.5 Karat"
                 />
               </div>
               
               <div>
-                <label htmlFor="carat" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="carat" className="block text-sm font-medium text-gray-200 mb-2">
                   Karat
                 </label>
                 <input
@@ -70,13 +70,13 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
                   name="carat"
                   step="0.01"
                   defaultValue={gemstone.carat}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. 2.5"
                 />
               </div>
               
               <div>
-                <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="color" className="block text-sm font-medium text-gray-200 mb-2">
                   Farbe
                 </label>
                 <input
@@ -84,13 +84,13 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
                   id="color"
                   name="color"
                   defaultValue={gemstone.color}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. Grün"
                 />
               </div>
               
               <div>
-                <label htmlFor="cut" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="cut" className="block text-sm font-medium text-gray-200 mb-2">
                   Schliff
                 </label>
                 <input
@@ -98,13 +98,13 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
                   id="cut"
                   name="cut"
                   defaultValue={gemstone.cut}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. Brillant"
                 />
               </div>
               
               <div>
-                <label htmlFor="clarity" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="clarity" className="block text-sm font-medium text-gray-200 mb-2">
                   Reinheit
                 </label>
                 <input
@@ -112,13 +112,13 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
                   id="clarity"
                   name="clarity"
                   defaultValue={gemstone.clarity}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. VVS1"
                 />
               </div>
               
               <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">
                   Preis (€)
                 </label>
                 <input
@@ -127,14 +127,14 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
                   name="price"
                   step="0.01"
                   defaultValue={gemstone.price}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="z.B. 1500.00"
                 />
               </div>
             </div>
             
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-200 mb-2">
                 Beschreibung
               </label>
               <textarea
@@ -142,20 +142,20 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
                 name="description"
                 rows={4}
                 defaultValue={gemstone.description}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Geben Sie eine detaillierte Beschreibung des Edelsteins ein."
               ></textarea>
             </div>
             
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="status" className="block text-sm font-medium text-gray-200 mb-2">
                 Status
               </label>
               <select
                 id="status"
                 name="status"
                 defaultValue={gemstone.status}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Verfügbar">Verfügbar</option>
                 <option value="Reserviert">Reserviert</option>
@@ -165,7 +165,7 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
             </div>
             
             <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="image" className="block text-sm font-medium text-gray-200 mb-2">
                 Bild
               </label>
               <div className="flex items-center space-x-4">

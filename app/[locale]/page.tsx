@@ -5,7 +5,7 @@ import { HeroSection } from '@/components/home/HeroSection';
 import { NewGemstonesCarousel } from '@/components/home/NewGemstonesCarousel';
 import { loadBlogs } from '@/lib/data/blogs';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
-import { loadNewstickerData } from '@/app/api/admin/newsticker/route';
+import { loadNewstickerData } from '@/lib/newsticker/data';
 import { Newsticker } from '@/components/ui/Newsticker';
 import { getNewGemstones } from '@/lib/data/gemstones';
 
@@ -60,7 +60,7 @@ export default async function HomePage({
 
   return (
     <PublicLayout>
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-800/50">
       {/* Hero Section */}
       <HeroSection locale={locale} />
 
@@ -88,7 +88,7 @@ export default async function HomePage({
                   className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
                 >
                   <div className="flex gap-[50px] items-center">
-                    <div className="overflow-hidden rounded-lg border border-white/10 bg-black/20 h-[180px] w-[204px] flex-shrink-0">
+                    <div className="overflow-hidden rounded-lg border border-white/10 bg-gray-800/50/20 h-[180px] w-[204px] flex-shrink-0">
                       <img
                         src={story.image}
                         alt={story.title}
@@ -143,7 +143,7 @@ export default async function HomePage({
             </p>
             <Button
               variant="outline"
-              className="mt-6 border-white/40 text-white hover:bg-white/10"
+              className="mt-6 border-white/40 text-white hover:bg-gray-800/30/10"
               asChild
             >
               <Link href={`/${locale}/blog`}>Zum Blog</Link>

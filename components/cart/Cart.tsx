@@ -13,8 +13,8 @@ export function Cart() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50" onClick={toggleCart}>
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-background shadow-xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-gray-800/50/50" onClick={toggleCart}>
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-gray-800/50 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border p-4">

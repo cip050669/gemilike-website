@@ -67,7 +67,7 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
   if (!mounted) {
     return (
       <div className={cn("w-full", className)}>
-        <div className="bg-white rounded-lg border shadow-sm">
+        <div className="bg-gray-800/30 rounded-lg border shadow-sm">
           <Image
             src={typeof images[0] === 'string' && images[0].startsWith('http') ? images[0] : '/products/default-gemstone.jpg'}
             alt={`${gemName} - Hauptbild`}
@@ -85,14 +85,14 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
     <div className={cn("w-full", className)}>
       {/* Haupt-Medien-Anzeige */}
       <div 
-        className="relative bg-white rounded-lg group border shadow-sm mb-2 overflow-hidden max-h-[300px]"
+        className="relative bg-gray-800/30 rounded-lg group border shadow-sm mb-2 overflow-hidden max-h-[300px]"
         role="img"
         aria-label={`Bildergalerie für ${gemName}`}
       >
         {isCurrentVideo ? (
           <video
             key={currentMedia.src}
-            className="w-full h-full max-h-[300px] object-contain bg-black"
+            className="w-full h-full max-h-[300px] object-contain bg-gray-800/50"
             controls={isVideoPlaying === selectedIndex}
             poster={images[0]} // Verwende das erste Bild als Poster
             onPlay={() => setIsVideoPlaying(selectedIndex)}
@@ -116,7 +116,7 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
 
         {/* Video Play Button Overlay */}
         {isCurrentVideo && isVideoPlaying !== selectedIndex && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-800/50/20">
             <Button
               size="lg"
               className="rounded-full w-16 h-16"
@@ -187,7 +187,7 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
         {/* Media Counter */}
         {allMedia.length > 1 && (
           <div 
-            className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded"
+            className="absolute bottom-2 left-2 bg-gray-800/50/50 text-white text-xs px-1.5 py-0.5 rounded"
             aria-label={`Bild ${selectedIndex + 1} von ${allMedia.length}`}
           >
             {selectedIndex + 1} / {allMedia.length}
@@ -253,7 +253,7 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
                     className="w-full h-full object-cover"
                     muted
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800/50/40">
                     <Play className="h-3 w-3 text-white" aria-hidden="true" />
                   </div>
                 </div>

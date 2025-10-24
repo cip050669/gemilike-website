@@ -55,14 +55,14 @@ export default function NewOrderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">Neue Bestellung</h1>
-              <p className="text-gray-600">
+              <h1 className="text-4xl font-bold mb-4 text-white">Neue Bestellung</h1>
+              <p className="text-gray-300">
                 Erstellen Sie eine neue Bestellung
               </p>
             </div>
@@ -80,7 +80,7 @@ export default function NewOrderPage() {
         </div>
 
         {/* Formular */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border p-6">
+        <form onSubmit={handleSubmit} className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
           {message && (
             <div className={`mb-4 p-3 rounded-lg text-white ${message.startsWith('✅') ? 'bg-green-500' : 'bg-red-500'}`}>
               {message}
@@ -90,41 +90,41 @@ export default function NewOrderPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Bestellnummer */}
             <div>
-              <label htmlFor="orderNumber" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="orderNumber" className="block text-sm font-medium text-gray-200 mb-2">
                 Bestellnummer
               </label>
               <input
                 type="text"
                 id="orderNumber"
                 name="orderNumber"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             {/* Kunden-ID */}
             <div>
-              <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="userId" className="block text-sm font-medium text-gray-200 mb-2">
                 Kunden-ID
               </label>
               <input
                 type="text"
                 id="userId"
                 name="userId"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             {/* Status */}
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="status" className="block text-sm font-medium text-gray-200 mb-2">
                 Status
               </label>
               <select
                 id="status"
                 name="status"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="PENDING"
               >
                 <option value="PENDING">Ausstehend</option>
@@ -137,7 +137,7 @@ export default function NewOrderPage() {
 
             {/* Zwischensumme */}
             <div>
-              <label htmlFor="subtotal" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="subtotal" className="block text-sm font-medium text-gray-200 mb-2">
                 Zwischensumme (€)
               </label>
               <input
@@ -145,14 +145,14 @@ export default function NewOrderPage() {
                 id="subtotal"
                 name="subtotal"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             {/* Steuer */}
             <div>
-              <label htmlFor="tax" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="tax" className="block text-sm font-medium text-gray-200 mb-2">
                 Steuer (€)
               </label>
               <input
@@ -160,14 +160,14 @@ export default function NewOrderPage() {
                 id="tax"
                 name="tax"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="0"
               />
             </div>
 
             {/* Versand */}
             <div>
-              <label htmlFor="shipping" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="shipping" className="block text-sm font-medium text-gray-200 mb-2">
                 Versand (€)
               </label>
               <input
@@ -175,14 +175,14 @@ export default function NewOrderPage() {
                 id="shipping"
                 name="shipping"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="0"
               />
             </div>
 
             {/* Gesamtbetrag */}
             <div>
-              <label htmlFor="total" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="total" className="block text-sm font-medium text-gray-200 mb-2">
                 Gesamtbetrag (€)
               </label>
               <input
@@ -190,20 +190,20 @@ export default function NewOrderPage() {
                 id="total"
                 name="total"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             {/* Währung */}
             <div>
-              <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="currency" className="block text-sm font-medium text-gray-200 mb-2">
                 Währung
               </label>
               <select
                 id="currency"
                 name="currency"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="EUR"
               >
                 <option value="EUR">EUR</option>
@@ -215,13 +215,13 @@ export default function NewOrderPage() {
 
             {/* Zahlungsmethode */}
             <div>
-              <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-200 mb-2">
                 Zahlungsmethode
               </label>
               <select
                 id="paymentMethod"
                 name="paymentMethod"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Zahlungsmethode wählen</option>
                 <option value="credit_card">Kreditkarte</option>
@@ -234,13 +234,13 @@ export default function NewOrderPage() {
 
             {/* Zahlungsstatus */}
             <div>
-              <label htmlFor="paymentStatus" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="paymentStatus" className="block text-sm font-medium text-gray-200 mb-2">
                 Zahlungsstatus
               </label>
               <select
                 id="paymentStatus"
                 name="paymentStatus"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="PENDING"
               >
                 <option value="PENDING">Ausstehend</option>
@@ -252,13 +252,13 @@ export default function NewOrderPage() {
 
             {/* Versandmethode */}
             <div>
-              <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-200 mb-2">
                 Versandmethode
               </label>
               <select
                 id="shippingMethod"
                 name="shippingMethod"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Versandmethode wählen</option>
                 <option value="standard">Standard</option>
@@ -270,27 +270,27 @@ export default function NewOrderPage() {
 
             {/* Tracking-Nummer */}
             <div>
-              <label htmlFor="trackingNumber" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="trackingNumber" className="block text-sm font-medium text-gray-200 mb-2">
                 Tracking-Nummer
               </label>
               <input
                 type="text"
                 id="trackingNumber"
                 name="trackingNumber"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             {/* Notizen */}
             <div className="md:col-span-2">
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="notes" className="block text-sm font-medium text-gray-200 mb-2">
                 Notizen
               </label>
               <textarea
                 id="notes"
                 name="notes"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -300,7 +300,7 @@ export default function NewOrderPage() {
             <button
               type="button"
               onClick={() => router.push('/de/admin/orders')}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              className="px-6 py-2 border border-gray-600 rounded-lg text-gray-200 hover:bg-gray-800/50"
             >
               Abbrechen
             </button>

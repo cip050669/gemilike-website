@@ -179,8 +179,8 @@ export default function NewInvoicePage() {
           Zurück
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Neue Rechnung</h1>
-          <p className="text-gray-600 mt-2">Erstellen Sie eine neue Rechnung für einen Kunden</p>
+          <h1 className="text-3xl font-bold text-white">Neue Rechnung</h1>
+          <p className="text-gray-300 mt-2">Erstellen Sie eine neue Rechnung für einen Kunden</p>
         </div>
       </div>
 
@@ -215,7 +215,7 @@ export default function NewInvoicePage() {
                 </div>
                 
                 {selectedCustomerId && (
-                  <div className="p-4 bg-gray-50 rounded-lg">
+                  <div className="p-4 bg-gray-800/50 rounded-lg">
                     {(() => {
                       const customer = customers.find(c => c.id === selectedCustomerId);
                       return customer ? (
@@ -223,8 +223,8 @@ export default function NewInvoicePage() {
                           <h4 className="font-medium">
                             {customer.company || `${customer.firstName} ${customer.lastName}`}
                           </h4>
-                          <p className="text-sm text-gray-600">{customer.email}</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-300">{customer.email}</p>
+                          <p className="text-sm text-gray-300">
                             {customer.address}, {customer.postalCode} {customer.city}
                           </p>
                         </div>
@@ -376,7 +376,7 @@ export default function NewInvoicePage() {
                   <span>{calculateSubtotal().toFixed(2)} €</span>
                 </div>
               </div>
-              <div className="text-sm text-gray-600 mt-4">
+              <div className="text-sm text-gray-300 mt-4">
                 <p>Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.</p>
               </div>
             </CardContent>

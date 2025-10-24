@@ -33,7 +33,7 @@ export default function AdminLayout({
   ];
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'rgba(31, 41, 55, 0.5)' }}>
       {/* Sidebar */}
       <aside style={{ 
         width: '256px', 
@@ -110,7 +110,7 @@ export default function AdminLayout({
         marginLeft: '256px', 
         padding: '32px', 
         overflow: 'auto',
-        backgroundColor: '#000000'
+        backgroundColor: 'rgba(31, 41, 55, 0.5)'
       }}>
         {children}
       </main>

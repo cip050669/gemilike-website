@@ -2,7 +2,6 @@
 
 import { useHeroSettings } from '@/lib/hooks/useHeroSettings';
 import GemILikeLogo from '@/components/GemILikeLogo';
-import Image from 'next/image';
 
 interface HeroSectionProps {
   locale: string;
@@ -66,9 +65,9 @@ export function HeroSection({ locale }: HeroSectionProps) {
   };
 
   const currentSettings = {
-    imageUrl: heroSettings.backgroundImage || fallbackSettings.imageUrl,
-    title: heroSettings.title || fallbackSettings.title,
-    subtitle: heroSettings.subtitle || fallbackSettings.subtitle,
+    imageUrl: heroSettings?.backgroundImage || fallbackSettings.imageUrl,
+    title: heroSettings?.title || fallbackSettings.title,
+    subtitle: heroSettings?.subtitle || fallbackSettings.subtitle,
   };
 
   return (
@@ -83,13 +82,15 @@ export function HeroSection({ locale }: HeroSectionProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background/50 to-accent/30" />
         
         <div className="absolute inset-0">
-          <Image
+          <img
             src={currentSettings.imageUrl}
             alt="Exquisite Edelsteine - Gemilike"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              console.error('Hero image failed to load:', currentSettings.imageUrl);
+              // Fallback to a default image
+              e.currentTarget.src = '/images/hero-fallback.jpg';
+            }}
           />
         </div>
         

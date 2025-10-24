@@ -110,7 +110,7 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
           )}
           
           {/* Quick View Overlay */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 rounded-lg flex items-center justify-center">
+          <div className="absolute inset-0 bg-gray-800/50/0 group-hover:bg-gray-800/50/20 transition-colors duration-300 rounded-lg flex items-center justify-center">
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <Eye className="h-6 w-6 text-white" />
             </div>

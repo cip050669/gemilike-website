@@ -307,7 +307,7 @@ export function NewstickerManager() {
 
       {/* Edit Modal */}
       {editingItem && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-800/50/50 flex items-center justify-center z-50">
           <Card className="w-full max-w-md mx-4">
             <CardHeader>
               <CardTitle>Nachricht bearbeiten</CardTitle>

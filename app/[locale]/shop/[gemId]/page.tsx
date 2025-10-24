@@ -37,7 +37,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
     origin: gemstone.origin ?? undefined,
   };
 
-  const detailBlocks = [
+  const detailBlocks = ([
     {
       title: 'Preis',
       content: formatCurrency(gemstone.price),
@@ -94,16 +94,18 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
           content: gemstone.rarity,
         }
       : null,
-  ].filter((block): block is { title: string; content: ReactNode } => block !== null);
+  ] as Array<{ title: string; content: ReactNode } | null>).filter(
+    (block): block is { title: string; content: ReactNode } => block !== null
+  );
 
   return (
-    <div className="min-h-screen bg-black/80 px-4 py-12 text-white backdrop-blur-md flex items-center justify-center overflow-y-auto">
+    <div className="min-h-screen bg-gray-800/50/80 px-4 py-12 text-white backdrop-blur-md flex items-center justify-center overflow-y-auto">
       <div className="relative w-full sm:w-auto max-w-4xl">
         <div className="main-container !m-0 !rounded-3xl !border-white/10 !bg-[#2D2D2DDF] relative shadow-2xl">
           <Button
             size="icon"
             variant="secondary"
-            className="absolute right-6 top-6 h-10 w-10 rounded-full border border-white/10 bg-black/50 text-white transition hover:bg-white/15"
+            className="absolute right-6 top-6 h-10 w-10 rounded-full border border-white/10 bg-gray-800/50/50 text-white transition hover:bg-gray-800/30/15"
             asChild
           >
             <Link href={`/${locale}/shop`} aria-label="Detailansicht schließen">
@@ -166,7 +168,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                   <WishlistButton item={cartItem} />
                   <Button
                     variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10"
+                    className="border-white/20 text-white hover:bg-gray-800/30/10"
                     asChild
                   >
                     <Link href={`/${locale}/shop`}>Weitere Edelsteine ansehen</Link>
@@ -183,7 +185,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
 
 function DetailBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-black/40 p-4">
+    <div className="rounded-lg border border-white/10 bg-gray-800/50/40 p-4">
       <p className="text-xs uppercase tracking-wide text-white/45">{title}</p>
       <p className="mt-2 text-sm text-white/90 leading-relaxed">{children}</p>
     </div>

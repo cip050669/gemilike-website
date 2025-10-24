@@ -71,7 +71,7 @@ export function NewGemstonesCarousel({ gemstones, locale, description }: NewGems
               >
                 <article className="story-card bg-[#2D2D2D]/90 border border-white/10 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
                   <div className="overflow-hidden rounded-lg mb-4">
-                    <div className="aspect-[4/3] relative bg-black/30">
+                    <div className="aspect-[4/3] relative bg-gray-800/50/30">
                       <Image
                         src={imageSrc}
                         alt={gemstone.name}

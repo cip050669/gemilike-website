@@ -228,7 +228,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 value={filters.weightMin}
                 onChange={(event) => handleFilterChange('weightMin', event.target.value)}
                 placeholder="Min"
-                className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
                 style={{ width: 'calc(100% - 25px)' }}
               />
               <Input
@@ -239,7 +239,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 value={filters.weightMax}
                 onChange={(event) => handleFilterChange('weightMax', event.target.value)}
                 placeholder="Max"
-                className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
                 style={{ width: 'calc(100% - 25px)' }}
               />
             </div>
@@ -255,7 +255,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 value={filters.priceMin}
                 onChange={(event) => handleFilterChange('priceMin', event.target.value)}
                 placeholder="Min"
-                className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
                 style={{ width: 'calc(100% - 25px)' }}
               />
               <Input
@@ -266,7 +266,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 value={filters.priceMax}
                 onChange={(event) => handleFilterChange('priceMax', event.target.value)}
                 placeholder="Max"
-                className="border-white/20 bg-black/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
                 style={{ width: 'calc(100% - 25px)' }}
               />
             </div>
@@ -276,7 +276,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
             <select
               value={filters.sortBy}
               onChange={(event) => handleFilterChange('sortBy', event.target.value)}
-              className="w-full rounded-lg border border-white/20 bg-black/40 px-3 py-2 text-sm text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="w-full rounded-lg border border-white/20 bg-gray-800/50/40 px-3 py-2 text-sm text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               style={{ width: 'calc(100% - 25px)' }}
             >
               <option value="price-asc">Preis (aufsteigend)</option>
@@ -294,7 +294,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
       <div className="flex flex-wrap items-center gap-4">
         <Button
           variant="secondary"
-          className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+          className="border-white/20 bg-gray-800/30/5 text-white hover:bg-gray-800/30/10"
           onClick={() => setFilters({ ...initialFilters })}
           disabled={!hasFiltersApplied}
         >
@@ -413,7 +413,7 @@ function GemCard({
     >
       <article className="story-card bg-[#2D2D2D]/90 border border-white/10 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
         <div className="overflow-hidden rounded-lg mb-4">
-          <div className="aspect-[4/3] relative bg-black/30">
+          <div className="aspect-[4/3] relative bg-gray-800/50/30">
             <Image
               src={imageSrc}
               alt={gemstone.name}
@@ -478,7 +478,7 @@ function FilterSelect({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-lg border border-white/20 bg-black/40 px-3 py-2 text-sm text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="w-full rounded-lg border border-white/20 bg-gray-800/50/40 px-3 py-2 text-sm text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         style={{ width: 'calc(100% - 25px)' }}
       >
         <option value="">Alle</option>

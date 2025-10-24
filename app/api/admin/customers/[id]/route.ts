@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+type ParamsPromise = Promise<{ id: string }>;
+
+export async function GET(request: NextRequest, { params }: { params: ParamsPromise }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const customer = await prisma.customer.findUnique({
       where: { id },
     });
@@ -22,9 +24,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: ParamsPromise }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     const updatedCustomer = await prisma.customer.update({
@@ -54,9 +56,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: ParamsPromise }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const formData = await request.formData();
     const method = formData.get('_method') as string;
 
@@ -115,9 +117,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: ParamsPromise }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await prisma.customer.delete({
       where: { id },
     });

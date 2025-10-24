@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { loadNewstickerData, saveNewstickerData } from '../route';
+import { loadNewstickerData, saveNewstickerData } from '@/lib/newsticker/data';
 
 // GET - Fetch single newsticker item
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

@@ -1,46 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { NewstickerItem } from '@/lib/types/newsticker';
-import fs from 'fs';
-import path from 'path';
-
-const NEWSTICKER_FILE = path.join(process.cwd(), 'data', 'newsticker.json');
-
-// Ensure data directory exists
-const ensureDataDirectory = () => {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-};
-
-// Load newsticker data
-export const loadNewstickerData = (): NewstickerItem[] => {
-  try {
-    if (fs.existsSync(NEWSTICKER_FILE)) {
-      const data = fs.readFileSync(NEWSTICKER_FILE, 'utf8');
-      const parsed = JSON.parse(data);
-      return parsed.map((item: any) => ({
-        ...item,
-        createdAt: new Date(item.createdAt),
-        updatedAt: new Date(item.updatedAt)
-      }));
-    }
-  } catch (error) {
-    console.error('Error loading newsticker data:', error);
-  }
-  return [];
-};
-
-// Save newsticker data
-export const saveNewstickerData = (data: NewstickerItem[]) => {
-  try {
-    ensureDataDirectory();
-    fs.writeFileSync(NEWSTICKER_FILE, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error('Error saving newsticker data:', error);
-    throw error;
-  }
-};
+import { loadNewstickerData, saveNewstickerData } from '@/lib/newsticker/data';
+import type { NewstickerItem } from '@/lib/types/newsticker';
 
 // GET - Fetch all newsticker items
 export async function GET() {

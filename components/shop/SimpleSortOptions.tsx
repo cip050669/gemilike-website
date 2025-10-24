@@ -31,10 +31,10 @@ export function SimpleSortOptions({ value, onValueChange }: SimpleSortOptionsPro
     <div className="flex items-center gap-2">
       <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="w-[200px] bg-black text-white border-gray-600 hover:bg-gray-800">
+        <SelectTrigger className="w-[200px] bg-gray-800/50 text-white border-gray-600 hover:bg-gray-800">
           <SelectValue placeholder="Sortieren nach..." />
         </SelectTrigger>
-        <SelectContent className="bg-black border-gray-600">
+        <SelectContent className="bg-gray-800/50 border-gray-600">
           {sortOptions.map(option => (
             <SelectItem 
               key={option.value} 

@@ -20,7 +20,7 @@ export default async function KnowledgeCreatePage({
           </div>
           <Link
             href={`/${locale}/admin/wissenswertes`}
-            className="inline-flex items-center px-4 py-2 rounded-lg border border-white/30 text-white hover:bg-white/10 transition-colors"
+            className="inline-flex items-center px-4 py-2 rounded-lg border border-white/30 text-white hover:bg-gray-800/30/10 transition-colors"
           >
             Zurück zur Übersicht
           </Link>

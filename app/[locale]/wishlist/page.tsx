@@ -8,22 +8,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Heart, ShoppingBag, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Gemstone } from '@/lib/types/gemstone';
 
 export default function WishlistPage() {
   const t = useTranslations('shop');
   const { items: wishlistItems, clearWishlist } = useWishlistStore();
+  const wishlistIds = useMemo(() => new Set(wishlistItems.map((item) => item.id)), [wishlistItems]);
   const [wishlistGemstones, setWishlistGemstones] = useState<Gemstone[]>([]);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
 
   // Filter gemstones that are in wishlist
   useEffect(() => {
-    const filtered = allGemstones.filter(gemstone => 
-      wishlistItems.includes(gemstone.id)
-    );
+    const filtered = allGemstones.filter((gemstone) => wishlistIds.has(gemstone.id));
     setWishlistGemstones(filtered);
-  }, [wishlistItems]);
+  }, [wishlistIds]);
 
   const handleAddToCart = (gemstone: Gemstone) => {
     // This would integrate with your cart store

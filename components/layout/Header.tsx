@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: '/', label: 'Startseite' },
   { href: '/shop', label: 'Shop' },
   { href: '/wissenswertes', label: 'Wissenswertes' },
+  { href: '/worldmap', label: 'Fundorte' },
   { href: '/contact', label: 'Kontakt' },
 ];
 

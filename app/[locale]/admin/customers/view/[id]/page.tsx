@@ -13,14 +13,14 @@ export default async function ViewCustomerPage({ params }: { params: { id: strin
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4 text-gray-900">Kunde anzeigen</h1>
-              <p className="text-gray-600">
+              <h1 className="text-4xl font-bold mb-4 text-white">Kunde anzeigen</h1>
+              <p className="text-gray-300">
                 Details für {customer.firstName} {customer.lastName}
               </p>
             </div>
@@ -49,20 +49,20 @@ export default async function ViewCustomerPage({ params }: { params: { id: strin
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Hauptinformationen */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border">
+            <div className="bg-gray-800/30 rounded-lg shadow-sm border">
               <div className="p-6 border-b">
                 <h2 className="text-lg font-semibold">Kunden-Informationen</h2>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Kunden-Nummer
                     </label>
-                    <p className="text-sm text-gray-900">{customer.customerNumber}</p>
+                    <p className="text-sm text-white">{customer.customerNumber}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Status
                     </label>
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -74,75 +74,75 @@ export default async function ViewCustomerPage({ params }: { params: { id: strin
                     </span>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Vorname
                     </label>
-                    <p className="text-sm text-gray-900">{customer.firstName}</p>
+                    <p className="text-sm text-white">{customer.firstName}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Nachname
                     </label>
-                    <p className="text-sm text-gray-900">{customer.lastName}</p>
+                    <p className="text-sm text-white">{customer.lastName}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       E-Mail
                     </label>
-                    <p className="text-sm text-gray-900">{customer.email}</p>
+                    <p className="text-sm text-white">{customer.email}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Telefon
                     </label>
-                    <p className="text-sm text-gray-900">{customer.phone || '-'}</p>
+                    <p className="text-sm text-white">{customer.phone || '-'}</p>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Unternehmen
                     </label>
-                    <p className="text-sm text-gray-900">{customer.company || '-'}</p>
+                    <p className="text-sm text-white">{customer.company || '-'}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Adressdaten */}
-            <div className="bg-white rounded-lg shadow-sm border mt-6">
+            <div className="bg-gray-800/30 rounded-lg shadow-sm border mt-6">
               <div className="p-6 border-b">
                 <h2 className="text-lg font-semibold">Adressdaten</h2>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Straße und Hausnummer
                     </label>
-                    <p className="text-sm text-gray-900">{customer.address}</p>
+                    <p className="text-sm text-white">{customer.address}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Stadt
                     </label>
-                    <p className="text-sm text-gray-900">{customer.city}</p>
+                    <p className="text-sm text-white">{customer.city}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Postleitzahl
                     </label>
-                    <p className="text-sm text-gray-900">{customer.postalCode}</p>
+                    <p className="text-sm text-white">{customer.postalCode}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Land
                     </label>
-                    <p className="text-sm text-gray-900">{customer.country}</p>
+                    <p className="text-sm text-white">{customer.country}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Steuernummer
                     </label>
-                    <p className="text-sm text-gray-900">{customer.taxId || '-'}</p>
+                    <p className="text-sm text-white">{customer.taxId || '-'}</p>
                   </div>
                 </div>
               </div>
@@ -150,12 +150,12 @@ export default async function ViewCustomerPage({ params }: { params: { id: strin
 
             {/* Notizen */}
             {customer.notes && (
-              <div className="bg-white rounded-lg shadow-sm border mt-6">
+              <div className="bg-gray-800/30 rounded-lg shadow-sm border mt-6">
                 <div className="p-6 border-b">
                   <h2 className="text-lg font-semibold">Notizen</h2>
                 </div>
                 <div className="p-6">
-                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{customer.notes}</p>
+                  <p className="text-sm text-white whitespace-pre-wrap">{customer.notes}</p>
                 </div>
               </div>
             )}
@@ -163,17 +163,17 @@ export default async function ViewCustomerPage({ params }: { params: { id: strin
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border">
+            <div className="bg-gray-800/30 rounded-lg shadow-sm border">
               <div className="p-6 border-b">
                 <h2 className="text-lg font-semibold">Zusätzliche Informationen</h2>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Registriert am
                     </label>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-white">
                       {new Date(customer.createdAt).toLocaleDateString('de-DE', {
                         year: 'numeric',
                         month: 'long',
@@ -184,10 +184,10 @@ export default async function ViewCustomerPage({ params }: { params: { id: strin
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Zuletzt aktualisiert
                     </label>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-white">
                       {new Date(customer.updatedAt).toLocaleDateString('de-DE', {
                         year: 'numeric',
                         month: 'long',
@@ -202,7 +202,7 @@ export default async function ViewCustomerPage({ params }: { params: { id: strin
             </div>
 
             {/* Aktionen */}
-            <div className="bg-white rounded-lg shadow-sm border mt-6">
+            <div className="bg-gray-800/30 rounded-lg shadow-sm border mt-6">
               <div className="p-6 border-b">
                 <h2 className="text-lg font-semibold">Aktionen</h2>
               </div>
