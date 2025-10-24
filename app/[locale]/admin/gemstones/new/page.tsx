@@ -100,6 +100,7 @@ export default function NewGemstonePage() {
         {/* Form */}
         <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div>
@@ -129,7 +130,10 @@ export default function NewGemstonePage() {
                   placeholder="z.B. 2.5"
                 />
               </div>
+            </div>
 
+            {/* Select Lists - Separate Layout */}
+            <div className="space-y-4">
               {/* Farbe */}
               <div className="flex flex-col">
                 <label htmlFor="color" className="block text-sm font-medium text-gray-200 mb-2">
@@ -252,21 +256,6 @@ export default function NewGemstonePage() {
                 </select>
               </div>
 
-              {/* Preis */}
-              <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">
-                  Preis (€)
-                </label>
-                <input
-                  type="number"
-                  id="price"
-                  name="price"
-                  step="0.01"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="z.B. 1500.00"
-                />
-              </div>
-
               {/* Herkunft */}
               <div className="flex flex-col">
                 <label htmlFor="origin" className="block text-sm font-medium text-gray-200 mb-2">
@@ -344,6 +333,24 @@ export default function NewGemstonePage() {
                   <option value="Wachsen">Wachsen (Waxing)</option>
                   <option value="Beschichten">Beschichten (Coating)</option>
                 </select>
+              </div>
+            </div>
+
+            {/* Additional Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Preis */}
+              <div>
+                <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">
+                  Preis (€)
+                </label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  step="0.01"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="z.B. 1500.00"
+                />
               </div>
             </div>
 
