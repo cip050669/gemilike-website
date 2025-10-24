@@ -1,10 +1,10 @@
-import type { AuthOptions } from 'next-auth';
+import NextAuth from 'next-auth/next';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
 
-export const authOptions: AuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -19,12 +19,10 @@ export const authOptions: AuthOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
+          where: { email: credentials.email }
         });
 
-        if (!user || !user.password) {
+        if (!user) {
           return null;
         }
 
@@ -47,7 +45,7 @@ export const authOptions: AuthOptions = {
     })
   ],
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt' as const,
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -58,7 +56,7 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.sub!;
+        session.user.id = token.sub as string;
         session.user.role = token.role as string;
       }
       return session;
@@ -69,3 +67,7 @@ export const authOptions: AuthOptions = {
     error: '/de/admin/login',
   },
 };
+
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };
