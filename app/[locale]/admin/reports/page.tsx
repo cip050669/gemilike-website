@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, Download, Calendar, BarChart3, PieChart, FileText } from 'lucide-react';
 
 export default function AdminReportsPage() {
-  const t = useTranslations();
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
-  const [generatedReports, setGeneratedReports] = useState<string[]>([]);
+  const [, setGeneratedReports] = useState<string[]>([]);
 
   // Generate report function
   const generateReport = async (reportId: string, reportTitle: string) => {

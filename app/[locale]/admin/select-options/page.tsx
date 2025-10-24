@@ -1,10 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { SelectOptionsManager } from '@/components/admin/SelectOptionsManager';
 
 export default function AdminSelectOptionsPage() {
-  const t = useTranslations('admin');
 
   return (
     <div className="space-y-6">

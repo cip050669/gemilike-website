@@ -34,8 +34,8 @@ const fromLibraryGemstone = (gem: Gemstone): GemstoneSource => ({
   rarity: gem.rarity ?? null,
   inStock: gem.inStock,
   quantity: gem.quantity,
-  images: [gem.mainImage, ...(gem.images ?? [])].filter(Boolean) as string[],
-  videos: (gem.videos ?? []) as string[],
+  images: [gem.mainImage, ...(gem.images ?? [])].filter(Boolean) as any,
+  videos: (gem.videos ?? []) as any,
   caratWeight: isCutGemstone(gem) ? gem.caratWeight : null,
   gramWeight: isRoughGemstone(gem) ? gem.gramWeight : null,
   mainImage: gem.mainImage,
@@ -80,15 +80,15 @@ export const toShopGemstone = (gem: GemstoneSource): ShopGemstone => {
   const treatmentValue = gem.treatment;
   const treatment = typeof treatmentValue === 'string'
     ? treatmentValue
-    : treatmentValue && typeof treatmentValue === 'object'
-      ? (treatmentValue.type as string | undefined) ?? null
+    : treatmentValue && typeof treatmentValue === 'object' && treatmentValue !== null && 'type' in treatmentValue
+      ? (treatmentValue as { type?: string | null }).type ?? null
       : null;
 
   const certificationValue = gem.certification;
   const certification = typeof certificationValue === 'string'
     ? certificationValue
-    : certificationValue && typeof certificationValue === 'object'
-      ? (certificationValue.lab as string | undefined) ?? null
+    : certificationValue && typeof certificationValue === 'object' && certificationValue !== null && 'lab' in certificationValue
+      ? (certificationValue as { lab?: string | null }).lab ?? null
       : null;
 
   return {

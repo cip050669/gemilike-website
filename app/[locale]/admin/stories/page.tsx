@@ -1,6 +1,5 @@
 import { loadStoriesData } from '@/lib/data/stories';
 import Link from 'next/link';
-import { Story } from '@/lib/types/story';
 
 export default function StoriesAdminPage() {
   const stories = loadStoriesData();
