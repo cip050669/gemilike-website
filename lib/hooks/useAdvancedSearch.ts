@@ -31,6 +31,9 @@ export interface UseAdvancedSearchReturn {
 
 export function useAdvancedSearch(): UseAdvancedSearchReturn {
   const { data: session } = useSession();
+  
+  // Type assertion to ensure user has id property
+  const userWithId = session?.user as any;
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<Gemstone[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -43,7 +46,7 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
   const [isLoadingSavedSearches, setIsLoadingSavedSearches] = useState(false);
 
   const loadSavedSearches = useCallback(async () => {
-    if (!session?.user?.id) return;
+    if (!userWithId?.id) return;
     
     setIsLoadingSavedSearches(true);
     try {
@@ -59,13 +62,13 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
     } finally {
       setIsLoadingSavedSearches(false);
     }
-  }, [session?.user?.id]);
+  }, [userWithId?.id]);
 
   useEffect(() => {
-    if (session?.user?.id) {
+    if (userWithId?.id) {
       void loadSavedSearches();
     }
-  }, [loadSavedSearches, session?.user?.id]);
+  }, [loadSavedSearches, userWithId?.id]);
 
   const search = useCallback(async (filters: SearchFilters) => {
     setIsLoading(true);
@@ -136,7 +139,7 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
   }, []);
 
   const saveSearch = useCallback(async (name: string, filters: SearchFilters) => {
-    if (!session?.user?.id) {
+    if (!userWithId?.id) {
       throw new Error('Authentication required');
     }
 
@@ -163,7 +166,7 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
       console.error('Save search error:', error);
       throw error;
     }
-  }, [session?.user?.id]);
+  }, [userWithId?.id]);
 
   const loadSavedSearch = useCallback(async (searchId: string): Promise<SearchFilters | null> => {
     const savedSearch = savedSearches.find(search => search.id === searchId);
@@ -190,7 +193,7 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
   }, [savedSearches]);
 
   const deleteSavedSearch = useCallback(async (searchId: string) => {
-    if (!session?.user?.id) {
+    if (!userWithId?.id) {
       throw new Error('Authentication required');
     }
 
@@ -210,7 +213,7 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
       console.error('Delete search error:', error);
       throw error;
     }
-  }, [session?.user?.id]);
+  }, [userWithId?.id]);
 
   const clearResults = useCallback(() => {
     setResults([]);

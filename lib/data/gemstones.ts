@@ -22,7 +22,7 @@ export const cutGemstones: CutGemstone[] = [
     },
     treatment: {
       treated: true,
-      type: 'geölt',
+      type: 'oiled',
     },
     certification: {
       certified: true,
@@ -63,7 +63,7 @@ export const cutGemstones: CutGemstone[] = [
     },
     treatment: {
       treated: true,
-      type: 'erhitzt',
+      type: 'heated',
     },
     certification: {
       certified: true,
@@ -142,7 +142,7 @@ export const cutGemstones: CutGemstone[] = [
     },
     treatment: {
       treated: true,
-      type: 'erhitzt',
+      type: 'heated',
     },
     certification: {
       certified: true,

@@ -47,8 +47,8 @@ const getServices = (translations: ServicesMessages) => [
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const module = await import(`@/messages/${locale}.json`);
-  const t = (module.default ?? module) as LocaleMessages;
+  const messagesModule = await import(`@/messages/${locale}.json`);
+  const t = (messagesModule.default ?? messagesModule) as LocaleMessages;
   const services = getServices(t.services);
   
   return (

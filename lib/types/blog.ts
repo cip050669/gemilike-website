@@ -16,6 +16,9 @@ export interface BlogPost {
   createdAt: Date;
   updatedAt: Date;
   publishedAt?: Date;
+  className?: string; // CSS-Klasse für Styling
+  metaDescription?: string; // SEO Meta-Description
+  readingTime?: number; // Geschätzte Lesezeit in Minuten
 }
 
 export interface BlogCategory {

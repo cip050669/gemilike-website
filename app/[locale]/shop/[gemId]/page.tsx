@@ -10,17 +10,17 @@ import { WishlistButton } from '@/components/cart/WishlistButton';
 import { loadShopGemstoneById, PLACEHOLDER_IMAGE } from '@/lib/shop/shopData';
 
 interface GemstoneDetailPageProps {
-  params: {
+  params: Promise<{
     locale: string;
     gemId: string;
-  };
+  }>;
 }
 
 const formatCurrency = (value: number) =>
   `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`;
 
 export default async function GemstoneDetailPage({ params }: GemstoneDetailPageProps) {
-  const { gemId, locale } = params;
+  const { gemId, locale } = await params;
   const { gemstone, fallback } = await loadShopGemstoneById(gemId);
 
   if (!gemstone) {

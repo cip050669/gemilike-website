@@ -293,6 +293,9 @@ export async function POST(request: NextRequest) {
 
     const searchTime = Date.now() - startTime;
 
+    // Get session for analytics
+    const { session } = await getSessionWithUser();
+    
     // Log search analytics (in production, you might want to store this in a database)
     console.log('Search performed:', {
       userId: session?.user?.id || 'anonymous',

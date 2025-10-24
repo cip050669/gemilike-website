@@ -14,6 +14,10 @@ export interface KnowledgeArticle {
   createdAt: Date;
   updatedAt: Date;
   publishedAt?: Date;
+  className?: string; // CSS-Klasse für Styling
+  metaDescription?: string; // SEO Meta-Description
+  readingTime?: number; // Geschätzte Lesezeit in Minuten
+  difficulty?: 'beginner' | 'intermediate' | 'advanced'; // Schwierigkeitsgrad
 }
 
 type PickColor = 'blue' | 'green' | 'yellow' | 'purple' | 'orange' | 'red';

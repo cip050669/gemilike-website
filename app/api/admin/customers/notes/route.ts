@@ -26,10 +26,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
     }
 
+    // Ensure notes is properly formatted as JSON
+    const notesData = typeof notes === 'string' ? JSON.parse(notes) : notes;
+
     // Update customer notes
     const updatedCustomer = await prisma.user.update({
       where: { id: customerId },
-      data: { notes }
+      data: { notes: notesData }
     });
 
     // Log the action
@@ -39,10 +42,10 @@ export async function POST(request: NextRequest) {
         action: 'UPDATE_CUSTOMER_NOTES',
         entityType: 'USER',
         entityId: customerId,
-        details: {
+        details: JSON.stringify({
           customerId,
-          notes: notes.substring(0, 100) + (notes.length > 100 ? '...' : '')
-        }
+          notes: typeof notesData === 'string' ? notesData.substring(0, 100) + (notesData.length > 100 ? '...' : '') : JSON.stringify(notesData).substring(0, 100) + '...'
+        })
       }
     });
 

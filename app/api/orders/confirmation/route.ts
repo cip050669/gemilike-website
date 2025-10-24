@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!emailResult.success) {
-      console.error('Failed to send order confirmation email:', emailResult.error);
+      console.error('Failed to send order confirmation email:', 'error' in emailResult ? emailResult.error : 'Unknown error');
       return NextResponse.json(
         { error: 'Failed to send order confirmation email' },
         { status: 500 }
@@ -81,8 +81,8 @@ export async function POST(request: NextRequest) {
     });
 
     console.log('Order confirmation emails sent successfully:', {
-      customer: emailResult.messageId,
-      admin: adminEmailResult.messageId
+      customer: emailResult.success ? emailResult.messageId : 'failed',
+      admin: adminEmailResult.success ? adminEmailResult.messageId : 'failed'
     });
 
     return NextResponse.json(
@@ -91,8 +91,8 @@ export async function POST(request: NextRequest) {
           ? 'Bestellbestätigung erfolgreich gesendet' 
           : 'Order confirmation sent successfully',
         messageIds: {
-          customer: emailResult.messageId,
-          admin: adminEmailResult.messageId
+          customer: emailResult.success ? emailResult.messageId : null,
+          admin: adminEmailResult.success ? adminEmailResult.messageId : null
         }
       },
       { status: 200 }

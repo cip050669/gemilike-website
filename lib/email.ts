@@ -111,4 +111,91 @@ export const emailTemplates = {
       `,
     };
   },
+  orderConfirmation: {
+    subject: (locale: string, orderNumber: string) => 
+      locale === 'de' 
+        ? `Bestellbestätigung #${orderNumber} - Gemilike`
+        : `Order Confirmation #${orderNumber} - Gemilike`,
+    html: ({
+      orderNumber,
+      customerName,
+      orderDate,
+      totalAmount,
+      currency,
+      items,
+      locale = 'de'
+    }: {
+      orderNumber: string;
+      customerName: string;
+      orderDate: string;
+      totalAmount: number;
+      currency: string;
+      items: Array<{ name: string; quantity: number; price: number }>;
+      locale?: string;
+    }) => {
+      const isGerman = locale === 'de';
+      const texts = isGerman ? {
+        title: 'Bestellbestätigung',
+        orderNumber: 'Bestellnummer',
+        customer: 'Kunde',
+        date: 'Datum',
+        items: 'Artikel',
+        quantity: 'Menge',
+        price: 'Preis',
+        total: 'Gesamtbetrag',
+        thankYou: 'Vielen Dank für Ihre Bestellung!',
+        footer: 'Ihre Bestellung wird in Kürze bearbeitet.'
+      } : {
+        title: 'Order Confirmation',
+        orderNumber: 'Order Number',
+        customer: 'Customer',
+        date: 'Date',
+        items: 'Items',
+        quantity: 'Quantity',
+        price: 'Price',
+        total: 'Total Amount',
+        thankYou: 'Thank you for your order!',
+        footer: 'Your order will be processed shortly.'
+      };
+
+      return `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111827;">
+          <div style="padding: 24px; background: linear-gradient(135deg, #111827, #1f2937); border-radius: 16px 16px 0 0;">
+            <h1 style="margin: 0; color: #fff; font-size: 24px;">Gemilike</h1>
+            <p style="margin: 8px 0 0; color: #d1d5db; font-size: 16px;">${texts.title}</p>
+          </div>
+          <div style="padding: 24px; background-color: #ffffff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 16px 16px;">
+            <h2 style="color: #111827; margin-bottom: 16px;">${texts.thankYou}</h2>
+            
+            <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+              <p style="margin: 0 0 8px; font-weight: bold;">${texts.orderNumber}: #${orderNumber}</p>
+              <p style="margin: 0 0 8px;">${texts.customer}: ${customerName}</p>
+              <p style="margin: 0;">${texts.date}: ${orderDate}</p>
+            </div>
+
+            <h3 style="color: #111827; margin-bottom: 16px;">${texts.items}</h3>
+            <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+              ${items.map(item => `
+                <div style="padding: 16px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <p style="margin: 0; font-weight: bold;">${item.name}</p>
+                    <p style="margin: 4px 0 0; color: #6b7280; font-size: 14px;">${texts.quantity}: ${item.quantity}</p>
+                  </div>
+                  <p style="margin: 0; font-weight: bold;">${item.price.toFixed(2)} ${currency}</p>
+                </div>
+              `).join('')}
+            </div>
+
+            <div style="margin-top: 24px; padding: 16px; background-color: #f3f4f6; border-radius: 8px; text-align: right;">
+              <p style="margin: 0; font-size: 18px; font-weight: bold; color: #111827;">
+                ${texts.total}: ${totalAmount.toFixed(2)} ${currency}
+              </p>
+            </div>
+
+            <p style="margin-top: 24px; color: #6b7280; font-size: 14px;">${texts.footer}</p>
+          </div>
+        </div>
+      `;
+    }
+  }
 };

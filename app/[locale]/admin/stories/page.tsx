@@ -1,17 +1,6 @@
-import { loadStoriesData } from '@/app/api/admin/stories/route';
+import { loadStoriesData } from '@/lib/data/stories';
 import Link from 'next/link';
-
-interface Story {
-  id: string;
-  title: string;
-  content: string;
-  gemstone: string;
-  author: string;
-  status: 'draft' | 'published' | 'archived';
-  imageUrl: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Story } from '@/lib/types/story';
 
 export default function StoriesAdminPage() {
   const stories = loadStoriesData();

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { loadStoriesData, saveStoriesData } from '@/lib/data/stories';
 import fs from 'fs';
 import path from 'path';
-import { loadStoriesData, saveStoriesData } from '../route';
 
 // GET - Fetch single story
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         title,
         content,
         author,
-        status: status || 'draft',
+        status: (status as 'published' | 'draft' | 'archived') || 'draft',
         imageUrl: imageUrl || '',
         updatedAt: new Date()
       };

@@ -77,7 +77,7 @@ export function generateMetadata({
         },
       ],
       locale: locale === 'de' ? 'de_DE' : 'en_US',
-      type,
+      type: (type === 'product' ? 'website' : type) || 'website',
     },
     twitter: {
       card: 'summary_large_image',

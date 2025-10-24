@@ -1,10 +1,10 @@
 import { getServerSession } from 'next-auth/next';
-import type { DefaultSession } from 'next-auth';
+import type { Session } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-export type AppSession = (DefaultSession & {
-  user?: DefaultSession['user'] & {
-    id?: string | null;
+export type AppSession = (Session & {
+  user?: Session['user'] & {
+    id: string;
     role?: string | null;
   };
 }) | null;

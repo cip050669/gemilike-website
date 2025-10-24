@@ -74,8 +74,11 @@ export function StorySectionManager() {
     const newStory: StoryItem = {
       id: `story-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: 'Neue Edelstein-Geschichte',
+      content: 'Beschreiben Sie die Geschichte dieses Edelsteins.',
       description: 'Beschreiben Sie die Geschichte dieses Edelsteins.',
       imageUrl: '/images/stories/placeholder-gem.svg',
+      type: 'text',
+      order: localSettings.stories.length,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

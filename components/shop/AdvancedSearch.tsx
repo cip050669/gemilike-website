@@ -15,7 +15,7 @@ import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 
 interface AdvancedSearchProps {
   gemstones: Gemstone[];
-  onFilter: (filters: SearchFilters) => void;
+  onFilter: (filteredGemstones: Gemstone[]) => void;
   onSaveSearch?: (searchName: string, filters: SearchFilters) => void;
   savedSearches?: SavedSearch[];
   onLoadSearch?: (filters: SearchFilters) => void;

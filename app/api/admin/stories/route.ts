@@ -1,52 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { Story, generateStorySlug } from '@/lib/types/story';
+import { loadStoriesData, saveStoriesData } from '@/lib/data/stories';
+import * as fs from 'fs';
+import * as path from 'path';
 
-interface Story {
+// Export types for components
+export interface StorySectionSettings {
+  id: string;
+  sectionTitle: string;
+  sectionDescription: string;
+  stories: StoryItem[];
+}
+
+export interface StoryItem {
   id: string;
   title: string;
   content: string;
-  gemstone: string;
-  author: string;
-  status: 'draft' | 'published' | 'archived';
-  imageUrl: string;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+  description: string;
+  imageUrl: string;
+  type: string;
+  order: number;
   createdAt: Date;
   updatedAt: Date;
 }
-
-const STORIES_FILE = path.join(process.cwd(), 'data', 'stories.json');
-
-const ensureDataDirectory = () => {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-};
-
-export const loadStoriesData = (): Story[] => {
-  try {
-    ensureDataDirectory();
-    if (!fs.existsSync(STORIES_FILE)) {
-      return [];
-    }
-    const data = fs.readFileSync(STORIES_FILE, 'utf8');
-    const parsed = JSON.parse(data);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.error('Error loading stories data:', error);
-    return [];
-  }
-};
-
-export const saveStoriesData = (data: Story[]) => {
-  try {
-    ensureDataDirectory();
-    fs.writeFileSync(STORIES_FILE, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error('Error saving stories data:', error);
-    throw error;
-  }
-};
 
 // GET - Fetch all stories
 export async function GET() {
@@ -120,13 +96,18 @@ export async function POST(request: NextRequest) {
     const newStory: Story = {
       id: `story-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title,
+      slug: generateStorySlug(title),
       content,
       gemstone: 'general', // Default value since we removed the field
       author,
       status: status as 'draft' | 'published' | 'archived',
       imageUrl,
+      excerpt: content.substring(0, 200) + '...',
+      tags: [],
+      featured: false,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      publishedAt: status === 'published' ? new Date() : undefined
     };
 
     stories.push(newStory);

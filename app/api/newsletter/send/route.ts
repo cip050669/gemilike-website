@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
           results.push({
             email: subscriber.email,
             status: 'error',
-            error: emailResult.error,
+            error: 'emailResult' in emailResult && 'error' in emailResult ? emailResult.error : 'Unknown error',
           });
         }
       } catch (error) {

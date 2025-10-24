@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
-export const memoryCartStore = new Map<string, { items: unknown[]; coupon: unknown | null }>();
+
+// Memory store for cart data (not exported as it's not a valid Route export)
+const memoryCartStore = new Map<string, { items: unknown[]; coupon: unknown | null }>();
 
 export async function POST(request: NextRequest) {
   try {

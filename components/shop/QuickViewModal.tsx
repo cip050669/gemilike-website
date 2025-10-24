@@ -56,9 +56,9 @@ export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded
                     id: gemstone.id,
                     name: gemstone.name,
                     price: gemstone.price,
-                    image: gemstone.images?.[0],
+                    image: gemstone.images?.[0] || gemstone.mainImage,
                     category: gemstone.category,
-                    origin: gemstone.origin ?? undefined,
+                    origin: gemstone.origin,
                   }}
                 />
               </div>

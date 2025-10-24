@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Filter, Info } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
@@ -66,7 +65,7 @@ export function InteractiveWorldMap({ locations, gemTypes }: InteractiveWorldMap
     if (selectedGemType === 'all') {
       setFilteredLocations(locations);
     } else {
-      setFilteredLocations(locations.filter(location => location.gemTypeId === selectedGemType));
+      setFilteredLocations(locations.filter(location => location.gemType.id === selectedGemType));
     }
   }, [selectedGemType, locations]);
 
@@ -76,7 +75,7 @@ export function InteractiveWorldMap({ locations, gemTypes }: InteractiveWorldMap
     const svgString = `<svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
       <path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 12.5 12.5 28.5 12.5 28.5s12.5-16 12.5-28.5C25 5.6 19.4 0 12.5 0z" fill="${color}"/>
       <circle cx="12.5" cy="12.5" r="6" fill="white"/>
-      <text x="12.5" y="16" text-anchor="middle" font-size="8" fill="${color}" font-weight="bold">💎</text>
+      <text x="12.5" y="16" text-anchor="middle" font-size="8" fill="${color}" font-weight="bold">G</text>
     </svg>`;
     
     return new Icon({
@@ -134,7 +133,7 @@ export function InteractiveWorldMap({ locations, gemTypes }: InteractiveWorldMap
                 <SelectContent>
                   <SelectItem value="all">Alle Edelsteine ({locations.length})</SelectItem>
                   {gemTypes.map((gemType) => {
-                    const count = locations.filter(l => l.gemTypeId === gemType.id).length;
+                    const count = locations.filter(l => l.gemType.id === gemType.id).length;
                     return (
                       <SelectItem key={gemType.id} value={gemType.id}>
                         {gemType.name} ({count})

@@ -50,6 +50,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params;
     const body = await request.json();
 
+    // Validate order status
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
+    const validPaymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
+    
+    if (body.status && !validStatuses.includes(body.status)) {
+      return NextResponse.json({ success: false, error: 'Invalid order status' }, { status: 400 });
+    }
+    
+    if (body.paymentStatus && !validPaymentStatuses.includes(body.paymentStatus)) {
+      return NextResponse.json({ success: false, error: 'Invalid payment status' }, { status: 400 });
+    }
+
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
@@ -114,13 +126,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         where: { id },
         data: {
           orderNumber: formData.get('orderNumber') as string,
-          status: formData.get('status') as string,
+          status: formData.get('status') as any,
           total: parseFloat(formData.get('total') as string) || 0,
           subtotal: parseFloat(formData.get('subtotal') as string) || 0,
           tax: parseFloat(formData.get('tax') as string) || 0,
           shipping: parseFloat(formData.get('shipping') as string) || 0,
           paymentMethod: formData.get('paymentMethod') as string,
-          paymentStatus: formData.get('paymentStatus') as string,
+          paymentStatus: formData.get('paymentStatus') as any,
           shippingMethod: formData.get('shippingMethod') as string,
           trackingNumber: formData.get('trackingNumber') as string,
           notes: formData.get('notes') as string,

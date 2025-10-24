@@ -330,7 +330,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
             </Button>
           </div>
           {previewOpen && (
-            <MarkdownPreview content={formData.content} className="mt-4" />
+            <MarkdownPreview content={formData.content} />
           )}
         </div>
 

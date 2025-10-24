@@ -168,7 +168,13 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
 
     setIsLoading(true);
     try {
-      await onSave(formData);
+      // Generate slug from title
+      const slug = formData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      
+      await onSave({ ...formData, slug });
     } catch (error) {
       console.error('Error saving blog:', error);
       alert('Fehler beim Speichern des Blog-Posts');

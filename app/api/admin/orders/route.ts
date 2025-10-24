@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
-    const status = searchParams.get('status') as OrderStatus | null;
+    const status = searchParams.get('status') as string | null;
 
     const where: any = {};
 
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (status && status !== 'all') {
-      where.status = status;
+      where.status = status as any;
     }
 
     const orders = await prisma.order.findMany({
