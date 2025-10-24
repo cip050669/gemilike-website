@@ -131,7 +131,7 @@ export default function NewGemstonePage() {
               </div>
 
               {/* Farbe */}
-              <div>
+              <div className="flex flex-col">
                 <label htmlFor="color" className="block text-sm font-medium text-gray-200 mb-2">
                   Farbe
                 </label>
@@ -153,7 +153,7 @@ export default function NewGemstonePage() {
               </div>
 
               {/* Farbsättigung */}
-              <div>
+              <div className="flex flex-col">
                 <label htmlFor="colorIntensity" className="block text-sm font-medium text-gray-200 mb-2">
                   Farbsättigung
                 </label>
@@ -209,7 +209,7 @@ export default function NewGemstonePage() {
               </div>
 
               {/* Schliff */}
-              <div>
+              <div className="flex flex-col">
                 <label htmlFor="cut" className="block text-sm font-medium text-gray-200 mb-2">
                   Schliff
                 </label>
@@ -231,7 +231,7 @@ export default function NewGemstonePage() {
               </div>
 
               {/* Reinheit */}
-              <div>
+              <div className="flex flex-col">
                 <label htmlFor="clarity" className="block text-sm font-medium text-gray-200 mb-2">
                   Reinheit
                 </label>
@@ -268,7 +268,7 @@ export default function NewGemstonePage() {
               </div>
 
               {/* Herkunft */}
-              <div>
+              <div className="flex flex-col">
                 <label htmlFor="origin" className="block text-sm font-medium text-gray-200 mb-2">
                   Herkunft
                 </label>
@@ -303,7 +303,7 @@ export default function NewGemstonePage() {
               </div>
 
               {/* Zertifizierung */}
-              <div>
+              <div className="flex flex-col">
                 <label htmlFor="certification" className="block text-sm font-medium text-gray-200 mb-2">
                   Zertifizierung
                 </label>
@@ -325,7 +325,7 @@ export default function NewGemstonePage() {
               </div>
 
               {/* Behandlung */}
-              <div>
+              <div className="flex flex-col">
                 <label htmlFor="treatment" className="block text-sm font-medium text-gray-200 mb-2">
                   Behandlung
                 </label>
