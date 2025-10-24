@@ -138,7 +138,7 @@ export default function NewGemstonePage() {
                 <select
                   id="color"
                   name="color"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Farbe wählen</option>
                   <option value="rot">Rot</option>
@@ -160,7 +160,7 @@ export default function NewGemstonePage() {
                 <select
                   id="colorIntensity"
                   name="colorIntensity"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Farbsättigung wählen</option>
                   <option value="Pale">Pale (Blass)</option>
@@ -216,7 +216,7 @@ export default function NewGemstonePage() {
                 <select
                   id="cut"
                   name="cut"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Schliff wählen</option>
                   <option value="brillant">Brillant</option>
@@ -238,7 +238,7 @@ export default function NewGemstonePage() {
                 <select
                   id="clarity"
                   name="clarity"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Reinheit wählen</option>
                   <option value="FL">FL - Flawless</option>
@@ -275,7 +275,7 @@ export default function NewGemstonePage() {
                 <select
                   id="origin"
                   name="origin"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Herkunft wählen</option>
                   <option value="Afghanistan">Afghanistan</option>
@@ -310,7 +310,7 @@ export default function NewGemstonePage() {
                 <select
                   id="certification"
                   name="certification"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Zertifizierung wählen</option>
                   <option value="GIA">GIA - Gemological Institute of America</option>
@@ -332,7 +332,7 @@ export default function NewGemstonePage() {
                 <select
                   id="treatment"
                   name="treatment"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Behandlung wählen</option>
                   <option value="Keine">Keine Behandlung</option>
