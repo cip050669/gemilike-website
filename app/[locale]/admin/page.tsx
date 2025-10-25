@@ -1,6 +1,6 @@
 export default function AdminPage() {
   return (
-    <div className="min-h-screen bg-gray-800/50">
+    <div className="min-h-screen bg-gradient-to-b from-black via-black to-slate-950 text-white">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -12,19 +12,19 @@ export default function AdminPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-blue-600">12</h3>
             <p className="text-gray-300">Edelsteine</p>
           </div>
-          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-green-600">8</h3>
             <p className="text-gray-300">Bestellungen</p>
           </div>
-          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-purple-600">24</h3>
             <p className="text-gray-300">Kunden</p>
           </div>
-          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-orange-600">€2,450</h3>
             <p className="text-gray-300">Umsatz</p>
           </div>
@@ -32,7 +32,7 @@ export default function AdminPage() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold mb-4">Edelstein-Verwaltung</h3>
             <p className="text-gray-300 mb-4">Verwalten Sie Ihre Edelstein-Kollektion</p>
             <div className="flex gap-2">
@@ -49,7 +49,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold mb-4">Bestellungen</h3>
             <p className="text-gray-300 mb-4">Verwalten Sie Kundenbestellungen</p>
             <div className="flex gap-2">
@@ -66,7 +66,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold mb-4">Kunden</h3>
             <p className="text-gray-300 mb-4">Verwalten Sie Ihre Kunden</p>
             <div className="flex gap-2">

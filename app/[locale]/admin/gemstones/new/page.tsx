@@ -65,7 +65,7 @@ export default function NewGemstonePage() {
     }
   };
   return (
-    <div className="min-h-screen bg-gray-800/50">
+    <div className="min-h-screen bg-gradient-to-b from-black via-black to-slate-950 text-white">
       <style jsx>{`
         input[type="range"]::-webkit-slider-thumb {
           appearance: none;
@@ -98,7 +98,7 @@ export default function NewGemstonePage() {
         </div>
 
         {/* Form */}
-        <div className="bg-gray-400 rounded-lg shadow-sm border p-6">
+        <div className="border-white/10 bg-gray-800/50/50 rounded-lg shadow-sm border p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

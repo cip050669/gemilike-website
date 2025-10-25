@@ -952,7 +952,7 @@ export function AdvancedSearch({
 
       {/* Save Search Dialog */}
       {showSaveDialog && (
-        <div className="fixed inset-0 bg-gray-400 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-800/50/50 bg-opacity-50 flex items-center justify-center z-50">
           <Card className="w-96">
             <CardHeader>
               <CardTitle>Suche speichern</CardTitle>

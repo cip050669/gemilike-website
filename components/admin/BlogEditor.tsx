@@ -44,9 +44,9 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
   const [isLoading, setIsLoading] = useState(false);
 
   const inputStyles =
-    'bg-gray-400 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/40 focus-visible:border-white/40';
+    'bg-gray-800/50/40 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/40 focus-visible:border-white/40';
   const cardStyles =
-    'bg-gray-400 border-white/15 text-white shadow-lg shadow-black/40';
+    'bg-gray-800/50/50 border-white/15 text-white shadow-lg shadow-black/40';
 
   const handleInputChange = <K extends keyof typeof formData>(field: K, value: (typeof formData)[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
