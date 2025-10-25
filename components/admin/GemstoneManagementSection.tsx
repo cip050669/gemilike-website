@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Eye, PenSquare, Trash2 } from 'lucide-react';
+import { Eye, PenSquare, Trash2, Star, Play, ImageIcon, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -328,6 +328,43 @@ export function GemstoneManagementSection() {
       .catch((err: Error) => setError(err.message));
   };
 
+  const handleSetMainImage = (gemstone: DisplayGemstone, imageUrl: string) => {
+    if (usingFallback) {
+      alert('Aktion nicht möglich: Datenbankverbindung erforderlich.');
+      return;
+    }
+    
+    // Aktualisiere die Bilder-Liste so, dass das gewählte Bild an erster Stelle steht
+    const updatedImages = [imageUrl, ...gemstone.images.filter(img => img !== imageUrl)];
+    
+    fetch(`/api/admin/gemstones/${gemstone.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        images: updatedImages,
+        mainImage: imageUrl 
+      }),
+    })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Hauptbild-Aktualisierung fehlgeschlagen');
+        }
+      })
+      .then(() => {
+        loadGemstones();
+        // Aktualisiere auch die Detailansicht
+        if (detailGemstone?.id === gemstone.id) {
+          setDetailGemstone({
+            ...detailGemstone,
+            mainImage: imageUrl,
+            images: updatedImages
+          });
+        }
+      })
+      .catch((err: Error) => setError(err.message));
+  };
+
   return (
     <div className="space-y-8 text-white">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -477,15 +514,93 @@ export function GemstoneManagementSection() {
             </div>
           </div>
           <div className="mt-6 grid gap-6 md:grid-cols-[240px_1fr]">
-            <div className="relative h-56 overflow-hidden rounded-xl border border-white/10 bg-gray-800/50/40">
-              <Image
-                src={detailGemstone.mainImage}
-                alt={detailGemstone.name}
-                fill
-                sizes="240px"
-                className="object-cover"
-              />
+            <div className="space-y-4">
+              {/* Hauptbild */}
+              <div className="relative h-56 overflow-hidden rounded-xl border border-white/10 bg-gray-800/50/40">
+                <Image
+                  src={detailGemstone.mainImage}
+                  alt={detailGemstone.name}
+                  fill
+                  sizes="240px"
+                  className="object-cover"
+                />
+                <div className="absolute top-2 left-2">
+                  <Badge className="bg-primary/20 text-primary-foreground border-primary/30">
+                    <Star className="h-3 w-3 mr-1" />
+                    Hauptbild
+                  </Badge>
+                </div>
+              </div>
+              
+              {/* Thumbnail-Galerie */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-white/80 flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  Medien-Galerie
+                </h4>
+                
+                {/* Bilder Thumbnails */}
+                {detailGemstone.images.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-white/60">Bilder ({detailGemstone.images.length})</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {detailGemstone.images.map((image, index) => (
+                        <div
+                          key={`img-${index}`}
+                          className={`relative h-16 overflow-hidden rounded-lg border-2 cursor-pointer transition-all ${
+                            image === detailGemstone.mainImage
+                              ? 'border-primary/60 bg-primary/10'
+                              : 'border-white/20 hover:border-white/40'
+                          }`}
+                          onClick={() => handleSetMainImage(detailGemstone, image)}
+                        >
+                          <Image
+                            src={image}
+                            alt={`${detailGemstone.name} ${index + 1}`}
+                            fill
+                            sizes="64px"
+                            className="object-cover"
+                          />
+                          {image === detailGemstone.mainImage && (
+                            <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                              <Star className="h-3 w-3 text-primary-foreground" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Video Thumbnails */}
+                {detailGemstone.videos.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-white/60">Videos ({detailGemstone.videos.length})</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {detailGemstone.videos.map((video, index) => (
+                        <div
+                          key={`vid-${index}`}
+                          className="relative h-16 overflow-hidden rounded-lg border border-white/20 bg-gray-800/50/40 cursor-pointer hover:border-white/40 transition-all"
+                        >
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Play className="h-6 w-6 text-white/80" />
+                          </div>
+                          <div className="absolute bottom-1 right-1">
+                            <Video className="h-3 w-3 text-white/60" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Hinweis für Hauptbild-Auswahl */}
+                <p className="text-xs text-white/50">
+                  Klicken Sie auf ein Bild, um es als Hauptbild zu setzen
+                </p>
+              </div>
             </div>
+            
             <div className="grid gap-3 text-sm text-white/70">
               <p><span className="text-white/50">Art:</span> {detailGemstone.type === 'cut' ? 'Geschliffen' : 'Rohstein'}</p>
               <p><span className="text-white/50">Edelsteinart:</span> {detailGemstone.gemstoneType}</p>
@@ -504,21 +619,11 @@ export function GemstoneManagementSection() {
               <p><span className="text-white/50">Status:</span> {detailGemstone.isSold ? 'Verkauft' : 'Verfügbar'}</p>
               <p className="text-white/50">Beschreibung:</p>
               <p className="whitespace-pre-line text-white/70">{detailGemstone.description || 'Keine Beschreibung hinterlegt.'}</p>
-              {detailGemstone.images.length > 1 && (
-                <div className="mt-4">
-                  <p className="text-white/50">Weitere Bilder</p>
-                  <div className="mt-2 grid gap-3 sm:grid-cols-3">
-                    {detailGemstone.images.slice(1).map((image, index) => (
-                      <div key={index} className="relative h-32 overflow-hidden rounded-lg border border-white/10">
-                        <Image src={image} alt={`${detailGemstone.name} ${index + 2}`} fill sizes="160px" className="object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              
+              {/* Vollansicht Videos */}
               {detailGemstone.videos.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  <p className="text-white/50">Videos</p>
+                  <p className="text-white/50">Video-Wiedergabe</p>
                   {detailGemstone.videos.map((video, index) => (
                     <video key={index} src={video} controls className="w-full rounded-lg border border-white/10 bg-gray-800/50/60" />
                   ))}
