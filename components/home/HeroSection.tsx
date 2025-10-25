@@ -2,6 +2,7 @@
 
 import { useHeroSettings } from '@/lib/hooks/useHeroSettings';
 import GemILikeLogo from '@/components/GemILikeLogo';
+import Image from 'next/image';
 
 interface HeroSectionProps {
   locale: string;
@@ -82,10 +83,12 @@ export function HeroSection({ locale }: HeroSectionProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background/50 to-accent/30" />
         
         <div className="absolute inset-0">
-          <img
+          <Image
             src={currentSettings.imageUrl}
             alt="Exquisite Edelsteine - Gemilike"
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
             onError={(e) => {
               console.error('Hero image failed to load:', currentSettings.imageUrl);
               // Fallback to a default image

@@ -69,7 +69,7 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
       <div className={cn("w-full", className)}>
         <div className="bg-gray-800/30 rounded-lg border shadow-sm">
           <Image
-            src={typeof images[0] === 'string' && images[0].startsWith('http') ? images[0] : '/products/default-gemstone.jpg'}
+            src={typeof images[0] === 'string' && images[0].startsWith('http') ? images[0] : '/products/placeholder-gem.jpg'}
             alt={`${gemName} - Hauptbild`}
             width={400}
             height={300}
@@ -104,7 +104,7 @@ export function MediaGallery({ images, videos = [], gemName, className, certific
           </video>
         ) : (
           <Image
-            src={typeof currentMedia.src === 'string' && currentMedia.src.startsWith('http') ? currentMedia.src : '/products/default-gemstone.jpg'}
+            src={typeof currentMedia.src === 'string' && currentMedia.src.startsWith('http') ? currentMedia.src : '/products/placeholder-gem.jpg'}
             alt={`${gemName} - Bild ${currentMedia.index + 1} von ${allMedia.length}`}
             width={400}
             height={300}
