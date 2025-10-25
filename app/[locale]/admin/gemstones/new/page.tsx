@@ -98,7 +98,7 @@ export default function NewGemstonePage() {
         </div>
 
         {/* Form */}
-        <div className="bg-gray-500 rounded-lg shadow-sm border p-6">
+        <div className="bg-gray-400 rounded-lg shadow-sm border p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

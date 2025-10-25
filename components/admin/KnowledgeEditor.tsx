@@ -41,9 +41,9 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
   const [isLoading, setIsLoading] = useState(false);
 
   const inputStyles =
-    'bg-gray-500 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/40 focus-visible:border-white/40';
+    'bg-gray-400 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/40 focus-visible:border-white/40';
   const cardStyles =
-    'bg-gray-500 border-white/15 text-white shadow-lg shadow-black/40';
+    'bg-gray-400 border-white/15 text-white shadow-lg shadow-black/40';
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -228,14 +228,14 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
             {isLoading && <span className="text-xs text-white/60">Lade...</span>}
           </Label>
           <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-gray-500">
+            <div className="h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-gray-400">
               <img
                 src={formData.image || PLACEHOLDER_IMAGE}
                 alt="Titelbild"
                 className="h-full w-full object-cover"
               />
             </div>
-            <label className="inline-flex items-center gap-2 px-4 py-2 bg-gray-500 border border-white/25 rounded-md cursor-pointer hover:bg-gray-600 transition">
+            <label className="inline-flex items-center gap-2 px-4 py-2 bg-gray-400 border border-white/25 rounded-md cursor-pointer hover:bg-gray-500 transition">
               <Upload className="h-4 w-4" />
               Titelbild hochladen
               <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
