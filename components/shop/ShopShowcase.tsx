@@ -304,48 +304,6 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
     </section>
   );
 
-  const renderCarousel = (
-    items: ShopGemstone[],
-    label: string,
-    subtitle: string,
-    showNewBadge = false
-  ) => {
-    if (items.length === 0) {
-      return null;
-    }
-
-    return (
-      <section className="main-container space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <p className="text-sm uppercase tracking-wide text-white/60">{subtitle}</p>
-            <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white">
-              {label}
-            </h2>
-            {fallback && (
-              <p className="text-xs text-white/50">
-                Hinweis: Temporäre Beispiel-Daten, da aktuell keine Datenbankverbindung möglich war.
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="relative">
-          <div className="flex gap-[75px] overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-            {items.map((gemstone) => (
-              <GemCard
-                key={gemstone.id}
-                gemstone={gemstone}
-                locale={locale}
-                showNewBadge={showNewBadge}
-                variant="carousel"
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  };
 
   const renderInventoryGrid = (items: ShopGemstone[]) => (
     <section className="main-container space-y-6">
@@ -369,7 +327,6 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
 
   return (
     <div className="space-y-12">
-      {renderCarousel(newGemstones, 'Neue Edelsteine', 'Highlights', true)}
       {renderFilterControls()}
       {inventoryGemstones.length > 0 ? (
         renderInventoryGrid(inventoryGemstones)
