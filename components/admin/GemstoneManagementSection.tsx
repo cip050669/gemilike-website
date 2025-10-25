@@ -158,9 +158,11 @@ export function GemstoneManagementSection() {
         throw new Error(result.error || 'Fehler beim Laden der Edelsteine');
       }
       const mapped = Array.isArray(result.data) ? result.data.map(mapApiGemstone) : [];
+      console.log('Loaded gemstones from API:', mapped.length, mapped.map(g => ({ name: g.name, mainImage: g.mainImage })));
       setGemstones(mapped);
       setUsingFallback(Boolean(result.fallback));
     } catch (err) {
+      console.log('Using fallback gemstones:', fallbackGemstones.length, fallbackGemstones.map(g => ({ name: g.name, mainImage: g.mainImage })));
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
       setGemstones(fallbackGemstones);
       setUsingFallback(true);
@@ -406,6 +408,13 @@ export function GemstoneManagementSection() {
                     fill
                     sizes="80px"
                     className="object-cover"
+                    onError={(e) => {
+                      console.error('Admin thumbnail failed to load:', gemstone.name, gemstone.mainImage);
+                      e.currentTarget.src = PLACEHOLDER_IMAGE;
+                    }}
+                    onLoad={() => {
+                      console.log('Admin thumbnail loaded successfully:', gemstone.name, gemstone.mainImage);
+                    }}
                   />
                 </div>
                 <div className="grid gap-1 text-sm text-white/70">
