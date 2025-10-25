@@ -28,7 +28,7 @@ export default function StoriesAdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-800/50">
+    <div className="min-h-screen bg-gray-500">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

@@ -112,7 +112,7 @@ export function Tooltip({
   }, []);
 
   const tooltipClasses = `
-    absolute z-50 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg
+    absolute z-50 px-3 py-2 text-sm text-white bg-gray-500 rounded-lg shadow-lg
     max-w-xs whitespace-normal break-words
     ${position === 'top' ? 'mb-2' : ''}
     ${position === 'bottom' ? 'mt-2' : ''}
@@ -146,7 +146,7 @@ export function Tooltip({
         >
           {content}
           <div 
-            className={`absolute w-2 h-2 bg-gray-900 transform rotate-45 ${
+            className={`absolute w-2 h-2 bg-gray-500 transform rotate-45 ${
               position === 'top' ? 'top-full left-1/2 -translate-x-1/2 -translate-y-1' :
               position === 'bottom' ? 'bottom-full left-1/2 -translate-x-1/2 translate-y-1' :
               position === 'left' ? 'left-full top-1/2 -translate-y-1/2 -translate-x-1' :
