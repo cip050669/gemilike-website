@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 const defaultSettings = {
   title: 'Gemilike - Heroes in Gems',
   subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine',
-  backgroundImage: null as string | null,
+  backgroundImage: '/uploads/hero/hero-1759840578273.jpg',
   ctaText: 'Entdecken Sie unsere Edelsteine',
   ctaLink: '/gemstones',
 };

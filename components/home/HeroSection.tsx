@@ -66,10 +66,14 @@ export function HeroSection({ locale }: HeroSectionProps) {
   };
 
   const currentSettings = {
-    imageUrl: heroSettings?.backgroundImage || fallbackSettings.imageUrl,
-    title: heroSettings?.title || fallbackSettings.title,
-    subtitle: heroSettings?.subtitle || fallbackSettings.subtitle,
+    imageUrl: '/uploads/hero/hero-1759840578273.jpg',
+    title: 'Einfach nur Gemilike',
+    subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
   };
+
+  // Debug: Log the current settings
+  console.log('Hero Settings:', heroSettings);
+  console.log('Current Settings:', currentSettings);
 
   return (
     <>
@@ -79,26 +83,22 @@ export function HeroSection({ locale }: HeroSectionProps) {
         style={{ fontFamily: 'Arial, sans-serif' }}
         lang={locale}
       >
-        {/* Fallback Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background/50 to-accent/30" />
-        
-        <div className="absolute inset-0">
-          <Image
-            src={currentSettings.imageUrl}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/images/hero-fallback.jpg"
             alt="Exquisite Edelsteine - Gemilike"
-            fill
-            className="object-cover"
-            priority
+            className="w-full h-full object-cover"
             onError={(e) => {
-              console.error('Hero image failed to load:', currentSettings.imageUrl);
-              // Fallback to a default image
-              e.currentTarget.src = '/images/hero-fallback.jpg';
+              console.error('Hero image failed to load:', '/images/hero-fallback.jpg');
+            }}
+            onLoad={() => {
+              console.log('Hero image loaded successfully:', '/images/hero-fallback.jpg');
             }}
           />
         </div>
         
         {/* Text-Overlay - Mobile optimiert */}
-        <div className="absolute" style={{ top: '80px', left: '16px', right: '16px', zIndex: 10 }}>
+        <div className="absolute z-10" style={{ top: '80px', left: '16px', right: '16px' }}>
          <div className="mb-4">
            <GemILikeLogo 
              size={80} 
