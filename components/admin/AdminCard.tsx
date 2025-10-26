@@ -25,7 +25,7 @@ export default function AdminCard({
   return (
     <section
       className={cn(
-        'rounded-3xl border border-white/10 bg-gray-800/50/40 p-6 text-white shadow-lg shadow-black/20 backdrop-blur-md',
+        'rounded-3xl border border-white/10 bg-gray-700/50/40 p-6 text-white shadow-lg shadow-black/20 backdrop-blur-md',
         className
       )}
     >

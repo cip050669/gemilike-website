@@ -228,7 +228,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 value={filters.weightMin}
                 onChange={(event) => handleFilterChange('weightMin', event.target.value)}
                 placeholder="Min"
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
                 style={{ width: 'calc(100% - 25px)' }}
               />
               <Input
@@ -239,7 +239,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 value={filters.weightMax}
                 onChange={(event) => handleFilterChange('weightMax', event.target.value)}
                 placeholder="Max"
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
                 style={{ width: 'calc(100% - 25px)' }}
               />
             </div>
@@ -255,7 +255,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 value={filters.priceMin}
                 onChange={(event) => handleFilterChange('priceMin', event.target.value)}
                 placeholder="Min"
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
                 style={{ width: 'calc(100% - 25px)' }}
               />
               <Input
@@ -266,7 +266,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 value={filters.priceMax}
                 onChange={(event) => handleFilterChange('priceMax', event.target.value)}
                 placeholder="Max"
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40 focus-visible:ring-primary"
                 style={{ width: 'calc(100% - 25px)' }}
               />
             </div>
@@ -276,7 +276,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
             <select
               value={filters.sortBy}
               onChange={(event) => handleFilterChange('sortBy', event.target.value)}
-              className="w-full rounded-lg border border-white/20 bg-gray-800/50/40 px-3 py-2 text-sm text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="w-full rounded-lg border border-white/20 bg-gray-700/50/40 px-3 py-2 text-sm text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               style={{ width: 'calc(100% - 25px)' }}
             >
               <option value="price-asc">Preis (aufsteigend)</option>
@@ -294,7 +294,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
       <div className="flex flex-wrap items-center gap-4">
         <Button
           variant="secondary"
-          className="border-white/20 bg-gray-800/30/5 text-white hover:bg-gray-800/30/10"
+          className="border-white/20 bg-gray-700/30/5 text-white hover:bg-gray-700/30/10"
           onClick={() => setFilters({ ...initialFilters })}
           disabled={!hasFiltersApplied}
         >
@@ -317,10 +317,46 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
         )}
       </div>
 
-      <div className="flex flex-wrap gap-[50px]">
-        {items.map((gemstone) => (
-          <GemCard key={gemstone.id} gemstone={gemstone} locale={locale} showNewBadge variant="grid" />
-        ))}
+      {/* Responsives Grid Container */}
+      <div className="relative">
+        <div className="grid grid-cols-4 xl:grid-cols-5 gap-6 w-full max-w-[1200px] xl:max-w-[1400px] mx-auto justify-items-center">
+          {items.slice(0, 20).map((gemstone) => (
+            <GemCard key={gemstone.id} gemstone={gemstone} locale={locale} showNewBadge variant="grid" />
+          ))}
+        </div>
+        
+        {/* Scroll-Container für weitere Edelsteine */}
+        {items.length > 20 && (
+          <div className="mt-6">
+            <div className="text-center text-sm text-white/60 mb-4">
+              Weitere {items.length - 20} Edelstein{items.length - 20 !== 1 ? 'e' : ''} verfügbar
+            </div>
+            <div className="grid grid-cols-4 xl:grid-cols-5 gap-6 max-h-[1200px] overflow-y-auto pr-2 justify-items-center" style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#4B5563 #1F2937'
+            }}>
+              {items.slice(20).map((gemstone) => (
+                <GemCard key={gemstone.id} gemstone={gemstone} locale={locale} showNewBadge variant="grid" />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Anzahl-Anzeige */}
+      <div className="text-center text-sm text-white/60">
+        {items.length} Edelstein{items.length !== 1 ? 'e' : ''} verfügbar
+        {items.length > 20 && ' • Scrollen Sie nach unten für weitere'}
+        {items.length <= 20 && items.length > 0 && (
+          <span className="block mt-1 text-xs text-white/40">
+            {Math.ceil(items.length / 4)} Zeile{Math.ceil(items.length / 4) !== 1 ? 'n' : ''} • 4 Spalten (5 bei XL) • 240×240px Thumbnails
+          </span>
+        )}
+        {items.length > 20 && (
+          <span className="block mt-1 text-xs text-white/40">
+            Erste 20 Edelsteine • 4 Spalten (5 bei XL) • 240×240px Thumbnails
+          </span>
+        )}
       </div>
     </section>
   );
@@ -368,14 +404,14 @@ function GemCard({
       className={wrapperClass}
       aria-label={`${gemstone.name} Details anzeigen`}
     >
-      <article className="story-card bg-[#2D2D2D]/90 border border-white/10 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <article className="story-card bg-[#3A3A3A]/90 border border-white/10 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
         <div className="overflow-hidden rounded-lg mb-4">
-          <div className="aspect-[4/3] relative bg-gray-800/50/30">
+          <div className="relative bg-gray-700/50/30" style={{ width: '240px', height: '240px' }}>
             <Image
               src={imageSrc}
               alt={gemstone.name}
-              fill
-              sizes={imageSizes}
+              width={240}
+              height={240}
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           </div>

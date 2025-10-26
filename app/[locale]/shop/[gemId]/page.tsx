@@ -105,7 +105,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
           <Button
             size="icon"
             variant="secondary"
-            className="absolute right-6 top-6 h-10 w-10 rounded-full border border-white/10 public-page-bg/50 text-white transition hover:bg-gray-800/30/15"
+            className="absolute right-6 top-6 h-10 w-10 rounded-full border border-white/10 public-page-bg/50 text-white transition hover:bg-gray-700/30/15"
             asChild
           >
             <Link href={`/${locale}/shop`} aria-label="Detailansicht schließen">
@@ -168,7 +168,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                   <WishlistButton item={cartItem} />
                   <Button
                     variant="outline"
-                    className="border-white/20 text-white hover:bg-gray-800/30/10"
+                    className="border-white/20 text-white hover:bg-gray-700/30/10"
                     asChild
                   >
                     <Link href={`/${locale}/shop`}>Weitere Edelsteine ansehen</Link>

@@ -12,19 +12,19 @@ export default function AdminPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-blue-600">12</h3>
             <p className="text-gray-300">Edelsteine</p>
           </div>
-          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-green-600">8</h3>
             <p className="text-gray-300">Bestellungen</p>
           </div>
-          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-purple-600">24</h3>
             <p className="text-gray-300">Kunden</p>
           </div>
-          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-2xl font-bold text-orange-600">€2,450</h3>
             <p className="text-gray-300">Umsatz</p>
           </div>
@@ -32,7 +32,7 @@ export default function AdminPage() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold mb-4">Edelstein-Verwaltung</h3>
             <p className="text-gray-300 mb-4">Verwalten Sie Ihre Edelstein-Kollektion</p>
             <div className="flex gap-2">
@@ -42,14 +42,14 @@ export default function AdminPage() {
                 </button>
               </form>
               <form action="/de/admin/gemstones" method="get">
-                <button type="submit" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
+                <button type="submit" className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">
                   Alle anzeigen
                 </button>
               </form>
             </div>
           </div>
 
-          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold mb-4">Bestellungen</h3>
             <p className="text-gray-300 mb-4">Verwalten Sie Kundenbestellungen</p>
             <div className="flex gap-2">
@@ -59,14 +59,14 @@ export default function AdminPage() {
                 </button>
               </form>
               <form action="/de/admin/orders" method="get">
-                <button type="submit" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
+                <button type="submit" className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">
                   Alle anzeigen
                 </button>
               </form>
             </div>
           </div>
 
-          <div className="border-white/10 bg-gray-800/50/50 p-6 rounded-lg shadow-sm border">
+          <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold mb-4">Kunden</h3>
             <p className="text-gray-300 mb-4">Verwalten Sie Ihre Kunden</p>
             <div className="flex gap-2">
@@ -76,7 +76,7 @@ export default function AdminPage() {
                 </button>
               </form>
               <form action="/de/admin/customers" method="get">
-                <button type="submit" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm">
+                <button type="submit" className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">
                   Alle anzeigen
                 </button>
               </form>
@@ -85,7 +85,7 @@ export default function AdminPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-gray-800/30 rounded-lg shadow-sm border">
+        <div className="bg-gray-700/30 rounded-lg shadow-sm border">
           <div className="p-6 border-b">
             <h3 className="text-lg font-semibold">Letzte Aktivitäten</h3>
           </div>

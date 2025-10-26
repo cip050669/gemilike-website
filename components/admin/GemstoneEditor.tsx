@@ -272,7 +272,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
   const weightLabel = formValues.type === 'cut' ? 'Gewicht (ct)' : 'Gewicht (g)';
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-gray-800/50/50 p-8 text-white shadow-xl shadow-black/40">
+    <div className="rounded-2xl border border-white/10 bg-gray-700/50/50 p-8 text-white shadow-xl shadow-black/40">
       <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
         <div>
           <h2 className="text-2xl font-semibold">
@@ -283,7 +283,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="border-white/30 text-white hover:bg-gray-800/30/10" onClick={onCancel}>
+          <Button variant="outline" className="border-white/30 text-white hover:bg-gray-700/30/10" onClick={onCancel}>
             Abbrechen
           </Button>
           <Button type="submit" form="gemstone-editor-form" className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -301,7 +301,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               value={formValues.name}
               onChange={(event) => handleChange('name', event.target.value)}
               required
-              className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40"
+              className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
               placeholder="z. B. Kolumbianischer Smaragd"
             />
           </div>
@@ -322,7 +322,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                 value={formValues.type}
                 onValueChange={(value: 'cut' | 'rough') => handleChange('type', value)}
               >
-                <SelectTrigger id="gem-type" className="border-white/20 bg-gray-800/50/40 text-white">
+                <SelectTrigger id="gem-type" className="border-white/20 bg-gray-700/50/40 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -350,7 +350,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                 type="number"
                 value={formValues.price}
                 onChange={(event) => handleChange('price', event.target.value)}
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
                 placeholder="z. B. 12500"
                 min="0"
                 step="0.01"
@@ -362,7 +362,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                 id="gem-weight"
                 value={formValues.weight}
                 onChange={(event) => handleChange('weight', event.target.value)}
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
                 placeholder="z. B. 2.35"
               />
             </div>
@@ -375,19 +375,19 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                 placeholder="Länge"
                 value={formValues.dimensions.length}
                 onChange={(event) => updateDimension('length', event.target.value)}
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
               />
               <Input
                 placeholder="Breite"
                 value={formValues.dimensions.width}
                 onChange={(event) => updateDimension('width', event.target.value)}
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
               />
               <Input
                 placeholder="Höhe"
                 value={formValues.dimensions.height}
                 onChange={(event) => updateDimension('height', event.target.value)}
-                className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40"
+                className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
               />
             </div>
           </div>
@@ -444,7 +444,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               <Button
                 type="button"
                 variant="outline"
-                className="border-white/30 text-white hover:bg-gray-800/30/10"
+                className="border-white/30 text-white hover:bg-gray-700/30/10"
                 onClick={openImageUpload}
                 disabled={formValues.images.length >= 10}
               >
@@ -464,7 +464,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               <Button
                 type="button"
                 variant="outline"
-                className="border-white/30 text-white hover:bg-gray-800/30/10"
+                className="border-white/30 text-white hover:bg-gray-700/30/10"
                 onClick={openVideoUpload}
                 disabled={formValues.videos.length >= 2}
               >
@@ -474,7 +474,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
             }
           />
 
-          <div className="rounded-xl border border-white/15 bg-gray-800/50/40 p-4">
+          <div className="rounded-xl border border-white/15 bg-gray-700/50/40 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <Label className="text-white">Neu im Sortiment</Label>
@@ -498,7 +498,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               value={formValues.description}
               onChange={(event) => handleChange('description', event.target.value)}
               rows={6}
-              className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40"
+              className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
               placeholder="Ausführliche Beschreibung des Edelsteins …"
             />
           </div>
@@ -596,7 +596,7 @@ function OverlaySelectField({
           <button
             type="button"
             className={cn(
-              'flex w-full items-center justify-between rounded-lg border border-white/20 bg-gray-800/50/40 px-3 py-2 text-left text-sm text-white transition focus:outline-none focus:ring-2 focus:ring-primary',
+              'flex w-full items-center justify-between rounded-lg border border-white/20 bg-gray-700/50/40 px-3 py-2 text-left text-sm text-white transition focus:outline-none focus:ring-2 focus:ring-primary',
               !value && 'text-white/40'
             )}
           >
@@ -608,7 +608,7 @@ function OverlaySelectField({
             </span>
           </button>
         </DialogTrigger>
-        <DialogContent className="max-w-xl border-white/20 bg-gray-800/50 text-white">
+        <DialogContent className="max-w-xl border-white/20 bg-gray-700/50 text-white">
           <DialogHeader>
             <DialogTitle>{label}</DialogTitle>
           </DialogHeader>
@@ -620,7 +620,7 @@ function OverlaySelectField({
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Liste durchsuchen …"
-                className="border-white/20 bg-gray-800/50/60 pl-9 text-white placeholder:text-white/40"
+                className="border-white/20 bg-gray-700/50/60 pl-9 text-white placeholder:text-white/40"
               />
             </div>
             <div className="max-h-56 overflow-y-auto rounded-lg border border-white/10">
@@ -630,8 +630,8 @@ function OverlaySelectField({
                     key={option.value}
                     type="button"
                     className={cn(
-                      'flex w-full items-start justify-between gap-3 border-b border-white/5 px-4 py-3 text-left text-sm transition hover:bg-gray-800/30/10',
-                      option.value.trim().toLowerCase() === value.trim().toLowerCase() && 'bg-gray-800/30/10'
+                      'flex w-full items-start justify-between gap-3 border-b border-white/5 px-4 py-3 text-left text-sm transition hover:bg-gray-700/30/10',
+                      option.value.trim().toLowerCase() === value.trim().toLowerCase() && 'bg-gray-700/30/10'
                     )}
                     onClick={() => {
                       onChange(option.value);
@@ -661,7 +661,7 @@ function OverlaySelectField({
                   value={customValue}
                   onChange={(event) => setCustomValue(event.target.value)}
                   placeholder="Freitext eingeben …"
-                  className="border-white/20 bg-gray-800/50/60 text-white placeholder:text-white/40"
+                  className="border-white/20 bg-gray-700/50/60 text-white placeholder:text-white/40"
                 />
                 <div className="flex gap-2">
                   <Button
@@ -680,7 +680,7 @@ function OverlaySelectField({
                   <Button
                     type="button"
                     variant="outline"
-                    className="border-white/20 text-white hover:bg-gray-800/30/10"
+                    className="border-white/20 text-white hover:bg-gray-700/30/10"
                     onClick={() => setCustomValue('')}
                   >
                     Löschen
@@ -692,7 +692,7 @@ function OverlaySelectField({
               <Button
                 type="button"
                 variant="ghost"
-                className="text-white/70 hover:bg-gray-800/30/10"
+                className="text-white/70 hover:bg-gray-700/30/10"
                 onClick={() => {
                   onChange('');
                   setOpen(false);
@@ -731,14 +731,14 @@ function MediaInputList({ label, items, onChange, onAdd, onRemove, action }: Med
             <Input
               value={item}
               onChange={(event) => onChange(index, event.target.value)}
-              className="border-white/20 bg-gray-800/50/40 text-white placeholder:text-white/40"
+              className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
               placeholder="https://…"
             />
             <Button
               type="button"
               variant="outline"
               className={cn(
-                'border-white/20 text-white hover:bg-gray-800/30/10',
+                'border-white/20 text-white hover:bg-gray-700/30/10',
                 items.length === 1 && item === '' && 'opacity-50'
               )}
               onClick={() => onRemove(index)}
@@ -752,7 +752,7 @@ function MediaInputList({ label, items, onChange, onAdd, onRemove, action }: Med
       <Button
         type="button"
         variant="outline"
-        className="border-white/30 text-white hover:bg-gray-800/30/10"
+        className="border-white/30 text-white hover:bg-gray-700/30/10"
         onClick={onAdd}
         disabled={limitReached}
       >
@@ -866,7 +866,7 @@ function MediaUploadDialog({ type, open, onOpenChange, onUploaded }: MediaUpload
 
   return (
     <Dialog open={open} onOpenChange={(next) => !isUploading && onOpenChange(next)}>
-      <DialogContent className="max-w-xl border-white/20 bg-gray-800/50 text-white">
+      <DialogContent className="max-w-xl border-white/20 bg-gray-700/50 text-white">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -890,7 +890,7 @@ function MediaUploadDialog({ type, open, onOpenChange, onUploaded }: MediaUpload
             onDrop={handleDrop}
             className={cn(
               'flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition',
-              isDragging ? 'border-primary bg-primary/10' : 'border-white/20 bg-gray-800/50/50'
+              isDragging ? 'border-primary bg-primary/10' : 'border-white/20 bg-gray-700/50/50'
             )}
           >
             <UploadIcon className="mb-4 h-8 w-8 text-white/60" />
@@ -915,7 +915,7 @@ function MediaUploadDialog({ type, open, onOpenChange, onUploaded }: MediaUpload
             )}
           </div>
           {isUploading && (
-            <div className="rounded-lg border border-white/10 bg-gray-800/50/40 p-3 text-sm text-white/70">
+            <div className="rounded-lg border border-white/10 bg-gray-700/50/40 p-3 text-sm text-white/70">
               Upload läuft … bitte warten.
             </div>
           )}
