@@ -48,36 +48,36 @@ body {
 
   /* Container-Klassen - Sichtbares Dunkelgrau */
   .main-container {
-    background: linear-gradient(135deg, rgba(255, 148, 71, 0.12), rgba(0, 188, 212, 0.12)) !important;
+    background: linear-gradient(135deg, rgba(255, 148, 71, 0.16), rgba(0, 188, 212, 0.16)) !important;
     margin: 4rem 8rem;
     padding: 3rem;
     border-radius: 0.9rem;
-    border: 1px solid rgba(0, 188, 212, 0.25);
-    box-shadow: 0 24px 48px -24px rgba(0, 229, 255, 0.35);
+    border: 1px solid rgba(0, 188, 212, 0.3);
+    box-shadow: 0 26px 52px -22px rgba(0, 229, 255, 0.45);
   }
 
   .newsticker-container {
-    background: linear-gradient(135deg, rgba(255, 148, 71, 0.12), rgba(0, 188, 212, 0.12));
+    background: linear-gradient(135deg, rgba(255, 148, 71, 0.16), rgba(0, 188, 212, 0.16));
     margin: 0 8rem;
     padding: 1.25rem 2rem;
     border-radius: 0.9rem;
-    border: 1px solid rgba(0, 188, 212, 0.25);
-    box-shadow: 0 24px 48px -24px rgba(0, 229, 255, 0.35);
+    border: 1px solid rgba(0, 188, 212, 0.3);
+    box-shadow: 0 26px 52px -22px rgba(0, 229, 255, 0.45);
     position: relative;
   }
   
   .story-card {
-    background: linear-gradient(135deg, rgba(255, 148, 71, 0.12), rgba(0, 188, 212, 0.12)) !important;
+    background: linear-gradient(135deg, rgba(255, 148, 71, 0.16), rgba(0, 188, 212, 0.16)) !important;
     padding: 2rem;
     border-radius: 1rem;
-    box-shadow: 0 24px 48px -24px rgba(0, 229, 255, 0.35);
-    border: 1px solid rgba(0, 188, 212, 0.25);
+    box-shadow: 0 26px 52px -22px rgba(0, 229, 255, 0.45);
+    border: 1px solid rgba(0, 188, 212, 0.3);
     transition: all 0.3s ease;
   }
   
   .story-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 28px 52px -22px rgba(0, 229, 255, 0.45);
+    box-shadow: 0 30px 56px -24px rgba(0, 229, 255, 0.55);
   }
 
   .gemilike-text-gradient {
@@ -110,10 +110,10 @@ body {
   }
 
   .container-dark {
-    background: linear-gradient(135deg, rgba(255, 148, 71, 0.12), rgba(0, 188, 212, 0.12));
-    border: 1px solid rgba(0, 188, 212, 0.25);
+    background: linear-gradient(135deg, rgba(255, 148, 71, 0.16), rgba(0, 188, 212, 0.16));
+    border: 1px solid rgba(0, 188, 212, 0.3);
     border-radius: 1rem;
-    box-shadow: 0 24px 48px -24px rgba(0, 229, 255, 0.35);
+    box-shadow: 0 26px 52px -22px rgba(0, 229, 255, 0.45);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }

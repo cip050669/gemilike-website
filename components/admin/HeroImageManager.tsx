@@ -21,7 +21,7 @@ interface HeroImageSettings {
 
 export function HeroImageManager() {
   const [settings, setSettings] = useState<HeroImageSettings>({
-    imageUrl: '/uploads/hero/hero-1759840578273.jpg',
+    imageUrl: '/uploads/hero/hero-default.jpg',
     title: 'Einfach nur Gemilike',
     titleLine2: 'Heroes in Gems',
     subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
@@ -39,11 +39,15 @@ export function HeroImageManager() {
     const loadSettings = async () => {
       try {
         const response = await fetch('/api/admin/hero-settings');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.settings) {
-            setSettings(prev => ({ ...prev, ...data.settings }));
-          }
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (data.success && data.settings) {
+          setSettings((prev) => {
+            const merged = { ...prev, ...data.settings };
+            localStorage.setItem('heroImageSettings', JSON.stringify(merged));
+            return merged;
+          });
         }
       } catch (error) {
         // Fallback zu localStorage
@@ -105,7 +109,7 @@ export function HeroImageManager() {
 
   const handleReset = () => {
     const defaultSettings: HeroImageSettings = {
-      imageUrl: '/uploads/hero/hero-1759840578273.jpg',
+      imageUrl: '/uploads/hero/hero-default.jpg',
       title: 'Einfach nur Gemilike',
       titleLine2: 'Heroes in Gems',
       subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
@@ -115,6 +119,18 @@ export function HeroImageManager() {
       secondaryButtonLink: '/contact'
     };
     setSettings(defaultSettings);
+    localStorage.setItem('heroImageSettings', JSON.stringify(defaultSettings));
+    fetch('/api/admin/hero-settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(defaultSettings),
+    })
+      .then(() => {
+        window.dispatchEvent(new CustomEvent('hero-settings-updated'));
+      })
+      .catch((error) => {
+        console.error('Fehler beim Zurücksetzen über API:', error);
+      });
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,20 +166,15 @@ export function HeroImageManager() {
         const result = await response.json();
         const newSettings = { ...settings, imageUrl: result.imageUrl };
         setSettings(newSettings);
-        
-        // Speichere die neuen Einstellungen sofort
+
         await fetch('/api/admin/hero-settings', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newSettings)
+          body: JSON.stringify(newSettings),
         });
-        
-        // Auch in localStorage für Fallback
         localStorage.setItem('heroImageSettings', JSON.stringify(newSettings));
-        
-        // Trigger Event für Live-Update
         window.dispatchEvent(new CustomEvent('hero-settings-updated'));
-        
+
         alert('Bild erfolgreich hochgeladen!');
       } catch (error) {
         console.error('Upload error:', error);

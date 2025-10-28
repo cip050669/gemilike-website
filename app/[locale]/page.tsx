@@ -9,6 +9,7 @@ import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 import { loadNewstickerData } from '@/lib/newsticker/data';
 import { Newsticker } from '@/components/ui/Newsticker';
 import { getNewGemstones } from '@/lib/data/gemstones';
+import { loadHeroSettings } from '@/lib/data/hero-settings';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -31,6 +32,7 @@ export default async function HomePage({
   const newstickerItems = loadNewstickerData();
   const activeNewstickerItems = newstickerItems.filter((item) => item.isActive);
   const newGemstones = getNewGemstones(12);
+  const heroSettings = await loadHeroSettings();
   const stories = blogs
     .filter((blog) => blog.published)
     .sort((a, b) => {
@@ -63,7 +65,7 @@ export default async function HomePage({
     <PublicLayout>
     <div className="min-h-screen public-page-bg">
       {/* Hero Section */}
-      <HeroSection locale={locale} />
+      <HeroSection locale={locale} settings={heroSettings} />
 
       {/* Newsticker */}
       {activeNewstickerItems.length > 0 && (

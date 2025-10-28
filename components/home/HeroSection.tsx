@@ -1,191 +1,176 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useHeroSettings } from '@/lib/hooks/useHeroSettings';
-import Image from 'next/image';
+import { useState, useEffect, type CSSProperties } from 'react';
+import Link from 'next/link';
+import type { HeroSettingsData } from '@/lib/data/hero-settings';
 
 interface HeroSectionProps {
   locale: string;
+  settings: HeroSettingsData;
 }
 
-export function HeroSection({ locale }: HeroSectionProps) {
-  const { heroSettings } = useHeroSettings();
-  const [heroSrc, setHeroSrc] = useState<string>(
-    heroSettings?.backgroundImage && heroSettings.backgroundImage.trim()
-      ? heroSettings.backgroundImage
-      : '/images/hero-fallback.jpg'
-  );
+const defaultHeroImage = '/uploads/hero/hero-default.jpg';
+const defaultTitle = 'Einfach nur Gemilike';
+const defaultSubtitle = 'Ihr Spezialist für rohe und geschliffene Edelsteine.';
+const defaultPrimaryCtaLabel = 'Sortiment entdecken';
+const defaultPrimaryCtaLink = '/shop';
+const defaultSecondaryCtaLabel = 'Kontaktieren Sie uns';
+const defaultSecondaryCtaLink = '/contact';
+const HEADER_HEIGHT_PX = 96;
+const HERO_OFFSET_FROM_HEADER_PX = 40;
 
-  useEffect(() => {
-    const next = heroSettings?.backgroundImage && heroSettings.backgroundImage.trim()
-      ? heroSettings.backgroundImage
-      : '/images/hero-fallback.jpg';
-    setHeroSrc(next);
-  }, [heroSettings?.backgroundImage]);
+const renderGemLikeTitle = (title: string) => {
+  const gemGradientStyle: CSSProperties = {
+    backgroundImage: 'linear-gradient(135deg, #6FF3FF 0%, #1F8CFF 50%, #7C4DFF 100%)',
+  };
 
-  // Listen for hero settings updates
-  useEffect(() => {
-    const handleSettingsUpdate = async () => {
-      try {
-        const response = await fetch('/api/admin/hero-settings');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.settings) {
-            if (data.settings.imageUrl) {
-              setHeroSrc(data.settings.imageUrl);
-            }
-            // Update heroSettings für Titel-Updates
-            if (data.settings.title || data.settings.subtitle) {
-              const updatedSettings = {
-                ...heroSettings,
-                title: data.settings.title || heroSettings?.title,
-                subtitle: data.settings.subtitle || heroSettings?.subtitle,
-              };
-              // Trigger re-render durch localStorage update
-              localStorage.setItem('heroSettings', JSON.stringify(updatedSettings));
-              window.dispatchEvent(new CustomEvent('hero-settings-updated'));
-            }
-          }
-        }
-      } catch (error) {
-        // Fallback zu localStorage
-        const saved = localStorage.getItem('heroImageSettings');
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed.imageUrl) {
-              setHeroSrc(parsed.imageUrl);
-            }
-          } catch (error) {
-            // Silent error handling
-          }
-        }
-      }
-    };
+  const lowercaseTitle = title.toLowerCase();
+  const targetIndex = lowercaseTitle.indexOf('gemilike');
 
-    window.addEventListener('hero-settings-updated', handleSettingsUpdate);
-    return () => {
-      window.removeEventListener('hero-settings-updated', handleSettingsUpdate);
-    };
-  }, [heroSettings]);
-
-  const renderGemLikeTitle = (title: string) => {
-    // Custom gradient for the word "Gemilike": cyan -> mid blue -> mid purple
-    // Colors: #6FF3FF -> #1F8CFF -> #7C4DFF (high saturation, medium lightness)
-    const gemGradientStyle: React.CSSProperties = {
-      backgroundImage:
-        'linear-gradient(90deg, #6FF3FF 0%, #1F8CFF 50%, #7C4DFF 100%)',
-    };
-    const lowercaseTitle = title.toLowerCase();
-    const targetIndex = lowercaseTitle.indexOf('gemilike');
-
-    if (targetIndex === -1) {
-      return (
-        <span
-          className="bg-clip-text text-transparent animate-glow"
-          style={gemGradientStyle}
-        >
-          {title}
-        </span>
-      );
-    }
-
-    const prefix = title.slice(0, targetIndex);
-    const highlightedWord = title.slice(targetIndex, targetIndex + 'gemilike'.length);
-    const suffix = title.slice(targetIndex + 'gemilike'.length);
-
-    const gemWordLower = highlightedWord.toLowerCase();
-    const firstIIndex = gemWordLower.indexOf('i');
-
-    if (firstIIndex === -1) {
-      return <span className="gradient-text animate-glow">{title}</span>;
-    }
-
-    const beforeI = highlightedWord.slice(0, firstIIndex);
-    const iLetter = highlightedWord[firstIIndex];
-    const afterI = highlightedWord.slice(firstIIndex + 1);
-
+  if (targetIndex === -1) {
     return (
-      <>
-        {prefix && (
-          <span
-            className="bg-clip-text text-transparent animate-glow"
-            style={gemGradientStyle}
-          >
-            {prefix}
-          </span>
-        )}
-        {beforeI && (
-          <span
-            className="bg-clip-text text-transparent animate-glow"
-            style={gemGradientStyle}
-          >
-            {beforeI}
-          </span>
-        )}
-        <span className="animate-glow drop-shadow-2xl" style={{ color: '#FF7B7B' }}>{iLetter}</span>
-        {afterI && (
-          <span
-            className="bg-clip-text text-transparent animate-glow"
-            style={gemGradientStyle}
-          >
-            {afterI}
-          </span>
-        )}
-        {suffix && (
-          <span
-            className="bg-clip-text text-transparent animate-glow"
-            style={gemGradientStyle}
-          >
-            {suffix}
-          </span>
-        )}
-      </>
+      <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
+        {title}
+      </span>
     );
-  };
+  }
 
-  // Fallback-Einstellungen (currently unused, kept for reference)
+  const prefix = title.slice(0, targetIndex);
+  const highlightedWord = title.slice(targetIndex, targetIndex + 'gemilike'.length);
+  const suffix = title.slice(targetIndex + 'gemilike'.length);
 
-  const currentSettings = {
-    title: heroSettings?.title || 'Einfach nur Gemilike',
-    subtitle: heroSettings?.subtitle || 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
-  };
+  const gemWordLower = highlightedWord.toLowerCase();
+  const firstIIndex = gemWordLower.indexOf('i');
 
-  // Debug: Log the current settings
-  console.log('Hero Settings:', heroSettings);
+  if (firstIIndex === -1) {
+    return <span className="gradient-text animate-glow">{title}</span>;
+  }
+
+  const beforeI = highlightedWord.slice(0, firstIIndex);
+  const iLetter = highlightedWord[firstIIndex];
+  const afterI = highlightedWord.slice(firstIIndex + 1);
 
   return (
     <>
-      {/* Hero-Bild mit Text links oben */}
-      <section
-        className="relative h-screen w-full overflow-hidden"
-        style={{ fontFamily: 'Arial, sans-serif' }}
-        lang={locale}
-      >
-        <div className="absolute inset-0 z-0">
-          <Image
-            src={heroSrc}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover"
-            priority
-            onError={() => setHeroSrc('/images/hero-fallback.jpg')}
-          />
-        </div>
-        
-        {/* Text-Overlay - Mobile optimiert */}
-        <div className="absolute z-10" style={{ top: '110px', left: '16px', right: '16px' }}>
-         <h1 className="text-[40px] sm:text-[46px] lg:text-[58px] font-bold text-white drop-shadow-lg mb-4">
-           {renderGemLikeTitle(currentSettings.title)}
-         </h1>
-         <p className="text-xs sm:text-sm md:text-base lg:text-lg max-w-xs sm:max-w-md md:max-w-lg leading-relaxed text-white">
-           {currentSettings.subtitle}
-         </p>
-        </div>
-      </section>
-
-      {/* Button-Leiste wird außerhalb platziert */}
+      {prefix && (
+        <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
+          {prefix}
+        </span>
+      )}
+      {beforeI && (
+        <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
+          {beforeI}
+        </span>
+      )}
+      <span className="animate-glow drop-shadow-2xl" style={{ color: '#FF7B7B' }}>
+        {iLetter}
+      </span>
+      {afterI && (
+        <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
+          {afterI}
+        </span>
+      )}
+      {suffix && (
+        <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
+          {suffix}
+        </span>
+      )}
     </>
+  );
+};
+
+export function HeroSection({ locale, settings }: HeroSectionProps) {
+  const normalizedSettings: HeroSettingsData = settings ?? {
+    title: defaultTitle,
+    titleLine2: 'Heroes in Gems------',
+    subtitle: defaultSubtitle,
+    backgroundImage: defaultHeroImage,
+    ctaText: defaultPrimaryCtaLabel,
+    ctaLink: defaultPrimaryCtaLink,
+    secondaryCtaText: defaultSecondaryCtaLabel,
+    secondaryCtaLink: defaultSecondaryCtaLink,
+  };
+
+  const [heroSrc, setHeroSrc] = useState(
+    normalizedSettings.backgroundImage && normalizedSettings.backgroundImage.trim()
+      ? normalizedSettings.backgroundImage
+      : defaultHeroImage
+  );
+
+  useEffect(() => {
+    const next =
+      normalizedSettings.backgroundImage && normalizedSettings.backgroundImage.trim()
+        ? normalizedSettings.backgroundImage
+        : defaultHeroImage;
+    setHeroSrc(next);
+  }, [normalizedSettings.backgroundImage]);
+
+  const heroTitle = normalizedSettings.title?.trim() || defaultTitle;
+  const heroSubtitle = normalizedSettings.subtitle?.trim() || defaultSubtitle;
+  const titleLine2 = normalizedSettings.titleLine2?.trim();
+
+  const primaryCtaLabel = normalizedSettings.ctaText?.trim() || defaultPrimaryCtaLabel;
+  const primaryCtaLink = normalizedSettings.ctaLink?.trim() || defaultPrimaryCtaLink;
+  const secondaryCtaLabel =
+    normalizedSettings.secondaryCtaText?.trim() || defaultSecondaryCtaLabel;
+  const secondaryCtaLink =
+    normalizedSettings.secondaryCtaLink?.trim() || defaultSecondaryCtaLink;
+
+  const buildHref = (link: string) => {
+    if (!link) return `/${locale}`;
+    if (link.startsWith('http')) return link;
+    if (link.startsWith(`/${locale}`)) return link;
+    if (link.startsWith('/')) return `/${locale}${link}`;
+    return `/${locale}/${link}`;
+  };
+
+  return (
+    <section
+      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden"
+      style={{
+        backgroundImage: `url(${heroSrc})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+      lang={locale}
+    >
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/50" />
+
+      <div
+        className="relative z-10 w-full max-w-5xl px-6 pb-24 text-white"
+        style={{ paddingTop: `${HEADER_HEIGHT_PX + HERO_OFFSET_FROM_HEADER_PX}px` }}
+      >
+        <div className="space-y-6 text-left sm:text-center">
+          <h1 className="font-bold text-[44px] sm:text-[56px] lg:text-[72px] leading-tight drop-shadow-2xl">
+            {renderGemLikeTitle(heroTitle)}
+            {titleLine2 && (
+              <span className="block text-[30px] sm:text-[38px] lg:text-[44px] font-light text-white/90">
+                {titleLine2}
+              </span>
+            )}
+          </h1>
+
+          <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-white/90 max-w-3xl mx-auto">
+            {heroSubtitle}
+          </p>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 justify-center">
+            <Link
+              href={buildHref(primaryCtaLink)}
+              className="inline-flex items-center justify-center rounded-full bg-white text-gray-900 px-8 py-3 text-base font-semibold shadow-lg hover:shadow-2xl transition-shadow"
+            >
+              {primaryCtaLabel}
+            </Link>
+            <Link
+              href={buildHref(secondaryCtaLink)}
+              className="inline-flex items-center justify-center rounded-full border border-white/70 px-8 py-3 text-base font-semibold text-white hover:bg-white/10 transition-colors"
+            >
+              {secondaryCtaLabel}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

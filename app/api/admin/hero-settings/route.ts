@@ -1,55 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import {
+  HeroSettingsData,
+  loadHeroSettings,
+  saveHeroSettings,
+  getDefaultHeroSettings,
+} from '@/lib/data/hero-settings';
 
-// GET - Fetch current hero settings
 export async function GET() {
   try {
-    let settings = await prisma.heroSettings.findFirst();
-    if (!settings) {
-      settings = await prisma.heroSettings.create({
-        data: {
-          imageUrl: '/images/hero-fallback.jpg',
-          title: 'Einfach nur Gemilike',
-          titleLine2: 'Heroes in Gems',
-          subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
-          primaryButtonText: 'Sortiment entdecken',
-          primaryButtonLink: '/shop',
-          secondaryButtonText: 'Kontaktieren Sie uns',
-          secondaryButtonLink: '/contact'
-        }
-      });
-    }
+    const settings = await loadHeroSettings();
     return NextResponse.json({ success: true, settings });
   } catch (error) {
-    console.error('Error fetching hero settings:', error);
-    return NextResponse.json({ success: false, error: 'Fehler beim Laden der Einstellungen' }, { status: 500 });
+    console.error('Error loading hero settings:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to load hero settings' },
+      { status: 500 }
+    );
   }
 }
 
-// PUT - Update hero settings
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { imageUrl, title, titleLine2, subtitle, primaryButtonText, primaryButtonLink, secondaryButtonText, secondaryButtonLink } = body;
+    const body = (await request.json()) as Partial<HeroSettingsData>;
+    const defaults = await getDefaultHeroSettings();
 
-    if (!imageUrl || !title || !subtitle || !primaryButtonText || !primaryButtonLink) {
-      return NextResponse.json({ success: false, error: 'Pflichtfelder fehlen' }, { status: 400 });
-    }
+    const payload: HeroSettingsData = {
+      title: typeof body.title === 'string' ? body.title : defaults.title,
+      titleLine2: typeof body.titleLine2 === 'string' ? body.titleLine2 : defaults.titleLine2,
+      subtitle: typeof body.subtitle === 'string' ? body.subtitle : defaults.subtitle,
+      backgroundImage:
+        typeof body.backgroundImage === 'string' ? body.backgroundImage : defaults.backgroundImage,
+      ctaText: typeof body.ctaText === 'string' ? body.ctaText : defaults.ctaText,
+      ctaLink: typeof body.ctaLink === 'string' ? body.ctaLink : defaults.ctaLink,
+      secondaryCtaText:
+        typeof body.secondaryCtaText === 'string'
+          ? body.secondaryCtaText
+          : defaults.secondaryCtaText,
+      secondaryCtaLink:
+        typeof body.secondaryCtaLink === 'string'
+          ? body.secondaryCtaLink
+          : defaults.secondaryCtaLink,
+    };
 
-    let settings = await prisma.heroSettings.findFirst();
-    if (settings) {
-      settings = await prisma.heroSettings.update({
-        where: { id: settings.id },
-        data: { imageUrl, title, titleLine2, subtitle, primaryButtonText, primaryButtonLink, secondaryButtonText, secondaryButtonLink }
-      });
-    } else {
-      settings = await prisma.heroSettings.create({
-        data: { imageUrl, title, titleLine2, subtitle, primaryButtonText, primaryButtonLink, secondaryButtonText, secondaryButtonLink }
-      });
-    }
-    return NextResponse.json({ success: true, settings });
+    await saveHeroSettings(payload);
+    return NextResponse.json({ success: true, settings: payload });
   } catch (error) {
-    console.error('Error updating hero settings:', error);
-    return NextResponse.json({ success: false, error: 'Fehler beim Speichern der Einstellungen' }, { status: 500 });
+    console.error('Error saving hero settings:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to save hero settings' },
+      { status: 500 }
+    );
   }
 }
