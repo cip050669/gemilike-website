@@ -4,7 +4,6 @@ import { SessionProvider } from '@/components/providers/SessionProvider';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { HydrationHandler } from '@/components/HydrationHandler';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,24 +39,8 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Sofortiges Setzen des Attributs vor React Hydration
-              (function() {
-                if (typeof document !== 'undefined') {
-                  // Setze das Attribut sofort, aber nur wenn es noch nicht existiert
-                  if (!document.documentElement.hasAttribute('data-cbscriptallow')) {
-                    document.documentElement.setAttribute('data-cbscriptallow', 'true');
-                  }
-                }
-              })();
-            `,
-          }}
-        />
       </head>
       <body className={`${inter.className} public-page-bg`} suppressHydrationWarning>
-        <HydrationHandler />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>
             {children}
