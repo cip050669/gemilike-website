@@ -32,6 +32,35 @@ export default function AdminLayout({
     { href: '/de/admin/worldmap', label: '🗺️ Weltkarte' },
   ];
 
+  // Sortierung: a..z, dann ä, ö, ü; Emojis werden ignoriert
+  const normalizeLabel = (label: string) =>
+    label
+      .replace(/[^\p{L}\p{N}\s]/gu, '') // Emojis/Symbole entfernen
+      .trim()
+      .toLowerCase();
+
+  const alphabet = 'abcdefghijklmnopqrstuvwxyzäöü';
+  const rank = (ch: string) => {
+    const idx = alphabet.indexOf(ch);
+    return idx === -1 ? alphabet.length + ch.codePointAt(0)! : idx;
+  };
+
+  const germanCustomCompare = (a: string, b: string) => {
+    const sa = normalizeLabel(a);
+    const sb = normalizeLabel(b);
+    const len = Math.min(sa.length, sb.length);
+    for (let i = 0; i < len; i++) {
+      const ra = rank(sa[i]);
+      const rb = rank(sb[i]);
+      if (ra !== rb) return ra - rb;
+    }
+    return sa.length - sb.length;
+  };
+
+  const sortedMenuItems = [...menuItems].sort((a, b) =>
+    germanCustomCompare(a.label, b.label)
+  );
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'rgba(31, 41, 55, 0.5)' }}>
       {/* Sidebar */}

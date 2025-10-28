@@ -15,13 +15,17 @@ export function AdminSidebar() {
     { href: '/admin/settings', label: t('admin.settings'), icon: '⚙️' },
   ];
 
+  const sortedMenuItems = [...menuItems].sort((a, b) =>
+    a.label.localeCompare(b.label, 'de', { sensitivity: 'base' })
+  );
+
   return (
     <div className="w-64 bg-gem-bgDark text-gem-text min-h-screen border-r border-gem-iceDark/20">
       <div className="p-6">
         <h2 className="text-xl font-bold text-gem-iceLight">{t('admin.title')}</h2>
       </div>
-      <nav className="mt-6">
-        {menuItems.map((item) => (
+      <nav className="mt-6 flex flex-col gap-1">
+        {sortedMenuItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}

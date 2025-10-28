@@ -1,7 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useHeroSettings } from '@/lib/hooks/useHeroSettings';
-import GemILikeLogo from '@/components/GemILikeLogo';
 import Image from 'next/image';
 
 interface HeroSectionProps {
@@ -10,13 +10,38 @@ interface HeroSectionProps {
 
 export function HeroSection({ locale }: HeroSectionProps) {
   const { heroSettings } = useHeroSettings();
+  const [heroSrc, setHeroSrc] = useState<string>(
+    heroSettings?.backgroundImage && heroSettings.backgroundImage.trim()
+      ? heroSettings.backgroundImage
+      : '/images/hero-fallback.jpg'
+  );
+
+  useEffect(() => {
+    const next = heroSettings?.backgroundImage && heroSettings.backgroundImage.trim()
+      ? heroSettings.backgroundImage
+      : '/images/hero-fallback.jpg';
+    setHeroSrc(next);
+  }, [heroSettings?.backgroundImage]);
 
   const renderGemLikeTitle = (title: string) => {
+    // Custom gradient for the word "Gemilike": cyan -> mid blue -> mid purple
+    // Colors: #6FF3FF -> #1F8CFF -> #7C4DFF (high saturation, medium lightness)
+    const gemGradientStyle: React.CSSProperties = {
+      backgroundImage:
+        'linear-gradient(90deg, #6FF3FF 0%, #1F8CFF 50%, #7C4DFF 100%)',
+    };
     const lowercaseTitle = title.toLowerCase();
     const targetIndex = lowercaseTitle.indexOf('gemilike');
 
     if (targetIndex === -1) {
-      return <span className="gradient-text animate-glow">{title}</span>;
+      return (
+        <span
+          className="bg-clip-text text-transparent animate-glow"
+          style={gemGradientStyle}
+        >
+          {title}
+        </span>
+      );
     }
 
     const prefix = title.slice(0, targetIndex);
@@ -37,17 +62,37 @@ export function HeroSection({ locale }: HeroSectionProps) {
     return (
       <>
         {prefix && (
-          <span className="gradient-text animate-glow">{prefix}</span>
+          <span
+            className="bg-clip-text text-transparent animate-glow"
+            style={gemGradientStyle}
+          >
+            {prefix}
+          </span>
         )}
         {beforeI && (
-          <span className="gradient-text animate-glow">{beforeI}</span>
+          <span
+            className="bg-clip-text text-transparent animate-glow"
+            style={gemGradientStyle}
+          >
+            {beforeI}
+          </span>
         )}
-        <span className="text-ruby animate-glow drop-shadow-2xl">{iLetter}</span>
+        <span className="animate-glow drop-shadow-2xl" style={{ color: '#FF7B7B' }}>{iLetter}</span>
         {afterI && (
-          <span className="gradient-text animate-glow">{afterI}</span>
+          <span
+            className="bg-clip-text text-transparent animate-glow"
+            style={gemGradientStyle}
+          >
+            {afterI}
+          </span>
         )}
         {suffix && (
-          <span className="gradient-text animate-glow">{suffix}</span>
+          <span
+            className="bg-clip-text text-transparent animate-glow"
+            style={gemGradientStyle}
+          >
+            {suffix}
+          </span>
         )}
       </>
     );
@@ -56,14 +101,12 @@ export function HeroSection({ locale }: HeroSectionProps) {
   // Fallback-Einstellungen (currently unused, kept for reference)
 
   const currentSettings = {
-    imageUrl: '/uploads/hero/hero-1759840578273.jpg',
     title: 'Einfach nur Gemilike',
     subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
   };
 
   // Debug: Log the current settings
   console.log('Hero Settings:', heroSettings);
-  console.log('Current Settings:', currentSettings);
 
   return (
     <>
@@ -75,28 +118,19 @@ export function HeroSection({ locale }: HeroSectionProps) {
       >
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/hero-fallback.jpg"
-            alt="Exquisite Edelsteine - Gemilike"
+            src={heroSrc}
+            alt=""
             fill
             sizes="100vw"
             className="object-cover"
             priority
+            onError={() => setHeroSrc('/images/hero-fallback.jpg')}
           />
         </div>
         
         {/* Text-Overlay - Mobile optimiert */}
-        <div className="absolute z-10" style={{ top: '80px', left: '16px', right: '16px' }}>
-         <div className="mb-4">
-           <GemILikeLogo 
-             size={80} 
-             animated={false}
-             firstIColor="#FF7B7B"
-             tagline="Heroes in Gems"
-             className="text-center"
-             gradientClassName="gradient-gem-spectrum"
-           />
-         </div>
-         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg mb-4">
+        <div className="absolute z-10" style={{ top: '110px', left: '16px', right: '16px' }}>
+         <h1 className="text-[40px] sm:text-[46px] lg:text-[58px] font-bold text-white drop-shadow-lg mb-4">
            {renderGemLikeTitle(currentSettings.title)}
          </h1>
          <p className="text-xs sm:text-sm md:text-base lg:text-lg max-w-xs sm:max-w-md md:max-w-lg leading-relaxed text-white">
