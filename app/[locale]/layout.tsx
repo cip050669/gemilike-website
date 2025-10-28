@@ -37,7 +37,7 @@ export default async function LocaleLayout({
   }
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} data-cbscriptallow="true" suppressHydrationWarning>
       <head>
       </head>
       <body className={`${inter.className} public-page-bg`} suppressHydrationWarning>
