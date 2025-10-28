@@ -46,20 +46,10 @@ export default async function LocaleLayout({
               // Sofortiges Setzen des Attributs vor React Hydration
               (function() {
                 if (typeof document !== 'undefined') {
-                  // Setze das Attribut sofort
-                  document.documentElement.setAttribute('data-cbscriptallow', 'true');
-                  
-                  // Verhindere weitere Änderungen durch Extensions
-                  Object.defineProperty(document.documentElement, 'setAttribute', {
-                    value: function(name, value) {
-                      if (name === 'data-cbscriptallow') {
-                        return; // Ignoriere Änderungen an diesem Attribut
-                      }
-                      return HTMLElement.prototype.setAttribute.call(this, name, value);
-                    },
-                    writable: false,
-                    configurable: false
-                  });
+                  // Setze das Attribut sofort, aber nur wenn es noch nicht existiert
+                  if (!document.documentElement.hasAttribute('data-cbscriptallow')) {
+                    document.documentElement.setAttribute('data-cbscriptallow', 'true');
+                  }
                 }
               })();
             `,
