@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, Image, Video } from 'lucide-react';
+import { Download, FileText, Image as ImageIcon, Video } from 'lucide-react';
 
 interface DownloadItem {
   id: string;
@@ -46,7 +46,7 @@ const getIcon = (type: string) => {
     case 'pdf':
       return <FileText className="h-5 w-5" />;
     case 'image':
-      return <Image className="h-5 w-5" />;
+      return <ImageIcon className="h-5 w-5" />;
     case 'video':
       return <Video className="h-5 w-5" />;
     default:

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
@@ -88,12 +89,14 @@ export default async function HomePage({
                   className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
                 >
                   <div className="flex gap-[50px] items-center">
-                    <div className="overflow-hidden rounded-lg border border-white/10 public-page-bg/20 h-[180px] w-[204px] flex-shrink-0">
-                      <img
+                    <div className="relative overflow-hidden rounded-lg border border-white/10 public-page-bg/20 h-[180px] w-[204px] flex-shrink-0">
+                      <NextImage
                         src={story.image}
                         alt={story.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        loading="lazy"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 204px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        priority={false}
                       />
                     </div>
                     <div className="flex flex-col gap-6 justify-center flex-1">

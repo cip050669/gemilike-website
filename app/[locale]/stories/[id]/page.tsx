@@ -169,7 +169,7 @@ export default function StoryPage() {
                   </Link>
                 </Button>
                 <Button asChild className="w-full sm:w-auto">
-                  <Link href="/shop">
+                  <Link href="/">
                     Sortiment entdecken
                   </Link>
                 </Button>

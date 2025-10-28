@@ -32,15 +32,15 @@ export default async function LocaleLayout({
   let messages;
   try {
     messages = (await import(`@/messages/${locale}.json`)).default;
-  } catch (error) {
+  } catch {
     notFound();
   }
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
       </head>
-      <body className={`${inter.className} public-page-bg`}>
+      <body className={`${inter.className} public-page-bg`} suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>
             {children}

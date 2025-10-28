@@ -3,7 +3,8 @@ import { loadShopGemstones } from '@/lib/shop/shopData';
 import Link from 'next/link';
 import { ArrowLeftIcon } from 'lucide-react';
 
-export default async function ShopPage() {
+export default async function ShopPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const { gemstones, fallback } = await loadShopGemstones();
 
   return (
@@ -12,7 +13,7 @@ export default async function ShopPage() {
         <section className="main-container text-center space-y-3">
           <div className="flex justify-center mb-4">
             <Link 
-              href="/de" 
+              href={`/${locale}`} 
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors border border-white/20 rounded-lg hover:bg-white/10"
             >
               <ArrowLeftIcon className="h-4 w-4" />

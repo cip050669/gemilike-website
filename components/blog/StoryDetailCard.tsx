@@ -8,6 +8,7 @@ import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { X, Calendar, User, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
+import Image from 'next/image';
 
 interface StoryItem {
   id: string;
@@ -75,15 +76,18 @@ export function StoryDetailCard({
 
             {/* Image */}
             <div className="relative">
-              <div className="aspect-video w-full bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                <img
+              <div className="relative aspect-video w-full bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                <Image
                   src={story.image}
                   alt={story.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 1024px"
                   className={cn(
-                    "w-full h-full object-cover transition-opacity duration-300",
+                    "object-cover transition-opacity duration-300",
                     imageLoaded ? "opacity-100" : "opacity-0"
                   )}
                   onLoad={() => setImageLoaded(true)}
+                  priority={false}
                 />
                 {!imageLoaded && (
                   <div className="absolute inset-0 flex items-center justify-center">

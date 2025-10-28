@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -41,28 +41,7 @@ export function Footer() {
     { icon: Youtube, href: 'https://youtube.com/gemilike', label: 'YouTube' },
   ];
 
-  const contactDetails = [
-    {
-      icon: Phone,
-      heading: 'Telefon',
-      content: '+49 30 123 456 789',
-    },
-    {
-      icon: Mail,
-      heading: 'E-Mail',
-      content: 'info@gemilike.com',
-    },
-    {
-      icon: MapPin,
-      heading: 'Adresse',
-      content: 'Musterstraße 123, 10115 Berlin',
-    },
-    {
-      icon: Clock,
-      heading: 'Öffnungszeiten',
-      content: 'Mo–Fr · 10–18 Uhr\nSa · nach Vereinbarung',
-    },
-  ];
+  // no-op
 
   return (
     <footer className="bg-gem-bgDark border-t border-gem-iceDark/20">

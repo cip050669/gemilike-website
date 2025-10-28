@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
 
@@ -150,11 +151,14 @@ export function BlogTable({
               {filtered.map((blog) => (
                 <tr key={blog.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="h-16 w-24 overflow-hidden rounded-md border border-gray-200 bg-gray-100">
-                      <img
+                    <div className="relative h-16 w-24 overflow-hidden rounded-md border border-gray-200 bg-gray-100">
+                      <Image
                         src={blog.image}
                         alt={blog.title}
-                        className="h-full w-full object-cover"
+                        fill
+                        sizes="96px"
+                        className="object-cover"
+                        priority={false}
                       />
                     </div>
                   </td>

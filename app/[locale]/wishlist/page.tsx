@@ -49,7 +49,7 @@ export default function WishlistPage() {
           </div>
           
           <div className="space-y-4">
-            <Link href="/shop">
+            <Link href="/">
               <Button className="w-full">
                 <ShoppingBag className="w-4 h-4 mr-2" />
                 {t('goToShop')}

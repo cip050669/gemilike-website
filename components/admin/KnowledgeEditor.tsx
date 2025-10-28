@@ -13,6 +13,7 @@ import { Save, X, Plus, Trash2, Edit, Eye, EyeOff, Upload, Image as ImageIcon } 
 import { KnowledgeArticle, defaultKnowledgeCategories, defaultKnowledgeTags } from '@/lib/types/knowledge';
 import { MarkdownPreview } from './MarkdownPreview';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface KnowledgeEditorProps {
   article?: KnowledgeArticle;
@@ -228,11 +229,14 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
             {isLoading && <span className="text-xs text-white/60">Lade...</span>}
           </Label>
           <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-gray-800/50/40">
-              <img
+            <div className="relative h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-gray-800/50/40">
+              <Image
                 src={formData.image || PLACEHOLDER_IMAGE}
                 alt="Titelbild"
-                className="h-full w-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 256px"
+                className="object-cover"
+                priority={false}
               />
             </div>
             <label className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/50/40 border border-white/25 rounded-md cursor-pointer hover:bg-gray-800/50/60 transition">
@@ -248,7 +252,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
           <div className="flex flex-wrap gap-3">
             {formData.contentImages.map((img, index) => (
               <div key={img} className="relative h-24 w-24 overflow-hidden rounded-lg border border-white/20">
-                <img src={img} alt={`content-${index}`} className="h-full w-full object-cover" />
+                <Image src={img} alt={`content-${index}`} fill sizes="96px" className="object-cover" />
                 <button
                   type="button"
                   className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-800/50/70 text-white"

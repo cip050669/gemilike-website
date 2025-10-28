@@ -20,7 +20,7 @@ const NAV_ITEMS = [
 ];
 
 export function Header() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [/* searchQuery */, /* setSearchQuery */] = useState('');
   const [isMounted, setIsMounted] = useState(false);
   const { toggleCart, getTotalItems } = useCartStore();
   const pathname = usePathname();

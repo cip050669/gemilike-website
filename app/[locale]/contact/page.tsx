@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MailIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckIcon, XIcon, ArrowLeftIcon } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ContactPage() {
+export default function ContactPage({ params }: { params: { locale: string } }) {
+  const { locale } = params;
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -62,7 +63,7 @@ export default function ContactPage() {
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4">
               <Link 
-                href="/de" 
+                href={`/${locale}`} 
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors border border-white/20 rounded-lg hover:bg-white/10"
               >
                 <ArrowLeftIcon className="h-4 w-4" />

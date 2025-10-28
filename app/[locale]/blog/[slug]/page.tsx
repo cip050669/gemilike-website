@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, User, Tag } from 'lucide-react';
 import { BlogPost } from '@/lib/types/blog';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
+import Image from 'next/image';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -84,11 +85,14 @@ export default async function BlogPostPage({
                 '/images/stories/placeholder-gem.svg',
                 '/blog/default-blog.jpg',
               ].includes(post.image) && (
-              <div className="mb-8">
-                <img 
+              <div className="mb-8 relative w-full h-64">
+                <Image 
                   src={post.image} 
                   alt={post.title}
-                  className="w-full h-64 object-cover rounded-lg"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  className="object-cover rounded-lg"
+                  priority={false}
                 />
               </div>
             )}

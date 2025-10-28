@@ -27,7 +27,7 @@ export default async function KnowledgeListPage({
         <header className="space-y-4 text-center">
           <div className="flex justify-center mb-4">
             <Link 
-              href="/de" 
+              href={`/${locale}`} 
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors border border-white/20 rounded-lg hover:bg-white/10"
             >
               <ArrowLeftIcon className="h-4 w-4" />

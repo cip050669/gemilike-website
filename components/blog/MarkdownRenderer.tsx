@@ -2,6 +2,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Image from 'next/image';
 
 interface MarkdownRendererProps {
   content: string;
@@ -69,21 +70,17 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
                 href.startsWith('data:image'))
             );
             
-            if (isImageLink) {
+            if (isImageLink && href) {
               return (
-                <img 
-                  src={href} 
-                  alt={typeof children === 'string' ? children : 'Bild'}
-                  className="my-6 max-w-full h-auto rounded-lg shadow-md border border-border block mx-auto"
-                  loading="lazy"
-                  onError={(e) => {
-                    console.error('Image link failed to load:', href);
-                    e.currentTarget.style.display = 'none';
-                  }}
-                  onLoad={() => {
-                    console.log('Image link loaded successfully:', href);
-                  }}
-                />
+                <span className="my-6 block mx-auto max-w-full">
+                  <Image 
+                    src={href}
+                    alt={typeof children === 'string' ? children : 'Bild'}
+                    width={1200}
+                    height={675}
+                    className="rounded-lg shadow-md border border-border w-auto h-auto max-w-full"
+                  />
+                </span>
               );
             }
             
@@ -164,23 +161,18 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           ),
           
           // Bilder
-          img: ({ src, alt, ...props }) => {
-            console.log('Rendering image:', src, alt); // Debug log
+          img: ({ src, alt }) => {
+            if (!src) return null;
             return (
-              <img 
-                src={src} 
-                alt={alt || ''}
-                className="my-6 max-w-full h-auto rounded-lg shadow-md border border-border block mx-auto"
-                loading="lazy"
-                onError={(e) => {
-                  console.error('Image failed to load:', src);
-                  e.currentTarget.style.display = 'none';
-                }}
-                onLoad={() => {
-                  console.log('Image loaded successfully:', src);
-                }}
-                {...props}
-              />
+              <span className="my-6 block mx-auto max-w-full">
+                <Image 
+                  src={src}
+                  alt={alt || ''}
+                  width={1200}
+                  height={675}
+                  className="rounded-lg shadow-md border border-border w-auto h-auto max-w-full"
+                />
+              </span>
             );
           },
           

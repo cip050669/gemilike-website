@@ -37,7 +37,7 @@ export function Cart() {
                 <p className="text-muted-foreground mb-4">
                   Entdecken Sie unsere Edelsteine und fügen Sie sie zu Ihrem Warenkorb hinzu.
                 </p>
-                <Link href="/shop">
+                <Link href="/">
                   <Button onClick={toggleCart}>Zum Shop</Button>
                 </Link>
               </div>
@@ -48,11 +48,11 @@ export function Cart() {
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-4">
                         {item.image && (
-                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                          <div className="relative h-16 w-16 rounded-lg bg-muted overflow-hidden">
                             <img
                               src={item.image}
                               alt={item.name}
-                              className="h-12 w-12 object-cover rounded"
+                              className="h-full w-full object-cover"
                             />
                           </div>
                         )}
@@ -112,7 +112,7 @@ export function Cart() {
                     Zur Kasse
                   </Button>
                 </Link>
-                <Link href="/shop" className="w-full">
+                <Link href="/" className="w-full">
                   <Button variant="outline" className="w-full" onClick={toggleCart}>
                     Weiter einkaufen
                   </Button>
