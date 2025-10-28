@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { InteractiveWorldMap } from '@/components/worldmap/InteractiveWorldMap';
+import Link from 'next/link';
+import { ArrowLeftIcon } from 'lucide-react';
 
 export default async function WorldMapPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -46,6 +48,15 @@ export default async function WorldMapPage({ params }: { params: Promise<{ local
     <div className="min-h-screen public-page-bg">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <Link 
+              href="/de" 
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors border border-white/20 rounded-lg hover:bg-white/10"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              Zurück zur Startseite
+            </Link>
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
             <span className="gradient-text animate-glow">Edelstein-Fundorte</span>
           </h1>

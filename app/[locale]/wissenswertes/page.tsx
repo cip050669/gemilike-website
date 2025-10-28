@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { loadKnowledgeArticles } from '@/lib/data/knowledge';
 import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
+import { ArrowLeftIcon } from 'lucide-react';
 
 export default async function KnowledgeListPage({
   params,
@@ -24,6 +25,15 @@ export default async function KnowledgeListPage({
     <div className="min-h-screen public-page-bg text-foreground">
       <div className="container py-12 md:py-20 space-y-10">
         <header className="space-y-4 text-center">
+          <div className="flex justify-center mb-4">
+            <Link 
+              href="/de" 
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors border border-white/20 rounded-lg hover:bg-white/10"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              Zurück zur Startseite
+            </Link>
+          </div>
           <h1
             className="text-4xl md:text-5xl font-impact font-weight-impact"
             style={{ color: settings.headingColor }}
