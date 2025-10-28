@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     // Temporär deaktiviert für Entwicklung
     // TODO: Reaktivieren wenn Server-Session funktioniert

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Gem, Sparkles } from 'lucide-react';
 
 export default function SimpleHomePage() {
-  const t = useTranslations('home');
+  useTranslations('home');
 
   return (
     <div className="min-h-screen public-page-bg text-foreground">

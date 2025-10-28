@@ -104,7 +104,7 @@ export function GemstoneManagementSection() {
     initial: null,
   });
 
-  const mapApiGemstone = useCallback((gem: any): DisplayGemstone => {
+  const mapApiGemstone = useCallback((gem: Record<string, unknown>): DisplayGemstone => {
     const images = parseList(gem.images);
     const videos = parseList(gem.videos);
 

@@ -253,7 +253,7 @@ export function NewstickerManager() {
                 <Label htmlFor="type">Nachrichtentyp</Label>
                 <Select
                   value={newItem.type}
-                  onValueChange={(value: any) => setNewItem(prev => ({ ...prev, type: value }))}
+                  onValueChange={(value: 'info' | 'warning' | 'success' | 'announcement') => setNewItem(prev => ({ ...prev, type: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -330,7 +330,7 @@ export function NewstickerManager() {
                 <Label htmlFor="edit-type">Nachrichtentyp</Label>
                 <Select
                   value={editingItem.type}
-                  onValueChange={(value: any) => setEditingItem(prev => prev ? { ...prev, type: value } : null)}
+                  onValueChange={(value: 'info' | 'warning' | 'success' | 'announcement') => setEditingItem(prev => prev ? { ...prev, type: value } : null)}
                 >
                   <SelectTrigger>
                     <SelectValue />

@@ -156,7 +156,7 @@ async function saveColors(colors: ColorDefinition[]): Promise<void> {
   await writeFile(COLORS_FILE, JSON.stringify(colors, null, 2), 'utf-8');
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Für GET-Requests (nur Lesen) ist keine Authentifizierung erforderlich
     const colors = await loadColors();
