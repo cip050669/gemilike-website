@@ -37,10 +37,10 @@ export default async function LocaleLayout({
   }
 
   return (
-    <html lang={locale} data-cbscriptallow="true" suppressHydrationWarning>
+    <html lang={locale}>
       <head>
       </head>
-      <body className={`${inter.className} public-page-bg`} suppressHydrationWarning>
+      <body className={`${inter.className} public-page-bg`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>
             {children}
