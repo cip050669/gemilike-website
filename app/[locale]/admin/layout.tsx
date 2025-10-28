@@ -19,6 +19,7 @@ export default function AdminLayout({
     { href: '/de/admin', label: '🏠 Dashboard' },
     { href: '/de/admin/gemstones', label: '💎 Edelsteine' },
     { href: '/de/admin/header', label: '🔝 Header' },
+    { href: '/de/admin/hero-image', label: '🖼️ Hero-Bild' },
     { href: '/de/admin/newsletter', label: '📧 Newsletter' },
     { href: '/de/admin/newsticker', label: '📰 Newsticker' },
     { href: '/de/admin/orders', label: '🛒 Bestellungen' },
@@ -103,7 +104,7 @@ export default function AdminLayout({
           <p style={{ fontSize: '14px', color: '#9ca3af' }}>Gemilike</p>
         </div>
         <nav style={{ marginTop: '24px', paddingBottom: '120px' }}>
-          {menuItems.map((item) => (
+          {sortedMenuItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

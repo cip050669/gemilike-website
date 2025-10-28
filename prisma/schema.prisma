@@ -664,3 +664,17 @@ model DownloadConsent {
   
   @@map("download_consents")
 }
+
+model HeroSettings {
+  id                    String   @id @default(cuid())
+  imageUrl              String
+  title                 String
+  titleLine2            String?
+  subtitle              String
+  primaryButtonText     String
+  primaryButtonLink     String
+  secondaryButtonText   String?
+  secondaryButtonLink   String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}

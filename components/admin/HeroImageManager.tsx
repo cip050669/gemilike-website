@@ -36,14 +36,25 @@ export function HeroImageManager() {
 
   // Lade gespeicherte Einstellungen beim Mount
   useEffect(() => {
-    const loadSettings = () => {
-      const savedSettings = localStorage.getItem('heroImageSettings');
-      if (savedSettings) {
-        try {
-          const parsed = JSON.parse(savedSettings);
-          setSettings(prev => ({ ...prev, ...parsed }));
-        } catch (error) {
-          // Silent error handling
+    const loadSettings = async () => {
+      try {
+        const response = await fetch('/api/admin/hero-settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.settings) {
+            setSettings(prev => ({ ...prev, ...data.settings }));
+          }
+        }
+      } catch (error) {
+        // Fallback zu localStorage
+        const savedSettings = localStorage.getItem('heroImageSettings');
+        if (savedSettings) {
+          try {
+            const parsed = JSON.parse(savedSettings);
+            setSettings(prev => ({ ...prev, ...parsed }));
+          } catch (error) {
+            // Silent error handling
+          }
         }
       }
     };
@@ -66,15 +77,19 @@ export function HeroImageManager() {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // Speichere in localStorage (später kann das durch eine API ersetzt werden)
+      // Speichere über API
+      const response = await fetch('/api/admin/hero-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+
+      if (!response.ok) {
+        throw new Error('API call failed');
+      }
+
+      // Auch in localStorage für Fallback
       localStorage.setItem('heroImageSettings', JSON.stringify(settings));
-      
-      // Hier könnte später eine API-Call gemacht werden
-      // await fetch('/api/admin/hero-settings', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(settings)
-      // });
       
       // Trigger Event für Live-Update
       window.dispatchEvent(new CustomEvent('hero-settings-updated'));
@@ -133,7 +148,22 @@ export function HeroImageManager() {
         }
 
         const result = await response.json();
-        setSettings(prev => ({ ...prev, imageUrl: result.imageUrl }));
+        const newSettings = { ...settings, imageUrl: result.imageUrl };
+        setSettings(newSettings);
+        
+        // Speichere die neuen Einstellungen sofort
+        await fetch('/api/admin/hero-settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newSettings)
+        });
+        
+        // Auch in localStorage für Fallback
+        localStorage.setItem('heroImageSettings', JSON.stringify(newSettings));
+        
+        // Trigger Event für Live-Update
+        window.dispatchEvent(new CustomEvent('hero-settings-updated'));
+        
         alert('Bild erfolgreich hochgeladen!');
       } catch (error) {
         console.error('Upload error:', error);
