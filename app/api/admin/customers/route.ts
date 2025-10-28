@@ -14,7 +14,15 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {};
+    const where: {
+      OR?: Array<
+        | { firstName: { contains: string; mode: 'insensitive' } }
+        | { lastName: { contains: string; mode: 'insensitive' } }
+        | { email: { contains: string; mode: 'insensitive' } }
+        | { company: { contains: string; mode: 'insensitive' } }
+      >;
+      isActive?: boolean;
+    } = {};
     
     if (search) {
       where.OR = [

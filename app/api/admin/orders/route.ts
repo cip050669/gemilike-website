@@ -8,7 +8,14 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') as string | null;
 
-    const where: any = {};
+    const where: {
+      OR?: Array<
+        | { orderNumber: { contains: string; mode: 'insensitive' } }
+        | { user: { name: { contains: string; mode: 'insensitive' } } }
+        | { user: { email: { contains: string; mode: 'insensitive' } } }
+      >;
+      status?: OrderStatus;
+    } = {};
 
     if (search) {
       where.OR = [
@@ -19,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (status && status !== 'all') {
-      where.status = status as any;
+      where.status = status as OrderStatus;
     }
 
     const orders = await prisma.order.findMany({

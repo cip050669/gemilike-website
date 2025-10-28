@@ -33,7 +33,7 @@ export function useAdvancedSearch(): UseAdvancedSearchReturn {
   const { data: session } = useSession();
   
   // Type assertion to ensure user has id property
-  const userWithId = session?.user as any;
+  const userWithId = session?.user as (typeof session.user & { id?: string }) | undefined;
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<Gemstone[]>([]);
   const [totalCount, setTotalCount] = useState(0);

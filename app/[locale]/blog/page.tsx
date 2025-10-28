@@ -1,5 +1,5 @@
 export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
+  await params;
 
   return (
     <div className="min-h-screen public-page-bg text-foreground">

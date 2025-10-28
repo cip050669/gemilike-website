@@ -21,17 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ]
 
   // Admin-Seiten (nicht in Sitemap)
-  const adminPages = [
-    '/admin',
-    '/admin/dashboard',
-    '/admin/gemstones',
-    '/admin/customers',
-    '/admin/orders',
-    '/admin/reports',
-    '/admin/audit',
-    '/admin/settings',
-    '/admin/newsletter'
-  ]
+  // const adminPages = [...]
 
   // Dynamische Seiten (für zukünftige Erweiterung)
   const dynamicPages = [

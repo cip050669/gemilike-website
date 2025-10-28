@@ -55,7 +55,7 @@ export default function SignUpPage() {
         const data = await response.json();
         setError(data.error || 'Ein Fehler ist aufgetreten');
       }
-    } catch (error) {
+    } catch {
       setError('Ein Fehler ist aufgetreten');
     } finally {
       setIsLoading(false);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const invoices = await prisma.invoice.findMany({
       include: {
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const invoiceNumber = `${companySettings.invoicePrefix}-${companySettings.nextInvoiceNumber.toString().padStart(4, '0')}`;
 
     // Calculate totals
-    const subtotal = items.reduce((sum: number, item: any) => sum + (item.quantity * item.unitPrice), 0);
+    const subtotal = items.reduce((sum: number, item: { quantity: number; unitPrice: number }) => sum + (item.quantity * item.unitPrice), 0);
     const total = subtotal; // No VAT for small business
 
     // Create invoice
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
         total,
         notes,
         items: {
-          create: items.map((item: any, index: number) => ({
+          create: items.map((item: { description: string; quantity: number; unitPrice: number }, index: number) => ({
             description: item.description,
             quantity: item.quantity,
             unitPrice: item.unitPrice,

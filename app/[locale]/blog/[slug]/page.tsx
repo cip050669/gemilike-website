@@ -17,7 +17,22 @@ async function getBlogPosts(): Promise<BlogPost[]> {
     const data = await readFile(blogFile, 'utf-8');
     const blogs = JSON.parse(data);
     
-    return blogs.map((blog: any) => ({
+    return blogs.map((blog: {
+      id: string;
+      title: string;
+      slug: string;
+      excerpt?: string;
+      content: string;
+      author?: string;
+      category?: string;
+      tags?: string[];
+      image?: string;
+      published?: boolean;
+      createdAt: string | Date;
+      updatedAt: string | Date;
+      publishedAt?: string | Date;
+      [key: string]: unknown;
+    }) => ({
       ...blog,
       createdAt: new Date(blog.createdAt),
       updatedAt: new Date(blog.updatedAt),
@@ -35,7 +50,6 @@ export default async function BlogPostPage({
   params: Promise<{ locale: string; slug: string }> 
 }) {
   const { locale, slug } = await params;
-  const t = await import(`@/messages/${locale}.json`).then(m => m.default);
   const blogPosts = await getBlogPosts();
   
   // Finde den Blog-Post anhand des Slugs

@@ -24,9 +24,7 @@ export default async function ShopPage({ params }: { params: Promise<{ locale: s
             Edelstein-Shop
           </h1>
           <p className="mx-auto max-w-2xl text-base text-white/70">
-            Entdecken Sie unsere kuratierte Auswahl an neuen Highlights und dauerhaft verfügbaren Edelsteinen.
-            Wählen Sie eine Vorschau, um alle Details zum jeweiligen Stein anzuzeigen.
-          </p>
+                   </p>
         </section>
 
         <ShopShowcase gemstones={gemstones} fallback={fallback} />

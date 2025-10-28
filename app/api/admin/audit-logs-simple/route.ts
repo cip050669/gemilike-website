@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/simple-auth';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Temporär deaktiviert für Entwicklung
     // TODO: Reaktivieren wenn Server-Session funktioniert

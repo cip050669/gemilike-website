@@ -1,20 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   TrendingUp, 
-  TrendingDown, 
   DollarSign, 
   Package, 
-  Users, 
   Star,
-  Eye,
   ShoppingCart,
   Award,
-  Calendar,
   BarChart3,
   PieChart,
   Download,
@@ -143,42 +139,29 @@ export function DashboardReports() {
     alert('📄 PDF-Generierung wird implementiert...');
   };
 
-  useEffect(() => {
-    calculateStats();
-  }, [selectedPeriod]);
-
-  const calculateStats = () => {
+  const calculateStats = useCallback(() => {
     const gemstones = allGemstones;
-    
-    // Zeitraum-spezifische Berechnungen
     const periodMultiplier = getPeriodMultiplier(selectedPeriod);
-    
-    // Grundstatistiken
     const totalGemstones = gemstones.length;
     const availableGemstones = gemstones.filter(g => g.inStock).length;
     const soldGemstones = totalGemstones - availableGemstones;
     const baseRevenue = gemstones.reduce((sum, g) => sum + g.price, 0);
     const totalRevenue = baseRevenue * periodMultiplier;
     const averagePrice = totalRevenue / totalGemstones;
-    
 
-    // Kategorie-Statistiken
     const categoryStats: { [key: string]: number } = {};
     gemstones.forEach(gemstone => {
       categoryStats[gemstone.category] = (categoryStats[gemstone.category] || 0) + 1;
     });
 
-    // Beliebteste Kategorie
     const mostPopularCategory = Object.entries(categoryStats)
       .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Keine Daten';
 
-    // Teuerster und günstigster Edelstein
     const mostExpensiveGemstone = gemstones.reduce((max, gem) => 
       gem.price > max.price ? gem : max, gemstones[0]);
     const cheapestGemstone = gemstones.reduce((min, gem) => 
       gem.price < min.price ? gem : min, gemstones[0]);
 
-    // Preisbereich-Statistiken
     const priceRangeStats = {
       under1000: gemstones.filter(g => g.price < 1000).length,
       under5000: gemstones.filter(g => g.price >= 1000 && g.price < 5000).length,
@@ -186,10 +169,9 @@ export function DashboardReports() {
       over10000: gemstones.filter(g => g.price >= 10000).length,
     };
 
-    // Zeitraum-spezifische Statistiken
     const periodStats = {
       current: totalRevenue,
-      previous: totalRevenue * 0.85, // Simuliert 15% Wachstum
+      previous: totalRevenue * 0.85,
       growth: calculateGrowthRate(selectedPeriod)
     };
 
@@ -206,9 +188,14 @@ export function DashboardReports() {
       priceRangeStats,
       monthlyStats: periodStats
     });
-    
     setLastUpdate(new Date().toLocaleTimeString('de-DE'));
-  };
+  }, [selectedPeriod]);
+
+  useEffect(() => {
+    calculateStats();
+  }, [calculateStats]);
+
+  
 
   if (!stats || isLoading) {
     return (

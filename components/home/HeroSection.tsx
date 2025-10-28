@@ -53,17 +53,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
     );
   };
 
-  // Fallback-Einstellungen
-  const fallbackSettings = {
-    imageUrl: '/uploads/hero/hero-1759840578273.jpg',
-    title: 'Einfach nur Gemilike',
-    titleLine2: 'Heroes in Gems',
-    subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
-    primaryButtonText: 'Sortiment entdecken',
-    secondaryButtonText: 'Kontaktieren Sie uns',
-    primaryButtonLink: '/shop',
-    secondaryButtonLink: '/contact'
-  };
+  // Fallback-Einstellungen (currently unused, kept for reference)
 
   const currentSettings = {
     imageUrl: '/uploads/hero/hero-1759840578273.jpg',
@@ -84,16 +74,13 @@ export function HeroSection({ locale }: HeroSectionProps) {
         lang={locale}
       >
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="/images/hero-fallback.jpg"
             alt="Exquisite Edelsteine - Gemilike"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              console.error('Hero image failed to load:', '/images/hero-fallback.jpg');
-            }}
-            onLoad={() => {
-              console.log('Hero image loaded successfully:', '/images/hero-fallback.jpg');
-            }}
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
           />
         </div>
         

@@ -3,7 +3,7 @@ import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 // GET - Länder und Lagerstätten abrufen
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   
   try {
     // Authentifizierung - in Entwicklung optional
@@ -53,10 +53,10 @@ export async function GET(request: NextRequest) {
     console.log('Transformed countries:', transformedCountries.length);
 
     return NextResponse.json({ countries: transformedCountries });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching worldmap data:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error?.message || 'Unknown error' },
+      { error: 'Internal server error', details: (error as Error).message || 'Unknown error' },
       { status: 500 }
     );
   }
@@ -87,10 +87,10 @@ export async function POST(request: NextRequest) {
 
     console.log('Country created:', country);
     return NextResponse.json({ success: true, country });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error creating country:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error?.message || 'Unknown error' },
+      { error: 'Internal server error', details: (error as Error).message || 'Unknown error' },
       { status: 500 }
     );
   }
@@ -122,10 +122,10 @@ export async function PUT(request: NextRequest) {
 
     console.log('Country updated:', country);
     return NextResponse.json({ success: true, country });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error updating country:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error?.message || 'Unknown error' },
+      { error: 'Internal server error', details: (error as Error).message || 'Unknown error' },
       { status: 500 }
     );
   }
@@ -157,10 +157,10 @@ export async function DELETE(request: NextRequest) {
 
     console.log('Country deleted:', countryId);
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error deleting country:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error?.message || 'Unknown error' },
+      { error: 'Internal server error', details: (error as Error).message || 'Unknown error' },
       { status: 500 }
     );
   }

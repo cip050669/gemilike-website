@@ -13,7 +13,7 @@ export async function PUT(
     const body = await request.json();
     const { status, paymentStatus, paymentDate } = body;
 
-    const updateData: any = {};
+    const updateData: Partial<{ status: string; paymentStatus: string; paymentDate: Date }> = {};
     if (status) updateData.status = status;
     if (paymentStatus) updateData.paymentStatus = paymentStatus;
     if (paymentDate) updateData.paymentDate = new Date(paymentDate);

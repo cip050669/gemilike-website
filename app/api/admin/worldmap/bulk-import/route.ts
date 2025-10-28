@@ -32,10 +32,10 @@ export async function POST(request: NextRequest) {
 
     console.log(`Bulk import: ${data.length} Einträge erhalten`);
 
-    const results = {
+    const results: { imported: number; errors: string[]; warnings: string[] } = {
       imported: 0,
-      errors: [] as string[],
-      warnings: [] as string[]
+      errors: [],
+      warnings: []
     };
 
     // Verarbeite jeden Eintrag
@@ -91,8 +91,9 @@ export async function POST(request: NextRequest) {
         results.imported++;
         console.log(`Lagerstätte erstellt: ${item.name} in ${item.country}`);
 
-      } catch (error: any) {
-        const errorMessage = `Fehler bei ${item.name} (${item.country}): ${error.message}`;
+      } catch (error: unknown) {
+        const err = error as Error;
+        const errorMessage = `Fehler bei ${item.name} (${item.country}): ${err.message}`;
         results.errors.push(errorMessage);
         console.error(errorMessage);
       }
@@ -107,13 +108,14 @@ export async function POST(request: NextRequest) {
       warnings: results.warnings
     });
 
-  } catch (error: any) {
-    console.error('Bulk import error:', error);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('Bulk import error:', err);
     return NextResponse.json(
       { 
         success: false, 
         error: 'Internal server error', 
-        details: error?.message || 'Unknown error' 
+        details: err.message || 'Unknown error' 
       },
       { status: 500 }
     );

@@ -26,7 +26,7 @@ export default async function SimpleLocaleLayout({
 }) {
   const { locale } = await params;
 
-  if (!locales.includes(locale as any)) {
+  if (!locales.includes(locale as string)) {
     notFound();
   }
 

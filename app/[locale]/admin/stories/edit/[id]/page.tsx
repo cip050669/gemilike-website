@@ -3,13 +3,22 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 export default function EditStoryPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const [story, setStory] = useState<any>(null);
+  interface StoryData {
+    id: string;
+    title: string;
+    author: string;
+    status: 'draft' | 'published' | 'archived';
+    imageUrl?: string | null;
+    content: string;
+  }
+  const [story, setStory] = useState<StoryData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -146,7 +155,7 @@ export default function EditStoryPage({
           imagePreview.innerHTML = `
             <div class="mt-2">
               <p class="text-sm text-gray-300 mb-2">Ausgewähltes Bild:</p>
-              <img src="${e.target?.result}" alt="Preview" class="h-32 w-32 object-cover rounded border" />
+                    <img src="${e.target?.result}" alt="Preview" class="h-32 w-32 object-cover rounded border" />
               <p class="text-xs text-gray-500 mt-1">${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>
             </div>
           `;
@@ -335,7 +344,7 @@ export default function EditStoryPage({
                 {story.imageUrl && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-300 mb-2">Aktuelles Bild:</p>
-                    <img src={story.imageUrl} alt="Current" className="h-32 w-32 object-cover rounded border" />
+                    <Image src={story.imageUrl} alt="Current" width={128} height={128} className="h-32 w-32 object-cover rounded border" />
                   </div>
                 )}
               </div>

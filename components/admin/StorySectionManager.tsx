@@ -16,6 +16,7 @@ import {
   Wand2,
   RotateCcw
 } from 'lucide-react';
+import Image from 'next/image';
 import { StorySectionSettings, StoryItem } from '@/app/api/admin/stories/route';
 
 interface UploadingState {
@@ -339,11 +340,13 @@ export function StorySectionManager() {
                 {story.imageUrl && (
                   <div className="space-y-2">
                     <Label>Bildvorschau</Label>
-                    <div className="aspect-video bg-muted rounded-md overflow-hidden">
-                      <img
+                    <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
+                      <Image
                         src={story.imageUrl}
                         alt={story.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 640px"
+                        className="object-cover"
                       />
                     </div>
                   </div>

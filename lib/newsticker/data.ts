@@ -17,7 +17,7 @@ export const loadNewstickerData = (): NewstickerItem[] => {
       const raw = fs.readFileSync(NEWSTICKER_FILE, 'utf8');
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed)
-        ? parsed.map((item: any) => ({
+        ? parsed.map((item: Partial<NewstickerItem>) => ({
             ...item,
             createdAt: new Date(item.createdAt),
             updatedAt: new Date(item.updatedAt),

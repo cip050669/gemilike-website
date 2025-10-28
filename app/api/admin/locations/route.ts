@@ -3,7 +3,16 @@ import { getSessionWithUser } from '@/lib/session';
 
 // In-memory storage for demo purposes
 // In production, this would be stored in a database
-let locations: any[] = [];
+type LocationPoint = {
+  id: string;
+  site: string;
+  country: string;
+  gem: string;
+  lat: number;
+  lon: number;
+};
+
+let locations: LocationPoint[] = [];
 
 // Initialize with default data
 const initializeLocations = async () => {
@@ -11,9 +20,13 @@ const initializeLocations = async () => {
     try {
       const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/gems`);
       const data = await response.json();
-      locations = data.points.map((point: any, index: number) => ({
-        ...point,
-        id: `loc_${index + 1}`
+      locations = (data.points as Array<{ site: string; country: string; gem: string; lat: number; lon: number }>).map((point, index) => ({
+        id: `loc_${index + 1}`,
+        site: point.site,
+        country: point.country,
+        gem: point.gem,
+        lat: Number(point.lat),
+        lon: Number(point.lon)
       }));
     } catch (error) {
       console.error('Error initializing locations:', error);
@@ -48,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     // Create new location
-    const newLocation = {
+    const newLocation: LocationPoint = {
       id: `loc_${Date.now()}`,
       site,
       country,

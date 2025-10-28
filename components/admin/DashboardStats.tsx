@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,6 @@ import {
   ShoppingCart, 
   Package, 
   Euro,
-  Eye,
-  Star,
-  Calendar,
   Download,
   RefreshCw,
   AlertTriangle,
@@ -104,7 +101,7 @@ export function DashboardStats({ gemstones }: DashboardStatsProps) {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Mock data for demonstration - in production, this would come from your database
-  const generateMockStats = (): StatsData => {
+  const generateMockStats = useCallback((): StatsData => {
     const totalProducts = gemstones.length;
     const availableProducts = gemstones.filter(g => g.inStock).length;
     const outOfStockProducts = gemstones.filter(g => !g.inStock).length;
@@ -207,8 +204,8 @@ export function DashboardStats({ gemstones }: DashboardStatsProps) {
     const cutGemstones = gemstones.filter(g => g.type === 'cut');
     const roughGemstones = gemstones.filter(g => g.type === 'rough');
     
-    const totalCaratWeight = cutGemstones.reduce((sum, g) => sum + (g as any).caratWeight, 0);
-    const totalGramWeight = roughGemstones.reduce((sum, g) => sum + (g as any).gramWeight, 0);
+    const totalCaratWeight = cutGemstones.reduce((sum, g) => sum + (g as Gemstone & { caratWeight?: number }).caratWeight ?? 0, 0);
+    const totalGramWeight = roughGemstones.reduce((sum, g) => sum + (g as Gemstone & { gramWeight?: number }).gramWeight ?? 0, 0);
     
     const weightStats = {
       totalCaratWeight,
@@ -237,20 +234,19 @@ export function DashboardStats({ gemstones }: DashboardStatsProps) {
       priceStats,
       weightStats
     };
-  };
+  }, [gemstones]);
+
+  const loadStats = useCallback(async () => {
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setStats(generateMockStats());
+    setLastUpdated(new Date());
+    setIsLoading(false);
+  }, [generateMockStats]);
 
   useEffect(() => {
-    const loadStats = async () => {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setStats(generateMockStats());
-      setLastUpdated(new Date());
-      setIsLoading(false);
-    };
-
-    loadStats();
-  }, [gemstones]);
+    void loadStats();
+  }, [loadStats, gemstones]);
 
   const handleRefresh = () => {
     setStats(generateMockStats());
@@ -434,7 +430,7 @@ export function DashboardStats({ gemstones }: DashboardStatsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Zertifizierung</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
+            <Euro className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="space-y-2">

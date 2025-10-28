@@ -121,7 +121,7 @@ export default function FileUpload({
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            handleClick(e as any);
+            handleClick(e as unknown as React.MouseEvent);
           }
         }}
       >

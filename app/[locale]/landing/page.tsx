@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 
 export default function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
-  const router = useRouter();
+  useRouter();
   const [countdown, setCountdown] = useState(4);
   const [mounted, setMounted] = useState(false);
   const t = useTranslations('landing');

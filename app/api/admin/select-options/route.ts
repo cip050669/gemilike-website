@@ -67,7 +67,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const updateData: any = {};
+    const updateData: Partial<{ value: string; label: string; category: string; isActive: boolean; order: number }> = {};
     if (value !== undefined) updateData.value = value;
     if (label !== undefined) updateData.label = label;
     if (category !== undefined) updateData.category = category;

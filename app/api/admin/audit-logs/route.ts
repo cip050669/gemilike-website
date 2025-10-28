@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     console.log('🔍 Starting audit logs API request...');
     
     // Temporäre Lösung für Entwicklung - in Produktion sollte Authentifizierung aktiviert werden
-    const { session, userId: currentUserId } = await getSessionWithUser();
+    const { userId: currentUserId } = await getSessionWithUser();
     
     // Für Entwicklung: Erlaube Zugriff ohne Authentifizierung
     if (process.env.NODE_ENV === 'development') {
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     
     try {
       // Direkte Prisma-Abfrage
-      const where: any = {};
+      const where: Partial<{ action: string; userId: string; entityType: string }> = {};
       
       if (action) {
         where.action = action;
@@ -99,12 +99,13 @@ export async function GET(request: NextRequest) {
       // Schließe Prisma-Verbindung
       await prisma.$disconnect();
     }
-  } catch (error) {
-    console.error('❌ Error fetching audit logs:', error);
-    console.error('❌ Error details:', error.message);
-    console.error('❌ Error stack:', error.stack);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ Error fetching audit logs:', err);
+    console.error('❌ Error details:', err.message);
+    console.error('❌ Error stack:', err.stack);
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: err.message },
       { status: 500 }
     );
   }

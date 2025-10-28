@@ -103,7 +103,7 @@ export default function ImprintPage() {
               <div className="space-y-2 text-muted-foreground">
                 <p><strong>Hosting:</strong> Vercel Inc., San Francisco, CA, USA</p>
                 <p><strong>Domain:</strong> gemilike.de</p>
-                <p><strong>SSL-Zertifikat:</strong> Let's Encrypt</p>
+                <p><strong>SSL-Zertifikat:</strong> Let&apos;s Encrypt</p>
                 <p><strong>Framework:</strong> Next.js 14</p>
                 <p><strong>Styling:</strong> Tailwind CSS</p>
               </div>

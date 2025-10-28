@@ -2,8 +2,9 @@
 
 import { useCartStore } from '@/lib/store/cart';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 import { XIcon, PlusIcon, MinusIcon, ShoppingCartIcon } from 'lucide-react';
 import Link from 'next/link';
 
@@ -49,10 +50,13 @@ export function Cart() {
                       <div className="flex items-center space-x-4">
                         {item.image && (
                           <div className="relative h-16 w-16 rounded-lg bg-muted overflow-hidden">
-                            <img
+                            <Image
                               src={item.image}
                               alt={item.name}
-                              className="h-full w-full object-cover"
+                              fill
+                              sizes="64px"
+                              className="object-cover"
+                              priority={false}
                             />
                           </div>
                         )}

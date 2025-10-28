@@ -4,9 +4,9 @@ import { BlogPost } from '@/lib/types/blog';
 import { loadBlogs, saveBlogs } from '@/lib/data/blogs';
 
 // GET - Alle Blog-Posts abrufen
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     
     // Für Development: Authentifizierung temporär deaktiviert
     // TODO: In Production wieder aktivieren
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 // POST - Neuen Blog-Post erstellen
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     
     // Für Development: Authentifizierung temporär deaktiviert
     // TODO: In Production wieder aktivieren
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 // PUT - Blog-Post aktualisieren
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     
     // Für Development: Authentifizierung temporär deaktiviert
     // TODO: In Production wieder aktivieren
@@ -157,7 +157,7 @@ export async function PUT(request: NextRequest) {
 // DELETE - Blog-Post löschen
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     
     // Für Development: Authentifizierung temporär deaktiviert
     // TODO: In Production wieder aktivieren

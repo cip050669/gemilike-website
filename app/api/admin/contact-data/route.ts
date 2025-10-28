@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('Contact data API called');
     
     // Authentifizierung - in Entwicklung optional
-    const { session, userId } = await getSessionWithUser();
+    const { userId } = await getSessionWithUser();
     if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Authentifizierung - in Entwicklung optional
-    const { session, userId } = await getSessionWithUser();
+    const { userId } = await getSessionWithUser();
     if (process.env.NODE_ENV === 'production' && !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -86,18 +86,20 @@ export async function PUT(request: NextRequest) {
 
       console.log('Contact data updated:', contactData);
       return NextResponse.json({ success: true });
-    } catch (dbError: any) {
-      console.error('Database error during save:', dbError);
+    } catch (dbError: unknown) {
+      const err = dbError as Error;
+      console.error('Database error during save:', err);
       return NextResponse.json({ 
         success: false, 
         error: 'Database error', 
-        details: dbError?.message || 'Unknown database error' 
+        details: err.message || 'Unknown database error' 
       }, { status: 500 });
     }
-  } catch (error: any) {
-    console.error('Error updating contact data:', error);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('Error updating contact data:', err);
     return NextResponse.json(
-      { error: 'Internal server error', details: error?.message || 'Unknown error' },
+      { error: 'Internal server error', details: err.message || 'Unknown error' },
       { status: 500 }
     );
   }

@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         billingAddressId,
         shippingAddressId: shippingAddressId || billingAddressId,
         orderItems: {
-          create: items.map((item: any) => ({
+          create: items.map((item: { gemstoneId: string; quantity: number; price: number; notes?: string }) => ({
             gemstoneId: item.gemstoneId,
             quantity: item.quantity,
             price: item.price,

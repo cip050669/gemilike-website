@@ -78,7 +78,7 @@ export interface DashboardStats {
   lastUpdated: string;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const { session, userId } = await getSessionWithUser();
 
@@ -213,8 +213,8 @@ async function generateDashboardStats(gemstones: Gemstone[]): Promise<DashboardS
   const cutGemstones = gemstones.filter(g => g.type === 'cut');
   const roughGemstones = gemstones.filter(g => g.type === 'rough');
   
-  const totalCaratWeight = cutGemstones.reduce((sum, g) => sum + (g as any).caratWeight, 0);
-  const totalGramWeight = roughGemstones.reduce((sum, g) => sum + (g as any).gramWeight, 0);
+  const totalCaratWeight = cutGemstones.reduce((sum, g) => sum + (g as Gemstone & { caratWeight?: number }).caratWeight ?? 0, 0);
+  const totalGramWeight = roughGemstones.reduce((sum, g) => sum + (g as Gemstone & { gramWeight?: number }).gramWeight ?? 0, 0);
   
   const weightStats = {
     totalCaratWeight,

@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
     });
 
     // Add new wishlist items
-    if (items && items.length > 0) {
+    if (items && (items as unknown[]).length > 0) {
       await prisma.wishlistItem.createMany({
-        data: items.map((item: any) => ({
+        data: (items as Array<{ gemstoneId: string; notes?: string }>).map((item) => ({
           userId: userId,
           gemstoneId: item.gemstoneId,
           notes: item.notes || null
