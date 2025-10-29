@@ -30,39 +30,5 @@
     "createdAt": "2025-10-10T19:57:15.547Z",
     "updatedAt": "2025-10-10T19:57:15.547Z",
     "publishedAt": "2025-10-10T19:57:15.547Z"
-  },
-  {
-    "id": "blog_1761046904749_dj55kbivn",
-    "title": "das ist ein test",
-    "slug": "das-ist-ein-test",
-    "excerpt": "Wir testen den blog",
-    "content": "![1](/images/stories/placeholder-gem.svg)",
-    "author": "Gemilike Team",
-    "category": "Investment",
-    "tags": [],
-    "image": "/images/stories/placeholder-gem.svg",
-    "contentImages": [],
-    "published": true,
-    "featured": false,
-    "createdAt": "2025-10-21T11:41:44.749Z",
-    "updatedAt": "2025-10-21T11:41:44.749Z",
-    "publishedAt": "2025-10-21T11:41:44.749Z"
-  },
-  {
-    "id": "blog_1761064799351_9vc0s9axh",
-    "title": "test2222",
-    "slug": "test2222",
-    "excerpt": "dAS ist e in boosttg",
-    "content": "![2](/uploads/stories/story-1761064701452.JPG)\n",
-    "author": "Gemilike Team",
-    "category": "Zertifizierung",
-    "tags": [],
-    "image": "/uploads/stories/story-1761064701452.JPG",
-    "contentImages": [],
-    "published": true,
-    "featured": false,
-    "createdAt": "2025-10-21T16:39:59.351Z",
-    "updatedAt": "2025-10-21T16:39:59.351Z",
-    "publishedAt": "2025-10-21T16:39:59.351Z"
   }
 ]

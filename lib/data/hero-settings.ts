@@ -19,6 +19,7 @@ export interface HeroSettingsData {
 const HERO_UPLOAD_DIR = join(process.cwd(), 'public', 'uploads', 'hero');
 const HERO_DEFAULT_IMAGE = '/uploads/hero/hero-default.jpg';
 const HERO_FALLBACK_IMAGE = '/images/hero-fallback.jpg';
+const HERO_SETTINGS_ID = 'singleton';
 
 const fallbackHeroImage = (): string => {
   try {
@@ -53,17 +54,45 @@ const DEFAULT_SETTINGS: HeroSettingsData = {
   secondaryCtaLink: '/contact',
 };
 
+const normalizeText = (value: string | null | undefined, fallback: string): string => {
+  if (value === undefined || value === null) return fallback;
+  return value.trim();
+};
+
+const normalizeOptionalText = (
+  value: string | null | undefined,
+  fallback: string | null | undefined
+): string => {
+  if (value === undefined || value === null) return fallback ?? '';
+  return value.trim();
+};
+
 const normalizeSettings = (settings?: Partial<HeroSettingsData>): HeroSettingsData => {
-  const backgroundImage = settings?.backgroundImage?.trim();
+  const backgroundImageCandidate = settings?.backgroundImage;
+  const backgroundImageTrimmed = backgroundImageCandidate?.trim();
+
+  const backgroundImage =
+    backgroundImageCandidate === undefined || backgroundImageCandidate === null
+      ? DEFAULT_SETTINGS.backgroundImage
+      : backgroundImageTrimmed && backgroundImageTrimmed.length > 0
+        ? backgroundImageTrimmed
+        : fallbackHeroImage();
+
   return {
-    title: settings?.title?.trim() || DEFAULT_SETTINGS.title,
-    titleLine2: settings?.titleLine2?.trim() || DEFAULT_SETTINGS.titleLine2,
-    subtitle: settings?.subtitle?.trim() || DEFAULT_SETTINGS.subtitle,
-    backgroundImage: backgroundImage && backgroundImage.length > 0 ? backgroundImage : fallbackHeroImage(),
-    ctaText: settings?.ctaText?.trim() || DEFAULT_SETTINGS.ctaText,
-    ctaLink: settings?.ctaLink?.trim() || DEFAULT_SETTINGS.ctaLink,
-    secondaryCtaText: settings?.secondaryCtaText?.trim() || DEFAULT_SETTINGS.secondaryCtaText,
-    secondaryCtaLink: settings?.secondaryCtaLink?.trim() || DEFAULT_SETTINGS.secondaryCtaLink,
+    title: normalizeText(settings?.title, DEFAULT_SETTINGS.title),
+    titleLine2: normalizeOptionalText(settings?.titleLine2, DEFAULT_SETTINGS.titleLine2),
+    subtitle: normalizeText(settings?.subtitle, DEFAULT_SETTINGS.subtitle),
+    backgroundImage,
+    ctaText: normalizeText(settings?.ctaText, DEFAULT_SETTINGS.ctaText),
+    ctaLink: normalizeText(settings?.ctaLink, DEFAULT_SETTINGS.ctaLink),
+    secondaryCtaText: normalizeOptionalText(
+      settings?.secondaryCtaText,
+      DEFAULT_SETTINGS.secondaryCtaText
+    ),
+    secondaryCtaLink: normalizeOptionalText(
+      settings?.secondaryCtaLink,
+      DEFAULT_SETTINGS.secondaryCtaLink
+    ),
   };
 };
 
@@ -75,7 +104,7 @@ export const loadHeroSettings = async (): Promise<HeroSettingsData> => {
   noStore();
 
   const record = await prisma.heroSettings.findUnique({
-    where: { id: 1 },
+    where: { id: HERO_SETTINGS_ID },
   });
 
   if (!record) {
@@ -86,11 +115,11 @@ export const loadHeroSettings = async (): Promise<HeroSettingsData> => {
     title: record.title,
     titleLine2: record.titleLine2 ?? undefined,
     subtitle: record.subtitle,
-    backgroundImage: record.backgroundImage,
-    ctaText: record.ctaText,
-    ctaLink: record.ctaLink,
-    secondaryCtaText: record.secondaryCtaText ?? undefined,
-    secondaryCtaLink: record.secondaryCtaLink ?? undefined,
+    backgroundImage: record.imageUrl,
+    ctaText: record.primaryButtonText,
+    ctaLink: record.primaryButtonLink,
+    secondaryCtaText: record.secondaryButtonText ?? undefined,
+    secondaryCtaLink: record.secondaryButtonLink ?? undefined,
   });
 };
 
@@ -98,27 +127,27 @@ export const saveHeroSettings = async (settings: HeroSettingsData): Promise<Hero
   const normalized = normalizeSettings(settings);
 
   await prisma.heroSettings.upsert({
-    where: { id: 1 },
+    where: { id: HERO_SETTINGS_ID },
     update: {
       title: normalized.title,
       titleLine2: normalized.titleLine2,
       subtitle: normalized.subtitle,
-      backgroundImage: normalized.backgroundImage,
-      ctaText: normalized.ctaText,
-      ctaLink: normalized.ctaLink,
-      secondaryCtaText: normalized.secondaryCtaText,
-      secondaryCtaLink: normalized.secondaryCtaLink,
+      imageUrl: normalized.backgroundImage,
+      primaryButtonText: normalized.ctaText,
+      primaryButtonLink: normalized.ctaLink,
+      secondaryButtonText: normalized.secondaryCtaText,
+      secondaryButtonLink: normalized.secondaryCtaLink,
     },
     create: {
-      id: 1,
+      id: HERO_SETTINGS_ID,
       title: normalized.title,
       titleLine2: normalized.titleLine2,
       subtitle: normalized.subtitle,
-      backgroundImage: normalized.backgroundImage,
-      ctaText: normalized.ctaText,
-      ctaLink: normalized.ctaLink,
-      secondaryCtaText: normalized.secondaryCtaText,
-      secondaryCtaLink: normalized.secondaryCtaLink,
+      imageUrl: normalized.backgroundImage,
+      primaryButtonText: normalized.ctaText,
+      primaryButtonLink: normalized.ctaLink,
+      secondaryButtonText: normalized.secondaryCtaText,
+      secondaryButtonLink: normalized.secondaryCtaLink,
     },
   });
 

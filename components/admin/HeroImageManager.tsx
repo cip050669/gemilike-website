@@ -44,12 +44,27 @@ export function HeroImageManager() {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (data.success && data.settings) {
-          const serverSettings = data.settings as HeroImageSettings & {
+          const apiSettings = data.settings as {
+            title?: string;
+            titleLine2?: string;
+            subtitle?: string;
             backgroundImage?: string;
+            ctaText?: string;
+            ctaLink?: string;
+            secondaryCtaText?: string;
+            secondaryCtaLink?: string;
           };
           return {
-            ...serverSettings,
-            imageUrl: serverSettings.backgroundImage ?? serverSettings.imageUrl ?? INITIAL_SETTINGS.imageUrl,
+            imageUrl: apiSettings.backgroundImage ?? INITIAL_SETTINGS.imageUrl,
+            title: apiSettings.title ?? INITIAL_SETTINGS.title,
+            titleLine2: apiSettings.titleLine2 ?? INITIAL_SETTINGS.titleLine2,
+            subtitle: apiSettings.subtitle ?? INITIAL_SETTINGS.subtitle,
+            primaryButtonText: apiSettings.ctaText ?? INITIAL_SETTINGS.primaryButtonText,
+            primaryButtonLink: apiSettings.ctaLink ?? INITIAL_SETTINGS.primaryButtonLink,
+            secondaryButtonText:
+              apiSettings.secondaryCtaText ?? INITIAL_SETTINGS.secondaryButtonText,
+            secondaryButtonLink:
+              apiSettings.secondaryCtaLink ?? INITIAL_SETTINGS.secondaryButtonLink,
           };
         }
       } catch (error) {

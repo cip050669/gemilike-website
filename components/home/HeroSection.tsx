@@ -104,9 +104,18 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
     setHeroSrc(next);
   }, [normalizedSettings.backgroundImage]);
 
-  const heroTitle = normalizedSettings.title?.trim() || defaultTitle;
-  const heroSubtitle = normalizedSettings.subtitle?.trim() || defaultSubtitle;
-  const titleLine2 = normalizedSettings.titleLine2?.trim();
+  const heroTitle =
+    normalizedSettings.title !== undefined && normalizedSettings.title !== null
+      ? normalizedSettings.title
+      : defaultTitle;
+  const heroSubtitle =
+    normalizedSettings.subtitle !== undefined && normalizedSettings.subtitle !== null
+      ? normalizedSettings.subtitle
+      : defaultSubtitle;
+  const titleLine2 =
+    normalizedSettings.titleLine2 !== undefined && normalizedSettings.titleLine2 !== null
+      ? normalizedSettings.titleLine2
+      : undefined;
 
   const primaryCtaLabel = normalizedSettings.ctaText?.trim() || defaultPrimaryCtaLabel;
   const primaryCtaLink = normalizedSettings.ctaLink?.trim() || defaultPrimaryCtaLink;
@@ -153,21 +162,6 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
           <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-white/90 max-w-3xl mx-auto">
             {heroSubtitle}
           </p>
-
-          <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 justify-center">
-            <Link
-              href={buildHref(primaryCtaLink)}
-              className="inline-flex items-center justify-center rounded-full bg-white text-gray-900 px-8 py-3 text-base font-semibold shadow-lg hover:shadow-2xl transition-shadow"
-            >
-              {primaryCtaLabel}
-            </Link>
-            <Link
-              href={buildHref(secondaryCtaLink)}
-              className="inline-flex items-center justify-center rounded-full border border-white/70 px-8 py-3 text-base font-semibold text-white hover:bg-white/10 transition-colors"
-            >
-              {secondaryCtaLabel}
-            </Link>
-          </div>
         </div>
       </div>
     </section>
