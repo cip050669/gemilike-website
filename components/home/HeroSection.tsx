@@ -16,8 +16,7 @@ const defaultPrimaryCtaLabel = 'Sortiment entdecken';
 const defaultPrimaryCtaLink = '/shop';
 const defaultSecondaryCtaLabel = 'Kontaktieren Sie uns';
 const defaultSecondaryCtaLink = '/contact';
-const HEADER_HEIGHT_PX = 96;
-const HERO_OFFSET_FROM_HEADER_PX = 40;
+const HERO_TOP_OFFSET_PX = 85;
 
 const renderGemLikeTitle = (title: string) => {
   const gemGradientStyle: CSSProperties = {
@@ -126,7 +125,7 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
 
   return (
     <section
-      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden"
+      className="relative flex min-h-screen w-full items-start justify-center overflow-hidden"
       style={{
         backgroundImage: `url(${heroSrc})`,
         backgroundSize: 'cover',
@@ -139,10 +138,10 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
 
       <div
         className="relative z-10 w-full max-w-5xl px-6 pb-24 text-white"
-        style={{ paddingTop: `${HEADER_HEIGHT_PX + HERO_OFFSET_FROM_HEADER_PX}px` }}
+        style={{ paddingTop: `${HERO_TOP_OFFSET_PX}px` }}
       >
         <div className="space-y-6 text-left sm:text-center">
-          <h1 className="font-bold text-[44px] sm:text-[56px] lg:text-[72px] leading-tight drop-shadow-2xl">
+          <h1 className="font-bold text-[59px] sm:text-[71px] lg:text-[87px] leading-tight drop-shadow-2xl">
             {renderGemLikeTitle(heroTitle)}
             {titleLine2 && (
               <span className="block text-[30px] sm:text-[38px] lg:text-[44px] font-light text-white/90">

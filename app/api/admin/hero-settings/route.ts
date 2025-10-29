@@ -22,24 +22,31 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const body = (await request.json()) as Partial<HeroSettingsData>;
+    const current = await loadHeroSettings();
     const defaults = await getDefaultHeroSettings();
 
     const payload: HeroSettingsData = {
-      title: typeof body.title === 'string' ? body.title : defaults.title,
-      titleLine2: typeof body.titleLine2 === 'string' ? body.titleLine2 : defaults.titleLine2,
-      subtitle: typeof body.subtitle === 'string' ? body.subtitle : defaults.subtitle,
+      title: typeof body.title === 'string' ? body.title : current.title || defaults.title,
+      titleLine2:
+        typeof body.titleLine2 === 'string'
+          ? body.titleLine2
+          : current.titleLine2 || defaults.titleLine2,
+      subtitle:
+        typeof body.subtitle === 'string' ? body.subtitle : current.subtitle || defaults.subtitle,
       backgroundImage:
-        typeof body.backgroundImage === 'string' ? body.backgroundImage : defaults.backgroundImage,
-      ctaText: typeof body.ctaText === 'string' ? body.ctaText : defaults.ctaText,
-      ctaLink: typeof body.ctaLink === 'string' ? body.ctaLink : defaults.ctaLink,
+        typeof body.backgroundImage === 'string'
+          ? body.backgroundImage
+          : current.backgroundImage || defaults.backgroundImage,
+      ctaText: typeof body.ctaText === 'string' ? body.ctaText : current.ctaText || defaults.ctaText,
+      ctaLink: typeof body.ctaLink === 'string' ? body.ctaLink : current.ctaLink || defaults.ctaLink,
       secondaryCtaText:
         typeof body.secondaryCtaText === 'string'
           ? body.secondaryCtaText
-          : defaults.secondaryCtaText,
+          : current.secondaryCtaText || defaults.secondaryCtaText,
       secondaryCtaLink:
         typeof body.secondaryCtaLink === 'string'
           ? body.secondaryCtaLink
-          : defaults.secondaryCtaLink,
+          : current.secondaryCtaLink || defaults.secondaryCtaLink,
     };
 
     await saveHeroSettings(payload);

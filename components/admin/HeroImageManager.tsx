@@ -19,17 +19,19 @@ interface HeroImageSettings {
   secondaryButtonLink: string;
 }
 
+const INITIAL_SETTINGS: HeroImageSettings = {
+  imageUrl: '/uploads/hero/hero-default.jpg',
+  title: 'Einfach nur Gemilike',
+  titleLine2: 'Heroes in Gems',
+  subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
+  primaryButtonText: 'Sortiment entdecken',
+  secondaryButtonText: 'Kontaktieren Sie uns',
+  primaryButtonLink: '/shop',
+  secondaryButtonLink: '/contact',
+};
+
 export function HeroImageManager() {
-  const [settings, setSettings] = useState<HeroImageSettings>({
-    imageUrl: '/uploads/hero/hero-default.jpg',
-    title: 'Einfach nur Gemilike',
-    titleLine2: 'Heroes in Gems',
-    subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
-    primaryButtonText: 'Sortiment entdecken',
-    secondaryButtonText: 'Kontaktieren Sie uns',
-    primaryButtonLink: '/shop',
-    secondaryButtonLink: '/contact'
-  });
+  const [settings, setSettings] = useState<HeroImageSettings>(INITIAL_SETTINGS);
 
   const [isLoading, setIsLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
@@ -39,40 +41,45 @@ export function HeroImageManager() {
     const loadSettings = async () => {
       try {
         const response = await fetch('/api/admin/hero-settings');
-        if (!response.ok) return;
-
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
-        if (data.success && data.settings) {
-          setSettings((prev) => {
-            const merged = { ...prev, ...data.settings };
-            localStorage.setItem('heroImageSettings', JSON.stringify(merged));
-            return merged;
-          });
-        }
+        if (data.success && data.settings) return data.settings as HeroImageSettings;
       } catch (error) {
-        // Fallback zu localStorage
-        const savedSettings = localStorage.getItem('heroImageSettings');
-        if (savedSettings) {
+        const saved = localStorage.getItem('heroImageSettings');
+        if (saved) {
           try {
-            const parsed = JSON.parse(savedSettings);
-            setSettings(prev => ({ ...prev, ...parsed }));
-          } catch (error) {
-            // Silent error handling
+            return JSON.parse(saved) as HeroImageSettings;
+          } catch {
+            return null;
           }
         }
       }
+      return null;
     };
 
-    // Lade sofort
-    loadSettings();
+    const initialize = async () => {
+      const settingsFromServer = await loadSettings();
+      const nextSettings = settingsFromServer
+        ? { ...INITIAL_SETTINGS, ...settingsFromServer }
+        : INITIAL_SETTINGS;
 
-    // Höre auf Custom Events für Updates
-    const handleSettingsUpdate = () => {
-      loadSettings();
+      setSettings(nextSettings);
+      localStorage.setItem('heroImageSettings', JSON.stringify(nextSettings));
+    };
+
+    initialize();
+
+    const handleSettingsUpdate = async () => {
+      const updated = await loadSettings();
+      if (updated) {
+        const merged = { ...INITIAL_SETTINGS, ...updated };
+        setSettings(merged);
+        localStorage.setItem('heroImageSettings', JSON.stringify(merged));
+      }
     };
 
     window.addEventListener('hero-settings-updated', handleSettingsUpdate);
-    
+
     return () => {
       window.removeEventListener('hero-settings-updated', handleSettingsUpdate);
     };
@@ -85,7 +92,7 @@ export function HeroImageManager() {
       const response = await fetch('/api/admin/hero-settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
+        body: JSON.stringify(settings),
       });
 
       if (!response.ok) {
@@ -108,22 +115,12 @@ export function HeroImageManager() {
   };
 
   const handleReset = () => {
-    const defaultSettings: HeroImageSettings = {
-      imageUrl: '/uploads/hero/hero-default.jpg',
-      title: 'Einfach nur Gemilike',
-      titleLine2: 'Heroes in Gems',
-      subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
-      primaryButtonText: 'Sortiment entdecken',
-      secondaryButtonText: 'Kontaktieren Sie uns',
-      primaryButtonLink: '/shop',
-      secondaryButtonLink: '/contact'
-    };
-    setSettings(defaultSettings);
-    localStorage.setItem('heroImageSettings', JSON.stringify(defaultSettings));
+    setSettings(INITIAL_SETTINGS);
+    localStorage.setItem('heroImageSettings', JSON.stringify(INITIAL_SETTINGS));
     fetch('/api/admin/hero-settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(defaultSettings),
+      body: JSON.stringify(INITIAL_SETTINGS),
     })
       .then(() => {
         window.dispatchEvent(new CustomEvent('hero-settings-updated'));

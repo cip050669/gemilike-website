@@ -69,7 +69,7 @@ export function Header() {
       <div className="flex items-center justify-between w-full h-full px-6 gap-4" style={{ width: '100%', maxWidth: 'none' }}>
         {/* Logo - Links */}
         <div className="flex-shrink-0">
-          <Link href="/">
+          <Link href="/" className="inline-flex items-center transition-transform duration-200 hover:scale-[1.4]">
             <Image
               src="/logo.png"
               alt="Gemilike - Heroes in Gems"
