@@ -43,7 +43,15 @@ export function HeroImageManager() {
         const response = await fetch('/api/admin/hero-settings');
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
-        if (data.success && data.settings) return data.settings as HeroImageSettings;
+        if (data.success && data.settings) {
+          const serverSettings = data.settings as HeroImageSettings & {
+            backgroundImage?: string;
+          };
+          return {
+            ...serverSettings,
+            imageUrl: serverSettings.backgroundImage ?? serverSettings.imageUrl ?? INITIAL_SETTINGS.imageUrl,
+          };
+        }
       } catch (error) {
         const saved = localStorage.getItem('heroImageSettings');
         if (saved) {
@@ -92,7 +100,16 @@ export function HeroImageManager() {
       const response = await fetch('/api/admin/hero-settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify({
+          title: settings.title,
+          titleLine2: settings.titleLine2,
+          subtitle: settings.subtitle,
+          backgroundImage: settings.imageUrl,
+          ctaText: settings.primaryButtonText,
+          ctaLink: settings.primaryButtonLink,
+          secondaryCtaText: settings.secondaryButtonText,
+          secondaryCtaLink: settings.secondaryButtonLink,
+        }),
       });
 
       if (!response.ok) {
@@ -120,7 +137,16 @@ export function HeroImageManager() {
     fetch('/api/admin/hero-settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(INITIAL_SETTINGS),
+      body: JSON.stringify({
+        title: INITIAL_SETTINGS.title,
+        titleLine2: INITIAL_SETTINGS.titleLine2,
+        subtitle: INITIAL_SETTINGS.subtitle,
+        backgroundImage: INITIAL_SETTINGS.imageUrl,
+        ctaText: INITIAL_SETTINGS.primaryButtonText,
+        ctaLink: INITIAL_SETTINGS.primaryButtonLink,
+        secondaryCtaText: INITIAL_SETTINGS.secondaryButtonText,
+        secondaryCtaLink: INITIAL_SETTINGS.secondaryButtonLink,
+      }),
     })
       .then(() => {
         window.dispatchEvent(new CustomEvent('hero-settings-updated'));
@@ -167,7 +193,16 @@ export function HeroImageManager() {
         await fetch('/api/admin/hero-settings', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newSettings),
+          body: JSON.stringify({
+            title: newSettings.title,
+            titleLine2: newSettings.titleLine2,
+            subtitle: newSettings.subtitle,
+            backgroundImage: newSettings.imageUrl,
+            ctaText: newSettings.primaryButtonText,
+            ctaLink: newSettings.primaryButtonLink,
+            secondaryCtaText: newSettings.secondaryButtonText,
+            secondaryCtaLink: newSettings.secondaryButtonLink,
+          }),
         });
         localStorage.setItem('heroImageSettings', JSON.stringify(newSettings));
         window.dispatchEvent(new CustomEvent('hero-settings-updated'));

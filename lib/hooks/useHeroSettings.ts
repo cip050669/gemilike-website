@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 
 const defaultSettings = {
-  title: 'Gemilike - Heroes in Gems',
-  subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine',
-  backgroundImage: '/uploads/hero/hero-1759840578273.jpg',
-  ctaText: 'Entdecken Sie unsere Edelsteine',
-  ctaLink: '/gemstones',
+  title: 'Einfach nur Gemilike',
+  subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
+  backgroundImage: '/uploads/hero/hero-default.jpg',
+  ctaText: 'Sortiment entdecken',
+  ctaLink: '/shop',
 };
 
 type HeroSettings = typeof defaultSettings;
@@ -28,9 +28,10 @@ export function useHeroSettings() {
             const apiSettings = {
               title: data.settings.title || defaultSettings.title,
               subtitle: data.settings.subtitle || defaultSettings.subtitle,
-              backgroundImage: data.settings.imageUrl || defaultSettings.backgroundImage,
-              ctaText: data.settings.primaryButtonText || defaultSettings.ctaText,
-              ctaLink: data.settings.primaryButtonLink || defaultSettings.ctaLink,
+              backgroundImage:
+                data.settings.backgroundImage || defaultSettings.backgroundImage,
+              ctaText: data.settings.ctaText || defaultSettings.ctaText,
+              ctaLink: data.settings.ctaLink || defaultSettings.ctaLink,
             };
             setHeroSettings(apiSettings);
             return;
@@ -54,7 +55,13 @@ export function useHeroSettings() {
 
       if (legacySaved) {
         try {
-          const legacyParsed = JSON.parse(legacySaved) as { imageUrl?: string; title?: string; subtitle?: string; primaryButtonText?: string; primaryButtonLink?: string; };
+          const legacyParsed = JSON.parse(legacySaved) as {
+            imageUrl?: string;
+            title?: string;
+            subtitle?: string;
+            primaryButtonText?: string;
+            primaryButtonLink?: string;
+          };
           if (legacyParsed.imageUrl) parsedSettings.backgroundImage = legacyParsed.imageUrl;
           if (legacyParsed.title) parsedSettings.title = legacyParsed.title;
           if (legacyParsed.subtitle) parsedSettings.subtitle = legacyParsed.subtitle;
@@ -75,13 +82,16 @@ export function useHeroSettings() {
       // Speichere in localStorage
       window.localStorage.setItem('heroSettings', JSON.stringify(newSettings));
       // Also update legacy key for backward compatibility
-      window.localStorage.setItem('heroImageSettings', JSON.stringify({
-        imageUrl: newSettings.backgroundImage,
-        title: newSettings.title,
-        subtitle: newSettings.subtitle,
-        primaryButtonText: newSettings.ctaText,
-        primaryButtonLink: newSettings.ctaLink,
-      }));
+      window.localStorage.setItem(
+        'heroImageSettings',
+        JSON.stringify({
+          imageUrl: newSettings.backgroundImage,
+          title: newSettings.title,
+          subtitle: newSettings.subtitle,
+          primaryButtonText: newSettings.ctaText,
+          primaryButtonLink: newSettings.ctaLink,
+        })
+      );
       
       // Versuche auch die API zu aktualisieren
       try {
@@ -89,11 +99,11 @@ export function useHeroSettings() {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            imageUrl: newSettings.backgroundImage,
+            backgroundImage: newSettings.backgroundImage,
             title: newSettings.title,
             subtitle: newSettings.subtitle,
-            primaryButtonText: newSettings.ctaText,
-            primaryButtonLink: newSettings.ctaLink,
+            ctaText: newSettings.ctaText,
+            ctaLink: newSettings.ctaLink,
           })
         });
       } catch (error) {

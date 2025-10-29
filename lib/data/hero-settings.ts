@@ -1,26 +1,24 @@
 'use server';
 
 import { existsSync, readdirSync } from 'fs';
-import { mkdir, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
+import { prisma } from '@/lib/prisma';
 import { unstable_noStore as noStore } from 'next/cache';
 
 export interface HeroSettingsData {
   title: string;
-  titleLine2?: string;
+  titleLine2?: string | null;
   subtitle: string;
   backgroundImage: string;
   ctaText: string;
   ctaLink: string;
-  secondaryCtaText?: string;
-  secondaryCtaLink?: string;
+  secondaryCtaText?: string | null;
+  secondaryCtaLink?: string | null;
 }
 
-const DATA_DIR = join(process.cwd(), 'data');
-const SETTINGS_PATH = join(DATA_DIR, 'hero-settings.json');
 const HERO_UPLOAD_DIR = join(process.cwd(), 'public', 'uploads', 'hero');
 const HERO_DEFAULT_IMAGE = '/uploads/hero/hero-default.jpg';
-const PLACEHOLDER_IMAGE = '/images/hero-fallback.jpg';
+const HERO_FALLBACK_IMAGE = '/images/hero-fallback.jpg';
 
 const fallbackHeroImage = (): string => {
   try {
@@ -41,15 +39,7 @@ const fallbackHeroImage = (): string => {
     return HERO_DEFAULT_IMAGE;
   }
 
-  return PLACEHOLDER_IMAGE;
-};
-
-const resolveHeroImage = (candidate?: string): string => {
-  const trimmed = candidate?.trim();
-  if (trimmed) {
-    return trimmed;
-  }
-  return fallbackHeroImage();
+  return HERO_FALLBACK_IMAGE;
 };
 
 const DEFAULT_SETTINGS: HeroSettingsData = {
@@ -63,6 +53,20 @@ const DEFAULT_SETTINGS: HeroSettingsData = {
   secondaryCtaLink: '/contact',
 };
 
+const normalizeSettings = (settings?: Partial<HeroSettingsData>): HeroSettingsData => {
+  const backgroundImage = settings?.backgroundImage?.trim();
+  return {
+    title: settings?.title?.trim() || DEFAULT_SETTINGS.title,
+    titleLine2: settings?.titleLine2?.trim() || DEFAULT_SETTINGS.titleLine2,
+    subtitle: settings?.subtitle?.trim() || DEFAULT_SETTINGS.subtitle,
+    backgroundImage: backgroundImage && backgroundImage.length > 0 ? backgroundImage : fallbackHeroImage(),
+    ctaText: settings?.ctaText?.trim() || DEFAULT_SETTINGS.ctaText,
+    ctaLink: settings?.ctaLink?.trim() || DEFAULT_SETTINGS.ctaLink,
+    secondaryCtaText: settings?.secondaryCtaText?.trim() || DEFAULT_SETTINGS.secondaryCtaText,
+    secondaryCtaLink: settings?.secondaryCtaLink?.trim() || DEFAULT_SETTINGS.secondaryCtaLink,
+  };
+};
+
 export const getDefaultHeroSettings = async (): Promise<HeroSettingsData> => ({
   ...DEFAULT_SETTINGS,
 });
@@ -70,49 +74,53 @@ export const getDefaultHeroSettings = async (): Promise<HeroSettingsData> => ({
 export const loadHeroSettings = async (): Promise<HeroSettingsData> => {
   noStore();
 
-  try {
-    if (!existsSync(SETTINGS_PATH)) {
-      return { ...DEFAULT_SETTINGS };
-    }
+  const record = await prisma.heroSettings.findUnique({
+    where: { id: 1 },
+  });
 
-    const raw = await readFile(SETTINGS_PATH, 'utf-8');
-    if (!raw.trim()) {
-      return { ...DEFAULT_SETTINGS };
-    }
-
-    const parsed = JSON.parse(raw) as Partial<HeroSettingsData>;
-    return {
-      title: parsed.title?.trim() || DEFAULT_SETTINGS.title,
-      titleLine2: parsed.titleLine2?.trim() || DEFAULT_SETTINGS.titleLine2,
-      subtitle: parsed.subtitle?.trim() || DEFAULT_SETTINGS.subtitle,
-      backgroundImage:
-        resolveHeroImage(parsed.backgroundImage) || DEFAULT_SETTINGS.backgroundImage,
-      ctaText: parsed.ctaText?.trim() || DEFAULT_SETTINGS.ctaText,
-      ctaLink: parsed.ctaLink?.trim() || DEFAULT_SETTINGS.ctaLink,
-      secondaryCtaText: parsed.secondaryCtaText?.trim() || DEFAULT_SETTINGS.secondaryCtaText,
-      secondaryCtaLink: parsed.secondaryCtaLink?.trim() || DEFAULT_SETTINGS.secondaryCtaLink,
-    };
-  } catch (error) {
-    console.error('Error loading hero settings:', error);
+  if (!record) {
     return { ...DEFAULT_SETTINGS };
   }
+
+  return normalizeSettings({
+    title: record.title,
+    titleLine2: record.titleLine2 ?? undefined,
+    subtitle: record.subtitle,
+    backgroundImage: record.backgroundImage,
+    ctaText: record.ctaText,
+    ctaLink: record.ctaLink,
+    secondaryCtaText: record.secondaryCtaText ?? undefined,
+    secondaryCtaLink: record.secondaryCtaLink ?? undefined,
+  });
 };
 
-export const saveHeroSettings = async (settings: HeroSettingsData): Promise<void> => {
-  if (!existsSync(DATA_DIR)) {
-    await mkdir(DATA_DIR, { recursive: true });
-  }
+export const saveHeroSettings = async (settings: HeroSettingsData): Promise<HeroSettingsData> => {
+  const normalized = normalizeSettings(settings);
 
-  const data: HeroSettingsData = {
-    title: settings.title?.trim() || DEFAULT_SETTINGS.title,
-    titleLine2: settings.titleLine2?.trim() || DEFAULT_SETTINGS.titleLine2,
-    subtitle: settings.subtitle?.trim() || DEFAULT_SETTINGS.subtitle,
-    backgroundImage: settings.backgroundImage?.trim() || DEFAULT_SETTINGS.backgroundImage,
-    ctaText: settings.ctaText?.trim() || DEFAULT_SETTINGS.ctaText,
-    ctaLink: settings.ctaLink?.trim() || DEFAULT_SETTINGS.ctaLink,
-    secondaryCtaText: settings.secondaryCtaText?.trim() || DEFAULT_SETTINGS.secondaryCtaText,
-    secondaryCtaLink: settings.secondaryCtaLink?.trim() || DEFAULT_SETTINGS.secondaryCtaLink,
-  };
+  await prisma.heroSettings.upsert({
+    where: { id: 1 },
+    update: {
+      title: normalized.title,
+      titleLine2: normalized.titleLine2,
+      subtitle: normalized.subtitle,
+      backgroundImage: normalized.backgroundImage,
+      ctaText: normalized.ctaText,
+      ctaLink: normalized.ctaLink,
+      secondaryCtaText: normalized.secondaryCtaText,
+      secondaryCtaLink: normalized.secondaryCtaLink,
+    },
+    create: {
+      id: 1,
+      title: normalized.title,
+      titleLine2: normalized.titleLine2,
+      subtitle: normalized.subtitle,
+      backgroundImage: normalized.backgroundImage,
+      ctaText: normalized.ctaText,
+      ctaLink: normalized.ctaLink,
+      secondaryCtaText: normalized.secondaryCtaText,
+      secondaryCtaLink: normalized.secondaryCtaLink,
+    },
+  });
 
-  await writeFile(SETTINGS_PATH, JSON.stringify(data, null, 2), 'utf-8');
+  return normalized;
 };
