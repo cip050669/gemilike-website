@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "knowledge_1761775487313_3drlpdsf2",
+    "title": "WIR TESTEN",
+    "slug": "wir-testen",
+    "excerpt": "asdasdasdasdasd",
+    "content": "sadfasfdsdfsdfsadfsdfsdfsdefsdfsdfsdafsdafsaf",
+    "author": "Gemilike Redaktion",
+    "category": "Investment",
+    "tags": [],
+    "image": "/uploads/stories/story-1761775425534.jpg",
+    "contentImages": [],
+    "published": false,
+    "featured": true,
+    "createdAt": "2025-10-29T22:04:47.313Z",
+    "updatedAt": "2025-10-29T22:04:47.313Z",
+    "className": "knowledge-article",
+    "metaDescription": "asdasdasdasdasd",
+    "readingTime": 1,
+    "difficulty": "beginner"
+  }
+]

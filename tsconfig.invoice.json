@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./.tmp-invoice-build",
+    "noEmit": false,
+    "emitDeclarationOnly": false,
+    "allowJs": false
+  },
+  "include": ["lib/services/invoice.ts", "lib/prisma.ts"]
+}

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { OrderEditForm } from '@/components/admin/orders/OrderEditForm';
 
 export default async function EditOrderPage({
   params,
@@ -32,13 +33,43 @@ export default async function EditOrderPage({
         }
       },
       billingAddress: true,
-      shippingAddress: true
+      shippingAddress: true,
+      invoice: {
+        include: {
+          customer: {
+            select: {
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
     }
   });
 
   if (!order) {
     notFound();
   }
+
+  const serialisedOrder = JSON.parse(
+    JSON.stringify({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      subtotal: order.subtotal,
+      tax: order.tax,
+      shipping: order.shipping,
+      total: order.total,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      shippingMethod: order.shippingMethod,
+      trackingNumber: order.trackingNumber,
+      notes: order.notes,
+      billingAddress: order.billingAddress,
+      shippingAddress: order.shippingAddress,
+    })
+  );
 
 
   return (
@@ -70,203 +101,51 @@ export default async function EditOrderPage({
           </div>
         </div>
 
-        {/* Formular */}
-        <form action={`/api/admin/orders/${order.id}`} method="POST" className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
-          <input type="hidden" name="_method" value="PUT" />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Bestellnummer */}
-            <div>
-              <label htmlFor="orderNumber" className="block text-sm font-medium text-gray-200 mb-2">
-                Bestellnummer
-              </label>
-              <input
-                type="text"
-                id="orderNumber"
-                name="orderNumber"
-                defaultValue={order.orderNumber}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+        <OrderEditForm order={serialisedOrder} />
 
-            {/* Status */}
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-200 mb-2">
-                Status
-              </label>
-              <select
-                id="status"
-                name="status"
-                defaultValue={order.status}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="PENDING">Ausstehend</option>
-                <option value="CONFIRMED">Bestätigt</option>
-                <option value="PROCESSING">In Bearbeitung</option>
-                <option value="SHIPPED">Versandt</option>
-                <option value="DELIVERED">Geliefert</option>
-                <option value="CANCELLED">Storniert</option>
-                <option value="REFUNDED">Erstattet</option>
-              </select>
-            </div>
-
-            {/* Gesamtbetrag */}
-            <div>
-              <label htmlFor="total" className="block text-sm font-medium text-gray-200 mb-2">
-                Gesamtbetrag (€)
-              </label>
-              <input
-                type="number"
-                id="total"
-                name="total"
-                step="0.01"
-                defaultValue={order.total}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            {/* Zwischensumme */}
-            <div>
-              <label htmlFor="subtotal" className="block text-sm font-medium text-gray-200 mb-2">
-                Zwischensumme (€)
-              </label>
-              <input
-                type="number"
-                id="subtotal"
-                name="subtotal"
-                step="0.01"
-                defaultValue={order.subtotal}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            {/* Steuer */}
-            <div>
-              <label htmlFor="tax" className="block text-sm font-medium text-gray-200 mb-2">
-                Steuer (€)
-              </label>
-              <input
-                type="number"
-                id="tax"
-                name="tax"
-                step="0.01"
-                defaultValue={order.tax}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            {/* Versand */}
-            <div>
-              <label htmlFor="shipping" className="block text-sm font-medium text-gray-200 mb-2">
-                Versand (€)
-              </label>
-              <input
-                type="number"
-                id="shipping"
-                name="shipping"
-                step="0.01"
-                defaultValue={order.shipping}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            {/* Zahlungsmethode */}
-            <div>
-              <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-200 mb-2">
-                Zahlungsmethode
-              </label>
-              <input
-                type="text"
-                id="paymentMethod"
-                name="paymentMethod"
-                defaultValue={order.paymentMethod || ''}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Zahlungsstatus */}
-            <div>
-              <label htmlFor="paymentStatus" className="block text-sm font-medium text-gray-200 mb-2">
-                Zahlungsstatus
-              </label>
-              <select
-                id="paymentStatus"
-                name="paymentStatus"
-                defaultValue={order.paymentStatus}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="PENDING">Ausstehend</option>
-                <option value="PAID">Bezahlt</option>
-                <option value="FAILED">Fehlgeschlagen</option>
-                <option value="REFUNDED">Erstattet</option>
-                <option value="PARTIALLY_REFUNDED">Teilweise erstattet</option>
-              </select>
-            </div>
-
-            {/* Versandmethode */}
-            <div>
-              <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-200 mb-2">
-                Versandmethode
-              </label>
-              <input
-                type="text"
-                id="shippingMethod"
-                name="shippingMethod"
-                defaultValue={order.shippingMethod || ''}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Tracking-Nummer */}
-            <div>
-              <label htmlFor="trackingNumber" className="block text-sm font-medium text-gray-200 mb-2">
-                Tracking-Nummer
-              </label>
-              <input
-                type="text"
-                id="trackingNumber"
-                name="trackingNumber"
-                defaultValue={order.trackingNumber || ''}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Notizen */}
-            <div className="md:col-span-2">
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-200 mb-2">
-                Notizen
-              </label>
-              <textarea
-                id="notes"
-                name="notes"
-                rows={3}
-                defaultValue={order.notes || ''}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+        {order.invoice && (
+          <div className="mt-6 bg-gray-800/20 border rounded-lg p-6 text-sm text-gray-200 space-y-2">
+            <h2 className="text-lg font-semibold text-white">Rechnungsstatus</h2>
+            <p>
+              <span className="font-medium text-gray-100">Rechnung:</span>{' '}
+              {order.invoice.invoiceNumber}
+            </p>
+            <p>
+              <span className="font-medium text-gray-100">Empfänger:</span>{' '}
+              {order.invoice.customer
+                ? `${order.invoice.customer.firstName ?? ''} ${order.invoice.customer.lastName ?? ''}`.trim() ||
+                  order.invoice.customer.email
+                : '—'}
+            </p>
+            <p>
+              <span className="font-medium text-gray-100">E-Mail:</span>{' '}
+              {order.invoice.customer?.email ?? '—'}
+            </p>
+            <p>
+              <span className="font-medium text-gray-100">Versendet:</span>{' '}
+              {order.invoice.emailSent
+                ? `Ja, zuletzt am ${
+                    order.invoice.sentAt
+                      ? new Date(order.invoice.sentAt).toLocaleString('de-DE')
+                      : 'unbekannt'
+                  }`
+                : 'Nein'}
+            </p>
+            <p>
+              <span className="font-medium text-gray-100">PDF:</span>{' '}
+              {order.invoice.pdfUrl ? (
+                <a
+                  href={order.invoice.pdfUrl}
+                  className="text-blue-400 underline underline-offset-4 hover:text-blue-300"
+                >
+                  herunterladen
+                </a>
+              ) : (
+                'Noch nicht erzeugt'
+              )}
+            </p>
           </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-4 mt-8 pt-6 border-t">
-            <Link
-              href="/de/admin/orders"
-              className="px-6 py-2 border border-gray-600 rounded-lg text-gray-200 hover:bg-gray-800/50"
-            >
-              Abbrechen
-            </Link>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Änderungen speichern
-            </button>
-          </div>
-        </form>
+        )}
       </div>
     </div>
   );

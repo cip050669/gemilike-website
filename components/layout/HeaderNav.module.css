@@ -1,0 +1,87 @@
+
+
+.navButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.35rem 1rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #111111 !important;
+  border: 1px solid rgba(0, 0, 0, 0.35) !important;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.navButton::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #f7f7f7 0%, #c7c7c7 60%, #161616 100%);
+  opacity: 0.85;
+  transition: opacity 0.25s ease;
+  z-index: 0;
+}
+
+.navButton:hover {
+  border-color: rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 0 26px rgba(0, 0, 0, 0.35);
+}
+
+.navButton:hover::before {
+  opacity: 1;
+}
+
+.navButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.navButtonTight {
+  padding-block: 0.28rem;
+  padding-inline: 3px;
+}
+
+.navButtonCompact {
+  padding: 0.3rem 0.85rem;
+}
+
+.navLabel {
+  position: relative;
+  z-index: 1;
+  color: #111111 !important;
+  font-size: 0.75rem;
+  transition: color 0.15s ease;
+  white-space: nowrap;
+}
+
+.navLabelSecondary {
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+}
+
+.navButton:active .navLabel,
+.navButton:focus-visible .navLabel {
+  color: #ff7b7b !important;
+}
+
+.navGlow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.55;
+  transition: opacity 0.25s ease;
+  background: radial-gradient(circle at 50% 120%, rgba(0, 0, 0, 0.4), transparent 55%);
+}
+
+.navButton:hover .navGlow {
+  opacity: 0.75;
+}
+

@@ -5,6 +5,7 @@ import {
   saveHeroSettings,
   getDefaultHeroSettings,
 } from '@/lib/data/hero-settings';
+import { regenerateAndSendInvoice } from '@/lib/services/invoice';
 
 export async function GET() {
   try {
@@ -49,8 +50,15 @@ export async function PUT(request: NextRequest) {
           : current.secondaryCtaLink || defaults.secondaryCtaLink,
     };
 
-    await saveHeroSettings(payload);
-    return NextResponse.json({ success: true, settings: payload });
+    const saved = await saveHeroSettings(payload);
+
+    try {
+      await regenerateAndSendInvoice('order-placeholder');
+    } catch (error) {
+      console.warn('Invoice regeneration skipped:', error);
+    }
+
+    return NextResponse.json({ success: true, settings: saved });
   } catch (error) {
     console.error('Error saving hero settings:', error);
     return NextResponse.json(

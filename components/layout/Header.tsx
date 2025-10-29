@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Cart } from '@/components/cart/Cart';
 import { useCartStore } from '@/lib/store/cart';
 import { cn } from '@/lib/utils';
+import styles from './HeaderNav.module.css';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Startseite' },
@@ -89,13 +90,10 @@ export function Header() {
               <Link
                 key={href}
                 href={buildHref(href)}
-                className={cn(
-                  'relative inline-flex items-center justify-center px-4 py-2 text-sm lg:text-base font-semibold text-gem-text/80 whitespace-nowrap transition-all duration-200 rounded-full border border-gem-ice/20 backdrop-blur-sm',
-                  'hover:text-gem-text hover:border-gem-ice/40 hover:bg-gem-ice/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gem-ice/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent',
-                  isActive && 'text-gem-text bg-gem-ice/15 border-gem-ice/40 shadow-[0_12px_32px_rgba(0,188,212,0.35)]'
-                )}
+                className={cn(styles.navButton, isActive && 'shadow-[0_0_32px_rgba(0,0,0,0.35)]')}
               >
-                <span>{label}</span>
+                <span className={styles.navLabel}>{label}</span>
+                <span className={styles.navGlow} />
               </Link>
             );
           })}
@@ -152,14 +150,11 @@ export function Header() {
                     <Link
                       key={href}
                       href={buildHref(href)}
-                      className={cn(
-                        'flex items-center justify-between rounded-xl border border-gem-ice/40 bg-gem-bgDark/60 px-4 py-3 text-base font-medium transition-colors duration-200 text-gem-text',
-                        'hover:border-gem-ice/60 hover:bg-gem-ice/10 hover:text-gem-iceLight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gem-ice/40 focus-visible:ring-offset-2',
-                        isActive && 'border-gem-ice/60 bg-gem-ice/15 text-gem-iceLight'
-                      )}
+                      className={cn(styles.navButton, styles.navButtonCompact, 'justify-between px-3 py-2 text-sm', isActive && 'shadow-[0_0_28px_rgba(0,0,0,0.35)]')}
                     >
-                      {label}
-                      <span className="text-xs uppercase tracking-wide text-gem-text2/60">Entdecken</span>
+                      <span className={styles.navLabel}>{label}</span>
+                      <span className={cn(styles.navLabel, styles.navLabelSecondary)}>Entdecken</span>
+                      <span className={styles.navGlow} />
                     </Link>
                   );
                 })}

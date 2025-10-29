@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MailIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckIcon, XIcon, ArrowLeftIcon } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import navStyles from '@/components/layout/HeaderNav.module.css';
 
 export default function ContactPage({ params }: { params: { locale: string } }) {
   const { locale } = params;
@@ -62,12 +64,13 @@ export default function ContactPage({ params }: { params: { locale: string } }) 
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4">
-              <Link 
-                href={`/${locale}`} 
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors border border-white/20 rounded-lg hover:bg-white/10"
+              <Link
+                href={`/${locale}`}
+                className={cn(navStyles.navButton, navStyles.navButtonTight, 'group gap-2')}
               >
-                <ArrowLeftIcon className="h-4 w-4" />
-                Zurück zur Startseite
+                <ArrowLeftIcon className="relative z-[1] h-4 w-4 text-black transition-colors duration-200 group-active:text-[#FF7B7B]" />
+                <span className={navStyles.navLabel}>Zurück zur Startseite</span>
+                <span className={navStyles.navGlow} />
               </Link>
             </div>
             <h1 className="gemilike-text-gradient text-4xl font-bold mb-4">Kontakt</h1>

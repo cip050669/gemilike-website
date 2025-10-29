@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,7 +8,7 @@ datasource db {
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id
   userId            String
   type              String
   provider          String
@@ -23,42 +20,509 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
+model Address {
+  id                                     String   @id
+  userId                                 String
+  type                                   String
+  firstName                              String
+  lastName                               String
+  company                                String?
+  address1                               String
+  address2                               String?
+  city                                   String
+  state                                  String?
+  postalCode                             String
+  country                                String
+  phone                                  String?
+  isDefault                              Boolean  @default(false)
+  createdAt                              DateTime @default(now())
+  updatedAt                              DateTime
+  User                                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Order_Order_shippingAddressIdToAddress Order[]  @relation("Order_shippingAddressIdToAddress")
+  Order_Order_billingAddressIdToAddress  Order[]  @relation("Order_billingAddressIdToAddress")
+}
+
+model AuditLog {
+  id         String   @id
+  userId     String
+  action     String
+  entityType String
+  entityId   String?
+  details    String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BankAccount {
+  id            String    @id
+  name          String
+  bankName      String
+  iban          String
+  bic           String?
+  accountHolder String
+  isDefault     Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  Invoice       Invoice[]
+}
+
+model Blog {
+  id          String    @id
+  title       String
+  slug        String    @unique
+  content     String
+  excerpt     String?
+  author      String
+  category    String
+  tags        String?
+  image       String?
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+}
+
+model CartItem {
+  id         String   @id
+  userId     String
+  gemstoneId String
+  quantity   Int      @default(1)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  Gemstone   Gemstone @relation(fields: [gemstoneId], references: [id])
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CompanySettings {
+  id                  String   @id
+  companyName         String
+  ownerName           String
+  address             String
+  postalCode          String
+  city                String
+  country             String   @default("Deutschland")
+  phone               String?
+  email               String
+  website             String?
+  taxId               String?
+  vatId               String?
+  logo                String?
+  invoicePrefix       String   @default("RE")
+  nextInvoiceNumber   Int      @default(1)
+  smallBusinessNotice String   @default("Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.")
+  paymentTerms        Int      @default(14)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime
+}
+
+model ContactData {
+  id           String   @id
+  companyName  String?
+  phone        String?
+  email        String?
+  address      String?
+  openingHours String?
+  website      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+}
+
+model Country {
+  id        String     @id
+  name      String     @unique
+  lat       Float
+  lng       Float
+  continent String?
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime
+  Location  Location[]
+}
+
+model Coupon {
+  id         String   @id
+  code       String   @unique
+  type       String
+  value      Float
+  minAmount  Float?
+  maxUses    Int?
+  usedCount  Int      @default(0)
+  validFrom  DateTime
+  validUntil DateTime
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+model Customer {
+  id             String    @id
+  customerNumber String    @unique
+  company        String?
+  firstName      String
+  lastName       String
+  email          String
+  phone          String?
+  address        String
+  postalCode     String
+  city           String
+  country        String    @default("Deutschland")
+  taxId          String?
+  notes          String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Invoice        Invoice[]
+}
+
+model GemType {
+  id          String     @id
+  name        String     @unique
+  color       String?
+  description String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  Location    Location[]
+}
+
+model Gemstone {
+  id              String           @id
+  name            String
+  category        String
+  type            String
+  price           Float
+  weight          Float?
+  dimensions      String?
+  color           String?
+  colorIntensity  String?
+  colorBrightness String?
+  clarity         String?
+  cut             String?
+  cutForm         String?
+  treatment       String?
+  certification   String?
+  rarity          String?
+  origin          String?
+  description     String?
+  images          String?
+  videos          String?
+  inStock         Boolean          @default(true)
+  stock           Int              @default(0)
+  sku             String?          @unique
+  isNew           Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime
+  CartItem        CartItem[]
+  OrderItem       OrderItem[]
+  ProductVariant  ProductVariant[]
+  Review          Review[]
+  WishlistItem    WishlistItem[]
+}
+
+model HeaderData {
+  id                String   @id
+  logoText          String?
+  logoImage         String?
+  phone             String?
+  email             String?
+  facebook          String?
+  instagram         String?
+  twitter           String?
+  youtube           String?
+  searchEnabled     Boolean  @default(true)
+  searchPlaceholder String?
+  cartEnabled       Boolean  @default(true)
+  cartShowCount     Boolean  @default(true)
+  userEnabled       Boolean  @default(true)
+  userShowLogin     Boolean  @default(true)
+  wishlistEnabled   Boolean  @default(true)
+  wishlistShowCount Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime
+}
+
+model HeroImage {
+  id         String   @id
+  title      String
+  subtitle   String?
+  image      String
+  link       String?
+  buttonText String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+model HeroSettings {
+  id                  String   @id
+  imageUrl            String
+  title               String
+  titleLine2          String?
+  subtitle            String
+  primaryButtonText   String
+  primaryButtonLink   String
+  secondaryButtonText String?
+  secondaryButtonLink String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime
+}
+
+model Invoice {
+  id               String        @id
+  invoiceNumber    String        @unique
+  customerId       String
+  orderId          String?       @unique
+  invoiceDate      DateTime      @default(now())
+  dueDate          DateTime
+  status           String        @default("DRAFT")
+  paymentStatus    String        @default("UNPAID")
+  paymentDate      DateTime?
+  subtotal         Float
+  total            Float
+  currency         String        @default("EUR")
+  notes            String?
+  internalNotes    String?
+  bankAccountId    String?
+  reminderCount    Int           @default(0)
+  lastReminderDate DateTime?
+  legalNotice      String?
+  pdfUrl           String?
+  sentAt           DateTime?
+  emailSent        Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime
+  BankAccount      BankAccount?  @relation(fields: [bankAccountId], references: [id])
+  Order            Order?        @relation(fields: [orderId], references: [id])
+  Customer         Customer      @relation(fields: [customerId], references: [id])
+  InvoiceItem      InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          String   @id
+  invoiceId   String
+  description String
+  quantity    Float
+  unitPrice   Float
+  total       Float
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  Invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model LegalLink {
+  id        String   @id
+  text      String
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Location {
+  id          String   @id
+  name        String
+  lat         Float
+  lng         Float
+  description String?
+  mineType    String?
+  status      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  countryId   String
+  gemTypeId   String
+  GemType     GemType  @relation(fields: [gemTypeId], references: [id])
+  Country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([name, countryId])
+}
+
+model NavigationItem {
+  id        String   @id
+  text      String
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model NewsletterSubscriber {
+  id             String    @id
+  email          String    @unique
+  name           String?
+  status         String    @default("PENDING")
+  locale         String    @default("de")
+  source         String?
+  tags           String?
+  subscribedAt   DateTime  @default(now())
+  confirmedAt    DateTime?
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+}
+
+model NewstickerItem {
+  id        String    @id
+  message   String
+  type      String    @default("info")
+  link      String?
+  linkText  String?
+  isActive  Boolean   @default(true)
+  startDate DateTime?
+  endDate   DateTime?
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+}
+
+model Order {
+  id                                       String      @id
+  userId                                   String?
+  orderNumber                              String      @unique
+  status                                   String      @default("PENDING")
+  subtotal                                 Float
+  tax                                      Float
+  shipping                                 Float
+  total                                    Float
+  currency                                 String      @default("EUR")
+  paymentMethod                            String?
+  paymentStatus                            String      @default("PENDING")
+  shippingMethod                           String?
+  trackingNumber                           String?
+  notes                                    String?
+  createdAt                                DateTime    @default(now())
+  updatedAt                                DateTime
+  billingAddressId                         String?
+  shippingAddressId                        String?
+  Invoice                                  Invoice?
+  Address_Order_shippingAddressIdToAddress Address?    @relation("Order_shippingAddressIdToAddress", fields: [shippingAddressId], references: [id])
+  Address_Order_billingAddressIdToAddress  Address?    @relation("Order_billingAddressIdToAddress", fields: [billingAddressId], references: [id])
+  User                                     User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  OrderItem                                OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id
+  orderId    String
+  gemstoneId String
+  quantity   Int
+  price      Float
+  total      Float
+  notes      String?
+  Gemstone   Gemstone @relation(fields: [gemstoneId], references: [id])
+  Order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model PictogramDescription {
+  id          String   @id
+  key         String   @unique
+  title       String
+  description String
+  icon        String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
+
+model ProductVariant {
+  id         String   @id
+  gemstoneId String
+  name       String
+  price      Float
+  weight     Float?
+  dimensions String?
+  inStock    Boolean  @default(true)
+  stock      Int      @default(0)
+  sku        String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  Gemstone   Gemstone @relation(fields: [gemstoneId], references: [id])
+}
+
+model Review {
+  id         String   @id
+  userId     String
+  gemstoneId String
+  rating     Int
+  title      String?
+  comment    String?
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  Gemstone   Gemstone @relation(fields: [gemstoneId], references: [id])
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SelectOption {
+  id        String   @id
+  category  String
+  value     String
+  label     String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@unique([category, value])
+}
+
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Story {
+  id          String    @id
+  title       String
+  subtitle    String?
+  content     String
+  image       String?
+  author      String?
+  category    String?
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id
   name          String?
-  email         String    @unique
+  email         String         @unique
   emailVerified DateTime?
   image         String?
   password      String?
   phone         String?
-  role          String    @default("customer")
+  role          String         @default("customer")
   notes         String?
   tags          String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts      Account[]
-  sessions      Session[]
-  addresses     Address[]
-  orders        Order[]
-  wishlistItems WishlistItem[]
-  reviews       Review[]
-  cartItems     CartItem[]
-  auditLogs     AuditLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime
+  Account       Account[]
+  Address       Address[]
+  AuditLog      AuditLog[]
+  CartItem      CartItem[]
+  Order         Order[]
+  Review        Review[]
+  Session       Session[]
+  WishlistItem  WishlistItem[]
 }
 
 model VerificationToken {
@@ -69,612 +533,63 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Address {
-  id          String   @id @default(cuid())
-  userId      String
-  type        String   // 'billing' or 'shipping'
-  firstName   String
-  lastName    String
-  company     String?
-  address1    String
-  address2    String?
-  city        String
-  state       String?
-  postalCode  String
-  country     String
-  phone       String?
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingOrders Order[] @relation("BillingAddress")
-  shippingOrders Order[] @relation("ShippingAddress")
-}
-
-model Order {
-  id              String      @id @default(cuid())
-  userId          String?
-  orderNumber     String      @unique
-  status          OrderStatus @default(PENDING)
-  subtotal        Float
-  tax             Float
-  shipping        Float
-  total           Float
-  currency        String      @default("EUR")
-  paymentMethod   String?
-  paymentStatus   PaymentStatus @default(PENDING)
-  shippingMethod  String?
-  trackingNumber  String?
-  notes           String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  user            User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingAddress  Address?    @relation("BillingAddress", fields: [billingAddressId], references: [id])
-  billingAddressId String?
-  shippingAddress Address?    @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
-  shippingAddressId String?
-  orderItems      OrderItem[]
-}
-
-model OrderItem {
-  id          String  @id @default(cuid())
-  orderId     String
-  gemstoneId  String
-  quantity    Int
-  price       Float
-  total       Float
-  notes       String?
-
-  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  gemstone    Gemstone @relation(fields: [gemstoneId], references: [id])
-}
-
-model CartItem {
-  id          String   @id @default(cuid())
-  userId      String
-  gemstoneId  String
-  quantity    Int      @default(1)
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gemstone    Gemstone @relation(fields: [gemstoneId], references: [id])
-}
-
 model WishlistItem {
-  id          String   @id @default(cuid())
-  userId      String
-  gemstoneId  String
-  notes       String?
-  createdAt   DateTime @default(now())
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gemstone    Gemstone @relation(fields: [gemstoneId], references: [id])
+  id         String   @id
+  userId     String
+  gemstoneId String
+  notes      String?
+  createdAt  DateTime @default(now())
+  Gemstone   Gemstone @relation(fields: [gemstoneId], references: [id])
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Review {
-  id          String   @id @default(cuid())
-  userId      String
-  gemstoneId  String
-  rating      Int      // 1-5 stars
-  title       String?
-  comment     String?
-  verified    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gemstone    Gemstone @relation(fields: [gemstoneId], references: [id])
-}
-
-model ProductVariant {
-  id          String   @id @default(cuid())
-  gemstoneId  String
-  name        String   // e.g., "Small", "Medium", "Large"
-  price       Float
-  weight      Float?   // in carats or grams
-  dimensions  String?  // e.g., "5x3x2mm"
-  inStock     Boolean  @default(true)
-  stock       Int      @default(0)
-  sku         String?  @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  gemstone    Gemstone @relation(fields: [gemstoneId], references: [id])
-}
-
-model Gemstone {
-  id             String   @id @default(cuid())
-  name           String
-  category       String
-  type           String   // 'cut' or 'rough'
-  price          Float
-  weight         Float?   // in carats
-  dimensions     String?  // e.g., "5x3x2mm"
-  color          String?
-  colorIntensity String?  // Pale, Light, Medium, Intense, Vivid, Deep
-  colorBrightness String? // 0-10 scale (0=white, 10=black)
-  clarity        String?
-  cut            String?
-  cutForm        String?  // Form/Shape of the cut
-  treatment      String?
-  certification  String?  // GIA, IGI, AGS, HRD, SSEF, Gübelin, etc.
-  rarity         String?  // Very Common, Common, Moderately Rare, Rare, Very Rare, Extremely Rare, Unique
-  origin         String?
-  description    String?
-  images         String?  // JSON string of image URLs
-  videos         String?  // JSON string of video URLs (max 2)
-  inStock        Boolean  @default(true)
-  stock          Int      @default(0)
-  sku            String?  @unique
-  isNew          Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  orderItems     OrderItem[]
-  cartItems      CartItem[]
-  wishlistItems  WishlistItem[]
-  reviews        Review[]
-  variants       ProductVariant[]
-}
-
-
-model Coupon {
-  id          String      @id @default(cuid())
-  code        String      @unique
-  type        CouponType  // PERCENTAGE or FIXED
-  value       Float
-  minAmount   Float?
-  maxUses     Int?
-  usedCount   Int         @default(0)
-  validFrom   DateTime
-  validUntil  DateTime
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  REFUNDED
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
-  PARTIALLY_REFUNDED
-}
-
-enum CouponType {
-  PERCENTAGE
-  FIXED
-}
-
-
-model LegalLink {
-  id        String   @id @default(cuid())
-  text      String
-  url       String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ContactData {
-  id            String   @id @default(cuid())
-  companyName   String?
-  phone         String?
-  email         String?
-  address       String?
-  openingHours  String?
-  website       String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model HeaderData {
-  id          String   @id @default(cuid())
-  logoText    String?
-  logoImage   String?
-  phone       String?
-  email       String?
-  facebook    String?
-  instagram   String?
-  twitter     String?
-  youtube     String?
-  searchEnabled Boolean @default(true)
-  searchPlaceholder String?
-  cartEnabled Boolean @default(true)
-  cartShowCount Boolean @default(true)
-  userEnabled Boolean @default(true)
-  userShowLogin Boolean @default(true)
-  wishlistEnabled Boolean @default(true)
-  wishlistShowCount Boolean @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model NavigationItem {
-  id        String   @id @default(cuid())
-  text      String
-  url       String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model AuditLog {
-  id          String   @id @default(cuid())
-  userId      String
-  action      String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
-  entityType  String   // Gemstone, User, Order, etc.
-  entityId    String?
-  details     String?  // JSON string of additional details
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model SelectOption {
-  id        String   @id @default(cuid())
-  category  String   // cut, form, color, colorIntensity, treatment, certification, rarity
-  value     String
-  label     String?  // Optional display label (for translations)
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([category, value])
-}
-
-// Rechnungswesen für Kleinunternehmer
-
-model Customer {
-  id              String    @id @default(cuid())
-  customerNumber  String    @unique
-  company         String?
-  firstName       String
-  lastName        String
-  email           String
-  phone           String?
-  address         String
-  postalCode      String
-  city            String
-  country         String    @default("Deutschland")
-  taxId           String?   // Steuernummer (optional)
-  notes           String?
-  isActive        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  invoices        Invoice[]
-}
-
-model Invoice {
-  id              String              @id @default(cuid())
-  invoiceNumber   String              @unique
-  customerId      String
-  invoiceDate     DateTime            @default(now())
-  dueDate         DateTime
-  status          InvoiceStatus       @default(DRAFT)
-  paymentStatus   InvoicePaymentStatus @default(UNPAID)
-  paymentDate     DateTime?
-  subtotal        Float
-  total           Float               // Gleich wie subtotal (keine MwSt.)
-  currency        String              @default("EUR")
-  notes           String?
-  internalNotes   String?
-  bankAccountId   String?
-  reminderCount   Int                 @default(0)
-  lastReminderDate DateTime?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-
-  customer        Customer            @relation(fields: [customerId], references: [id])
-  bankAccount     BankAccount?        @relation(fields: [bankAccountId], references: [id])
-  items           InvoiceItem[]
-}
-
-model InvoiceItem {
-  id          String   @id @default(cuid())
-  invoiceId   String
-  description String
-  quantity    Float
-  unitPrice   Float
-  total       Float
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-}
-
-model BankAccount {
-  id          String    @id @default(cuid())
-  name        String    // z.B. "Hauptkonto", "Geschäftskonto"
-  bankName    String
-  iban        String
-  bic         String?
-  accountHolder String
-  isDefault   Boolean   @default(false)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  invoices    Invoice[]
-}
-
-model CompanySettings {
-  id              String   @id @default(cuid())
-  companyName     String
-  ownerName       String
-  address         String
-  postalCode      String
-  city            String
-  country         String   @default("Deutschland")
-  phone           String?
-  email           String
-  website         String?
-  taxId           String?  // Steuernummer
-  vatId           String?  // USt-IdNr. (optional, auch für Kleinunternehmer)
-  logo            String?  // Pfad zum Logo
-  invoicePrefix   String   @default("RE")
-  nextInvoiceNumber Int    @default(1)
-  smallBusinessNotice String @default("Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.")
-  paymentTerms    Int      @default(14) // Zahlungsziel in Tagen
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-enum InvoiceStatus {
-  DRAFT
-  SENT
-  OVERDUE
-  CANCELLED
-}
-
-enum InvoicePaymentStatus {
-  UNPAID
-  PARTIALLY_PAID
-  PAID
-}
-
-// Blog-System
-model Blog {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  content     String   // Markdown content
-  excerpt     String?
-  author      String
-  category    String
-  tags        String?  // JSON array of tags
-  image       String?
-  published   Boolean  @default(false)
-  publishedAt DateTime?
-  views       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Newsticker
-model NewstickerItem {
-  id        String   @id @default(cuid())
-  message   String
-  type      String   @default("info") // info, warning, success, error
-  link      String?
-  linkText  String?
-  isActive  Boolean  @default(true)
-  startDate DateTime?
-  endDate   DateTime?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// Geschichten/Stories
-model Story {
-  id          String   @id @default(cuid())
-  title       String
-  subtitle    String?
-  content     String   // Markdown content
-  image       String?
-  author      String?
-  category    String?
-  published   Boolean  @default(false)
-  publishedAt DateTime?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Piktogramm-Beschreibungen
-model PictogramDescription {
-  id          String   @id @default(cuid())
-  key         String   @unique // e.g., "shipping", "quality", "support"
-  title       String
-  description String
-  icon        String?
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Hero-Images
-model HeroImage {
-  id          String   @id @default(cuid())
-  title       String
-  subtitle    String?
-  image       String   // URL or path to image
-  link        String?
-  buttonText  String?
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Weltkarten-Datenbankinstanzen
-
-// Länder für die Weltkarte
-model Country {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  lat         Float    // Breitengrad
-  lng         Float    // Längengrad
-  continent   String?  // Kontinent
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  locations   Location[]
-}
-
-// Edelstein-Typen
-model GemType {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  color       String?  // Hex-Farbe für die Karte
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  locations   Location[]
-}
-
-// Lagerstätten/Fundorte
-model Location {
-  id          String   @id @default(cuid())
-  name        String
-  lat         Float    // Breitengrad
-  lng         Float    // Längengrad
-  description String?
-  mineType    String?  // open-pit, underground, alluvial, primary, secondary
-  status      String?  // active, inactive, depleted, protected
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  countryId   String
-  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  gemTypeId   String
-  gemType     GemType  @relation(fields: [gemTypeId], references: [id])
-
-  @@unique([name, countryId])
-}
-
-// Newsletter-Abonnenten
-model NewsletterSubscriber {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  name          String?
-  status        SubscriberStatus @default(PENDING)
-  locale        String   @default("de")
-  source        String?  // Where they subscribed from
-  tags          String?  // JSON array of tags
-  subscribedAt  DateTime @default(now())
-  confirmedAt   DateTime?
-  unsubscribedAt DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-enum SubscriberStatus {
-  PENDING
-  CONFIRMED
-  UNSUBSCRIBED
-  BOUNCED
-  COMPLAINED
-}
-
-// Download Bereich
-model DownloadProject {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  category    String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  files       DownloadFile[]
-  downloads   DownloadLog[]
-  
-  @@map("download_projects")
-}
-
-model DownloadFile {
-  id          String   @id @default(cuid())
-  projectId   String
-  filename    String
-  originalName String
-  fileSize    Int
-  mimeType    String
-  filePath    String
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  project     DownloadProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  downloads   DownloadLog[]
-  
-  @@map("download_files")
-}
-
-model DownloadLog {
-  id        String   @id @default(cuid())
-  projectId String
-  fileId    String?
-  userEmail String
-  userName  String?
-  ipAddress String?
-  userAgent String?
-  downloadedAt DateTime @default(now())
-  
-  project   DownloadProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  file      DownloadFile?   @relation(fields: [fileId], references: [id], onDelete: SetNull)
-  
-  @@map("download_logs")
-}
-
-model DownloadConsent {
-  id        String   @id @default(cuid())
-  userEmail String   @unique
-  consent   Boolean  @default(false)
-  version   String   // Version der Bedingungen
+model download_consents {
+  id          String    @id
+  userEmail   String    @unique
+  consent     Boolean   @default(false)
+  version     String
   consentedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@map("download_consents")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
 }
 
-model HeroSettings {
-  id                    String   @id @default(cuid())
-  imageUrl              String
-  title                 String
-  titleLine2            String?
-  subtitle              String
-  primaryButtonText     String
-  primaryButtonLink     String
-  secondaryButtonText   String?
-  secondaryButtonLink   String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+model download_files {
+  id                String            @id
+  projectId         String
+  filename          String
+  originalName      String
+  fileSize          Int
+  mimeType          String
+  filePath          String
+  description       String?
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime
+  download_projects download_projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  download_logs     download_logs[]
+}
+
+model download_logs {
+  id                String            @id
+  projectId         String
+  fileId            String?
+  userEmail         String
+  userName          String?
+  ipAddress         String?
+  userAgent         String?
+  downloadedAt      DateTime          @default(now())
+  download_files    download_files?   @relation(fields: [fileId], references: [id])
+  download_projects download_projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model download_projects {
+  id             String           @id
+  name           String
+  description    String?
+  category       String
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime
+  download_files download_files[]
+  download_logs  download_logs[]
 }

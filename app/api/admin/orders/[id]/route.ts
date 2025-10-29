@@ -1,5 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { regenerateAndSendInvoice } from '@/lib/services/invoice';
+import type { Order } from '@prisma/client';
+
+type OrderUpdateData = Parameters<typeof prisma.order.update>[0]['data'];
+
+const parseAmount = (value: unknown) => {
+  if (value === null || value === undefined || value === '') {
+    return 0;
+  }
+  const parsed = typeof value === 'number' ? value : parseFloat(String(value));
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const updateOrderAndDispatchInvoice = async (id: string, data: OrderUpdateData) => {
+  const previousOrder = await prisma.order.findUnique({
+    where: { id },
+    select: {
+      status: true,
+      paymentStatus: true,
+    },
+  });
+
+  if (!previousOrder) {
+    return {
+      notFound: true,
+    } as const;
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: { id },
+    data,
+  });
+
+  const previousPayment = previousOrder.paymentStatus?.toUpperCase?.() ?? previousOrder.paymentStatus;
+  const previousStatus = previousOrder.status?.toUpperCase?.() ?? previousOrder.status;
+  const currentPayment = updatedOrder.paymentStatus?.toUpperCase?.() ?? updatedOrder.paymentStatus;
+  const currentStatus = updatedOrder.status?.toUpperCase?.() ?? updatedOrder.status;
+
+  const paymentBecamePaid = previousPayment !== 'PAID' && currentPayment === 'PAID';
+  const statusBecameDelivered = previousStatus !== 'DELIVERED' && currentStatus === 'DELIVERED';
+
+  const shouldSendInvoice =
+    (paymentBecamePaid || statusBecameDelivered) && currentPayment === 'PAID';
+
+  let invoiceDispatched = false;
+  let invoiceError: string | null = null;
+
+  if (shouldSendInvoice) {
+    try {
+      await regenerateAndSendInvoice(updatedOrder.id);
+      invoiceDispatched = true;
+    } catch (error) {
+      invoiceError = (error as Error).message;
+      console.error('Rechnung konnte nicht generiert oder versendet werden:', error);
+    }
+  }
+
+  return {
+    notFound: false,
+    updatedOrder,
+    shouldSendInvoice,
+    invoiceDispatched,
+    invoiceError,
+  } as const;
+};
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -51,35 +116,58 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const body = await request.json();
 
     // Validate order status
-    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
-    const validPaymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
-    
-    if (body.status && !validStatuses.includes(body.status)) {
+    const validStatuses = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
+    const validPaymentStatuses = ['PENDING', 'PAID', 'FAILED', 'REFUNDED', 'PARTIALLY_REFUNDED'];
+
+    const requestedStatus = body.status ? String(body.status).toUpperCase() : undefined;
+    const requestedPaymentStatus = body.paymentStatus ? String(body.paymentStatus).toUpperCase() : undefined;
+
+    if (requestedStatus && !validStatuses.includes(requestedStatus)) {
       return NextResponse.json({ success: false, error: 'Invalid order status' }, { status: 400 });
     }
-    
-    if (body.paymentStatus && !validPaymentStatuses.includes(body.paymentStatus)) {
+
+    if (requestedPaymentStatus && !validPaymentStatuses.includes(requestedPaymentStatus)) {
       return NextResponse.json({ success: false, error: 'Invalid payment status' }, { status: 400 });
     }
 
-    const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: {
-        orderNumber: body.orderNumber,
-        status: body.status,
-        total: parseFloat(body.total) || 0,
-        subtotal: parseFloat(body.subtotal) || 0,
-        tax: parseFloat(body.tax) || 0,
-        shipping: parseFloat(body.shipping) || 0,
-        paymentMethod: body.paymentMethod,
-        paymentStatus: body.paymentStatus,
-        shippingMethod: body.shippingMethod,
-        trackingNumber: body.trackingNumber,
-        notes: body.notes,
-      },
-    });
+    const updateData: OrderUpdateData = {
+      orderNumber: body.orderNumber,
+      status: requestedStatus as Order['status'] | undefined,
+      total: parseAmount(body.total),
+      subtotal: parseAmount(body.subtotal),
+      tax: parseAmount(body.tax),
+      shipping: parseAmount(body.shipping),
+      paymentMethod: body.paymentMethod,
+      paymentStatus: requestedPaymentStatus as Order['paymentStatus'] | undefined,
+      shippingMethod: body.shippingMethod,
+      trackingNumber: body.trackingNumber,
+      notes: body.notes,
+    };
 
-    return NextResponse.json({ success: true, data: updatedOrder, message: 'Bestellung erfolgreich aktualisiert' });
+    const result = await updateOrderAndDispatchInvoice(id, updateData);
+
+    if (result.notFound) {
+      return NextResponse.json({ success: false, error: 'Bestellung nicht gefunden' }, { status: 404 });
+    }
+
+    const { updatedOrder, invoiceDispatched, invoiceError, shouldSendInvoice } = result;
+
+    const responseBody: Record<string, unknown> = {
+      success: true,
+      data: updatedOrder,
+      message: 'Bestellung erfolgreich aktualisiert',
+      invoiceTriggered: shouldSendInvoice,
+      invoiceDispatched,
+    };
+
+    if (invoiceError) {
+      responseBody.invoiceError = invoiceError;
+      responseBody.message += ' (Rechnung konnte nicht versendet werden)';
+    } else if (invoiceDispatched) {
+      responseBody.message += ' und Rechnung versendet';
+    }
+
+    return NextResponse.json(responseBody);
   } catch (error) {
     console.error('Error updating order:', error);
     return NextResponse.json(
@@ -122,22 +210,38 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     if (method === 'PUT') {
-      const updatedOrder = await prisma.order.update({
-        where: { id },
-        data: {
-          orderNumber: formData.get('orderNumber') as string,
-          status: formData.get('status') as 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded',
-          total: parseFloat(formData.get('total') as string) || 0,
-          subtotal: parseFloat(formData.get('subtotal') as string) || 0,
-          tax: parseFloat(formData.get('tax') as string) || 0,
-          shipping: parseFloat(formData.get('shipping') as string) || 0,
-          paymentMethod: formData.get('paymentMethod') as string,
-          paymentStatus: formData.get('paymentStatus') as 'pending' | 'paid' | 'failed' | 'refunded',
-          shippingMethod: formData.get('shippingMethod') as string,
-          trackingNumber: formData.get('trackingNumber') as string,
-          notes: formData.get('notes') as string,
-        },
-      });
+      const requestedStatus = formData.get('status')
+        ? String(formData.get('status')).toUpperCase()
+        : undefined;
+      const requestedPaymentStatus = formData.get('paymentStatus')
+        ? String(formData.get('paymentStatus')).toUpperCase()
+        : undefined;
+
+      const updateData: OrderUpdateData = {
+        orderNumber: formData.get('orderNumber') as string,
+        status: requestedStatus as Order['status'] | undefined,
+        total: parseAmount(formData.get('total')),
+        subtotal: parseAmount(formData.get('subtotal')),
+        tax: parseAmount(formData.get('tax')),
+        shipping: parseAmount(formData.get('shipping')),
+        paymentMethod: formData.get('paymentMethod') as string,
+        paymentStatus: requestedPaymentStatus as Order['paymentStatus'] | undefined,
+        shippingMethod: formData.get('shippingMethod') as string,
+        trackingNumber: formData.get('trackingNumber') as string,
+        notes: formData.get('notes') as string,
+      };
+
+      const result = await updateOrderAndDispatchInvoice(id, updateData);
+
+      if (result.notFound) {
+        return NextResponse.json({ success: false, error: 'Bestellung nicht gefunden' }, { status: 404 });
+      }
+
+      if (result.invoiceError) {
+        console.error(
+          `Rechnung konnte nach Formular-Update nicht versendet werden: ${result.invoiceError}`
+        );
+      }
 
       return NextResponse.redirect(new URL('/de/admin/orders', request.url));
     }

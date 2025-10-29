@@ -10,6 +10,8 @@ import { loadNewstickerData } from '@/lib/newsticker/data';
 import { Newsticker } from '@/components/ui/Newsticker';
 import { getNewGemstones } from '@/lib/data/gemstones';
 import { loadHeroSettings } from '@/lib/data/hero-settings';
+import { cn } from '@/lib/utils';
+import navStyles from '@/components/layout/HeaderNav.module.css';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -113,11 +115,15 @@ export default async function HomePage({
                         </div>
                         <Link
                           href={story.href}
-                          className="ml-auto inline-flex items-center gap-3 text-sm text-primary whitespace-nowrap"
+                          className={cn(
+                            navStyles.navButton,
+                            navStyles.navButtonTight,
+                            'ml-auto inline-flex items-center gap-3'
+                          )}
                         >
-                          <span>Mehr lesen</span>
+                          <span className={navStyles.navLabel}>Mehr lesen</span>
                           <svg
-                            className="h-4 w-4"
+                            className="relative z-[1] h-3.5 w-3.5"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="1.5"
@@ -129,6 +135,7 @@ export default async function HomePage({
                               d="M8.25 4.5l7.5 7.5-7.5 7.5"
                             />
                           </svg>
+                          <span className={navStyles.navGlow} />
                         </Link>
                       </div>
                     </div>

@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import navStyles from './HeaderNav.module.css';
 
 export function Footer() {
   const [email, setEmail] = useState('');
@@ -87,30 +89,22 @@ export function Footer() {
             <h3 className="text-lg font-semibold text-gem-text uppercase tracking-[0.2em]">
               Wer sind wir?
             </h3>
-            <div className="space-y-3">
-              <Link 
-                href="/about" 
-                className="block text-gem-text2 hover:text-gem-iceLight transition-colors"
-              >
-                Über uns
+            <div className="flex flex-col items-start gap-2">
+              <Link href="/about" className={cn(navStyles.navButton, navStyles.navButtonTight)}>
+                <span className={navStyles.navLabel}>Über uns</span>
+                <span className={navStyles.navGlow} />
               </Link>
-              <Link 
-                href="/services" 
-                className="block text-gem-text2 hover:text-gem-iceLight transition-colors"
-              >
-                Unsere Leistungen
+              <Link href="/services" className={cn(navStyles.navButton, navStyles.navButtonTight)}>
+                <span className={navStyles.navLabel}>Unsere Leistungen</span>
+                <span className={navStyles.navGlow} />
               </Link>
-              <Link 
-                href="/wissenswertes" 
-                className="block text-gem-text2 hover:text-gem-iceLight transition-colors"
-              >
-                Wissenswertes
+              <Link href="/wissenswertes" className={cn(navStyles.navButton, navStyles.navButtonTight)}>
+                <span className={navStyles.navLabel}>Wissenswertes</span>
+                <span className={navStyles.navGlow} />
               </Link>
-              <Link 
-                href="/contact" 
-                className="block text-gem-text2 hover:text-gem-iceLight transition-colors"
-              >
-                Kontakt
+              <Link href="/contact" className={cn(navStyles.navButton, navStyles.navButtonTight)}>
+                <span className={navStyles.navLabel}>Kontakt</span>
+                <span className={navStyles.navGlow} />
               </Link>
             </div>
           </div>
@@ -120,30 +114,22 @@ export function Footer() {
             <h3 className="text-lg font-semibold text-gem-text uppercase tracking-[0.2em]">
               Rechtliches
             </h3>
-            <div className="space-y-3">
-              <Link 
-                href="/impressum" 
-                className="block text-gem-text2 hover:text-gem-iceLight transition-colors"
-              >
-                Impressum
+            <div className="flex flex-col items-start gap-2">
+              <Link href="/impressum" className={cn(navStyles.navButton, navStyles.navButtonTight)}>
+                <span className={navStyles.navLabel}>Impressum</span>
+                <span className={navStyles.navGlow} />
               </Link>
-              <Link 
-                href="/datenschutz" 
-                className="block text-gem-text2 hover:text-gem-iceLight transition-colors"
-              >
-                Datenschutz
+              <Link href="/datenschutz" className={cn(navStyles.navButton, navStyles.navButtonTight)}>
+                <span className={navStyles.navLabel}>Datenschutz</span>
+                <span className={navStyles.navGlow} />
               </Link>
-              <Link 
-                href="/agb" 
-                className="block text-gem-text2 hover:text-gem-iceLight transition-colors"
-              >
-                AGB
+              <Link href="/agb" className={cn(navStyles.navButton, navStyles.navButtonTight)}>
+                <span className={navStyles.navLabel}>AGB</span>
+                <span className={navStyles.navGlow} />
               </Link>
-              <Link 
-                href="/widerruf" 
-                className="block text-gem-text2 hover:text-gem-iceLight transition-colors"
-              >
-                Widerruf
+              <Link href="/widerruf" className={cn(navStyles.navButton, navStyles.navButtonTight)}>
+                <span className={navStyles.navLabel}>Widerruf</span>
+                <span className={navStyles.navGlow} />
               </Link>
             </div>
           </div>
@@ -166,11 +152,14 @@ export function Footer() {
                 className="bg-gem-bgDark/50 border-gem-iceDark/30 text-gem-text placeholder:text-gem-text2 focus:border-gem-ice focus:ring-gem-ice/50"
                 required
               />
-              <Button 
-                type="submit" 
-                className="w-full bg-gem-fire text-gem-bgDark hover:bg-gem-fireLight hover:text-gem-bgDark transition-colors"
+              <Button
+                type="submit"
+                className={cn(navStyles.navButton, navStyles.navButtonTight, 'w-full justify-center')}
               >
-                {isSubscribed ? 'Angemeldet!' : 'Anmelden'}
+                <span className={navStyles.navLabel}>
+                  {isSubscribed ? 'Angemeldet!' : 'Anmelden'}
+                </span>
+                <span className={navStyles.navGlow} />
               </Button>
             </form>
 
