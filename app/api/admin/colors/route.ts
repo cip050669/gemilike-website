@@ -146,7 +146,7 @@ async function loadColors(): Promise<ColorDefinition[]> {
   try {
     const data = await readFile(COLORS_FILE, 'utf-8');
     return JSON.parse(data);
-  } catch (error) {
+  } catch {
     // Datei existiert nicht, Standard-Farben verwenden
     return defaultColors;
   }

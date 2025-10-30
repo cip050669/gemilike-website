@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         <p><strong>Gesamtbetrag:</strong> ${totalAmount.toFixed(2)} ${currency}</p>
         <p><strong>Artikel:</strong></p>
         <ul>
-          ${items.map((item: any) => `<li>${item.name} (${item.quantity}x) - ${item.price.toFixed(2)} ${currency}</li>`).join('')}
+          ${items.map((item: { name: string; quantity: number; price: number }) => `<li>${item.name} (${item.quantity}x) - ${item.price.toFixed(2)} ${currency}</li>`).join('')}
         </ul>
         <p>Bitte bearbeiten Sie die Bestellung in Ihrem Admin-Panel.</p>
       `,

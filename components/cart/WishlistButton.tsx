@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useWishlistStore } from '@/lib/store/wishlist';
 import { Button } from '@/components/ui/button';
 import { HeartIcon } from 'lucide-react';
@@ -8,32 +8,36 @@ import { HeartIcon } from 'lucide-react';
 interface WishlistButtonProps {
   item: {
     id: string;
-    name: string;
-    price: number;
-    image?: string;
-    category?: string;
-    weight?: number;
-    origin?: string;
   };
   className?: string;
 }
 
 export function WishlistButton({ item, className }: WishlistButtonProps) {
-  const { addItem, removeItem, isInWishlist } = useWishlistStore();
+  const toggleItem = useWishlistStore((state) => state.toggleItem);
+  const removeItem = useWishlistStore((state) => state.removeItem);
+  const isInWishlist = useWishlistStore((state) => state.isInWishlist(item.id));
+  const fetchWishlist = useWishlistStore((state) => state.fetchWishlist);
+  const summary = useWishlistStore((state) => state.summary);
   const [isAnimating, setIsAnimating] = useState(false);
-  
-  const isInList = isInWishlist(item.id);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!summary) {
+      void fetchWishlist();
+    }
+  }, [summary, fetchWishlist]);
 
   const handleToggle = () => {
+    if (isPending) return;
+
     setIsAnimating(true);
-    
-    if (isInList) {
-      removeItem(item.id);
-    } else {
-      addItem(item);
-    }
-    
-    setTimeout(() => setIsAnimating(false), 300);
+
+    startTransition(() => {
+      const action = isInWishlist ? removeItem : toggleItem;
+      action(item.id).finally(() => {
+        setTimeout(() => setIsAnimating(false), 300);
+      });
+    });
   };
 
   return (
@@ -41,19 +45,14 @@ export function WishlistButton({ item, className }: WishlistButtonProps) {
       variant="ghost"
       size="icon"
       onClick={handleToggle}
-      className={`${className} ${
-        isInList 
-          ? 'text-red-500 bg-red-50 hover:bg-red-100' 
+      disabled={isPending}
+      className={`${className ?? ''} ${
+        isInWishlist
+          ? 'text-red-500 bg-red-50 hover:bg-red-100'
           : 'text-muted-foreground hover:text-red-500'
-      } ${
-        isAnimating ? 'scale-110' : ''
-      } transition-all duration-300`}
+      } ${isAnimating ? 'scale-110' : ''} transition-all duration-300`}
     >
-      <HeartIcon 
-        className={`h-4 w-4 ${
-          isInList ? 'fill-current' : ''
-        }`} 
-      />
+      <HeartIcon className={`h-4 w-4 ${isInWishlist ? 'fill-current' : ''}`} />
     </Button>
   );
 }

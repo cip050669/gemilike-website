@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, RefreshCw, Clock, Shield } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Shield } from 'lucide-react';
 
 export default function ReturnsPage() {
   const t = useTranslations('returns');

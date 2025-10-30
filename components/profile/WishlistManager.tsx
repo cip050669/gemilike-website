@@ -15,35 +15,36 @@ import { allGemstones } from '@/lib/data/gemstones';
 
 export default function WishlistManager() {
   const router = useRouter();
-  const { items: wishlistItems, removeItem, clearWishlist } = useWishlistStore();
-  const { addItem } = useCartStore();
+  const wishlistItems = useWishlistStore((state) => state.items);
+  const removeItem = useWishlistStore((state) => state.removeItem);
+  const clearWishlist = useWishlistStore((state) => state.clearWishlist);
+  const fetchWishlist = useWishlistStore((state) => state.fetchWishlist);
+  const wishlistError = useWishlistStore((state) => state.error);
+  const wishlistLoading = useWishlistStore((state) => state.isLoading);
+  const addCartItem = useCartStore((state) => state.addItem);
   const [wishlistData, setWishlistData] = useState<Gemstone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadWishlistData = useCallback(() => {
     const gemstones = allGemstones.filter((gemstone) =>
-      wishlistItems.some(item => item.id === gemstone.id)
+      wishlistItems.some((item) => item.gemstoneId === gemstone.id)
     );
     setWishlistData(gemstones);
     setIsLoading(false);
   }, [wishlistItems]);
 
   useEffect(() => {
-    loadWishlistData();
-  }, [loadWishlistData]);
+    setIsLoading(true);
+    void fetchWishlist().then(loadWishlistData);
+  }, [fetchWishlist, loadWishlistData]);
 
   const handleRemoveFromWishlist = (gemstoneId: string) => {
-    removeItem(gemstoneId);
+    void removeItem(gemstoneId);
   };
 
   const handleAddToCart = (gemstone: Gemstone) => {
     try {
-      addItem({
-        id: gemstone.id,
-        name: gemstone.name,
-        price: gemstone.price,
-        image: gemstone.images?.[0] || gemstone.mainImage,
-      });
+      void addCartItem(gemstone.id);
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
@@ -129,11 +130,21 @@ export default function WishlistManager() {
     }
   };
 
-  if (isLoading) {
+  if (wishlistLoading || isLoading) {
     return (
       <Card>
         <CardContent className="py-8">
           <div className="text-center">Lädt Merkliste...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (wishlistError) {
+    return (
+      <Card>
+        <CardContent className="py-8">
+          <div className="text-center text-red-400">{wishlistError}</div>
         </CardContent>
       </Card>
     );

@@ -17,8 +17,7 @@ import {
   Save, 
   X, 
   Globe,
-  Search,
-  Filter
+  Search
 } from 'lucide-react';
 import BulkImportDialog from './BulkImportDialog';
 
@@ -84,13 +83,7 @@ export default function WorldMapManagement() {
     }
   };
 
-  const saveCountries = async (data: CountryData[]) => {
-    try {
-      setCountries(data);
-    } catch (error) {
-      console.error('Error saving countries:', error);
-    }
-  };
+  // persist function not used currently
 
   const addCountry = () => {
     const newCountry: CountryData = {
@@ -105,7 +98,7 @@ export default function WorldMapManagement() {
     setSelectedCountry(newCountry);
   };
 
-  const addLocation = (countryId: string) => {
+  const addLocation = () => {
     const newLocation: LocationData = {
       id: Date.now().toString(),
       name: '',
@@ -345,7 +338,7 @@ export default function WorldMapManagement() {
                 <h3 className="text-xl font-semibold">
                   Lagerstätten in {selectedCountry.country}
                 </h3>
-                <AdminButton onClick={() => addLocation(selectedCountry.id)}>
+                <AdminButton onClick={() => addLocation()}>
                   <Plus className="h-4 w-4 mr-2" />
                   Lagerstätte hinzufügen
                 </AdminButton>

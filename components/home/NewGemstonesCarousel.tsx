@@ -57,10 +57,10 @@ export function NewGemstonesCarousel({
       <div className="story-card space-y-6">
         <div className="space-y-4 text-center">
           <h2 className="text-3xl md:text-4xl font-impact font-weight-impact">
-            <span className="text-white">Neue Edelsteine</span>
+            <span className="gemilike-text-gradient">Neue Edelsteine</span>
           </h2>
           {description && (
-            <p className="mx-auto max-w-3xl text-base md:text-lg text-white/90">
+            <p className="mx-auto max-w-3xl text-base md:text-lg text-white/80">
               <span>{description}</span>
             </p>
           )}

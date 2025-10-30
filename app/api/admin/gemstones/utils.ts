@@ -93,7 +93,7 @@ export const toStringArray = (value: unknown): string[] => {
       try {
         const parsed = JSON.parse(trimmed);
         return Array.isArray(parsed)
-          ? parsed.map((item: any) => String(item)).filter(Boolean)
+          ? parsed.map((item: unknown) => String(item)).filter(Boolean)
           : [];
       } catch {
         return [];

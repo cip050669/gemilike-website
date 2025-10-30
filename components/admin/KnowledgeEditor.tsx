@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, X, Plus, Trash2, Edit, Eye, EyeOff, Upload, Image as ImageIcon } from 'lucide-react';
+import { Save, X, Plus, Edit, Eye, EyeOff, Upload, Image as ImageIcon } from 'lucide-react';
 import { KnowledgeArticle, defaultKnowledgeCategories, defaultKnowledgeTags } from '@/lib/types/knowledge';
 import { MarkdownPreview } from './MarkdownPreview';
 import { cn } from '@/lib/utils';
@@ -46,7 +46,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
   const cardStyles =
     'bg-gray-800/50/50 border-white/15 text-white shadow-lg shadow-black/40';
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

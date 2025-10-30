@@ -1,14 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { MediaGallery } from '@/components/shop/MediaGallery';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { WishlistButton } from '@/components/cart/WishlistButton';
-import { GemIcon, MapPin, Ruler, Scale } from 'lucide-react';
+import { GemIcon } from 'lucide-react';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { cn } from '@/lib/utils';
 
@@ -51,9 +53,6 @@ export interface GemstoneGridProps {
 }
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
-const INITIAL_VISIBLE = 30;
-const LOAD_STEP = 15;
-
 const formatPrice = (value: number, currency = 'EUR') =>
   new Intl.NumberFormat('de-DE', {
     style: 'currency',
@@ -68,33 +67,12 @@ const formatWeight = (weight?: number | null, unit?: 'ct' | 'g') => {
   return `${weight.toFixed(2)} ${unit ?? 'ct'}`;
 };
 
-const formatDimensions = (dimensions?: ShopGemstone['dimensions']) => {
-  if (!dimensions) return null;
-  const parts = [
-    dimensions.length != null ? Number(dimensions.length).toFixed(1) : null,
-    dimensions.width != null ? Number(dimensions.width).toFixed(1) : null,
-    dimensions.height != null ? Number(dimensions.height).toFixed(1) : null,
-  ].filter((part) => part !== null);
-
-  if (!parts.length) return null;
-  return `${parts.join(' × ')} mm`;
-};
-
 export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps) {
   const [selectedGemstone, setSelectedGemstone] = useState<ShopGemstone | null>(null);
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  const params = useParams<{ locale: string }>();
+  const locale = params?.locale ?? 'de';
 
-  useEffect(() => {
-    setVisibleCount(INITIAL_VISIBLE);
-  }, [gemstones]);
-
-  const visibleGemstones = useMemo(
-    () => gemstones.slice(0, visibleCount),
-    [gemstones, visibleCount]
-  );
-  const hasMore = gemstones.length > visibleCount;
-
-  const handleLoadMore = () => setVisibleCount((count) => count + LOAD_STEP);
+  const displayGemstones = gemstones;
 
   const toCartItem = (gem: ShopGemstone) => ({
     id: gem.id,
@@ -116,136 +94,88 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
       )}
 
       <div
-        className="grid gap-[6px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pb-[10px]"
-        style={{ gridAutoRows: 'minmax(0, 1fr)' }}
+        className="grid gap-[16px]"
+        style={{ gridTemplateColumns: 'repeat(5, 240px)', justifyContent: 'center', maxHeight: 'calc(6 * 340px + 5 * 16px)', overflowY: 'auto', paddingBottom: '16px' }}
       >
-        {visibleGemstones.map((gem) => {
+        {displayGemstones.map((gem) => {
           const previewImage = gem.images[0] ?? PLACEHOLDER_IMAGE;
           const priceLabel = formatPrice(gem.price, gem.currency);
           const weightLabel = formatWeight(gem.weight, gem.weightUnit ?? (gem.type === 'rough' ? 'g' : 'ct'));
-          const dimensionLabel = formatDimensions(gem.dimensions);
 
           return (
             <article
               key={gem.id}
-              className="gem-card group flex h-full flex-col overflow-hidden rounded-[18px] transition-all duration-300"
+              className="gem-card group flex min-w-[240px] max-w-[240px] flex-col gap-3 rounded-[18px] p-4 transition-all duration-300"
             >
               <button
                 type="button"
                 onClick={() => setSelectedGemstone(gem)}
-                className="relative block h-[230px] w-full overflow-hidden rounded-[18px]"
+                className="group relative block w-full overflow-hidden rounded-[18px]"
+                style={{ height: '240px' }}
               >
                 <Image
                   src={previewImage}
                   alt={gem.name}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 25vw, 20vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  width={240}
+                  height={240}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 {gem.isSold && (
-                  <div className="absolute left-4 top-4">
+                  <div className="absolute left-3 top-3">
                     <Badge variant="destructive">Verkauft</Badge>
                   </div>
                 )}
                 {gem.isNew && (
-                  <div className="absolute right-4 top-4">
+                  <div className="absolute right-3 top-3">
                     <Badge variant="accent">Neu</Badge>
                   </div>
                 )}
-                <div className="absolute right-3 bottom-3">
-                  <WishlistButton
-                    item={toCartItem(gem)}
-                    className="border border-white/10 bg-black/30 backdrop-blur"
-                  />
-                </div>
               </button>
 
-              <div className="flex flex-1 flex-col gap-5 p-5">
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <span className="text-xs uppercase tracking-[0.2em] text-white/50">
-                      {gem.category}
-                    </span>
-                    <h3 className="min-h-[3.5rem] text-xl font-semibold text-white line-clamp-2">
-                      {gem.name}
-                    </h3>
-                  </div>
-                  {(gem.description || gem.shortDescription) && (
-                    <p className="text-sm text-white/70 line-clamp-2">
-                      {gem.shortDescription ?? gem.description}
-                    </p>
-                  )}
-
-                  <div className="space-y-2 text-xs text-white/65">
-                    <div className="flex items-center gap-2">
-                      <GemIcon className="h-4 w-4 text-primary" />
-                      <span>{gem.type === 'cut' ? 'Geschliffen' : 'Rohstein'}</span>
-                    </div>
-                    {weightLabel && (
-                      <div className="flex items-center gap-2">
-                        <Scale className="h-4 w-4 text-primary" />
-                        <span>{weightLabel}</span>
-                      </div>
-                    )}
-                    {dimensionLabel && (
-                      <div className="flex items-center gap-2">
-                        <Ruler className="h-4 w-4 text-primary" />
-                        <span>{dimensionLabel}</span>
-                      </div>
-                    )}
-                    {gem.origin && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        <span>{gem.origin}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-auto space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-3xl font-semibold text-primary">{priceLabel}</p>
-                      <p className="text-xs uppercase tracking-wide text-white/50">
-                        Bestand: {gem.stock}
-                      </p>
-                    </div>
-                    <AddToCartButton
-                      item={toCartItem(gem)}
-                      disabled={!gem.inStock || gem.isSold}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className={cn(
-                      navStyles.navButton,
-                      navStyles.navButtonTight,
-                      'w-full justify-center text-sm'
-                    )}
-                    onClick={() => setSelectedGemstone(gem)}
+              <div className="space-y-3 text-sm text-white/75">
+                <div className="space-y-1">
+                  <span className="text-[11px] uppercase tracking-[0.3em] text-white/45">
+                    {gem.category}
+                  </span>
+                  <Link
+                    href={`/${locale}/shop/${gem.id}`}
+                    className="block text-lg font-semibold text-white line-clamp-2 hover:text-primary"
                   >
-                    <span className={navStyles.navLabel}>Details öffnen</span>
-                    <span className={navStyles.navGlow} />
-                  </button>
+                    {gem.name}
+                  </Link>
                 </div>
+                <div className="space-y-1 text-xs text-white/60">
+                  <p>{priceLabel}</p>
+                  {weightLabel && <p>Gewicht {weightLabel}</p>}
+                  {gem.origin && <p>Herkunft {gem.origin}</p>}
+                </div>
+              </div>
+
+              <div className="mt-auto space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <AddToCartButton
+                    item={toCartItem(gem)}
+                    disabled={!gem.inStock || gem.isSold}
+                  />
+                  <WishlistButton item={toCartItem(gem)} className="border border-white/10" />
+                </div>
+                <button
+                  type="button"
+                  className={cn(
+                    navStyles.navButton,
+                    navStyles.navButtonTight,
+                    'w-full justify-center text-sm'
+                  )}
+                  onClick={() => setSelectedGemstone(gem)}
+                >
+                  <span className={navStyles.navLabel}>Details öffnen</span>
+                  <span className={navStyles.navGlow} />
+                </button>
               </div>
             </article>
           );
         })}
       </div>
-
-      {hasMore && (
-        <div className="mt-8 flex justify-center">
-          <button
-            type="button"
-            className={cn(navStyles.navButton, navStyles.navButtonTight, 'px-6 py-2')}
-            onClick={handleLoadMore}
-          >
-            <span className={navStyles.navLabel}>Mehr Edelsteine laden</span>
-            <span className={navStyles.navGlow} />
-          </button>
-        </div>
-      )}
 
       <Dialog open={selectedGemstone != null} onOpenChange={() => setSelectedGemstone(null)}>
         <DialogContent className="max-w-5xl bg-[#111111] text-white">

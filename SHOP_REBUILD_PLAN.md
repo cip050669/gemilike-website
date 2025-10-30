@@ -122,3 +122,8 @@ datasource db {
 
 > Reset ist akzeptabel – bestehende SQLite-Daten können bei Bedarf migriert oder verworfen werden, sobald PostgreSQL produktiv bereitsteht.
 
+## 10. Aktueller Fortschritt (UI-Anpassungen Shop)
+- Intro-Story-Card „Unsere Auswahl an Edelsteinen“ auf der Shop-Seite implementiert (`components/shop/ShopShowcase.tsx`), Design und Typografie spiegeln die Startseiten-Sektion „Neue Edelsteine“.
+- Navigations-Button „Zurück zur Startseite“ rechtsbündig in die Shop-Intro-Card integriert, gleiche Nav-Styles wie Header/Footer (Locale-aware Link).
+- Shop-Kachelraster mit 5 Spalten × 240 px Breite, homogener Glow-Hover und Badges analog Startseite aktualisiert (`components/shop/GemstoneGrid.tsx`); Sichtfenster auf 6 Reihen mit vertikaler Scrollleiste begrenzt.
+- Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, Wishlist/Cart-Serveraktionen anbinden.

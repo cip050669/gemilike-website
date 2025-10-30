@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useCartStore } from '@/lib/store/cart';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,8 +9,36 @@ import Image from 'next/image';
 import { XIcon, PlusIcon, MinusIcon, ShoppingCartIcon } from 'lucide-react';
 import Link from 'next/link';
 
+const EMPTY_ITEMS: ReadonlyArray<{
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+  category?: string;
+  weight?: number;
+  weightUnit?: string;
+  origin?: string;
+}> = Object.freeze([]);
+
 export function Cart() {
-  const { items, isOpen, toggleCart, updateQuantity, removeItem, getTotalPrice, getTotalItems } = useCartStore();
+  const isOpen = useCartStore((state) => state.isOpen);
+  const toggleCart = useCartStore((state) => state.toggleCart);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const getTotalPrice = useCartStore((state) => state.getTotalPrice);
+  const getTotalItems = useCartStore((state) => state.getTotalItems);
+  const items = useCartStore((state) => state.summary?.items ?? EMPTY_ITEMS);
+  const currency = useCartStore((state) => state.summary?.currency ?? 'EUR');
+  const isLoading = useCartStore((state) => state.isLoading);
+  const fetchCart = useCartStore((state) => state.fetchCart);
+  const error = useCartStore((state) => state.error);
+
+  useEffect(() => {
+    if (isOpen) {
+      void fetchCart();
+    }
+  }, [isOpen, fetchCart]);
 
   if (!isOpen) return null;
 
@@ -31,7 +60,19 @@ export function Cart() {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-4">
-            {items.length === 0 ? (
+            {isLoading && (
+              <div className="py-8 text-center text-muted-foreground">
+                Wird geladen …
+              </div>
+            )}
+
+            {!isLoading && error && (
+              <div className="py-4 text-center text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
+            {!isLoading && items.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <ShoppingCartIcon className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Ihr Warenkorb ist leer</h3>
@@ -42,7 +83,9 @@ export function Cart() {
                   <Button onClick={toggleCart}>Zum Shop</Button>
                 </Link>
               </div>
-            ) : (
+            ) : null}
+
+            {!isLoading && items.length > 0 && (
               <div className="space-y-4">
                 {items.map((item) => (
                   <Card key={item.id}>
@@ -64,11 +107,11 @@ export function Cart() {
                           <h3 className="font-semibold truncate">{item.name}</h3>
                           <p className="text-sm text-muted-foreground">
                             {item.category && `${item.category} • `}
-                            {item.weight && `${item.weight}ct • `}
+                            {item.weight && `${item.weight.toFixed(2)}${item.weightUnit ?? 'ct'} • `}
                             {item.origin}
                           </p>
                           <p className="text-lg font-bold text-primary">
-                            €{item.price.toFixed(2)}
+                            {currency} {item.price.toFixed(2)}
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -108,7 +151,9 @@ export function Cart() {
             <div className="border-t border-border p-4 space-y-4">
               <div className="flex justify-between text-lg font-semibold">
                 <span>Gesamt:</span>
-                <span className="text-primary">€{getTotalPrice().toFixed(2)}</span>
+                <span className="text-primary">
+                  {currency} {getTotalPrice().toFixed(2)}
+                </span>
               </div>
               <div className="space-y-2">
                 <Link href="/checkout" className="w-full">

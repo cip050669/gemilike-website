@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, type CSSProperties } from 'react';
-import Link from 'next/link';
 import type { HeroSettingsData } from '@/lib/data/hero-settings';
 
 interface HeroSectionProps {
@@ -117,20 +116,7 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
       ? normalizedSettings.titleLine2
       : undefined;
 
-  const primaryCtaLabel = normalizedSettings.ctaText?.trim() || defaultPrimaryCtaLabel;
-  const primaryCtaLink = normalizedSettings.ctaLink?.trim() || defaultPrimaryCtaLink;
-  const secondaryCtaLabel =
-    normalizedSettings.secondaryCtaText?.trim() || defaultSecondaryCtaLabel;
-  const secondaryCtaLink =
-    normalizedSettings.secondaryCtaLink?.trim() || defaultSecondaryCtaLink;
-
-  const buildHref = (link: string) => {
-    if (!link) return `/${locale}`;
-    if (link.startsWith('http')) return link;
-    if (link.startsWith(`/${locale}`)) return link;
-    if (link.startsWith('/')) return `/${locale}${link}`;
-    return `/${locale}/${link}`;
-  };
+  // CTA-Variablen derzeit ungenutzt (Buttons vorübergehend entfernt)
 
   return (
     <section

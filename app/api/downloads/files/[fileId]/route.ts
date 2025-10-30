@@ -12,7 +12,7 @@ export async function POST(
 ) {
   try {
     const { fileId } = await params;
-    const { projectId, userEmail, userName } = await request.json();
+    const { userEmail, userName } = await request.json();
     
     // Check authentication
     const cookieStore = await cookies();

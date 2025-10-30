@@ -3,7 +3,7 @@ import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 // GET - Länder und Lagerstätten abrufen
-export async function GET(_request: NextRequest) {
+export async function GET() {
   
   try {
     // Authentifizierung - in Entwicklung optional

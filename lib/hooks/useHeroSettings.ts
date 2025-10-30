@@ -37,7 +37,7 @@ export function useHeroSettings() {
             return;
           }
         }
-      } catch (error) {
+      } catch {
         // Fallback zu localStorage
       }
 
@@ -106,7 +106,7 @@ export function useHeroSettings() {
             ctaLink: newSettings.ctaLink,
           })
         });
-      } catch (error) {
+      } catch {
         // Silent error - localStorage ist bereits gespeichert
       }
       

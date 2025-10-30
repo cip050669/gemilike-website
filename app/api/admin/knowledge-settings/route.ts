@@ -14,7 +14,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     // if (!userId) {
     //   return NextResponse.json({ success: false, error: 'Not authorized' }, { status: 401 });
     // }

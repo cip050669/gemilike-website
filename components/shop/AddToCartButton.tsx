@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useCartStore } from '@/lib/store/cart';
 import { Button } from '@/components/ui/button';
 import { ShoppingCartIcon, CheckIcon } from 'lucide-react';
@@ -19,22 +19,31 @@ interface AddToCartButtonProps {
 }
 
 export function AddToCartButton({ item, disabled = false }: AddToCartButtonProps) {
-  const { addItem } = useCartStore();
+  const addItem = useCartStore((state) => state.addItem);
   const [isAdded, setIsAdded] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleAddToCart = () => {
-    if (disabled) {
+    if (disabled || isPending) {
       return;
     }
-    addItem(item);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+
+    startTransition(() => {
+      addItem(item.id)
+        .then(() => {
+          setIsAdded(true);
+          setTimeout(() => setIsAdded(false), 2000);
+        })
+        .catch(() => {
+          setIsAdded(false);
+        });
+    });
   };
 
   return (
     <Button
       onClick={handleAddToCart}
-      disabled={disabled}
+      disabled={disabled || isPending}
       className={`${
         disabled
           ? 'bg-gray-700 text-gray-300 hover:bg-gray-700'

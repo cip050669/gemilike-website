@@ -11,7 +11,7 @@ const generateSlug = (title: string) =>
 
 export async function GET() {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     // if (!userId) {
     //   return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     // }
@@ -26,7 +26,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     // if (!userId) {
     //   return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     // }
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     // if (!userId) {
     //   return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     // }
@@ -134,7 +134,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    await getSessionWithUser();
     // if (!userId) {
     //   return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     // }

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { allGemstones } from '@/lib/data/gemstones';
 import { Gemstone } from '@/lib/types/gemstone';
@@ -78,7 +78,7 @@ export interface DashboardStats {
   lastUpdated: string;
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const { session, userId } = await getSessionWithUser();
 

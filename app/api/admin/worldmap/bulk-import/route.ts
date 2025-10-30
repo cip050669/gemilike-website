@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 3. Lagerstätte erstellen
-        const location = await prisma.location.create({
+        await prisma.location.create({
           data: {
             name: item.name,
             lat: item.lat,

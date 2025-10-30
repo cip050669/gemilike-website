@@ -67,7 +67,7 @@ export function HeroImageManager() {
               apiSettings.secondaryCtaLink ?? INITIAL_SETTINGS.secondaryButtonLink,
           };
         }
-      } catch (error) {
+      } catch {
         const saved = localStorage.getItem('heroImageSettings');
         if (saved) {
           try {

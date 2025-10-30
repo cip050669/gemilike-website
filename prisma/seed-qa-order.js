@@ -1,5 +1,6 @@
-/* eslint-disable no-console */
-const { PrismaClient } = require('@prisma/client');
+ 
+import { PrismaClient } from '@prisma/client';
+import { fileURLToPath } from 'url';
 
 const prisma = new PrismaClient();
 
@@ -87,7 +88,7 @@ async function main() {
     },
   });
 
-  const customer = await prisma.customer.upsert({
+  await prisma.customer.upsert({
     where: { customerNumber: 'CUST-QA-0001' },
     update: {
       firstName: 'QA',
@@ -196,7 +197,8 @@ async function main() {
   console.log('   - Customer email: qa.customer@gemilike.com');
 }
 
-if (require.main === module) {
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMain) {
   main()
     .catch((error) => {
       console.error('❌ Error seeding QA order:', error);
@@ -207,4 +209,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { main };
+export { main };

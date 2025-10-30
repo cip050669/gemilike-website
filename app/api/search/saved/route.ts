@@ -16,7 +16,7 @@ export interface SavedSearch {
 // In production, you would use a database
 const savedSearches: SavedSearch[] = [];
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const { userId } = await getSessionWithUser();
 

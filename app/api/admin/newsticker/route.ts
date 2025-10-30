@@ -27,7 +27,7 @@ export async function GET() {
     // Ensure we always return an array
     const safeItems = Array.isArray(items) ? items : [];
     return NextResponse.json({ success: true, items: safeItems });
-  } catch (error) {
+  } catch {
     // Return empty array instead of error
     return NextResponse.json({ success: true, items: [] });
   }

@@ -1,12 +1,11 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Gem, Sparkles, Shield, Truck, Headphones } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ServicesPage() {
-  const t = useTranslations('services');
+  // i18n derzeit ungenutzt
 
   const services = [
     {

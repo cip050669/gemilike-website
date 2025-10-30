@@ -1,6 +1,5 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { useCartStore } from '@/lib/store/cart';
 import { useState, useEffect } from 'react';
 import { GemstoneThumbnail } from '@/components/shop/GemstoneThumbnail';
@@ -13,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Grid, List, Search } from 'lucide-react';
 
 export default function SimpleShopPage() {
-  const t = useTranslations('shop');
+  // i18n derzeit ungenutzt
   const addItem = useCartStore((state) => state.addItem);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
   const [gemstones, setGemstones] = useState<Gemstone[]>([]);

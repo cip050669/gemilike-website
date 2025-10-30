@@ -12,7 +12,7 @@
   - [ ] Repository/Service-Schicht für Gemstones, Wishlist, Cart, Orders anlegen _(Status: Offen)_  
   - [ ] Audit-Logging & Role Guards integrieren _(Status: Offen)_  
 - [ ] **Shop-Frontend erneuern** _(Status: Offen)_  
-  - [ ] Grid (6×5 Sichtbereich) + 240px Kacheln mit Badges/Wishlist/Cart umsetzen _(Status: Offen)_  
+  - [x] Grid (6×5 Sichtbereich) + 240px Kacheln mit Badges/Wishlist/Cart umsetzen _(Status: Erledigt – umgesetzt in `components/shop/GemstoneGrid.tsx`)_
   - [ ] GemstoneCard mit Scroll-Galerie, erweiterten Attributen & Badge-Handling erstellen _(Status: Offen)_  
 - [ ] **Admin-Panel restrukturieren** _(Status: Offen)_  
   - [ ] Listenansicht mit Bulk-Aktionen & Filter (isNew, isSold, Status) bauen _(Status: Offen)_  

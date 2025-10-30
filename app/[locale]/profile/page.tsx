@@ -14,7 +14,6 @@ import {
   MapPin, 
   ShoppingBag, 
   Heart, 
-  Settings, 
   Plus,
   Edit,
   Trash2,

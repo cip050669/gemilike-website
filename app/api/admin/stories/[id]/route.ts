@@ -157,7 +157,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
 
       // Remove the story
-      const deletedStory = stories.splice(storyIndex, 1)[0];
+      stories.splice(storyIndex, 1);
       saveStoriesData(stories);
 
       return NextResponse.redirect(new URL('/de/admin/stories', request.url));

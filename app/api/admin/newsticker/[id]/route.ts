@@ -162,7 +162,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
 
       // Remove the item
-      const deletedItem = items.splice(itemIndex, 1)[0];
+      items.splice(itemIndex, 1);
       saveNewstickerData(items);
 
       return NextResponse.redirect(new URL('/de/admin/newsticker', request.url));

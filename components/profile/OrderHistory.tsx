@@ -6,9 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Package, Eye, Download, Truck, CreditCard, MapPin, Calendar, Euro } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Package, Eye, Download, Truck, CreditCard, MapPin } from 'lucide-react';
+// i18n derzeit ungenutzt
 
 interface OrderItem {
   id: string;
@@ -81,7 +81,7 @@ const statusConfig = {
 };
 
 export default function OrderHistory() {
-  const t = useTranslations('profile');
+  
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);

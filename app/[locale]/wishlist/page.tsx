@@ -5,7 +5,6 @@ import { useWishlistStore } from '@/lib/store/wishlist';
 import { allGemstones } from '@/lib/data/gemstones';
 import { GemstoneCard } from '@/components/shop/GemstoneCard';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Heart, ShoppingBag, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';

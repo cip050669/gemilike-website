@@ -23,12 +23,18 @@ const NAV_ITEMS = [
 export function Header() {
   const [/* searchQuery */, /* setSearchQuery */] = useState('');
   const [isMounted, setIsMounted] = useState(false);
-  const { toggleCart, getTotalItems } = useCartStore();
+  const toggleCart = useCartStore((state) => state.toggleCart);
+  const getTotalItems = useCartStore((state) => state.getTotalItems);
+  const fetchCart = useCartStore((state) => state.fetchCart);
+  const summary = useCartStore((state) => state.summary);
   const pathname = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (!summary) {
+      void fetchCart();
+    }
+  }, [summary, fetchCart]);
 
   const localePrefix = (() => {
     if (!pathname) return '';

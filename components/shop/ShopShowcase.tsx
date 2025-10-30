@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { ShopGemstone, GemstoneGrid } from '@/components/shop/GemstoneGrid';
 import { Input } from '@/components/ui/input';
 import navStyles from '@/components/layout/HeaderNav.module.css';
@@ -19,6 +21,8 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
   const [origin, setOrigin] = useState<string>('alle');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [hideSold, setHideSold] = useState(true);
+  const params = useParams<{ locale: string }>();
+  const locale = params?.locale ?? 'de';
 
   const categoryOptions = useMemo(() => {
     const options = new Set<string>();
@@ -86,20 +90,39 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
 
   return (
     <div className="space-y-16">
-      <section className="main-container space-y-6 text-center">
-        <span className="text-xs uppercase tracking-[0.4em] text-white/50">Edelstein-Shop</span>
-        <h1 className="text-4xl md:text-5xl font-impact font-weight-impact text-white">
-          Handverlesene Edelsteine für Sammler:innen
-        </h1>
-        <p className="mx-auto max-w-3xl text-sm md:text-base text-white/70">
-          Entdecken Sie neue Funde, einzigartige Einzelstücke und zertifizierte Qualitäten. Jede
-          Kachel zeigt Gewicht, Herkunft, Preis und Status auf einen Blick.
-        </p>
-        {fallback && (
-          <p className="mx-auto max-w-2xl rounded-lg border border-yellow-400/30 bg-yellow-500/10 px-4 py-2 text-xs text-yellow-100">
-            Hinweis: Temporäre Beispiel-Daten, da aktuell keine Datenbankverbindung möglich war.
-          </p>
-        )}
+      <section className="main-container">
+        <div className="story-card space-y-4 p-6 md:p-8">
+          <div className="flex flex-col items-center gap-3 text-center md:flex-row md:items-start md:justify-between md:text-left">
+            <span className="text-xs uppercase tracking-[0.4em] text-white/50">
+              Edelstein-Shop
+            </span>
+            <Link
+              href={`/${locale}`}
+              className={cn(
+                navStyles.navButton,
+                navStyles.navButtonTight,
+                'px-4 py-2 text-sm'
+              )}
+            >
+              <span className={navStyles.navLabel}>Zurück zur Startseite</span>
+              <span className={navStyles.navGlow} />
+            </Link>
+          </div>
+          <div className="space-y-4 text-center">
+            <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
+              <span className="gemilike-text-gradient">Unsere Auswahl an Edelsteinen</span>
+            </h1>
+            <p className="mx-auto max-w-3xl text-sm md:text-base text-white/80">
+              Entdecken Sie neue Funde, einzigartige Einzelstücke und zertifizierte Qualitäten. Jede
+              Kachel zeigt Gewicht, Herkunft, Preis und Status auf einen Blick.
+            </p>
+            {fallback && (
+              <p className="mx-auto inline-block rounded-md border border-yellow-400/30 bg-yellow-500/10 px-3 py-1 text-xs text-yellow-100">
+                Hinweis: Temporäre Beispiel-Daten, da aktuell keine Datenbankverbindung möglich war.
+              </p>
+            )}
+          </div>
+        </div>
       </section>
 
       <section className="main-container">
@@ -110,26 +133,27 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
                 <h2 className="text-2xl font-semibold text-white">Bestand filtern</h2>
                 <p className="text-sm text-white/60">
                   Verfeinern Sie die Auswahl nach Kategorie, Herkunft oder Stichwort. Mit einem Klick
-                blenden Sie verkaufte Exemplare aus.
-              </p>
+                  blenden Sie verkaufte Exemplare aus.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setSearch('');
+                  setCategory('alle');
+                  setOrigin('alle');
+                  setSortBy('newest');
+                  setHideSold(true);
+                }}
+                className={cn(
+                  navStyles.navButton,
+                  navStyles.navButtonTight,
+                  'self-start text-sm px-4 py-2'
+                )}
+              >
+                <span className={navStyles.navLabel}>Filter zurücksetzen</span>
+                <span className={navStyles.navGlow} />
+              </button>
             </div>
-            <button
-              onClick={() => {
-                setSearch('');
-                setCategory('alle');
-                setOrigin('alle');
-                setSortBy('newest');
-                setHideSold(true);
-              }}
-              className={cn(
-                navStyles.navButton,
-                navStyles.navButtonTight,
-                'self-start text-sm px-4 py-2'
-              )}
-            >
-              <span className={navStyles.navLabel}>Filter zurücksetzen</span>
-              <span className={navStyles.navGlow} />
-            </button>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -206,7 +230,6 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
             Keine Edelsteine gefunden. Passen Sie die Filter oder die Suche an.
           </div>
         )}
-        </div>
       </section>
     </div>
   );

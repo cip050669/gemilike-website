@@ -167,7 +167,7 @@ export function NewstickerManager() {
               <CardContent className="flex flex-col items-center justify-center py-8">
                 <Megaphone className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">Keine Newsticker-Nachrichten vorhanden</p>
-                <p className="text-sm text-muted-foreground">Erstellen Sie Ihre erste Nachricht im "Neue Nachricht" Tab</p>
+                <p className="text-sm text-muted-foreground">Erstellen Sie Ihre erste Nachricht im &quot;Neue Nachricht&quot; Tab</p>
               </CardContent>
             </Card>
           ) : (
