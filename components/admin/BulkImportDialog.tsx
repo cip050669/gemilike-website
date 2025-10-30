@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -277,10 +277,10 @@ export default function BulkImportDialog({ onImportComplete }: BulkImportDialogP
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <AdminButton variant="outline">
           <Upload className="h-4 w-4 mr-2" />
           Bulk Import
-        </Button>
+        </AdminButton>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -298,18 +298,18 @@ export default function BulkImportDialog({ onImportComplete }: BulkImportDialogP
                 Laden Sie die CSV-Templates herunter und konsultieren Sie die Dokumentation für das richtige Format.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <Button onClick={downloadTemplate} variant="outline" className="w-full">
+                <AdminButton onClick={downloadTemplate} variant="outline" className="w-full">
                   <Download className="h-4 w-4 mr-2" />
                   Vollständiges Template
-                </Button>
-                <Button onClick={downloadMinimalTemplate} variant="outline" className="w-full">
+                </AdminButton>
+                <AdminButton onClick={downloadMinimalTemplate} variant="outline" className="w-full">
                   <Download className="h-4 w-4 mr-2" />
                   Minimales Template
-                </Button>
-                <Button onClick={downloadGuide} variant="outline" className="w-full">
+                </AdminButton>
+                <AdminButton onClick={downloadGuide} variant="outline" className="w-full">
                   <FileText className="h-4 w-4 mr-2" />
                   Import-Guide
-                </Button>
+                </AdminButton>
               </div>
             </CardContent>
           </Card>
@@ -453,29 +453,29 @@ export default function BulkImportDialog({ onImportComplete }: BulkImportDialogP
 
           {/* Actions */}
           <div className="flex justify-between">
-            <Button
+            <AdminButton
               variant="outline"
               onClick={resetImport}
               disabled={isImporting}
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Zurücksetzen
-            </Button>
+            </AdminButton>
             
             <div className="space-x-2">
-              <Button
+              <AdminButton
                 variant="outline"
                 onClick={() => setIsOpen(false)}
                 disabled={isImporting}
               >
                 Abbrechen
-              </Button>
-              <Button
+              </AdminButton>
+              <AdminButton
                 onClick={handleImport}
                 disabled={isImporting || !csvData.trim()}
               >
                 {isImporting ? 'Importiere...' : 'Import starten'}
-              </Button>
+              </AdminButton>
             </div>
           </div>
         </div>

@@ -1,5 +1,26 @@
 # Projekt To‑Do Übersicht
 
+## Shop Relaunch – Sofortmaßnahmen
+
+- [ ] **Strato-Stack vorbereiten** _(Status: Offen)_  
+  - [ ] Docker Compose für Next.js, PostgreSQL, Redis/Queue, S3-kompatiblen Storage definieren _(Status: Offen)_  
+  - [ ] Monitoring/Logging (Uptime, Metrics, zentralisierte Logs) festlegen _(Status: Offen)_  
+- [ ] **Prisma auf PostgreSQL umstellen** _(Status: Offen)_  
+  - [ ] Neues Datenmodell laut `SHOP_REBUILD_PLAN.md` modellieren _(Status: Offen)_  
+  - [ ] Migration & Seed-Skripte (Demo-Daten, Admin-User) implementieren _(Status: Offen)_  
+- [ ] **Server Actions & Domain-Layer bauen** _(Status: Offen)_  
+  - [ ] Repository/Service-Schicht für Gemstones, Wishlist, Cart, Orders anlegen _(Status: Offen)_  
+  - [ ] Audit-Logging & Role Guards integrieren _(Status: Offen)_  
+- [ ] **Shop-Frontend erneuern** _(Status: Offen)_  
+  - [ ] Grid (6×5 Sichtbereich) + 240px Kacheln mit Badges/Wishlist/Cart umsetzen _(Status: Offen)_  
+  - [ ] GemstoneCard mit Scroll-Galerie, erweiterten Attributen & Badge-Handling erstellen _(Status: Offen)_  
+- [ ] **Admin-Panel restrukturieren** _(Status: Offen)_  
+  - [ ] Listenansicht mit Bulk-Aktionen & Filter (isNew, isSold, Status) bauen _(Status: Offen)_  
+  - [ ] Detail-/Bulk-Upload-Form mit Medienverwaltung und Freigabeprozess entwickeln _(Status: Offen)_  
+- [ ] **Checkout & Rechnungsflow koppeln** _(Status: Offen)_  
+  - [ ] Order → Invoice Pipeline, DownloadGrants und Payment-Hooks implementieren _(Status: Offen)_  
+  - [ ] MFA/Passkey für Kunden & Admins ausrollen _(Status: Offen)_  
+
 ## 1. Status & Lückenanalyse
 
 - [ ] **Rechnungen & Downloads konsolidieren** _(Status: Offen)_  

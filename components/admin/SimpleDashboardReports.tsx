@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import {
   DollarSign, 
   Package, 
@@ -157,7 +157,7 @@ export function SimpleDashboardReports() {
       {/* Zeitraum-Buttons */}
       <div className="flex gap-2">
         {['week', 'month', 'quarter', 'year'].map((period) => (
-          <Button
+          <AdminButton
             key={period}
             variant={currentPeriod === period ? 'default' : 'outline'}
             size="sm"
@@ -171,13 +171,13 @@ export function SimpleDashboardReports() {
             {period === 'month' && '📅 Monat'}
             {period === 'quarter' && '📅 Quartal'}
             {period === 'year' && '📅 Jahr'}
-          </Button>
+          </AdminButton>
         ))}
       </div>
 
       {/* Aktions-Buttons */}
       <div className="flex gap-2">
-        <Button
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={() => {
@@ -188,8 +188,8 @@ export function SimpleDashboardReports() {
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           {isLoading ? '🔄 Lädt...' : '🔄 Aktualisieren'}
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={() => {
@@ -199,8 +199,8 @@ export function SimpleDashboardReports() {
         >
           <Download className="h-4 w-4 mr-2" />
           💾 Exportieren
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={() => {
@@ -210,7 +210,7 @@ export function SimpleDashboardReports() {
         >
           <Printer className="h-4 w-4 mr-2" />
           🖨️ Drucken
-        </Button>
+        </AdminButton>
       </div>
 
       {/* KPI Cards */}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -322,14 +322,14 @@ export function DashboardStats({ gemstones }: DashboardStatsProps) {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} className="flex items-center gap-2">
+          <AdminButton variant="outline" onClick={handleRefresh} className="flex items-center gap-2">
             <RefreshCw className="w-4 h-4" />
             Aktualisieren
-          </Button>
-          <Button variant="outline" onClick={handleExport} className="flex items-center gap-2">
+          </AdminButton>
+          <AdminButton variant="outline" onClick={handleExport} className="flex items-center gap-2">
             <Download className="w-4 h-4" />
             Export CSV
-          </Button>
+          </AdminButton>
         </div>
       </div>
 

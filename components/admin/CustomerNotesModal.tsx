@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Textarea } from '@/components/ui/textarea';
 import { User, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
@@ -107,10 +107,10 @@ export function CustomerNotesModal({ customer, isOpen, onClose, onSave }: Custom
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={handleCancel}>
+            <AdminButton variant="outline" onClick={handleCancel}>
               Abbrechen
-            </Button>
-            <Button 
+            </AdminButton>
+            <AdminButton 
               onClick={handleSave}
               disabled={isSaving}
             >
@@ -122,7 +122,7 @@ export function CustomerNotesModal({ customer, isOpen, onClose, onSave }: Custom
               ) : (
                 'Speichern'
               )}
-            </Button>
+            </AdminButton>
           </div>
         </div>
       </DialogContent>

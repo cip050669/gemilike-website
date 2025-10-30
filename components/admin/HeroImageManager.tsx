@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -254,14 +254,14 @@ export function HeroImageManager() {
                 className="flex-1"
                 disabled={isLoading}
               />
-              <Button
+              <AdminButton
                 variant="outline"
                 onClick={() => setPreviewMode(!previewMode)}
                 className="flex items-center gap-2"
               >
                 <Eye className="h-4 w-4" />
                 {previewMode ? 'Vorschau ausblenden' : 'Vorschau anzeigen'}
-              </Button>
+              </AdminButton>
             </div>
           </div>
 
@@ -370,22 +370,22 @@ export function HeroImageManager() {
 
           {/* Buttons */}
           <div className="flex gap-4 pt-4">
-            <Button
+            <AdminButton
               onClick={handleSave}
               disabled={isLoading}
               className="flex items-center gap-2"
             >
               <Save className="h-4 w-4" />
               {isLoading ? 'Speichern...' : 'Einstellungen speichern'}
-            </Button>
-            <Button
+            </AdminButton>
+            <AdminButton
               variant="outline"
               onClick={handleReset}
               className="flex items-center gap-2"
             >
               <RotateCcw className="h-4 w-4" />
               Zurücksetzen
-            </Button>
+            </AdminButton>
           </div>
         </CardContent>
       </Card>
@@ -414,12 +414,12 @@ export function HeroImageManager() {
                     {settings.subtitle}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-gray-800/30 text-black hover:bg-gray-100">
+                    <AdminButton className="bg-gray-800/30 text-black hover:bg-gray-100">
                       {settings.primaryButtonText}
-                    </Button>
-                    <Button variant="outline" className="border-white text-white hover:bg-gray-800/30 hover:text-black">
+                    </AdminButton>
+                    <AdminButton variant="outline" className="border-white text-white hover:bg-gray-800/30 hover:text-black">
                       {settings.secondaryButtonText}
-                    </Button>
+                    </AdminButton>
                   </div>
                 </div>
               </div>

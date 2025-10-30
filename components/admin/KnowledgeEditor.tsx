@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -289,10 +289,10 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
               placeholder="Neuen Tag hinzufügen"
               className={inputStyles}
             />
-            <Button type="button" onClick={handleAddTag} variant="outline" className="sm:w-40">
+            <AdminButton type="button" onClick={handleAddTag} variant="outline" className="sm:w-40">
               <Plus className="h-4 w-4 mr-2" />
               Tag hinzufügen
-            </Button>
+            </AdminButton>
           </div>
           <div className="flex flex-wrap gap-2 text-xs text-white/60">
             {defaultKnowledgeTags.map((tag) => (
@@ -319,7 +319,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
             className={cn('font-mono', inputStyles)}
           />
           <div className="flex items-center gap-3">
-            <Button type="button" onClick={() => setPreviewOpen((prev) => !prev)} variant="secondary">
+            <AdminButton type="button" onClick={() => setPreviewOpen((prev) => !prev)} variant="secondary">
               {previewOpen ? (
                 <>
                   <EyeOff className="h-4 w-4 mr-2" />
@@ -331,7 +331,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
                   Vorschau anzeigen
                 </>
               )}
-            </Button>
+            </AdminButton>
           </div>
           {previewOpen && (
             <MarkdownPreview content={formData.content} />
@@ -366,11 +366,11 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
         </div>
 
         <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
-          <Button type="button" variant="outline" onClick={onCancel} className="sm:w-40">
+          <AdminButton type="button" variant="outline" onClick={onCancel} className="sm:w-40">
             <X className="h-4 w-4 mr-2" />
             Abbrechen
-          </Button>
-          <Button type="button" onClick={handleSave} disabled={isLoading} className="sm:w-48">
+          </AdminButton>
+          <AdminButton type="button" onClick={handleSave} disabled={isLoading} className="sm:w-48">
             {isLoading ? (
               <>
                 <Save className="h-4 w-4 animate-spin mr-2" />
@@ -382,7 +382,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
                 Artikel speichern
               </>
             )}
-          </Button>
+          </AdminButton>
         </div>
       </CardContent>
     </Card>

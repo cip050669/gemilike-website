@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, Code } from 'lucide-react';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
@@ -18,7 +18,7 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Vorschau</CardTitle>
-          <Button
+          <AdminButton
             variant="outline"
             size="sm"
             onClick={() => setIsPreview(!isPreview)}
@@ -35,7 +35,7 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
                 Vorschau
               </>
             )}
-          </Button>
+          </AdminButton>
         </div>
       </CardHeader>
       <CardContent>

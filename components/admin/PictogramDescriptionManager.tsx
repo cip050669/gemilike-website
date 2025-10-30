@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -175,10 +175,10 @@ export function PictogramDescriptionManager() {
             Verwalten Sie die Erklärungen für die Piktogramme in den Edelstein-Karten
           </p>
         </div>
-        <Button onClick={() => setIsCreating(true)} className="flex items-center space-x-2">
+        <AdminButton onClick={() => setIsCreating(true)} className="flex items-center space-x-2">
           <Plus className="h-4 w-4" />
           <span>Neue Beschreibung</span>
-        </Button>
+        </AdminButton>
       </div>
 
       {/* Create new description */}
@@ -237,13 +237,13 @@ export function PictogramDescriptionManager() {
               </div>
             </div>
             <div className="flex space-x-2">
-              <Button onClick={handleCreate} className="flex items-center space-x-2">
+              <AdminButton onClick={handleCreate} className="flex items-center space-x-2">
                 <Save className="h-4 w-4" />
                 <span>Erstellen</span>
-              </Button>
-              <Button variant="outline" onClick={() => setIsCreating(false)}>
+              </AdminButton>
+              <AdminButton variant="outline" onClick={() => setIsCreating(false)}>
                 <X className="h-4 w-4" />
-              </Button>
+              </AdminButton>
             </div>
           </CardContent>
         </Card>
@@ -280,7 +280,7 @@ export function PictogramDescriptionManager() {
 
                 <div className="flex items-center space-x-2 ml-4">
                   {/* Reorder buttons */}
-                  <Button
+                  <AdminButton
                     variant="ghost"
                     size="sm"
                     onClick={() => handleReorder(description.id, 'up')}
@@ -288,8 +288,8 @@ export function PictogramDescriptionManager() {
                     className="h-8 w-8 p-0"
                   >
                     <ArrowUp className="h-3 w-3" />
-                  </Button>
-                  <Button
+                  </AdminButton>
+                  <AdminButton
                     variant="ghost"
                     size="sm"
                     onClick={() => handleReorder(description.id, 'down')}
@@ -297,37 +297,37 @@ export function PictogramDescriptionManager() {
                     className="h-8 w-8 p-0"
                   >
                     <ArrowDown className="h-3 w-3" />
-                  </Button>
+                  </AdminButton>
 
                   {/* Toggle active */}
-                  <Button
+                  <AdminButton
                     variant="ghost"
                     size="sm"
                     onClick={() => handleToggleActive(description.id, !description.isActive)}
                     className="h-8 w-8 p-0"
                   >
                     {description.isActive ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                  </Button>
+                  </AdminButton>
 
                   {/* Edit button */}
-                  <Button
+                  <AdminButton
                     variant="ghost"
                     size="sm"
                     onClick={() => setEditingId(description.id)}
                     className="h-8 w-8 w-8 p-0"
                   >
                     <Edit className="h-3 w-3" />
-                  </Button>
+                  </AdminButton>
 
                   {/* Delete button */}
-                  <Button
+                  <AdminButton
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(description.id)}
                     className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                   >
                     <Trash2 className="h-3 w-3" />
-                  </Button>
+                  </AdminButton>
                 </div>
               </div>
 
@@ -353,10 +353,10 @@ export function PictogramDescriptionManager() {
           <p className="text-muted-foreground mb-4">
             Erstellen Sie Ihre erste Piktogramm-Beschreibung, um den Benutzern zu helfen, die Symbole zu verstehen.
           </p>
-          <Button onClick={() => setIsCreating(true)}>
+          <AdminButton onClick={() => setIsCreating(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Erste Beschreibung erstellen
-          </Button>
+          </AdminButton>
         </div>
       )}
     </div>
@@ -435,13 +435,13 @@ function EditForm({ description, onSave, onCancel }: EditFormProps) {
       </div>
       
       <div className="flex space-x-2">
-        <Button onClick={handleSave} className="flex items-center space-x-2">
+        <AdminButton onClick={handleSave} className="flex items-center space-x-2">
           <Save className="h-4 w-4" />
           <span>Speichern</span>
-        </Button>
-        <Button variant="outline" onClick={onCancel}>
+        </AdminButton>
+        <AdminButton variant="outline" onClick={onCancel}>
           <X className="h-4 w-4" />
-        </Button>
+        </AdminButton>
       </div>
     </div>
   );

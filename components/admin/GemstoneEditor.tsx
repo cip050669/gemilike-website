@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -283,12 +283,12 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="border-white/30 text-white hover:bg-gray-700/30/10" onClick={onCancel}>
+          <AdminButton variant="outline" className="border-white/30 text-white hover:bg-gray-700/30/10" onClick={onCancel}>
             Abbrechen
-          </Button>
-          <Button type="submit" form="gemstone-editor-form" className="bg-primary text-primary-foreground hover:bg-primary/90">
+          </AdminButton>
+          <AdminButton type="submit" form="gemstone-editor-form" className="bg-primary text-primary-foreground hover:bg-primary/90">
             {formValues.id ? 'Änderungen speichern' : 'Edelstein speichern'}
-          </Button>
+          </AdminButton>
         </div>
       </div>
 
@@ -441,7 +441,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
             onAdd={() => addArrayField('images', 10)}
             onRemove={(index) => removeArrayField('images', index)}
             action={
-              <Button
+              <AdminButton
                 type="button"
                 variant="outline"
                 className="border-white/30 text-white hover:bg-gray-700/30/10"
@@ -450,7 +450,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               >
                 <UploadIcon className="mr-2 h-4 w-4" />
                 Datei hochladen
-              </Button>
+              </AdminButton>
             }
           />
 
@@ -461,7 +461,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
             onAdd={() => addArrayField('videos', 2)}
             onRemove={(index) => removeArrayField('videos', index)}
             action={
-              <Button
+              <AdminButton
                 type="button"
                 variant="outline"
                 className="border-white/30 text-white hover:bg-gray-700/30/10"
@@ -470,7 +470,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               >
                 <UploadIcon className="mr-2 h-4 w-4" />
                 Datei hochladen
-              </Button>
+              </AdminButton>
             }
           />
 
@@ -664,7 +664,7 @@ function OverlaySelectField({
                   className="border-white/20 bg-gray-700/50/60 text-white placeholder:text-white/40"
                 />
                 <div className="flex gap-2">
-                  <Button
+                  <AdminButton
                     type="button"
                     className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                     onClick={() => {
@@ -676,20 +676,20 @@ function OverlaySelectField({
                     disabled={!allowEmpty && !customValue.trim()}
                   >
                     Übernehmen
-                  </Button>
-                  <Button
+                  </AdminButton>
+                  <AdminButton
                     type="button"
                     variant="outline"
                     className="border-white/20 text-white hover:bg-gray-700/30/10"
                     onClick={() => setCustomValue('')}
                   >
                     Löschen
-                  </Button>
+                  </AdminButton>
                 </div>
               </div>
             )}
             {allowEmpty && value && (
-              <Button
+              <AdminButton
                 type="button"
                 variant="ghost"
                 className="text-white/70 hover:bg-gray-700/30/10"
@@ -699,7 +699,7 @@ function OverlaySelectField({
                 }}
               >
                 Auswahl entfernen
-              </Button>
+              </AdminButton>
             )}
           </div>
         </DialogContent>
@@ -734,7 +734,7 @@ function MediaInputList({ label, items, onChange, onAdd, onRemove, action }: Med
               className="border-white/20 bg-gray-700/50/40 text-white placeholder:text-white/40"
               placeholder="https://…"
             />
-            <Button
+            <AdminButton
               type="button"
               variant="outline"
               className={cn(
@@ -745,11 +745,11 @@ function MediaInputList({ label, items, onChange, onAdd, onRemove, action }: Med
               disabled={items.length === 1 && item === ''}
             >
               Entfernen
-            </Button>
+            </AdminButton>
           </div>
         ))}
       </div>
-      <Button
+      <AdminButton
         type="button"
         variant="outline"
         className="border-white/30 text-white hover:bg-gray-700/30/10"
@@ -757,7 +757,7 @@ function MediaInputList({ label, items, onChange, onAdd, onRemove, action }: Med
         disabled={limitReached}
       >
         Weiteres {label.includes('Video') ? 'Video' : 'Bild'} hinzufügen
-      </Button>
+      </AdminButton>
     </div>
   );
 }
@@ -900,14 +900,14 @@ function MediaUploadDialog({ type, open, onOpenChange, onUploaded }: MediaUpload
             <p className="mt-2 text-xs text-white/40">
               Datei ziehen oder
             </p>
-            <Button
+            <AdminButton
               type="button"
               className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
             >
               Datei auswählen
-            </Button>
+            </AdminButton>
             {selectedFileName && (
               <p className="mt-3 text-xs text-white/50">
                 Ausgewählt: {selectedFileName}

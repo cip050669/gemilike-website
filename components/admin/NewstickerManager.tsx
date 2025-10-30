@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -195,28 +195,28 @@ export function NewstickerManager() {
                         </p>
                       </div>
                       <div className="flex items-center gap-2 ml-4">
-                        <Button
+                        <AdminButton
                           variant="outline"
                           size="sm"
                           onClick={() => setEditingItem(item)}
                         >
                           <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
+                        </AdminButton>
+                        <AdminButton
                           variant="outline"
                           size="sm"
                           onClick={() => handleToggleActive(item)}
                         >
                           {item.isActive ? 'Deaktivieren' : 'Aktivieren'}
-                        </Button>
-                        <Button
+                        </AdminButton>
+                        <AdminButton
                           variant="outline"
                           size="sm"
                           onClick={() => handleDelete(item.id)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </AdminButton>
                       </div>
                     </div>
                   </CardContent>
@@ -296,10 +296,10 @@ export function NewstickerManager() {
                 <Label htmlFor="isActive">Sofort aktivieren</Label>
               </div>
 
-              <Button onClick={handleCreate} disabled={!newItem.text.trim()}>
+              <AdminButton onClick={handleCreate} disabled={!newItem.text.trim()}>
                 <Plus className="h-4 w-4 mr-2" />
                 Nachricht erstellen
-              </Button>
+              </AdminButton>
             </CardContent>
           </Card>
         </TabsContent>
@@ -354,14 +354,14 @@ export function NewstickerManager() {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={() => handleUpdate(editingItem)}>
+                <AdminButton onClick={() => handleUpdate(editingItem)}>
                   <Save className="h-4 w-4 mr-2" />
                   Speichern
-                </Button>
-                <Button variant="outline" onClick={() => setEditingItem(null)}>
+                </AdminButton>
+                <AdminButton variant="outline" onClick={() => setEditingItem(null)}>
                   <X className="h-4 w-4 mr-2" />
                   Abbrechen
-                </Button>
+                </AdminButton>
               </div>
             </CardContent>
           </Card>

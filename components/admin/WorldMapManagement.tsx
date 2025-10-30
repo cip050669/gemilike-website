@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -277,10 +277,10 @@ export default function WorldMapManagement() {
               </Select>
               <div className="flex gap-2">
                 <BulkImportDialog onImportComplete={loadCountries} />
-                <Button onClick={addCountry}>
+                <AdminButton onClick={addCountry}>
                   <Plus className="h-4 w-4 mr-2" />
                   Land hinzufügen
-                </Button>
+                </AdminButton>
               </div>
             </div>
 
@@ -292,20 +292,20 @@ export default function WorldMapManagement() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{country.country}</CardTitle>
                       <div className="flex gap-2">
-                        <Button
+                        <AdminButton
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedCountry(country)}
                         >
                           <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
+                        </AdminButton>
+                        <AdminButton
                           variant="outline"
                           size="sm"
                           onClick={() => deleteCountry(country.id)}
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </AdminButton>
                       </div>
                     </div>
                   </CardHeader>
@@ -345,10 +345,10 @@ export default function WorldMapManagement() {
                 <h3 className="text-xl font-semibold">
                   Lagerstätten in {selectedCountry.country}
                 </h3>
-                <Button onClick={() => addLocation(selectedCountry.id)}>
+                <AdminButton onClick={() => addLocation(selectedCountry.id)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Lagerstätte hinzufügen
-                </Button>
+                </AdminButton>
               </div>
 
               <div className="grid gap-4">
@@ -372,20 +372,20 @@ export default function WorldMapManagement() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button
+                          <AdminButton
                             variant="outline"
                             size="sm"
                             onClick={() => setEditingLocation(location)}
                           >
                             <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
+                          </AdminButton>
+                          <AdminButton
                             variant="outline"
                             size="sm"
                             onClick={() => deleteLocation(location.id)}
                           >
                             <Trash2 className="h-4 w-4" />
-                          </Button>
+                          </AdminButton>
                         </div>
                       </div>
                     </CardContent>
@@ -414,9 +414,9 @@ export default function WorldMapManagement() {
                 <CardTitle>
                   {countries.find(c => c.id === selectedCountry.id) ? 'Land bearbeiten' : 'Neues Land'}
                 </CardTitle>
-                <Button variant="ghost" onClick={() => setSelectedCountry(null)}>
+                <AdminButton variant="ghost" onClick={() => setSelectedCountry(null)}>
                   <X className="h-4 w-4" />
-                </Button>
+                </AdminButton>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -460,13 +460,13 @@ export default function WorldMapManagement() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button onClick={saveCountry}>
+                <AdminButton onClick={saveCountry}>
                   <Save className="h-4 w-4 mr-2" />
                   Speichern
-                </Button>
-                <Button variant="outline" onClick={() => setSelectedCountry(null)}>
+                </AdminButton>
+                <AdminButton variant="outline" onClick={() => setSelectedCountry(null)}>
                   Abbrechen
-                </Button>
+                </AdminButton>
               </div>
             </CardContent>
           </Card>
@@ -482,9 +482,9 @@ export default function WorldMapManagement() {
                 <CardTitle>
                   {selectedCountry?.locations.find(l => l.id === editingLocation.id) ? 'Lagerstätte bearbeiten' : 'Neue Lagerstätte'}
                 </CardTitle>
-                <Button variant="ghost" onClick={() => setEditingLocation(null)}>
+                <AdminButton variant="ghost" onClick={() => setEditingLocation(null)}>
                   <X className="h-4 w-4" />
-                </Button>
+                </AdminButton>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -597,13 +597,13 @@ export default function WorldMapManagement() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={saveLocation}>
+                <AdminButton onClick={saveLocation}>
                   <Save className="h-4 w-4 mr-2" />
                   Speichern
-                </Button>
-                <Button variant="outline" onClick={() => setEditingLocation(null)}>
+                </AdminButton>
+                <AdminButton variant="outline" onClick={() => setEditingLocation(null)}>
                   Abbrechen
-                </Button>
+                </AdminButton>
               </div>
             </CardContent>
           </Card>

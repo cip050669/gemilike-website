@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Eye, PenSquare, Trash2, Star, Play, ImageIcon, Video } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GemstoneEditor, GemstoneFormValues } from '@/components/admin/GemstoneEditor';
@@ -383,14 +383,14 @@ export function GemstoneManagementSection() {
             </div>
           )}
         </div>
-        <Button
+        <AdminButton
           type="button"
           className="w-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong sm:w-auto"
           onClick={() => handleOpenEditor()}
           disabled={actionsDisabled}
         >
           Edelsteineditor
-        </Button>
+        </AdminButton>
       </div>
 
       <Card className="border-white/10 bg-gray-700/50/50 p-0">
@@ -451,7 +451,7 @@ export function GemstoneManagementSection() {
                 </div>
               </div>
               <div className="flex items-center gap-2 self-start sm:self-center">
-                <Button
+                <AdminButton
                   type="button"
                   size="icon"
                   variant="outline"
@@ -460,8 +460,8 @@ export function GemstoneManagementSection() {
                   aria-label={`${gemstone.name} anzeigen`}
                 >
                   <Eye className="h-4 w-4" />
-                </Button>
-                <Button
+                </AdminButton>
+                <AdminButton
                   type="button"
                   size="icon"
                   variant="outline"
@@ -471,8 +471,8 @@ export function GemstoneManagementSection() {
                   disabled={actionsDisabled}
                 >
                   <PenSquare className="h-4 w-4" />
-                </Button>
-                <Button
+                </AdminButton>
+                <AdminButton
                   type="button"
                   size="icon"
                   variant="outline"
@@ -482,7 +482,7 @@ export function GemstoneManagementSection() {
                   disabled={actionsDisabled}
                 >
                   <Trash2 className="h-4 w-4" />
-                </Button>
+                </AdminButton>
               </div>
             </div>
           ))}
@@ -497,29 +497,29 @@ export function GemstoneManagementSection() {
               <h2 className="text-2xl font-semibold text-white">{detailGemstone.name}</h2>
             </div>
             <div className="flex gap-3">
-              <Button
+              <AdminButton
                 variant="outline"
                 className="border-white/20 text-white hover:bg-gray-700/30/10"
                 onClick={() => handleToggleNew(detailGemstone, !detailGemstone.isNew)}
                 disabled={actionsDisabled}
               >
                 {detailGemstone.isNew ? 'Neu-Markierung entfernen' : 'Als neu markieren'}
-              </Button>
-              <Button
+              </AdminButton>
+              <AdminButton
                 variant="outline"
                 className="border-white/20 text-white hover:bg-gray-700/30/10"
                 onClick={() => handleToggleSold(detailGemstone, !detailGemstone.isSold)}
                 disabled={actionsDisabled}
               >
                 {detailGemstone.isSold ? 'Als verfügbar markieren' : 'Als verkauft markieren'}
-              </Button>
-              <Button
+              </AdminButton>
+              <AdminButton
                 variant="outline"
                 className="border-white/20 text-white hover:bg-gray-700/30/10"
                 onClick={() => setDetailGemstone(null)}
               >
                 Detailansicht schließen
-              </Button>
+              </AdminButton>
             </div>
           </div>
           <div className="mt-6 grid gap-6 md:grid-cols-[240px_1fr]">

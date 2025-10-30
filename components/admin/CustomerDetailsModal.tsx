@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   User, 
@@ -221,16 +221,16 @@ export function CustomerDetailsModal({ customer, isOpen, onClose }: CustomerDeta
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={onClose}>
+            <AdminButton variant="outline" onClick={onClose}>
               Schließen
-            </Button>
-            <Button 
+            </AdminButton>
+            <AdminButton 
               onClick={() => {
                 alert(`📋 Kunde ${customer.name} Details erfolgreich angezeigt!`);
               }}
             >
               Details bestätigen
-            </Button>
+            </AdminButton>
           </div>
         </div>
       </DialogContent>

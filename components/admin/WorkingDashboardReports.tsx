@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { 
   DollarSign, 
   Package, 
@@ -133,43 +133,43 @@ export function WorkingDashboardReports() {
 
       {/* Zeitraum-Buttons - Einzeln implementiert */}
       <div className="flex gap-2">
-        <Button
+        <AdminButton
           variant={currentPeriod === 'week' ? 'default' : 'outline'}
           size="sm"
           onClick={handleWeek}
           className="bg-blue-500 hover:bg-blue-600 text-white"
         >
           📅 Woche
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant={currentPeriod === 'month' ? 'default' : 'outline'}
           size="sm"
           onClick={handleMonth}
           className="bg-gray-500/50 hover:bg-gray-500/70 text-white"
         >
           📅 Monat
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant={currentPeriod === 'quarter' ? 'default' : 'outline'}
           size="sm"
           onClick={handleQuarter}
           className="bg-purple-500 hover:bg-purple-600 text-white"
         >
           📅 Quartal
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant={currentPeriod === 'year' ? 'default' : 'outline'}
           size="sm"
           onClick={handleYear}
           className="bg-orange-500 hover:bg-orange-600 text-white"
         >
           📅 Jahr
-        </Button>
+        </AdminButton>
       </div>
 
       {/* Aktions-Buttons - Einzeln implementiert */}
       <div className="flex gap-2">
-        <Button
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={handleRefresh}
@@ -177,8 +177,8 @@ export function WorkingDashboardReports() {
         >
           <RefreshCw className="h-4 w-4 mr-2" />
           🔄 Aktualisieren
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={handleExport}
@@ -186,8 +186,8 @@ export function WorkingDashboardReports() {
         >
           <Download className="h-4 w-4 mr-2" />
           💾 Exportieren
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={handlePrint}
@@ -195,7 +195,7 @@ export function WorkingDashboardReports() {
         >
           <Printer className="h-4 w-4 mr-2" />
           🖨️ Drucken
-        </Button>
+        </AdminButton>
       </div>
 
       {/* KPI Cards */}

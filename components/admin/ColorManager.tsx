@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -161,10 +161,10 @@ export function ColorManager() {
             </p>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={resetForm}>
+                <AdminButton onClick={resetForm}>
                   <Plus className="h-4 w-4 mr-2" />
                   Neue Farbe
-                </Button>
+                </AdminButton>
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
@@ -219,7 +219,7 @@ export function ColorManager() {
                     />
                   </div>
                   <div className="flex gap-2 pt-4">
-                    <Button
+                    <AdminButton
                       onClick={handleSave}
                       disabled={isLoading}
                       className="flex-1"
@@ -230,15 +230,15 @@ export function ColorManager() {
                         <Save className="h-4 w-4 mr-2" />
                       )}
                       Speichern
-                    </Button>
-                    <Button
+                    </AdminButton>
+                    <AdminButton
                       variant="outline"
                       onClick={handleDialogClose}
                       disabled={isLoading}
                     >
                       <X className="h-4 w-4 mr-2" />
                       Abbrechen
-                    </Button>
+                    </AdminButton>
                   </div>
                 </div>
               </DialogContent>
@@ -261,22 +261,22 @@ export function ColorManager() {
                       </div>
                       {color.isCustom && (
                         <div className="flex gap-1">
-                          <Button
+                          <AdminButton
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEdit(color)}
                             disabled={isLoading}
                           >
                             <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button
+                          </AdminButton>
+                          <AdminButton
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(color.id)}
                             disabled={isLoading}
                           >
                             <Trash2 className="h-3 w-3" />
-                          </Button>
+                          </AdminButton>
                         </div>
                       )}
                     </div>

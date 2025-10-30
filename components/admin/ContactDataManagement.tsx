@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Save, Phone, Mail, MapPin, Clock, Globe } from 'lucide-react';
 
 interface ContactData {
@@ -95,14 +95,14 @@ export default function ContactDataManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Kontaktdaten-Verwaltung</h2>
-        <Button 
+        <AdminButton 
           onClick={handleSave} 
           disabled={isSaving}
           className="gradient-primary text-white shadow-modern hover:shadow-lg transition-all duration-300"
         >
           <Save className="h-4 w-4 mr-2" />
           {isSaving ? 'Wird gespeichert...' : 'Speichern'}
-        </Button>
+        </AdminButton>
       </div>
 
       {/* Status Messages */}

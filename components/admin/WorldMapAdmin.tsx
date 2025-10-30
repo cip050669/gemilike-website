@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Country, GemType, Location } from '@prisma/client';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -274,7 +274,7 @@ export function WorldMapAdmin({ countries, gemTypes, locations }: WorldMapAdminP
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button
+                    <AdminButton
                       type="button"
                       variant="outline"
                       className="border-white/20 text-white hover:bg-gray-800/30/10"
@@ -282,8 +282,8 @@ export function WorldMapAdmin({ countries, gemTypes, locations }: WorldMapAdminP
                       disabled={isSubmitting}
                     >
                       Bearbeiten
-                    </Button>
-                    <Button
+                    </AdminButton>
+                    <AdminButton
                       type="button"
                       variant="outline"
                       className="border-red-400/40 text-red-200 hover:bg-red-500/10"
@@ -291,7 +291,7 @@ export function WorldMapAdmin({ countries, gemTypes, locations }: WorldMapAdminP
                       disabled={isSubmitting}
                     >
                       Löschen
-                    </Button>
+                    </AdminButton>
                   </div>
                 </div>
               </div>
@@ -473,11 +473,11 @@ export function WorldMapAdmin({ countries, gemTypes, locations }: WorldMapAdminP
             </div>
 
             <div className="flex gap-3">
-              <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/80" disabled={isSubmitting}>
+              <AdminButton type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/80" disabled={isSubmitting}>
                 {isSubmitting ? 'Speichern...' : formState.id ? 'Änderungen speichern' : 'Fundort erstellen'}
-              </Button>
+              </AdminButton>
               {formState.id && (
-                <Button
+                <AdminButton
                   type="button"
                   variant="outline"
                   className="border-white/20 text-white hover:bg-gray-800/30/10"
@@ -485,7 +485,7 @@ export function WorldMapAdmin({ countries, gemTypes, locations }: WorldMapAdminP
                   disabled={isSubmitting}
                 >
                   Abbrechen
-                </Button>
+                </AdminButton>
               )}
             </div>
           </form>

@@ -167,4 +167,96 @@ body {
   .hover\:scrollbar-thumb-gray-400:hover::-webkit-scrollbar-thumb {
     background: #9ca3af;
   }
+
+  .gem-admin-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #111111 !important;
+    border: 1px solid rgba(0, 0, 0, 0.35) !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+    overflow: hidden;
+    box-shadow: none !important;
+    min-height: 2.4rem;
+  }
+
+  .gem-admin-button::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: inherit;
+    background: linear-gradient(180deg, #f7f7f7 0%, #c7c7c7 60%, #161616 100%);
+    opacity: 0.85;
+    transition: opacity 0.25s ease;
+    z-index: 0;
+  }
+
+  .gem-admin-button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 50% 120%, rgba(0, 0, 0, 0.4), transparent 55%);
+    opacity: 0.55;
+    transition: opacity 0.25s ease;
+    z-index: -1;
+  }
+
+  .gem-admin-button:hover {
+    border-color: rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 0 26px rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .gem-admin-button:hover::before {
+    opacity: 1;
+  }
+
+  .gem-admin-button:hover::after {
+    opacity: 0.75;
+  }
+
+  .gem-admin-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .gem-admin-button:active {
+    color: #1b1b1b !important;
+    transform: translateY(1px);
+    background: rgba(0, 0, 0, 0.58) !important;
+  }
+
+  .gem-admin-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .gem-admin-button__content {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: #1f1f1f;
+  }
+
+  .gem-admin-button--compact {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.65rem;
+    min-height: 2.1rem;
+  }
 }

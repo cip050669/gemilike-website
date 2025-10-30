@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { 
   TrendingUp, 
   DollarSign, 
@@ -226,7 +226,7 @@ export function DashboardReports() {
         </div>
         <div className="flex gap-2">
           {(['week', 'month', 'quarter', 'year'] as const).map((period) => (
-            <Button
+            <AdminButton
               key={period}
               variant={selectedPeriod === period ? 'default' : 'outline'}
               size="sm"
@@ -244,14 +244,14 @@ export function DashboardReports() {
               }}
             >
               {getPeriodLabel(period)}
-            </Button>
+            </AdminButton>
           ))}
         </div>
       </div>
 
       {/* Aktions-Buttons */}
       <div className="flex gap-2 flex-wrap">
-        <Button
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={handleRefresh}
@@ -260,8 +260,8 @@ export function DashboardReports() {
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           {isLoading ? 'Lädt...' : 'Aktualisieren'}
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={handleExportReport}
@@ -270,8 +270,8 @@ export function DashboardReports() {
         >
           <Download className="h-4 w-4" />
           Exportieren
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={handlePrintReport}
@@ -279,8 +279,8 @@ export function DashboardReports() {
         >
           <Printer className="h-4 w-4" />
           Drucken
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outline"
           size="sm"
           onClick={handleGeneratePDF}
@@ -288,7 +288,7 @@ export function DashboardReports() {
         >
           <FileText className="h-4 w-4" />
           PDF generieren
-        </Button>
+        </AdminButton>
       </div>
 
       {/* KPI Cards */}

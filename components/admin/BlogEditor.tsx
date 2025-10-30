@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -244,7 +244,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               placeholder="/blog/beispiel-bild.jpg"
               className={cn('flex-1', inputStyles)}
             />
-            <Button 
+            <AdminButton 
               type="button" 
               variant="outline" 
               onClick={() => document.getElementById('imageUploadInput')?.click()} 
@@ -253,7 +253,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
             >
               <Upload className="h-4 w-4 mr-2" />
               Upload
-            </Button>
+            </AdminButton>
             <input
               id="imageUploadInput"
               type="file"
@@ -281,7 +281,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
           <Label>Content-Bilder</Label>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Button 
+              <AdminButton 
                 type="button" 
                 variant="outline" 
                 onClick={() => document.getElementById('contentImagesUploadInput')?.click()} 
@@ -290,7 +290,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Bilder hochladen
-              </Button>
+              </AdminButton>
               <input
                 id="contentImagesUploadInput"
                 type="file"
@@ -317,7 +317,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
                         sizes="(max-width: 768px) 50vw, 25vw"
                         className="object-cover"
                       />
-                      <Button
+                      <AdminButton
                         type="button"
                         variant="destructive"
                         size="sm"
@@ -325,7 +325,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
                         onClick={() => handleRemoveContentImage(index)}
                       >
                         <Trash2 className="h-4 w-4" />
-                      </Button>
+                      </AdminButton>
                     </div>
                     <div className="text-xs text-white/70 mt-1 truncate">
                       {imageUrl.split('/').pop()}
@@ -396,9 +396,9 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               className={inputStyles}
             />
-            <Button type="button" onClick={handleAddTag} size="sm">
+            <AdminButton type="button" onClick={handleAddTag} size="sm">
               <Plus className="h-4 w-4" />
-            </Button>
+            </AdminButton>
           </div>
           <div className="flex flex-wrap gap-2">
             {formData.tags.map((tag, index) => (
@@ -447,11 +447,11 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
 
         {/* Buttons */}
         <div className="flex gap-2 pt-4">
-          <Button onClick={handleSave} disabled={isLoading} className="flex-1">
+          <AdminButton onClick={handleSave} disabled={isLoading} className="flex-1">
             <Save className="h-4 w-4 mr-2" />
             {isLoading ? 'Speichern...' : 'Speichern'}
-          </Button>
-          <Button
+          </AdminButton>
+          <AdminButton
             variant="outline"
             onClick={onCancel}
             disabled={isLoading}
@@ -459,7 +459,7 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
           >
             <X className="h-4 w-4 mr-2" />
             Abbrechen
-          </Button>
+          </AdminButton>
         </div>
       </CardContent>
     </Card>

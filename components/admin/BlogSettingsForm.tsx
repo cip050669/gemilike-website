@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { Loader2, Save } from 'lucide-react';
 
 interface BlogSettingsFormProps {
@@ -114,7 +114,7 @@ export function BlogSettingsForm({
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button type="submit" disabled={status === 'saving'}>
+            <AdminButton type="submit" disabled={status === 'saving'}>
               {status === 'saving' ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -126,7 +126,7 @@ export function BlogSettingsForm({
                   Änderungen speichern
                 </>
               )}
-            </Button>
+            </AdminButton>
             {status === 'success' && (
               <span className="text-sm text-green-500">Gespeichert!</span>
             )}

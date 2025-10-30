@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from './AdminButton';
 import { 
   User, 
   Calendar, 
@@ -149,13 +149,13 @@ export function AuditLogDetailsModal({ log, isOpen, onClose }: AuditLogDetailsMo
                     <div className="text-sm text-muted-foreground font-mono">{log.ipAddress}</div>
                   </div>
                 </div>
-                <Button
+                <AdminButton
                   variant="outline"
                   size="sm"
                   onClick={() => copyToClipboard(log.ipAddress!)}
                 >
                   {copied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
+                </AdminButton>
               </div>
             )}
 
@@ -170,13 +170,13 @@ export function AuditLogDetailsModal({ log, isOpen, onClose }: AuditLogDetailsMo
                     </div>
                   </div>
                 </div>
-                <Button
+                <AdminButton
                   variant="outline"
                   size="sm"
                   onClick={() => copyToClipboard(log.userAgent!)}
                 >
                   {copied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
+                </AdminButton>
               </div>
             )}
           </div>
@@ -193,16 +193,16 @@ export function AuditLogDetailsModal({ log, isOpen, onClose }: AuditLogDetailsMo
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={onClose}>
+            <AdminButton variant="outline" onClick={onClose}>
               Schließen
-            </Button>
-            <Button 
+            </AdminButton>
+            <AdminButton 
               onClick={() => {
                 alert(`📋 Audit-Log ${log.id} Details erfolgreich angezeigt!`);
               }}
             >
               Details bestätigen
-            </Button>
+            </AdminButton>
           </div>
         </div>
       </DialogContent>
