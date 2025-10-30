@@ -8,6 +8,17 @@ import { MediaGallery } from '@/components/shop/MediaGallery';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { WishlistButton } from '@/components/cart/WishlistButton';
 import { loadShopGemstoneById, PLACEHOLDER_IMAGE } from '@/lib/shop/shopData';
+import navStyles from '@/components/layout/HeaderNav.module.css';
+import { cn } from '@/lib/utils';
+
+const formatWeight = (weight?: number | null, unit?: 'ct' | 'g', type?: 'cut' | 'rough') => {
+  if (typeof weight !== 'number') return null;
+  const resolvedUnit = unit ?? (type === 'rough' ? 'g' : 'ct');
+  return `${weight.toFixed(2)} ${resolvedUnit}`;
+};
+
+const formatDimension = (value?: number | null) =>
+  value != null ? `${Number(value).toFixed(1)} mm` : null;
 
 interface GemstoneDetailPageProps {
   params: Promise<{
@@ -16,8 +27,12 @@ interface GemstoneDetailPageProps {
   }>;
 }
 
-const formatCurrency = (value: number) =>
-  `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`;
+const formatCurrency = (value: number, currency = 'EUR') =>
+  new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+  }).format(value);
 
 export default async function GemstoneDetailPage({ params }: GemstoneDetailPageProps) {
   const { gemId, locale } = await params;
@@ -37,19 +52,20 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
     origin: gemstone.origin ?? undefined,
   };
 
+  const weightLabel = formatWeight(gemstone.weight, gemstone.weightUnit, gemstone.type);
   const detailBlocks = ([
     {
       title: 'Preis',
-      content: formatCurrency(gemstone.price),
+      content: formatCurrency(gemstone.price, gemstone.currency ?? 'EUR'),
     },
     {
       title: 'Bestand',
       content: `${gemstone.stock} Stück`,
     },
-    typeof gemstone.weight === 'number'
+    weightLabel
       ? {
           title: 'Gewicht',
-          content: `${gemstone.weight.toFixed(2)} ${gemstone.weightUnit ?? 'ct'}`,
+          content: weightLabel,
         }
       : null,
     gemstone.origin
@@ -58,10 +74,34 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
           content: gemstone.origin,
         }
       : null,
+    formatDimension(gemstone.dimensions?.length)
+      ? {
+          title: 'Länge',
+          content: formatDimension(gemstone.dimensions?.length),
+        }
+      : null,
+    formatDimension(gemstone.dimensions?.width)
+      ? {
+          title: 'Breite',
+          content: formatDimension(gemstone.dimensions?.width),
+        }
+      : null,
+    formatDimension(gemstone.dimensions?.height)
+      ? {
+          title: 'Höhe',
+          content: formatDimension(gemstone.dimensions?.height),
+        }
+      : null,
     gemstone.color
       ? {
           title: 'Farbe',
           content: gemstone.color,
+        }
+      : null,
+    gemstone.colorSaturation
+      ? {
+          title: 'Farbsättigung',
+          content: gemstone.colorSaturation,
         }
       : null,
     gemstone.clarity
@@ -127,7 +167,10 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                         {gemstone.type === 'cut' ? 'Geschliffener Stein' : 'Rohstein'}
                       </Badge>
                       {gemstone.isNew && <Badge variant="accent">Neu</Badge>}
-                      {!gemstone.inStock && <Badge variant="destructive">Nicht verfügbar</Badge>}
+                      {gemstone.isSold && <Badge variant="destructive">Verkauft</Badge>}
+                      {!gemstone.isSold && !gemstone.inStock && (
+                        <Badge variant="destructive">Nicht verfügbar</Badge>
+                      )}
                     </div>
                   </div>
 
@@ -143,7 +186,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                   videos={gemstone.videos}
                   gemName={gemstone.name}
                   className="rounded-xl"
-                  inStock={gemstone.inStock}
+                  inStock={gemstone.inStock && !gemstone.isSold}
                 />
               </div>
 
@@ -164,15 +207,18 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                 </section>
 
                 <div className="flex flex-wrap items-center gap-4">
-                  <AddToCartButton item={cartItem} />
-                  <WishlistButton item={cartItem} />
-                  <Button
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-gray-700/30/10"
-                    asChild
+                  <AddToCartButton
+                    item={cartItem}
+                    disabled={!gemstone.inStock || gemstone.isSold}
+                  />
+                  <WishlistButton item={cartItem} className="border border-white/10" />
+                  <Link
+                    href={`/${locale}/shop`}
+                    className={cn(navStyles.navButton, navStyles.navButtonTight, 'px-4 py-2')}
                   >
-                    <Link href={`/${locale}/shop`}>Weitere Edelsteine ansehen</Link>
-                  </Button>
+                    <span className={navStyles.navLabel}>Weitere Edelsteine ansehen</span>
+                    <span className={navStyles.navGlow} />
+                  </Link>
                 </div>
               </div>
             </div>

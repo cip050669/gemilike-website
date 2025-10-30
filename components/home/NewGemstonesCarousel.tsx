@@ -1,36 +1,51 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useMemo, useRef } from 'react';
-import { Award, MapPin, Weight } from 'lucide-react';
-import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
+import { ShopGemstone } from '@/components/shop/GemstoneGrid';
+import { AddToCartButton } from '@/components/shop/AddToCartButton';
+import { WishlistButton } from '@/components/cart/WishlistButton';
+import { Badge } from '@/components/ui/badge';
 
 interface NewGemstonesCarouselProps {
-  gemstones: Gemstone[];
+  gemstones: ShopGemstone[];
   locale: string;
   description?: string;
+  fallback?: boolean;
 }
 
-const getWeightLabel = (gemstone: Gemstone) => {
-  if (isCutGemstone(gemstone)) {
-    return `${gemstone.caratWeight.toFixed(2)} ct`;
-  }
-  if (isRoughGemstone(gemstone)) {
-    return `${gemstone.gramWeight.toFixed(2)} g`;
-  }
-  return 'N/A';
+const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
+
+const formatPrice = (value: number, currency = 'EUR') =>
+  new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+  }).format(value);
+
+const formatWeight = (gem: ShopGemstone) => {
+  if (typeof gem.weight !== 'number') return null;
+  const unit = gem.weightUnit ?? (gem.type === 'rough' ? 'g' : 'ct');
+  return `${gem.weight.toFixed(2)} ${unit}`;
 };
 
-const getCertificationLabel = (gemstone: Gemstone) => {
-  if (gemstone.certification?.certified) {
-    return gemstone.certification.lab || 'Zertifiziert';
-  }
-  return 'Keine Zertifizierung';
-};
+const toCartItem = (gem: ShopGemstone) => ({
+  id: gem.id,
+  name: gem.name,
+  price: gem.price,
+  image: gem.images[0],
+  category: gem.category,
+  weight: typeof gem.weight === 'number' ? gem.weight : undefined,
+  origin: gem.origin ?? undefined,
+});
 
-export function NewGemstonesCarousel({ gemstones, locale, description }: NewGemstonesCarouselProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+export function NewGemstonesCarousel({
+  gemstones,
+  locale,
+  description,
+  fallback,
+}: NewGemstonesCarouselProps) {
   const items = useMemo(() => gemstones ?? [], [gemstones]);
 
   if (items.length === 0) {
@@ -38,85 +53,92 @@ export function NewGemstonesCarousel({ gemstones, locale, description }: NewGems
   }
 
   return (
-    <div className="main-container space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <p className="text-sm uppercase tracking-wide text-white/60">Neu im Sortiment</p>
-          <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white">
-            Neue Edelsteine
+    <section className="main-container">
+      <div className="story-card space-y-6">
+        <div className="space-y-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-impact font-weight-impact">
+            <span className="text-white">Neue Edelsteine</span>
           </h2>
           {description && (
-            <p className="text-sm md:text-base text-white/70 max-w-2xl">
-              {description}
+            <p className="mx-auto max-w-3xl text-base md:text-lg text-white/90">
+              <span>{description}</span>
             </p>
           )}
+          {fallback && (
+            <span className="inline-block rounded-md border border-yellow-400/30 bg-yellow-500/10 px-3 py-1 text-xs text-yellow-100">
+              Hinweis: Temporäre Beispiel-Daten
+            </span>
+          )}
         </div>
-      </div>
 
-      <div className="relative">
         <div
-          ref={scrollRef}
-          className="flex gap-[75px] overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent snap-x snap-mandatory pb-2"
+          className="flex gap-[6px] overflow-x-auto px-[6px]"
+          style={{ scrollSnapType: 'x mandatory', paddingBottom: '10px' }}
         >
           {items.map((gemstone) => {
-            const imageSrc = gemstone.mainImage || gemstone.images?.[0] || '/products/placeholder-gem.jpg';
-            const certificationLabel = getCertificationLabel(gemstone);
-            const weightLabel = getWeightLabel(gemstone);
+            const priceLabel = formatPrice(gemstone.price, gemstone.currency);
+            const weightLabel = formatWeight(gemstone);
+            const cartItem = toCartItem(gemstone);
 
             return (
-              <Link
+              <article
                 key={gemstone.id}
-                href={`/${locale}/shop?focus=${encodeURIComponent(gemstone.id)}`}
-                className="group min-w-[240px] max-w-[240px] snap-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                className="gem-card group flex min-w-[250px] max-w-[250px] snap-center flex-col gap-3 rounded-[18px] p-4 transition-all duration-300"
               >
-                <article className="story-card bg-[#2D2D2D]/90 border border-white/10 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
-                  <div className="overflow-hidden rounded-lg mb-4">
-                    <div className="aspect-[4/3] relative bg-gray-700/50/30">
-                      <Image
-                        src={imageSrc}
-                        alt={gemstone.name}
-                        fill
-                        sizes="240px"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        priority={false}
-                      />
+                <Link
+                  href={`/${locale}/shop/${gemstone.id}`}
+                  className="group relative block h-[230px] w-full overflow-hidden rounded-[18px]"
+                >
+                  <Image
+                    src={gemstone.images[0] ?? PLACEHOLDER_IMAGE}
+                    alt={gemstone.name}
+                    fill
+                    sizes="250px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {gemstone.isSold && (
+                    <div className="absolute left-3 top-3">
+                      <Badge variant="destructive">Verkauft</Badge>
                     </div>
+                  )}
+                  {gemstone.isNew && (
+                    <div className="absolute right-3 top-3">
+                      <Badge variant="accent">Neu</Badge>
+                    </div>
+                  )}
+                </Link>
+
+                <div className="space-y-3 text-sm text-white/75">
+                  <div className="space-y-1">
+                    <span className="text-[11px] uppercase tracking-[0.3em] text-white/45">
+                      {gemstone.category}
+                    </span>
+                    <Link
+                      href={`/${locale}/shop/${gemstone.id}`}
+                      className="block text-lg font-semibold text-white line-clamp-2 hover:text-primary"
+                    >
+                      {gemstone.name}
+                    </Link>
                   </div>
-                  <div className="space-y-3 px-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-base font-semibold text-white line-clamp-1">{gemstone.name}</h3>
-                      {gemstone.isNew && (
-                        <span className="text-[11px] font-semibold text-orange-400 uppercase tracking-wide">
-                          Neu
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-white/80">
-                      <span className="inline-flex items-center gap-1">
-                        <Weight className="h-3 w-3" /> {weightLabel}
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {gemstone.origin}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-white/80">
-                      <span className="inline-flex items-center gap-1">
-                        <Award className="h-3 w-3" /> {certificationLabel}
-                      </span>
-                      <span className="text-sm font-semibold text-primary">
-                        €{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 0 })}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-white/60">
-                      Kategorie: <span className="text-white">{gemstone.category}</span>
-                    </div>
+                  <div className="space-y-1 text-xs text-white/60">
+                    <p>{priceLabel}</p>
+                    {weightLabel && <p>Gewicht {weightLabel}</p>}
+                    {gemstone.origin && <p>Herkunft {gemstone.origin}</p>}
                   </div>
-                </article>
-              </Link>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <AddToCartButton
+                    item={cartItem}
+                    disabled={!gemstone.inStock || gemstone.isSold}
+                  />
+                  <WishlistButton item={cartItem} className="border border-white/10" />
+                </div>
+              </article>
             );
           })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

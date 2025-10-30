@@ -1,0 +1,777 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum GemstoneStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum GemstoneCondition {
+  CUT
+  ROUGH
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum PriceDiscountType {
+  PERCENTAGE
+  AMOUNT
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+  ABANDONED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  FULFILLED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CREDIT_CARD
+  PAYPAL
+  SEPA
+  OTHER
+}
+
+enum DownloadResourceType {
+  CERTIFICATE
+  INVOICE
+  MEDIA
+  DOCUMENT
+  OTHER
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  SENT
+  OVERDUE
+  PAID
+  CANCELLED
+}
+
+enum AddressType {
+  BILLING
+  SHIPPING
+  OTHER
+}
+
+enum KycStatus {
+  NOT_REQUIRED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  access_token_expires DateTime?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Address {
+  id         String      @id @default(cuid())
+  customerId String
+  type       AddressType?
+  company    String?
+  salutation String?
+  firstName  String?
+  lastName   String?
+  street     String?
+  street2    String?
+  postalCode String?
+  city       String?
+  state      String?
+  country    String      @default("DE")
+  phone      String?
+  isDefault  Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  billingCustomer  Customer? @relation("CustomerBillingAddress")
+  shippingCustomer Customer? @relation("CustomerShippingAddress")
+  billingOrders    Order[]   @relation("OrderBillingAddress")
+  shippingOrders   Order[]   @relation("OrderShippingAddress")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String?
+  ipAddress String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+}
+
+model BankAccount {
+  id            String    @id @default(cuid())
+  name          String
+  bankName      String
+  iban          String
+  bic           String?
+  accountHolder String
+  isDefault     Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  invoices      Invoice[]
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String?
+  author      String
+  category    String
+  tags        String?
+  image       String?
+  published   Boolean  @default(false)
+  publishedAt DateTime?
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Cart {
+  id          String      @id @default(cuid())
+  customerId  String?
+  sessionId   String?
+  status      CartStatus  @default(ACTIVE)
+  currency    String      @default("EUR")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items       CartItem[]
+  orders      Order[]     @relation("CartOrders")
+
+  @@index([sessionId])
+}
+
+model CartItem {
+  id            String    @id @default(cuid())
+  cartId        String
+  gemstoneId    String
+  quantity      Int       @default(1)
+  priceSnapshot Decimal   @db.Decimal(12, 2)
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  cart          Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  gemstone      Gemstone  @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, gemstoneId])
+}
+
+model CompanySettings {
+  id                  String   @id @default(cuid())
+  companyName         String
+  ownerName           String
+  address             String
+  postalCode          String
+  city                String
+  country             String   @default("Deutschland")
+  phone               String?
+  email               String
+  website             String?
+  taxId               String?
+  vatId               String?
+  logo                String?
+  invoicePrefix       String   @default("RE")
+  nextInvoiceNumber   Int      @default(1)
+  smallBusinessNotice String   @default("Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.")
+  paymentTerms        Int      @default(14)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model ContactData {
+  id           String   @id @default(cuid())
+  companyName  String?
+  phone        String?
+  email        String?
+  address      String?
+  openingHours String?
+  website      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Coupon {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  type       String
+  value      Decimal  @db.Decimal(10, 2)
+  minAmount  Decimal? @db.Decimal(10, 2)
+  maxUses    Int?
+  usedCount  Int      @default(0)
+  validFrom  DateTime
+  validUntil DateTime
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Customer {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  customerNumber    String        @unique
+  firstName         String?
+  lastName          String?
+  company           String?
+  email             String?
+  phone             String?
+  preferredLanguage String        @default("de")
+  marketingOptIn    Boolean       @default(false)
+  kycStatus         KycStatus     @default(NOT_REQUIRED)
+  billingAddressId  String?
+  shippingAddressId String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingAddress    Address?      @relation("CustomerBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  shippingAddress   Address?      @relation("CustomerShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  addresses         Address[]
+  wishlists         Wishlist[]
+  carts             Cart[]
+  orders            Order[]
+  downloadGrants    DownloadGrant[]
+  invoices          Invoice[]
+  reviews           Review[]
+}
+
+model Gemstone {
+  id               String             @id @default(cuid())
+  slug             String             @unique
+  status           GemstoneStatus     @default(DRAFT)
+  category         String
+  name             String
+  shortDescription String?
+  longDescription  String?
+  origin           String?
+  condition        GemstoneCondition  @default(CUT)
+  isNew            Boolean            @default(false)
+  isSold           Boolean            @default(false)
+  featured         Boolean            @default(false)
+  publishedAt      DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  inventory        GemstoneInventory?
+  attributes       GemstoneAttributes?
+  media            GemstoneMedia[]
+  tags             GemstoneTag[]
+  priceBooks       GemstonePrice[]
+  wishlistItems    WishlistItem[]
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
+  downloadGrants   DownloadGrant[]
+  reviews          Review[]
+}
+
+model GemstoneAttributes {
+  id             String            @id @default(cuid())
+  gemstoneId     String            @unique
+  lengthMm       Decimal?          @db.Decimal(10, 2)
+  widthMm        Decimal?          @db.Decimal(10, 2)
+  heightMm       Decimal?          @db.Decimal(10, 2)
+  color          String?
+  colorSaturation String?
+  colorHue       String?
+  clarity        String?
+  cutGrade       String?
+  treatment      String?
+  certification  String?
+  certificateId  String?
+  certificateUrl String?
+  metadata       Json?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  gemstone       Gemstone          @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+}
+
+model GemstoneInventory {
+  id               String            @id @default(cuid())
+  gemstoneId       String            @unique
+  sku              String?           @unique
+  condition        GemstoneCondition @default(CUT)
+  caratWeight      Decimal?          @db.Decimal(10, 3)
+  gramWeight       Decimal?          @db.Decimal(10, 3)
+  quantity         Int               @default(1)
+  warehouseLocation String?
+  availableFrom    DateTime?
+  availableTo      DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  gemstone         Gemstone          @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+}
+
+model GemstoneMedia {
+  id           String    @id @default(cuid())
+  gemstoneId   String
+  type         MediaType @default(IMAGE)
+  url          String
+  thumbnailUrl String?
+  alt          String?
+  position     Int       @default(0)
+  isPrimary    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  gemstone     Gemstone  @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+
+  @@index([gemstoneId, position])
+}
+
+model GemstonePrice {
+  id             String            @id @default(cuid())
+  gemstoneId     String
+  currency       String            @default("EUR")
+  priceNet       Decimal           @db.Decimal(12, 2)
+  priceGross     Decimal           @db.Decimal(12, 2)
+  taxRate        Decimal           @db.Decimal(5, 2)
+  discountType   PriceDiscountType?
+  discountValue  Decimal?          @db.Decimal(12, 2)
+  validFrom      DateTime?
+  validTo        DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  gemstone       Gemstone          @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+
+  @@index([gemstoneId, validFrom, validTo])
+}
+
+model GemstoneTag {
+  gemstoneId String
+  tagId      String
+  assignedAt DateTime @default(now())
+  gemstone   Gemstone @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([gemstoneId, tagId])
+}
+
+model HeaderData {
+  id                String   @id @default(cuid())
+  logoText          String?
+  logoImage         String?
+  phone             String?
+  email             String?
+  facebook          String?
+  instagram         String?
+  twitter           String?
+  youtube           String?
+  searchEnabled     Boolean  @default(true)
+  searchPlaceholder String?
+  cartEnabled       Boolean  @default(true)
+  cartShowCount     Boolean  @default(true)
+  userEnabled       Boolean  @default(true)
+  userShowLogin     Boolean  @default(true)
+  wishlistEnabled   Boolean  @default(true)
+  wishlistShowCount Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model HeroImage {
+  id         String   @id @default(cuid())
+  title      String
+  subtitle   String?
+  image      String
+  link       String?
+  buttonText String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model HeroSettings {
+  id                  String   @id @default(cuid())
+  imageUrl            String
+  title               String
+  titleLine2          String?
+  subtitle            String
+  primaryButtonText   String
+  primaryButtonLink   String
+  secondaryButtonText String?
+  secondaryButtonLink String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Invoice {
+  id               String        @id @default(cuid())
+  invoiceNumber    String        @unique
+  orderId          String?       @unique
+  customerId       String
+  status           InvoiceStatus @default(DRAFT)
+  paymentStatus    PaymentStatus @default(UNPAID)
+  invoiceDate      DateTime      @default(now())
+  dueDate          DateTime
+  paymentDate      DateTime?
+  subtotal         Decimal       @db.Decimal(12, 2)
+  taxAmount        Decimal       @db.Decimal(12, 2)
+  total            Decimal       @db.Decimal(12, 2)
+  currency         String        @default("EUR")
+  legalNotice      String?
+  pdfStorageKey    String?
+  notes            String?
+  internalNotes    String?
+  reminderCount    Int           @default(0)
+  lastReminderDate DateTime?
+  sentAt           DateTime?
+  emailSent        Boolean       @default(false)
+  bankAccountId    String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  bankAccount      BankAccount?  @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+  order            Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  customer         Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items            InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  description String
+  quantity    Decimal  @db.Decimal(10, 2)
+  unitPrice   Decimal  @db.Decimal(12, 2)
+  taxRate     Decimal  @db.Decimal(5, 2)
+  total       Decimal  @db.Decimal(12, 2)
+  position    Int      @default(0)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model LegalLink {
+  id        String   @id @default(cuid())
+  text      String
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Location {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  lat         Float
+  lng         Float
+  description String?
+  mineType    String?
+  status      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  countryId   String
+  gemTypeId   String
+  gemType     GemType  @relation(fields: [gemTypeId], references: [id], onDelete: Cascade)
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+}
+
+model GemType {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  color       String?
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  locations   Location[]
+}
+
+model Country {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  lat       Float
+  lng       Float
+  continent String?
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  locations Location[]
+}
+
+model NavigationItem {
+  id        String   @id @default(cuid())
+  text      String
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NewsletterSubscriber {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+  status         String   @default("PENDING")
+  locale         String   @default("de")
+  source         String?
+  tags           String?
+  subscribedAt   DateTime @default(now())
+  confirmedAt    DateTime?
+  unsubscribedAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model NewstickerItem {
+  id        String   @id @default(cuid())
+  message   String
+  type      String   @default("info")
+  link      String?
+  linkText  String?
+  isActive  Boolean  @default(true)
+  startDate DateTime?
+  endDate   DateTime?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id                String        @id @default(cuid())
+  orderNumber       String        @unique
+  customerId        String?
+  cartId            String?
+  status            OrderStatus   @default(PENDING)
+  paymentStatus     PaymentStatus @default(UNPAID)
+  paymentMethod     PaymentMethod?
+  subtotal          Decimal       @db.Decimal(12, 2)
+  taxAmount         Decimal       @db.Decimal(12, 2)
+  shippingAmount    Decimal       @db.Decimal(12, 2)
+  total             Decimal       @db.Decimal(12, 2)
+  currency          String        @default("EUR")
+  notes             String?
+  placedAt          DateTime?
+  paidAt            DateTime?
+  canceledAt        DateTime?
+  fulfillmentData   Json?
+  billingAddressId  String?
+  shippingAddressId String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  customer          Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  cart              Cart?         @relation("CartOrders", fields: [cartId], references: [id], onDelete: SetNull)
+  billingAddress    Address?      @relation("OrderBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  shippingAddress   Address?      @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  invoice           Invoice?
+  items             OrderItem[]
+  downloadGrants    DownloadGrant[]
+  reviews           Review[]
+}
+
+model OrderItem {
+  id                 String    @id @default(cuid())
+  orderId            String
+  gemstoneId         String?
+  quantity           Int       @default(1)
+  unitPrice          Decimal   @db.Decimal(12, 2)
+  unitNet            Decimal   @db.Decimal(12, 2)
+  unitTax            Decimal   @db.Decimal(12, 2)
+  weightSnapshot     Decimal?  @db.Decimal(10, 3)
+  attributesSnapshot Json?
+  description        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  order              Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  gemstone           Gemstone? @relation(fields: [gemstoneId], references: [id], onDelete: SetNull)
+  reviews            Review[]
+}
+
+model PictogramDescription {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  description String
+  icon        String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  customerId  String?
+  orderItemId String?
+  gemstoneId  String?
+  rating      Int
+  title       String?
+  comment     String?
+  verified    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  gemstone    Gemstone? @relation(fields: [gemstoneId], references: [id], onDelete: SetNull)
+}
+
+model SelectOption {
+  id        String   @id @default(cuid())
+  category  String
+  value     String
+  label     String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([category, value])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Story {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String?
+  content     String
+  image       String?
+  author      String?
+  category    String?
+  published   Boolean  @default(false)
+  publishedAt DateTime?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Tag {
+  id        String        @id @default(cuid())
+  key       String        @unique
+  label     String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  gemstones GemstoneTag[]
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String     @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  phone         String?
+  role          UserRole   @default(CUSTOMER)
+  isActive      Boolean    @default(true)
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  customer      Customer?
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Wishlist {
+  id         String       @id @default(cuid())
+  customerId String?
+  sessionId  String?
+  name       String?
+  isPrimary  Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  customer   Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items      WishlistItem[]
+
+  @@index([sessionId])
+}
+
+model WishlistItem {
+  id         String    @id @default(cuid())
+  wishlistId String
+  gemstoneId String
+  notes      String?
+  createdAt  DateTime  @default(now())
+  wishlist   Wishlist  @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  gemstone   Gemstone  @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, gemstoneId])
+}
+
+model DownloadGrant {
+  id               String               @id @default(cuid())
+  customerId       String
+  orderId          String?
+  gemstoneId       String?
+  resourceType     DownloadResourceType
+  resourceKey      String
+  grantedAt        DateTime             @default(now())
+  expiresAt        DateTime?
+  downloadCount    Int                  @default(0)
+  maxDownloads     Int?
+  lastDownloadedAt DateTime?
+  metadata         Json?
+  customer         Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  order            Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  gemstone         Gemstone?            @relation(fields: [gemstoneId], references: [id], onDelete: SetNull)
+}

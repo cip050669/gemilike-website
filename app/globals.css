@@ -75,16 +75,29 @@ body {
     transition: all 0.3s ease;
   }
   
-  .story-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 30px 56px -24px rgba(0, 229, 255, 0.55);
-  }
+.story-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 56px -24px rgba(0, 229, 255, 0.55);
+}
 
-  .gemilike-text-gradient {
-    background: linear-gradient(135deg, #FF6B35 0%, #00BCD4 50%, #8B5CF6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.gem-card {
+  background: linear-gradient(135deg, rgba(255, 148, 71, 0.16), rgba(0, 188, 212, 0.16)) !important;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 188, 212, 0.3);
+  box-shadow: 0 26px 52px -22px rgba(0, 229, 255, 0.45);
+  transition: all 0.3s ease;
+}
+
+.gem-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 56px -24px rgba(0, 229, 255, 0.55);
+}
+
+.gemilike-text-gradient {
+  background: linear-gradient(135deg, #FF6B35 0%, #00BCD4 50%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
     font-weight: 700;
     letter-spacing: 0.05em;
   }

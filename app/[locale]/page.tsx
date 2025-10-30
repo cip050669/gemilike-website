@@ -3,15 +3,15 @@ import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
-import { NewGemstonesCarousel } from '@/components/home/NewGemstonesCarousel';
 import { loadBlogs } from '@/lib/data/blogs';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 import { loadNewstickerData } from '@/lib/newsticker/data';
 import { Newsticker } from '@/components/ui/Newsticker';
-import { getNewGemstones } from '@/lib/data/gemstones';
 import { loadHeroSettings } from '@/lib/data/hero-settings';
+import { loadShopGemstones } from '@/lib/shop/shopData';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
+import { NewGemstonesCarousel } from '@/components/home/NewGemstonesCarousel';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -33,7 +33,8 @@ export default async function HomePage({
   const blogSettings = await loadBlogSectionSettings();
   const newstickerItems = loadNewstickerData();
   const activeNewstickerItems = newstickerItems.filter((item) => item.isActive);
-  const newGemstones = getNewGemstones(12);
+  const { gemstones: shopGemstones, fallback: shopFallback } = await loadShopGemstones();
+  const newGemstones = shopGemstones.filter((gem) => gem.isNew).slice(0, 12);
   const heroSettings = await loadHeroSettings();
   const stories = blogs
     .filter((blog) => blog.published)
@@ -71,7 +72,7 @@ export default async function HomePage({
 
       {/* Newsticker */}
       {activeNewstickerItems.length > 0 && (
-        <div className="my-[150px]">
+        <div className="mt-[110px] mb-[150px]">
           <Newsticker items={activeNewstickerItems} />
         </div>
       )}
@@ -169,6 +170,7 @@ export default async function HomePage({
         gemstones={newGemstones}
         locale={locale}
         description="Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar."
+        fallback={shopFallback}
       />
     </div>
     </PublicLayout>

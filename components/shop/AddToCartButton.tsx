@@ -15,13 +15,17 @@ interface AddToCartButtonProps {
     weight?: number;
     origin?: string;
   };
+  disabled?: boolean;
 }
 
-export function AddToCartButton({ item }: AddToCartButtonProps) {
+export function AddToCartButton({ item, disabled = false }: AddToCartButtonProps) {
   const { addItem } = useCartStore();
   const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = () => {
+    if (disabled) {
+      return;
+    }
     addItem(item);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -30,7 +34,11 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
   return (
     <Button
       onClick={handleAddToCart}
+      disabled={disabled}
       className={`${
+        disabled
+          ? 'bg-gray-700 text-gray-300 hover:bg-gray-700'
+          :
         isAdded 
           ? 'bg-green-600 hover:bg-green-700' 
           : 'bg-primary hover:bg-primary/90'
@@ -40,6 +48,11 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
         <>
           <CheckIcon className="h-4 w-4 mr-2" />
           Hinzugefügt
+        </>
+      ) : disabled ? (
+        <>
+          <ShoppingCartIcon className="h-4 w-4 mr-2" />
+          Nicht verfügbar
         </>
       ) : (
         <>
