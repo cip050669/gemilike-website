@@ -55,6 +55,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
   };
 
   const weightLabel = formatWeight(gemstone.weight, gemstone.weightUnit, gemstone.type);
+  const disableCartActions = !gemstone.inStock || gemstone.isSold || fallback;
   const detailBlocks = ([
     {
       title: 'Preis',
@@ -118,6 +119,12 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
           content: gemstone.cut,
         }
       : null,
+    gemstone.cutForm
+      ? {
+          title: 'Schliffform',
+          content: gemstone.cutForm,
+        }
+      : null,
     gemstone.treatment
       ? {
           title: 'Behandlung',
@@ -173,6 +180,11 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                       {!gemstone.isSold && !gemstone.inStock && (
                         <Badge variant="destructive">Nicht verfügbar</Badge>
                       )}
+                      {gemstone.rarity && (
+                        <Badge className="bg-purple-600/20 text-purple-200 border-purple-500/40">
+                          {gemstone.rarity}
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
@@ -189,6 +201,11 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                   gemName={gemstone.name}
                   className="rounded-xl"
                   inStock={gemstone.inStock && !gemstone.isSold}
+                  certification={
+                    gemstone.certification
+                      ? { certified: true, lab: gemstone.certification }
+                      : undefined
+                  }
                 />
               </div>
 
@@ -211,9 +228,13 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                 <div className="flex flex-wrap items-center gap-4">
                   <AddToCartButton
                     item={cartItem}
-                    disabled={!gemstone.inStock || gemstone.isSold}
+                    disabled={disableCartActions}
                   />
-                  <WishlistButton item={cartItem} className="border border-white/10" />
+                  <WishlistButton
+                    item={cartItem}
+                    className="border border-white/10"
+                    disabled={fallback}
+                  />
                   <Link
                     href={`/${locale}/shop`}
                     className={cn(navStyles.navButton, navStyles.navButtonTight, 'px-4 py-2')}

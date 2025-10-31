@@ -1,30 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionWithUser } from '@/lib/session';
-
-// Memory store for cart data (not exported as it's not a valid Route export)
-const memoryCartStore = new Map<string, { items: unknown[]; coupon: unknown | null }>();
+import {
+  addCartItem,
+  clearActiveCart,
+  getCartSummary,
+} from '@/lib/actions/cart';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    const { items } = await request.json();
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!Array.isArray(items)) {
+      return NextResponse.json({ error: 'items must be an array' }, { status: 400 });
     }
 
-    const { items, coupon } = await request.json();
+    await clearActiveCart();
 
-    memoryCartStore.set(userId, {
-      items: Array.isArray(items) ? items : [],
-      coupon: coupon ?? null,
-    });
+    for (const entry of items) {
+      if (!entry || typeof entry !== 'object') continue;
+      const gemstoneId = typeof entry.gemstoneId === 'string' ? entry.gemstoneId : entry.id;
+      const quantity =
+        typeof entry.quantity === 'number' && entry.quantity > 0 ? entry.quantity : 1;
 
-    return NextResponse.json({ success: true });
+      if (typeof gemstoneId === 'string' && gemstoneId.trim()) {
+        await addCartItem(gemstoneId.trim(), quantity);
+      }
+    }
+
+    const summary = await getCartSummary();
+    return NextResponse.json({ success: true, summary });
   } catch (error) {
     console.error('Error saving cart:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

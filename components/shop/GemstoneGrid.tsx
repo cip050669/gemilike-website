@@ -158,9 +158,13 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
                 <div className="flex items-center justify-between gap-2">
                   <AddToCartButton
                     item={toCartItem(gem)}
-                    disabled={!gem.inStock || gem.isSold}
+                    disabled={!gem.inStock || gem.isSold || fallback}
                   />
-                  <WishlistButton item={toCartItem(gem)} className="border border-white/10" />
+                  <WishlistButton
+                    item={toCartItem(gem)}
+                    className="border border-white/10"
+                    disabled={fallback}
+                  />
                 </div>
                 <button
                   type="button"
@@ -202,6 +206,14 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
                       videos={selectedGemstone.videos}
                       className="rounded-xl"
                       inStock={selectedGemstone.inStock && !selectedGemstone.isSold}
+                      certification={
+                        selectedGemstone.certification
+                          ? {
+                              certified: true,
+                              lab: selectedGemstone.certification,
+                            }
+                          : undefined
+                      }
                     />
                   </div>
                   <div className="space-y-6">
@@ -218,6 +230,11 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
                         {selectedGemstone.isSold && <Badge variant="destructive">Verkauft</Badge>}
                         {!selectedGemstone.isSold && !selectedGemstone.inStock && (
                           <Badge variant="destructive">Nicht verfügbar</Badge>
+                        )}
+                        {selectedGemstone.rarity && (
+                          <Badge className="bg-purple-600/20 text-purple-200 border-purple-500/40">
+                            {selectedGemstone.rarity}
+                          </Badge>
                         )}
                       </div>
                     </DialogHeader>
@@ -287,11 +304,12 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
                     <div className="flex flex-wrap items-center gap-4">
                       <AddToCartButton
                         item={toCartItem(selectedGemstone)}
-                        disabled={!selectedGemstone.inStock || selectedGemstone.isSold}
+                        disabled={!selectedGemstone.inStock || selectedGemstone.isSold || fallback}
                       />
                       <WishlistButton
                         item={toCartItem(selectedGemstone)}
                         className="border border-white/10"
+                        disabled={fallback}
                       />
                       <Button
                         variant="outline"

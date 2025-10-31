@@ -21,6 +21,14 @@ export async function GET(request: NextRequest) {
 
     const gemstones = await prisma.gemstone.findMany({
       orderBy: { createdAt: 'desc' },
+      include: {
+        _count: {
+          select: {
+            wishlistItems: true,
+            cartItems: true,
+          },
+        },
+      },
     });
 
     const filtered = gemstones.filter((gemstone) => {
@@ -45,11 +53,20 @@ export async function GET(request: NextRequest) {
     const total = filtered.length;
     const paginated = filtered.slice(skip, skip + limit);
 
+    const serialized = paginated.map((gemstone) => {
+      const { _count, ...rest } = gemstone;
+      return {
+        ...rest,
+        wishlistCount: _count?.wishlistItems ?? 0,
+        cartCount: _count?.cartItems ?? 0,
+      };
+    });
+
     console.log('API: Found gemstones:', paginated.length);
 
     return NextResponse.json({
       success: true,
-      data: paginated,
+      data: serialized,
       pagination: {
         page,
         limit,
@@ -108,6 +125,8 @@ export async function GET(request: NextRequest) {
         isNew: gem.isNew ?? false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        wishlistCount: 0,
+        cartCount: 0,
       };
     });
 

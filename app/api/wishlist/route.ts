@@ -1,104 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionWithUser } from '@/lib/session';
-import { prisma } from '@/lib/prisma';
+import {
+  getWishlistSummary,
+  toggleWishlistItem,
+  removeWishlistItem,
+} from '@/lib/actions/wishlist';
 
 export async function GET() {
   try {
-    const { userId } = await getSessionWithUser();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const wishlistItems = await prisma.wishlistItem.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' }
-    });
-
-    return NextResponse.json(wishlistItems);
+    const summary = await getWishlistSummary();
+    return NextResponse.json(summary);
   } catch (error) {
     console.error('Error fetching wishlist:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
+    const { gemstoneId } = await request.json();
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (typeof gemstoneId !== 'string' || !gemstoneId.trim()) {
+      return NextResponse.json({ error: 'gemstoneId is required' }, { status: 400 });
     }
 
-    const { gemstoneId, notes } = await request.json();
-
-    // Check if item already exists
-    const existingItem = await prisma.wishlistItem.findFirst({
-      where: {
-        userId,
-        gemstoneId
-      }
-    });
-
-    if (existingItem) {
-      return NextResponse.json(
-        { error: 'Item already in wishlist' },
-        { status: 400 }
-      );
-    }
-
-    const wishlistItem = await prisma.wishlistItem.create({
-      data: {
-        userId,
-        gemstoneId,
-        notes
-      }
-    });
-
-    return NextResponse.json(wishlistItem, { status: 201 });
+    const summary = await toggleWishlistItem(gemstoneId.trim());
+    return NextResponse.json(summary, { status: 200 });
   } catch (error) {
-    console.error('Error adding to wishlist:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Error updating wishlist:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId } = await getSessionWithUser();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
+    const wishlistItemId = searchParams.get('wishlistItemId');
     const gemstoneId = searchParams.get('gemstoneId');
 
-    if (!gemstoneId) {
-      return NextResponse.json(
-        { error: 'Gemstone ID is required' },
-        { status: 400 }
-      );
+    if (wishlistItemId) {
+      const summary = await removeWishlistItem(wishlistItemId);
+      return NextResponse.json(summary);
     }
 
-    await prisma.wishlistItem.deleteMany({
-      where: {
-        userId,
-        gemstoneId
-      }
-    });
+    if (gemstoneId) {
+      const summary = await toggleWishlistItem(gemstoneId);
+      return NextResponse.json(summary);
+    }
 
-    return NextResponse.json({ message: 'Item removed from wishlist' });
+    return NextResponse.json(
+      { error: 'wishlistItemId or gemstoneId is required' },
+      { status: 400 }
+    );
   } catch (error) {
     console.error('Error removing from wishlist:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

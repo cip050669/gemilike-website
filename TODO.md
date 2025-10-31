@@ -34,8 +34,9 @@
   - [ ] API-Routen mit Prisma für `WishlistItem`/`CartItem` implementieren _(Status: Offen)_  
   - [x] Frontend-Stores (`useWishlistStore`, `useCartStore`) auf API/Server Actions umstellen _(Status: Erledigt – Server Actions + optimistische Updates in `lib/store/cart.ts`, `lib/store/wishlist.ts`)_  
   - [ ] Admin-Auswertungen für Wunschlisten/Bestellungen konfigurieren _(Status: Offen)_  
-- [ ] **Shop-Datenbank befüllen und absichern** _(Status: Offen)_  
-  - [ ] Seed-Skripte für Produkte, Varianten und Lagerbestände ergänzen _(Status: Offen)_  
+- [ ] **Shop-Datenbank befüllen und absichern** _(Status: Teilweise erledigt)_  
+  - [x] Seed-Skript für Kernobjekte (HeroSettings, SelectOptions, Beispiel-Gemstones) erstellt _(Status: Erledigt – siehe `prisma/seed.ts` / `prisma/seed.sql`)_  
+  - [x] Seed-Ausführung & Datenvalidierung durchführen _(Status: Erledigt – `prisma/seed.sql` via `psql` eingespielt)_  
   - [ ] Fallback-Libraries entfernen oder mit Prisma-Daten verknüpfen _(Status: Offen)_  
 - [ ] **Rechtstexte entsperren** _(Status: Offen)_  
   - [ ] Datenmodell für Rechtstexte inkl. Versionierung (z. B. `LegalDocument`) anlegen _(Status: Offen)_  

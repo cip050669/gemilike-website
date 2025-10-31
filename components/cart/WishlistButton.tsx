@@ -14,9 +14,10 @@ interface WishlistButtonProps {
     isSold?: boolean;
   };
   className?: string;
+  disabled?: boolean;
 }
 
-export function WishlistButton({ item, className }: WishlistButtonProps) {
+export function WishlistButton({ item, className, disabled = false }: WishlistButtonProps) {
   const toggleItem = useWishlistStore((state) => state.toggleItem);
   const removeItem = useWishlistStore((state) => state.removeItem);
   const isInWishlist = useWishlistStore((state) => state.isInWishlist(item.id));
@@ -33,7 +34,7 @@ export function WishlistButton({ item, className }: WishlistButtonProps) {
   }, [summary, fetchWishlist]);
 
   const handleToggle = () => {
-    if (isPending || isStoreLoading) return;
+    if (isPending || isStoreLoading || disabled) return;
 
     setIsAnimating(true);
 
@@ -60,7 +61,7 @@ export function WishlistButton({ item, className }: WishlistButtonProps) {
       variant="ghost"
       size="icon"
       onClick={handleToggle}
-      disabled={isPending || isStoreLoading}
+      disabled={disabled || isPending || isStoreLoading}
       className={`${className ?? ''} ${
         isInWishlist
           ? 'text-red-500 bg-red-50 hover:bg-red-100'

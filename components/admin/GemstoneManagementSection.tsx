@@ -33,6 +33,8 @@ type DisplayGemstone = {
   isSold: boolean;
   images: string[];
   videos: string[];
+  wishlistCount?: number;
+  cartCount?: number;
 };
 
 const parseList = (value: unknown): string[] => {
@@ -91,8 +93,30 @@ const convertLibraryGemstone = (gem: Gemstone): DisplayGemstone => {
     isSold: gem.inStock === false,
     images: gem.images ?? (mainImage ? [mainImage] : []),
     videos: gem.videos ?? [],
+    wishlistCount: 0,
+    cartCount: 0,
   };
 };
+
+interface ShopMetrics {
+  totals: {
+    wishlistItems: number;
+    cartItems: number;
+    activeCarts: number;
+  };
+  topWishlisted: Array<{
+    gemstoneId: string | null;
+    name: string;
+    slug: string | null;
+    count: number;
+  }>;
+  topCarted: Array<{
+    gemstoneId: string | null;
+    name: string;
+    slug: string | null;
+    quantity: number;
+  }>;
+}
 
 export function GemstoneManagementSection() {
   const fallbackGemstones = useMemo(
@@ -109,6 +133,8 @@ export function GemstoneManagementSection() {
     open: false,
     initial: null,
   });
+  const [metrics, setMetrics] = useState<ShopMetrics | null>(null);
+  const [metricsError, setMetricsError] = useState<string | null>(null);
 
   const mapApiGemstone = useCallback((gem: Record<string, unknown>): DisplayGemstone => {
     const images = parseList(gem.images);
@@ -132,6 +158,15 @@ export function GemstoneManagementSection() {
       ? `${gem.weight.toFixed(2)} ${gem.type === 'cut' ? 'ct' : 'g'}`
       : undefined;
 
+    const wishlistCount =
+      typeof (gem as { wishlistCount?: unknown }).wishlistCount === 'number'
+        ? (gem as { wishlistCount?: number }).wishlistCount
+        : 0;
+    const cartCount =
+      typeof (gem as { cartCount?: unknown }).cartCount === 'number'
+        ? (gem as { cartCount?: number }).cartCount
+        : 0;
+
     return {
       id: gem.id,
       name: gem.name,
@@ -153,6 +188,8 @@ export function GemstoneManagementSection() {
       isSold: gem.inStock === false,
       images: images.length ? images : [PLACEHOLDER_IMAGE],
       videos,
+      wishlistCount,
+      cartCount,
     };
   }, []);
 
@@ -182,6 +219,28 @@ export function GemstoneManagementSection() {
   useEffect(() => {
     loadGemstones();
   }, [loadGemstones]);
+
+  useEffect(() => {
+    const loadMetrics = async () => {
+      try {
+        setMetricsError(null);
+        const response = await fetch('/api/admin/shop/metrics', { cache: 'no-store' });
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Kennzahlen konnten nicht geladen werden.');
+        }
+
+        setMetrics(result.data as ShopMetrics);
+      } catch (err) {
+        console.error('Error loading shop metrics:', err);
+        setMetrics(null);
+        setMetricsError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Laden der Kennzahlen.');
+      }
+    };
+
+    loadMetrics();
+  }, []);
 
   const actionsDisabled = usingFallback || isLoading;
 
@@ -394,16 +453,82 @@ export function GemstoneManagementSection() {
               {error}
             </div>
           )}
-        </div>
-        <AdminButton
-          type="button"
-          className="w-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong sm:w-auto"
-          onClick={() => handleOpenEditor()}
-          disabled={actionsDisabled}
-        >
-          Edelsteineditor
-        </AdminButton>
       </div>
+      <AdminButton
+        type="button"
+        className="w-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong sm:w-auto"
+        onClick={() => handleOpenEditor()}
+        disabled={actionsDisabled}
+      >
+        Edelsteineditor
+      </AdminButton>
+    </div>
+
+      {metricsError && (
+        <div className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {metricsError}
+        </div>
+      )}
+
+      {metrics && (
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4 shadow-lg shadow-black/30">
+              <p className="text-xs uppercase tracking-[0.3em] text-white/50">Wishlist-Einträge</p>
+              <p className="mt-2 text-3xl font-semibold text-white">{metrics.totals.wishlistItems}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4 shadow-lg shadow-black/30">
+              <p className="text-xs uppercase tracking-[0.3em] text-white/50">Gespeicherte Warenkorb-Artikel</p>
+              <p className="mt-2 text-3xl font-semibold text-white">{metrics.totals.cartItems}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4 shadow-lg shadow-black/30">
+              <p className="text-xs uppercase tracking-[0.3em] text-white/50">Aktive Warenkörbe</p>
+              <p className="mt-2 text-3xl font-semibold text-white">{metrics.totals.activeCarts}</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-gray-800/40 p-4">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-white/50">
+                Top Wunschlisten
+              </h3>
+              <div className="mt-3 space-y-2">
+                {metrics.topWishlisted.length === 0 && (
+                  <p className="text-sm text-white/50">Noch keine Wunschlisten vorhanden.</p>
+                )}
+                {metrics.topWishlisted.map((entry) => (
+                  <div
+                    key={entry.gemstoneId ?? entry.name}
+                    className="flex items-center justify-between rounded-lg border border-white/10 bg-gray-900/40 px-3 py-2"
+                  >
+                    <span className="text-sm text-white/80">{entry.name}</span>
+                    <span className="text-sm font-semibold text-primary">{entry.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-gray-800/40 p-4">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-white/50">
+                Top Warenkorb-Artikel
+              </h3>
+              <div className="mt-3 space-y-2">
+                {metrics.topCarted.length === 0 && (
+                  <p className="text-sm text-white/50">Noch keine Warenkorb-Daten vorhanden.</p>
+                )}
+                {metrics.topCarted.map((entry) => (
+                  <div
+                    key={entry.gemstoneId ?? entry.name}
+                    className="flex items-center justify-between rounded-lg border border-white/10 bg-gray-900/40 px-3 py-2"
+                  >
+                    <span className="text-sm text-white/80">{entry.name}</span>
+                    <span className="text-sm font-semibold text-primary">{entry.quantity}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Card className="border-white/10 bg-gray-700/50/50 p-0">
         <div className="divide-y divide-white/5">
@@ -459,6 +584,8 @@ export function GemstoneManagementSection() {
                         Größe: <span className="text-white/80">{gemstone.dimensions.length ?? '–'} × {gemstone.dimensions.width ?? '–'} × {gemstone.dimensions.height ?? '–'} mm</span>
                       </span>
                     )}
+                    <span>Wishlist: <span className="text-white/80">{gemstone.wishlistCount ?? 0}</span></span>
+                    <span>Warenkorb: <span className="text-white/80">{gemstone.cartCount ?? 0}</span></span>
                     {gemstone.color && <span>Farbe: <span className="text-white/80">{gemstone.color}</span></span>}
                     {gemstone.colorSaturation && (
                       <span>Farbsättigung: <span className="text-white/80">{gemstone.colorSaturation}</span></span>
@@ -649,6 +776,8 @@ export function GemstoneManagementSection() {
               <p><span className="text-white/50">Farbsättigung:</span> {detailGemstone.colorSaturation ?? '–'}</p>
               <p><span className="text-white/50">Behandlung:</span> {detailGemstone.treatment ?? '–'}</p>
               <p><span className="text-white/50">Zertifizierung:</span> {detailGemstone.certification ?? '–'}</p>
+              <p><span className="text-white/50">Wishlist-Einträge:</span> {detailGemstone.wishlistCount ?? 0}</p>
+              <p><span className="text-white/50">Warenkorb-Einträge:</span> {detailGemstone.cartCount ?? 0}</p>
               <p><span className="text-white/50">Status:</span> {detailGemstone.isSold ? 'Verkauft' : 'Verfügbar'}</p>
               <p className="text-white/50">Beschreibung:</p>
               <p className="whitespace-pre-line text-white/70">{detailGemstone.description || 'Keine Beschreibung hinterlegt.'}</p>
