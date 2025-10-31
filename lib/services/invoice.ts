@@ -77,8 +77,12 @@ const isSendEmailFailure = (
   result: SendEmailResult
 ): result is Extract<SendEmailResult, { success: false }> => result.success === false;
 
-const calcTotals = (orderItems: Array<OrderItem | OrderWithRelations['orderItems'][number]>) => {
-  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+const calcTotals = (orderItems: Array<OrderItem | OrderWithRelations['items'][number]>) => {
+  const subtotal = orderItems.reduce((sum, item) => {
+    const unitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : Number(item.unitPrice);
+    const quantity = typeof item.quantity === 'number' ? item.quantity : Number(item.quantity);
+    return sum + unitPrice * quantity;
+  }, 0);
   return {
     subtotal,
     total: subtotal,
@@ -127,57 +131,52 @@ const guessNames = (source?: { firstName?: string | null; lastName?: string | nu
 
 type OrderWithRelations = Prisma.OrderGetPayload<{
   include: {
-    orderItems: {
+    items: {
       include: {
         gemstone: true;
       };
     };
-    user: true;
+    customer: true;
     billingAddress: true;
     shippingAddress: true;
   };
 }>;
 
 const resolveCustomerForOrder = async (order: OrderWithRelations): Promise<Customer> => {
-  const email = order.user?.email ?? null;
+  // If order already has a customer, return it
+  if (order.customer) {
+    return order.customer;
+  }
 
-  if (email) {
-    const existingByEmail = await prisma.customer.findFirst({ where: { email } });
-    if (existingByEmail) {
-      return existingByEmail;
+  // If order has customerId, fetch it
+  if (order.customerId) {
+    const customer = await prisma.customer.findUnique({ where: { id: order.customerId } });
+    if (customer) {
+      return customer;
     }
   }
 
-  if (order.userId) {
-    const existingByUser = await prisma.customer.findFirst({ where: { customerNumber: order.userId } });
-    if (existingByUser) {
-      return existingByUser;
-    }
-  }
-
+  const email = order.customer?.email ?? null;
   const address = order.billingAddress ?? order.shippingAddress;
   const names = guessNames({
-    firstName: address?.firstName,
-    lastName: address?.lastName,
-    name: order.user?.name ?? undefined,
+    firstName: address?.firstName ?? order.customer?.firstName,
+    lastName: address?.lastName ?? order.customer?.lastName,
+    name: undefined,
   });
 
   const customerNumber = `CUST-${Date.now()}`;
 
+  // Create customer with userId from order if available (for linking to user account)
   return prisma.customer.create({
     data: {
+      userId: order.customerId ?? undefined, // This might not work if customerId is not a userId
       customerNumber,
       company: address?.company ?? null,
       firstName: names.firstName,
       lastName: names.lastName,
       email: email ?? `kunde-${customerNumber}@example.com`,
-      phone: address?.phone ?? order.user?.phone ?? null,
-      address: [address?.address1, address?.address2].filter(Boolean).join(' ') || 'Adresse unbekannt',
-      postalCode: address?.postalCode ?? '00000',
-      city: address?.city ?? 'Unbekannt',
-      country: address?.country ?? 'Deutschland',
-      notes: order.notes ?? null,
-      isActive: true,
+      phone: address?.phone ?? order.customer?.phone ?? null,
+      marketingOptIn: false,
     },
   });
 };
@@ -203,22 +202,28 @@ const createInvoiceNumber = async (customerId: string, order: Order) => {
 
 const createOrUpdateInvoiceItems = async (
   invoiceId: string,
-  orderItems: OrderWithRelations['orderItems']
+  orderItems: OrderWithRelations['items']
 ) => {
   await prisma.invoiceItem.deleteMany({ where: { invoiceId } });
   await prisma.invoiceItem.createMany({
-    data: orderItems.map((item, index) => ({
-      invoiceId,
-      description:
-        item.gemstone?.name ??
-        item.gemstone?.sku ??
-        item.notes ??
-        `Artikel ${index + 1}`,
-      quantity: item.quantity,
-      unitPrice: item.price,
-      total: item.price * item.quantity,
-      order: index,
-    })),
+    data: orderItems.map((item, index) => {
+      const unitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : Number(item.unitPrice);
+      const quantity = typeof item.quantity === 'number' ? item.quantity : Number(item.quantity);
+      // Calculate total from unitPrice * quantity if total doesn't exist
+      const total = unitPrice * quantity;
+      return {
+        invoiceId,
+        description:
+          item.gemstone?.name ??
+          item.description ??
+          `Artikel ${index + 1}`,
+        quantity,
+        unitPrice,
+        taxRate: typeof item.unitTax === 'number' ? item.unitTax : Number(item.unitTax) || 0,
+        total,
+        position: index,
+      };
+    }),
   });
 
   return prisma.invoiceItem.findMany({ where: { invoiceId } });
@@ -228,12 +233,12 @@ export const generateInvoiceForOrder = async (orderId: string): Promise<Generate
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
-      orderItems: {
+      items: {
         include: {
           gemstone: true,
         },
       },
-      user: true,
+      customer: true,
       billingAddress: true,
       shippingAddress: true,
     },
@@ -242,7 +247,7 @@ export const generateInvoiceForOrder = async (orderId: string): Promise<Generate
   if (!order) throw new Error(`Bestellung ${orderId} nicht gefunden`);
 
   const customer = await resolveCustomerForOrder(order);
-  const { subtotal, total } = calcTotals(order.orderItems);
+  const { subtotal, total } = calcTotals(order.items);
 
   const existingInvoice = await prisma.invoice.findUnique({ where: { orderId } });
 
@@ -252,16 +257,18 @@ export const generateInvoiceForOrder = async (orderId: string): Promise<Generate
       data: {
         customerId: customer.id,
         subtotal,
+        taxAmount: 0, // No VAT for small business
         total,
+        currency: order.currency || 'EUR',
         paymentStatus: mapPaymentStatus(order.paymentStatus),
         legalNotice: buildLegalNotice(),
-        pdfUrl: null,
+        pdfStorageKey: null,
         emailSent: false,
         sentAt: null,
       },
     });
 
-    const items = await createOrUpdateInvoiceItems(existingInvoice.id, order.orderItems);
+    const items = await createOrUpdateInvoiceItems(existingInvoice.id, order.items);
     return { invoice: updatedInvoice, items };
   }
 
@@ -277,12 +284,14 @@ export const generateInvoiceForOrder = async (orderId: string): Promise<Generate
       status: 'DRAFT',
       paymentStatus: mapPaymentStatus(order.paymentStatus),
       subtotal,
+      taxAmount: 0, // No VAT for small business
       total,
+      currency: order.currency || 'EUR',
       legalNotice: buildLegalNotice(),
     },
   });
 
-  const items = await createOrUpdateInvoiceItems(invoice.id, order.orderItems);
+  const items = await createOrUpdateInvoiceItems(invoice.id, order.items);
   return { invoice, items };
 };
 
@@ -290,9 +299,19 @@ export const generateInvoicePDF = async (invoiceId: string): Promise<string> => 
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
     include: {
-      customer: true,
+      customer: {
+        include: {
+          billingAddress: true,
+          shippingAddress: true,
+        },
+      },
       items: true,
-      order: true,
+      order: {
+        include: {
+          billingAddress: true,
+          shippingAddress: true,
+        },
+      },
     },
   });
 
@@ -320,11 +339,16 @@ export const generateInvoicePDF = async (invoiceId: string): Promise<string> => 
   );
 
   if (invoice.customer?.company) lines.push(invoice.customer.company);
-  if (invoice.customer?.address) lines.push(invoice.customer.address);
+  
+  // Get address from order billing address or customer billing address
+  const address = invoice.order?.billingAddress ?? invoice.customer?.billingAddress;
+  if (address && address.street) {
+    lines.push(address.street);
+  }
 
   lines.push(
-    `${invoice.customer?.postalCode ?? ''} ${invoice.customer?.city ?? ''}`.trim(),
-    invoice.customer?.country ?? '',
+    `${address?.postalCode ?? ''} ${address?.city ?? ''}`.trim(),
+    address?.country ?? 'Deutschland',
     '',
     'Positionen:',
   );
@@ -349,7 +373,7 @@ export const generateInvoicePDF = async (invoiceId: string): Promise<string> => 
   await prisma.invoice.update({
     where: { id: invoiceId },
     data: {
-      pdfUrl: `/invoices/${fileName}`,
+      pdfStorageKey: `/invoices/${fileName}`,
     },
   });
 
@@ -368,8 +392,11 @@ export const sendInvoiceEmail = async (invoiceId: string) => {
     return;
   }
 
-  const pdfUrl = invoice.pdfUrl ?? (await generateInvoicePDF(invoiceId));
-  const pdfAbsolutePath = join(process.cwd(), 'public', pdfUrl.replace(/^\//, ''));
+  let pdfStorageKey = invoice.pdfStorageKey;
+  if (!pdfStorageKey) {
+    pdfStorageKey = await generateInvoicePDF(invoiceId);
+  }
+  const pdfAbsolutePath = join(process.cwd(), 'public', pdfStorageKey.replace(/^\//, ''));
 
   const emailResult = await sendEmail({
     to: invoice.customer.email,
@@ -386,7 +413,7 @@ export const sendInvoiceEmail = async (invoiceId: string) => {
     `,
     attachments: [
       {
-        filename: pdfUrl.split('/').pop() ?? `${invoice.invoiceNumber}.pdf`,
+        filename: pdfStorageKey.split('/').pop() ?? `${invoice.invoiceNumber}.pdf`,
         path: pdfAbsolutePath,
         contentType: 'application/pdf',
       },

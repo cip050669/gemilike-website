@@ -15,15 +15,15 @@ export async function createAuditLog(data: AuditLogData) {
   try {
     const auditLog = await prisma.auditLog.create({
       data: {
-        userId: data.userId,
+        actorId: data.userId,
         action: data.action,
-        entityType: data.entityType,
+        entity: data.entityType,
         entityId: data.entityId,
-        details:
+        metadata:
           typeof data.details === 'string'
-            ? data.details
+            ? JSON.parse(data.details)
             : data.details != null
-            ? JSON.stringify(data.details)
+            ? data.details
             : null,
         ipAddress: data.ipAddress,
         userAgent: data.userAgent,
@@ -55,17 +55,17 @@ export async function getAuditLogs(filters?: AuditLogFilters) {
     }
     
     if (filters?.entityType) {
-      where.entityType = filters.entityType;
+      where.entity = filters.entityType;
     }
     
     if (filters?.userId) {
-      where.userId = filters.userId;
+      where.actorId = filters.userId;
     }
 
     const auditLogs = await prisma.auditLog.findMany({
       where,
       include: {
-        user: {
+        actor: {
           select: {
             name: true,
             email: true,
@@ -78,23 +78,14 @@ export async function getAuditLogs(filters?: AuditLogFilters) {
     });
 
     return auditLogs.map((log) => {
-      let parsedDetails: unknown = null;
-      if (log.details) {
-        try {
-          parsedDetails = JSON.parse(log.details);
-        } catch {
-          parsedDetails = log.details;
-        }
-      }
-
       return {
         id: log.id,
-        userId: log.userId,
-        userName: log.user?.name || 'Unbekannt',
+        userId: log.actorId,
+        userName: log.actor?.name || 'Unbekannt',
         action: log.action,
-        entityType: log.entityType,
+        entityType: log.entity,
         entityId: log.entityId,
-        details: parsedDetails,
+        details: log.metadata,
         ipAddress: log.ipAddress,
         userAgent: log.userAgent,
         createdAt: log.createdAt,

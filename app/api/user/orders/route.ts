@@ -13,12 +13,25 @@ export async function GET() {
       );
     }
 
+    // Get customer for this user
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true }
+    });
+
+    if (!customer) {
+      return NextResponse.json(
+        { success: false, error: 'Customer not found' },
+        { status: 404 }
+      );
+    }
+
     const orders = await prisma.order.findMany({
       where: {
-        userId
+        customerId: customer.id
       },
       include: {
-        orderItems: {
+        items: {
           include: {
             gemstone: true
           }

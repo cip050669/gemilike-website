@@ -17,10 +17,18 @@ export const loadNewstickerData = (): NewstickerItem[] => {
       const raw = fs.readFileSync(NEWSTICKER_FILE, 'utf8');
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed)
-        ? parsed.map((item: Partial<NewstickerItem>) => ({
-            ...item,
-            createdAt: new Date(item.createdAt),
-            updatedAt: new Date(item.updatedAt),
+        ? parsed.map((item: Partial<NewstickerItem>): NewstickerItem => ({
+            id: item.id ?? '',
+            text: item.text ?? '',
+            type: item.type ?? 'info',
+            priority: item.priority ?? 'medium',
+            isActive: item.isActive ?? true,
+            startDate: item.startDate,
+            endDate: item.endDate,
+            createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
+            updatedAt: item.updatedAt ? new Date(item.updatedAt) : new Date(),
+            headingColor: item.headingColor,
+            subheadingColor: item.subheadingColor,
           }))
         : [];
     }

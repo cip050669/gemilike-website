@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
 
     // Calculate totals
     const subtotal = items.reduce((sum: number, item: { quantity: number; unitPrice: number }) => sum + (item.quantity * item.unitPrice), 0);
-    const total = subtotal; // No VAT for small business
+    const taxAmount = 0; // No VAT for small business
+    const total = subtotal + taxAmount;
 
     // Create invoice
     const invoice = await prisma.invoice.create({
@@ -68,16 +69,18 @@ export async function POST(request: NextRequest) {
         customerId,
         invoiceDate: new Date(),
         dueDate: new Date(dueDate),
-        subtotal,
-        total,
-        notes,
+        subtotal: subtotal,
+        taxAmount: taxAmount,
+        total: total,
+        notes: notes || undefined,
         items: {
           create: items.map((item: { description: string; quantity: number; unitPrice: number }, index: number) => ({
             description: item.description,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
+            taxRate: 0,
             total: item.quantity * item.unitPrice,
-            order: index
+            position: index
           }))
         }
       },

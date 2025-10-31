@@ -240,16 +240,14 @@ async function seedGemstones() {
 
         await prisma.location.upsert({
           where: {
-            name_countryId: {
-              name: location.name,
-              countryId: country.id
-            }
+            name: location.name,
           },
           update: {
             lat: location.lat,
             lng: location.lng,
             mineType: location.mineType,
             gemTypeId: gemType.id,
+            countryId: country.id,
             isActive: true
           },
           create: {

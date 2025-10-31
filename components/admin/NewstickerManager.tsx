@@ -16,9 +16,13 @@ export function NewstickerManager() {
   const [items, setItems] = useState<NewstickerItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState<NewstickerItem | null>(null);
-  const [newItem, setNewItem] = useState({
+  const [newItem, setNewItem] = useState<{
+    text: string;
+    type: 'info' | 'warning' | 'success' | 'announcement';
+    isActive: boolean;
+  }>({
     text: '',
-    type: 'info' as const,
+    type: 'info',
     isActive: true
   });
 
@@ -330,7 +334,7 @@ export function NewstickerManager() {
                 <Label htmlFor="edit-type">Nachrichtentyp</Label>
                 <Select
                   value={editingItem.type}
-                  onValueChange={(value: 'info' | 'warning' | 'success' | 'announcement') => setEditingItem(prev => prev ? { ...prev, type: value } : null)}
+                  onValueChange={(value: 'info' | 'warning' | 'success' | 'announcement') => setEditingItem(prev => prev ? { ...prev, type: value as NewstickerItem['type'] } : null)}
                 >
                   <SelectTrigger>
                     <SelectValue />

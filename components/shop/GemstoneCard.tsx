@@ -59,10 +59,8 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
               item={{
                 id: gemstone.id,
                 name: gemstone.name,
-                price: gemstone.price,
                 image: gemstone.images?.[0],
-                category: gemstone.category,
-                origin: gemstone.origin ?? undefined,
+                isSold: !gemstone.inStock,
               }}
               className="bg-gem-purple/90 hover:bg-gem-purple/80 shadow-sm h-6 w-6"
             />

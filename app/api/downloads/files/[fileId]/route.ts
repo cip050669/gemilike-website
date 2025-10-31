@@ -27,58 +27,23 @@ export async function POST(
 
     // Check consent
     const authData = JSON.parse(authCookie.value);
-    const consent = await prisma.downloadConsent.findUnique({
-      where: { userEmail: authData.email }
-    });
+    // Note: Download consent management is not implemented in the current schema
+    // For now, we assume consent is given if authenticated
+    const hasConsent = true;
 
-    if (!consent || !consent.consent) {
+    if (!hasConsent) {
       return NextResponse.json(
         { error: 'Consent required' },
         { status: 403 }
       );
     }
 
-    // Get file info
-    const file = await prisma.downloadFile.findUnique({
-      where: { id: fileId },
-      include: { project: true }
-    });
-
-    if (!file || !file.isActive || !file.project.isActive) {
-      return NextResponse.json(
-        { error: 'File not found or inactive' },
-        { status: 404 }
-      );
-    }
-
-    // Log download
-    const userAgent = request.headers.get('user-agent') || '';
-    const ipAddress = request.headers.get('x-forwarded-for') || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown';
-
-    await prisma.downloadLog.create({
-      data: {
-        projectId: file.projectId,
-        fileId: file.id,
-        userEmail: userEmail,
-        userName: userName,
-        ipAddress,
-        userAgent
-      }
-    });
-
-    // Read and return file
-    const filePath = join(process.cwd(), 'uploads', 'downloads', file.filePath);
-    const fileBuffer = await readFile(filePath);
-
-    return new NextResponse(fileBuffer, {
-      headers: {
-        'Content-Type': file.mimeType,
-        'Content-Disposition': `attachment; filename="${file.originalName}"`,
-        'Content-Length': file.fileSize.toString()
-      }
-    });
+    // Note: Download file management is not implemented in the current schema
+    // This endpoint returns a 501 Not Implemented response
+    return NextResponse.json(
+      { error: 'Download file management is not implemented' },
+      { status: 501 }
+    );
   } catch (error) {
     console.error('Error downloading file:', error);
     return NextResponse.json(

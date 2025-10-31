@@ -204,8 +204,14 @@ export function DashboardStats({ gemstones }: DashboardStatsProps) {
     const cutGemstones = gemstones.filter(g => g.type === 'cut');
     const roughGemstones = gemstones.filter(g => g.type === 'rough');
     
-    const totalCaratWeight = cutGemstones.reduce((sum, g) => sum + (g as Gemstone & { caratWeight?: number }).caratWeight ?? 0, 0);
-    const totalGramWeight = roughGemstones.reduce((sum, g) => sum + (g as Gemstone & { gramWeight?: number }).gramWeight ?? 0, 0);
+    const totalCaratWeight = cutGemstones.reduce((sum, g) => {
+      const weight = (g as Gemstone & { caratWeight?: number }).caratWeight;
+      return sum + (weight ?? 0);
+    }, 0);
+    const totalGramWeight = roughGemstones.reduce((sum, g) => {
+      const weight = (g as Gemstone & { gramWeight?: number }).gramWeight;
+      return sum + (weight ?? 0);
+    }, 0);
     
     const weightStats = {
       totalCaratWeight,

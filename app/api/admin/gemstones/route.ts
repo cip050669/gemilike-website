@@ -103,8 +103,8 @@ export async function GET(request: NextRequest) {
         id: gem.id,
         name: gem.name,
         category: gem.category,
-        type: gem.type,
-        price: gem.price,
+        condition: (isCutGemstone(gem) ? 'CUT' : 'ROUGH') as any,
+        // Price is managed via priceBooks relation, not a direct field
         weight,
         dimensions,
         color: gem.color ?? null,

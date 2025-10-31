@@ -65,7 +65,8 @@ const PAYMENT_STATUS_OPTIONS = [
 const buildMessage = (response: ApiResponse) => {
   if (!response.success) {
     const errorDetails = response.invoiceError ? ` – Rechnung: ${response.invoiceError}` : '';
-    return `❌ ${response.error}${errorDetails}`;
+    const errorMessage = 'error' in response ? response.error : 'Unbekannter Fehler';
+    return `❌ ${errorMessage}${errorDetails}`;
   }
 
   const parts: string[] = [];

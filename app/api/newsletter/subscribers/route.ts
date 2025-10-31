@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getSubscribers, deleteSubscriber, updateSubscriber } from '@/lib/newsletter-storage';
 
 export async function GET() {

@@ -25,14 +25,14 @@ async function createAdminUser() {
         email: 'admin@gemilike.com',
         name: 'Admin User',
         password: hashedPassword,
-        role: 'admin',
+        role: 'ADMIN',
       }
     });
 
     console.log('✅ Admin user created successfully:');
     console.log('📧 Email: admin@gemilike.com');
     console.log('🔑 Password: admin123');
-    console.log('👤 Role: admin');
+    console.log('👤 Role: ADMIN');
     console.log('🆔 ID:', adminUser.id);
 
   } catch (error) {

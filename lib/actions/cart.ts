@@ -82,7 +82,7 @@ const serializeCart = (cart: CartWithItems): CartSummary => {
       isSold: gemstone?.isSold ?? false,
       category: gemstone?.category ?? null,
       weight,
-      weightUnit: condition === 'ROUGH' ? 'g' : 'ct',
+      weightUnit: (condition === 'ROUGH' ? 'g' : 'ct') as 'ct' | 'g',
       origin: gemstone?.origin ?? null,
     };
   });

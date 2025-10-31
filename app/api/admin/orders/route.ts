@@ -11,8 +11,9 @@ export async function GET(request: NextRequest) {
     const where: {
       OR?: Array<
         | { orderNumber: { contains: string; mode: 'insensitive' } }
-        | { user: { name: { contains: string; mode: 'insensitive' } } }
-        | { user: { email: { contains: string; mode: 'insensitive' } } }
+        | { customer: { firstName: { contains: string; mode: 'insensitive' } } }
+        | { customer: { lastName: { contains: string; mode: 'insensitive' } } }
+        | { customer: { email: { contains: string; mode: 'insensitive' } } }
       >;
       status?: OrderStatus;
     } = {};
@@ -20,8 +21,9 @@ export async function GET(request: NextRequest) {
     if (search) {
       where.OR = [
         { orderNumber: { contains: search, mode: 'insensitive' } },
-        { user: { name: { contains: search, mode: 'insensitive' } } },
-        { user: { email: { contains: search, mode: 'insensitive' } } },
+        { customer: { firstName: { contains: search, mode: 'insensitive' } } },
+        { customer: { lastName: { contains: search, mode: 'insensitive' } } },
+        { customer: { email: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
@@ -33,10 +35,11 @@ export async function GET(request: NextRequest) {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        user: {
+        customer: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
           }
         }
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Basic validation (can be extended)
-    if (!body.userId || !body.orderNumber || !body.total) {
+    if (!body.customerId || !body.orderNumber || !body.total) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -85,16 +88,15 @@ export async function POST(request: NextRequest) {
     const newOrder = await prisma.order.create({
       data: {
         orderNumber: body.orderNumber,
+        customerId: body.customerId,
         status,
         subtotal: parseAmount(body.subtotal),
         taxAmount: parseAmount(body.taxAmount),
         shippingAmount: parseAmount(body.shippingAmount),
         total: parseAmount(body.total),
         currency: body.currency || 'EUR',
-        paymentMethod: body.paymentMethod || null,
+        paymentMethod: body.paymentMethod ? (body.paymentMethod as string) as any : null,
         paymentStatus,
-        shippingMethod: body.shippingMethod,
-        trackingNumber: body.trackingNumber,
         notes: body.notes,
       },
     });

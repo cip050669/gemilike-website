@@ -59,9 +59,9 @@ export async function POST(request: NextRequest) {
     // Calculate discount
     let discount = 0;
     if (coupon.type === 'PERCENTAGE') {
-      discount = (subtotal * coupon.value) / 100;
+      discount = (subtotal * Number(coupon.value)) / 100;
     } else {
-      discount = coupon.value;
+      discount = Number(coupon.value);
     }
 
     return NextResponse.json({

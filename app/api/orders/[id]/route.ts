@@ -13,14 +13,24 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get customer for this user
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true }
+    });
+
+    if (!customer) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+    }
+
     const { id } = await params;
     const order = await prisma.order.findFirst({
       where: { 
         id,
-        userId
+        customerId: customer.id
       },
       include: {
-        orderItems: true,
+        items: true,
         billingAddress: true,
         shippingAddress: true
       }
@@ -54,10 +64,20 @@ export async function PUT(
     const { id } = await params;
     const { status, notes } = await request.json();
 
+    // Get customer for this user
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true }
+    });
+
+    if (!customer) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+    }
+
     const order = await prisma.order.findFirst({
       where: { 
         id,
-        userId
+        customerId: customer.id
       }
     });
 
@@ -72,7 +92,7 @@ export async function PUT(
         ...(notes && { notes })
       },
       include: {
-        orderItems: true,
+        items: true,
         billingAddress: true,
         shippingAddress: true
       }

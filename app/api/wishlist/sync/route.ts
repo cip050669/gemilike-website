@@ -17,16 +17,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Clear existing wishlist items for this user
+    // Get customer for this user
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true }
+    });
+
+    if (!customer) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+    }
+
+    // Get or create wishlist for this customer
+    let wishlist = await prisma.wishlist.findFirst({
+      where: { customerId: customer.id }
+    });
+
+    if (!wishlist) {
+      wishlist = await prisma.wishlist.create({
+        data: {
+          customerId: customer.id
+        }
+      });
+    }
+
+    // Clear existing wishlist items
     await prisma.wishlistItem.deleteMany({
-      where: { userId: userId }
+      where: { wishlistId: wishlist.id }
     });
 
     // Add new wishlist items
     if (items && (items as unknown[]).length > 0) {
       await prisma.wishlistItem.createMany({
         data: (items as Array<{ gemstoneId: string; notes?: string }>).map((item) => ({
-          userId: userId,
+          wishlistId: wishlist.id,
           gemstoneId: item.gemstoneId,
           notes: item.notes || null
         }))
@@ -35,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch updated wishlist
     const wishlistItems = await prisma.wishlistItem.findMany({
-      where: { userId: userId },
+      where: { wishlistId: wishlist.id },
       orderBy: { createdAt: 'desc' }
     });
 

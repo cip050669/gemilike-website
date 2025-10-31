@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { regenerateAndSendInvoice } from '@/lib/services/invoice';
-import type { Order, OrderStatus, PaymentStatus } from '@prisma/client';
+import type { Order, OrderStatus, PaymentStatus, PaymentMethod } from '@prisma/client';
 
 type OrderUpdateData = Parameters<typeof prisma.order.update>[0]['data'];
 
@@ -72,21 +72,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const order = await prisma.order.findUnique({
       where: { id },
       include: {
-        user: {
+        customer: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             phone: true,
           }
         },
-        orderItems: {
+        items: {
           include: {
             gemstone: {
               select: {
                 id: true,
                 name: true,
-                price: true,
               }
             }
           }
@@ -122,25 +122,23 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const requestedStatus = body.status ? String(body.status).toUpperCase() : undefined;
     const requestedPaymentStatus = body.paymentStatus ? String(body.paymentStatus).toUpperCase() : undefined;
 
-    if (requestedStatus && !validStatuses.includes(requestedStatus)) {
+    if (requestedStatus && !validStatuses.includes(requestedStatus as OrderStatus)) {
       return NextResponse.json({ success: false, error: 'Invalid order status' }, { status: 400 });
     }
 
-    if (requestedPaymentStatus && !validPaymentStatuses.includes(requestedPaymentStatus)) {
+    if (requestedPaymentStatus && !validPaymentStatuses.includes(requestedPaymentStatus as PaymentStatus)) {
       return NextResponse.json({ success: false, error: 'Invalid payment status' }, { status: 400 });
     }
 
     const updateData: OrderUpdateData = {
       orderNumber: body.orderNumber,
-      status: requestedStatus as Order['status'] | undefined,
+      status: requestedStatus as OrderStatus | undefined,
       total: parseAmount(body.total),
       subtotal: parseAmount(body.subtotal),
       taxAmount: parseAmount(body.taxAmount),
       shippingAmount: parseAmount(body.shippingAmount),
-      paymentMethod: body.paymentMethod,
-      paymentStatus: requestedPaymentStatus as Order['paymentStatus'] | undefined,
-      shippingMethod: body.shippingMethod,
-      trackingNumber: body.trackingNumber,
+      paymentMethod: body.paymentMethod ? (body.paymentMethod as string) as PaymentMethod : undefined,
+      paymentStatus: requestedPaymentStatus as PaymentStatus | undefined,
       notes: body.notes,
     };
 
@@ -219,15 +217,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
       const updateData: OrderUpdateData = {
         orderNumber: formData.get('orderNumber') as string,
-        status: requestedStatus as Order['status'] | undefined,
+        status: requestedStatus as OrderStatus | undefined,
         total: parseAmount(formData.get('total')),
         subtotal: parseAmount(formData.get('subtotal')),
-        tax: parseAmount(formData.get('tax')),
-        shipping: parseAmount(formData.get('shipping')),
-        paymentMethod: formData.get('paymentMethod') as string,
-        paymentStatus: requestedPaymentStatus as Order['paymentStatus'] | undefined,
-        shippingMethod: formData.get('shippingMethod') as string,
-        trackingNumber: formData.get('trackingNumber') as string,
+        taxAmount: parseAmount(formData.get('tax')),
+        shippingAmount: parseAmount(formData.get('shipping')),
+        paymentMethod: formData.get('paymentMethod') ? (formData.get('paymentMethod') as string) as PaymentMethod : undefined,
+        paymentStatus: requestedPaymentStatus as PaymentStatus | undefined,
         notes: formData.get('notes') as string,
       };
 

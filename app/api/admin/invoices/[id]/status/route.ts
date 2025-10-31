@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, InvoiceStatus, PaymentStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -13,9 +13,17 @@ export async function PUT(
     const body = await request.json();
     const { status, paymentStatus, paymentDate } = body;
 
-    const updateData: Partial<{ status: string; paymentStatus: string; paymentDate: Date }> = {};
-    if (status) updateData.status = status;
-    if (paymentStatus) updateData.paymentStatus = paymentStatus;
+    const updateData: {
+      status?: InvoiceStatus;
+      paymentStatus?: PaymentStatus;
+      paymentDate?: Date;
+    } = {};
+    if (status && ['DRAFT', 'ISSUED', 'SENT', 'OVERDUE', 'PAID'].includes(status)) {
+      updateData.status = status as InvoiceStatus;
+    }
+    if (paymentStatus && ['UNPAID', 'PENDING', 'PAID', 'FAILED', 'REFUNDED'].includes(paymentStatus)) {
+      updateData.paymentStatus = paymentStatus as PaymentStatus;
+    }
     if (paymentDate) updateData.paymentDate = new Date(paymentDate);
 
     const invoice = await prisma.invoice.update({

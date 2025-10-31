@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
       items,
       billingAddressId,
       shippingAddressId,
-      shippingMethod,
       paymentMethod,
       subtotal,
       shipping,
@@ -24,35 +23,46 @@ export async function POST(request: NextRequest) {
       couponCode
     } = await request.json();
 
+    // Get customer for this user
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true }
+    });
+
+    if (!customer) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+    }
+
     // Generate order number
     const orderNumber = `GM-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
 
     // Create order
     const order = await prisma.order.create({
       data: {
-        userId,
+        customerId: customer.id,
         orderNumber,
         subtotal,
-        tax,
-        shipping,
+        taxAmount: tax,
+        shippingAmount: shipping,
         total,
-        paymentMethod,
-        shippingMethod,
+        paymentMethod: paymentMethod ? (paymentMethod as string) as any : null,
         notes,
         billingAddressId,
         shippingAddressId: shippingAddressId || billingAddressId,
-        orderItems: {
+        items: {
           create: items.map((item: { gemstoneId: string; quantity: number; price: number; notes?: string }) => ({
             gemstoneId: item.gemstoneId,
             quantity: item.quantity,
-            price: item.price,
+            unitPrice: item.price,
+            unitNet: item.price,
+            unitTax: 0,
             total: item.price * item.quantity,
-            notes: item.notes
+            description: item.notes
           }))
         }
       },
       include: {
-        orderItems: true,
+        items: true,
         billingAddress: true,
         shippingAddress: true
       }
@@ -84,10 +94,20 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const orders = await prisma.order.findMany({
+    // Get customer for this user
+    const customer = await prisma.customer.findUnique({
       where: { userId },
+      select: { id: true }
+    });
+
+    if (!customer) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+    }
+
+    const orders = await prisma.order.findMany({
+      where: { customerId: customer.id },
       include: {
-        orderItems: true,
+        items: true,
         billingAddress: true,
         shippingAddress: true
       },

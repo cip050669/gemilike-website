@@ -162,7 +162,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           
           // Bilder
           img: ({ src, alt }) => {
-            if (!src) return null;
+            if (!src || typeof src !== 'string') return null;
             return (
               <span className="my-6 block mx-auto max-w-full">
                 <Image 

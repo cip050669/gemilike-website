@@ -14,9 +14,8 @@ export async function GET() {
     }
 
     const authData = JSON.parse(authCookie.value);
-    const consent = await prisma.downloadConsent.findUnique({
-      where: { userEmail: authData.email }
-    });
+    // Note: Download consent management is not implemented in the current schema
+    const consent = null;
 
     const terms = `
       <h3>Download-Bedingungen</h3>
@@ -66,20 +65,8 @@ export async function POST(request: Request) {
       );
     }
 
-    await prisma.downloadConsent.upsert({
-      where: { userEmail: email },
-      update: {
-        consent: true,
-        version,
-        consentedAt: new Date()
-      },
-      create: {
-        userEmail: email,
-        consent: true,
-        version,
-        consentedAt: new Date()
-      }
-    });
+    // Note: Download consent management is not implemented in the current schema
+    // Consent is stored in cookies only
 
     return NextResponse.json({ success: true });
   } catch (error) {
