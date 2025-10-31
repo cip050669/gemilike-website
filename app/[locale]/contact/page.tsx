@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,8 +10,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 
-export default function ContactPage({ params }: { params: { locale: string } }) {
-  const { locale } = params;
+export default function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = use(params);
   const [formData, setFormData] = useState({
     name: '',
     email: '',

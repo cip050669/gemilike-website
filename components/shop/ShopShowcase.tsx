@@ -10,12 +10,11 @@ import { cn } from '@/lib/utils';
 
 interface ShopShowcaseProps {
   gemstones: ShopGemstone[];
-  fallback?: boolean;
 }
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'weight-asc' | 'weight-desc';
 
-export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps) {
+export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string>('alle');
   const [origin, setOrigin] = useState<string>('alle');
@@ -113,11 +112,6 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
               Entdecken Sie neue Funde, einzigartige Einzelstücke und zertifizierte Qualitäten. Jede
               Kachel zeigt Gewicht, Herkunft, Preis und Status auf einen Blick.
             </p>
-            {fallback && (
-              <p className="mx-auto inline-block rounded-md border border-yellow-400/30 bg-yellow-500/10 px-3 py-1 text-xs text-yellow-100">
-                Hinweis: Temporäre Beispiel-Daten, da aktuell keine Datenbankverbindung möglich war.
-              </p>
-            )}
           </div>
         </div>
       </section>
@@ -221,7 +215,7 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
         </div>
 
         {filteredGemstones.length > 0 ? (
-          <GemstoneGrid gemstones={filteredGemstones} fallback={fallback} />
+          <GemstoneGrid gemstones={filteredGemstones} />
         ) : (
           <div className="rounded-3xl border border-white/10 bg-gray-900/60 p-10 text-center text-white/70">
             Keine Edelsteine gefunden. Passen Sie die Filter oder die Suche an.

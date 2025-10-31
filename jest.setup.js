@@ -76,3 +76,73 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock URL.createObjectURL
 global.URL.createObjectURL = jest.fn(() => 'mock-url')
 global.URL.revokeObjectURL = jest.fn()
+
+// Polyfill for Request/Response using undici (Node 18+ has built-in fetch)
+// For older Node versions or Jest environments, use undici
+if (typeof global.Request === 'undefined') {
+  try {
+    // Check if undici is available
+    const undici = require('undici')
+    // undici exports fetch, not directly Request/Response in older versions
+    // But in newer versions, we can use the global fetch which includes Request/Response
+    if (global.fetch && global.fetch.constructor) {
+      // If fetch exists, Request/Response might be available via other means
+      try {
+        // Try to get Request from fetch
+        const testReq = new global.fetch.constructor('https://example.com')
+        // If this works, Request is available
+      } catch {
+        // Fallback: set up basic polyfill
+        global.Request = class Request {
+          constructor(input, init = {}) {
+            const url = typeof input === 'string' ? input : (input && input.url) || ''
+            Object.defineProperty(this, 'url', { value: url, writable: false, enumerable: true, configurable: false })
+            Object.defineProperty(this, 'method', { value: init.method || 'GET', writable: false, enumerable: true })
+            this.headers = new Headers(init.headers)
+            this.body = init.body || null
+            this.bodyUsed = false
+          }
+          async json() { return this.body ? JSON.parse(this.body) : {} }
+          async text() { return this.body || '' }
+        }
+        global.Response = class Response {
+          constructor(body, init = {}) {
+            this.body = body
+            Object.defineProperty(this, 'status', { value: init.status || 200, writable: false })
+            Object.defineProperty(this, 'ok', { value: (init.status || 200) < 400, writable: false })
+            this.headers = new Headers(init.headers)
+          }
+          async json() { return typeof this.body === 'string' ? JSON.parse(this.body) : this.body }
+          async text() { return typeof this.body === 'string' ? this.body : JSON.stringify(this.body) }
+        }
+      }
+    }
+  } catch (e) {
+    // Fallback polyfill
+    global.Request = class Request {
+      constructor(input, init = {}) {
+        const url = typeof input === 'string' ? input : (input && input.url) || ''
+        Object.defineProperty(this, 'url', { value: url, writable: false, enumerable: true, configurable: false })
+        Object.defineProperty(this, 'method', { value: init.method || 'GET', writable: false, enumerable: true })
+        this.headers = new Headers(init.headers || {})
+        this.body = init.body || null
+        this.bodyUsed = false
+      }
+      async json() { return this.body ? (typeof this.body === 'string' ? JSON.parse(this.body) : this.body) : {} }
+      async text() { return typeof this.body === 'string' ? this.body : (this.body ? JSON.stringify(this.body) : '') }
+    }
+    
+    global.Response = class Response {
+      constructor(body, init = {}) {
+        this.body = body || null
+        Object.defineProperty(this, 'status', { value: init.status || 200, writable: false, enumerable: true })
+        Object.defineProperty(this, 'statusText', { value: init.statusText || 'OK', writable: false, enumerable: true })
+        Object.defineProperty(this, 'ok', { value: (init.status || 200) >= 200 && (init.status || 200) < 300, writable: false, enumerable: true })
+        this.headers = new Headers(init.headers || {})
+        this.bodyUsed = false
+      }
+      async json() { return typeof this.body === 'string' ? JSON.parse(this.body) : (this.body || {}) }
+      async text() { return typeof this.body === 'string' ? this.body : (this.body ? JSON.stringify(this.body) : '') }
+    }
+  }
+}

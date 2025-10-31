@@ -10,7 +10,14 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
-  moduleNameMapping: {
+  testMatch: [
+    '**/__tests__/**/*.test.{js,jsx,ts,tsx}',
+    '**/?(*.)+(spec|test).{js,jsx,ts,tsx}',
+  ],
+  transformIgnorePatterns: [
+    'node_modules/(?!(next-auth|@auth|openid-client|jose|oidc-token-hash)/)',
+  ],
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
   collectCoverageFrom: [

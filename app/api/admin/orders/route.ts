@@ -62,17 +62,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
+    const parseAmount = (value: unknown) => {
+      if (value === null || value === undefined || value === '') {
+        return 0;
+      }
+      const parsed = typeof value === 'number' ? value : parseFloat(String(value));
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const requestedStatus = body.status ? String(body.status).toUpperCase() : undefined;
+    const validStatuses: OrderStatus[] = ['PENDING', 'CONFIRMED', 'FULFILLED', 'CANCELLED', 'REFUNDED'];
+    const status = requestedStatus && validStatuses.includes(requestedStatus as OrderStatus)
+      ? (requestedStatus as OrderStatus)
+      : OrderStatus.PENDING;
+
+    const requestedPaymentStatus = body.paymentStatus ? String(body.paymentStatus).toUpperCase() : undefined;
+    const validPaymentStatuses: PaymentStatus[] = ['UNPAID', 'PENDING', 'PAID', 'FAILED', 'REFUNDED'];
+    const paymentStatus = requestedPaymentStatus && validPaymentStatuses.includes(requestedPaymentStatus as PaymentStatus)
+      ? (requestedPaymentStatus as PaymentStatus)
+      : PaymentStatus.PENDING;
+
     const newOrder = await prisma.order.create({
       data: {
         orderNumber: body.orderNumber,
-        status: body.status || OrderStatus.PENDING,
-        subtotal: parseFloat(body.subtotal) || 0,
-        tax: parseFloat(body.tax) || 0,
-        shipping: parseFloat(body.shipping) || 0,
-        total: parseFloat(body.total),
+        status,
+        subtotal: parseAmount(body.subtotal),
+        taxAmount: parseAmount(body.taxAmount),
+        shippingAmount: parseAmount(body.shippingAmount),
+        total: parseAmount(body.total),
         currency: body.currency || 'EUR',
-        paymentMethod: body.paymentMethod,
-        paymentStatus: body.paymentStatus || PaymentStatus.PENDING,
+        paymentMethod: body.paymentMethod || null,
+        paymentStatus,
         shippingMethod: body.shippingMethod,
         trackingNumber: body.trackingNumber,
         notes: body.notes,

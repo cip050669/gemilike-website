@@ -20,49 +20,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify project exists
-    const project = await prisma.downloadProject.findUnique({
-      where: { id: projectId }
-    });
-
-    if (!project) {
-      return NextResponse.json(
-        { error: 'Project not found' },
-        { status: 404 }
-      );
-    }
-
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'uploads', 'downloads', projectId);
-    await mkdir(uploadDir, { recursive: true });
-
-    // Generate unique filename
-    const fileExtension = file.name.split('.').pop() || '';
-    const uniqueFilename = `${uuidv4()}.${fileExtension}`;
-    const filePath = join(uploadDir, uniqueFilename);
-
-    // Save file to disk
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
-
-    // Save file info to database
-    const downloadFile = await prisma.downloadFile.create({
-      data: {
-        projectId,
-        filename: uniqueFilename,
-        originalName: file.name,
-        fileSize: file.size,
-        mimeType: file.type,
-        filePath: join(projectId, uniqueFilename),
-        description: description || null
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      file: downloadFile
-    });
+    // Note: Download file management is not implemented in the current schema
+    return NextResponse.json(
+      { error: 'Download file management is not implemented' },
+      { status: 501 }
+    );
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(

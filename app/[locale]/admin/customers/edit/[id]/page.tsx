@@ -7,6 +7,10 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
   
   const customer = await prisma.customer.findUnique({
     where: { id },
+    include: {
+      billingAddress: true,
+      shippingAddress: true,
+    },
   });
 
   if (!customer) {
@@ -127,84 +131,67 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
 
               <div className="md:col-span-2">
                 <label htmlFor="address" className="block text-sm font-medium text-gray-200 mb-2">
-                  Straße und Hausnummer *
+                  Straße und Hausnummer
                 </label>
                 <input
                   type="text"
                   id="address"
                   name="address"
-                  required
-                  defaultValue={customer.address}
+                  defaultValue={customer.billingAddress?.street || ''}
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
                 <label htmlFor="city" className="block text-sm font-medium text-gray-200 mb-2">
-                  Stadt *
+                  Stadt
                 </label>
                 <input
                   type="text"
                   id="city"
                   name="city"
-                  required
-                  defaultValue={customer.city}
+                  defaultValue={customer.billingAddress?.city || ''}
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
                 <label htmlFor="postalCode" className="block text-sm font-medium text-gray-200 mb-2">
-                  Postleitzahl *
+                  Postleitzahl
                 </label>
                 <input
                   type="text"
                   id="postalCode"
                   name="postalCode"
-                  required
-                  defaultValue={customer.postalCode}
+                  defaultValue={customer.billingAddress?.postalCode || ''}
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
                 <label htmlFor="country" className="block text-sm font-medium text-gray-200 mb-2">
-                  Land *
+                  Land
                 </label>
                 <select
                   id="country"
                   name="country"
-                  required
-                  defaultValue={customer.country}
+                  defaultValue={customer.billingAddress?.country || 'DE'}
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="Deutschland">Deutschland</option>
-                  <option value="Österreich">Österreich</option>
-                  <option value="Schweiz">Schweiz</option>
-                  <option value="Frankreich">Frankreich</option>
-                  <option value="Italien">Italien</option>
-                  <option value="Spanien">Spanien</option>
-                  <option value="Niederlande">Niederlande</option>
-                  <option value="Belgien">Belgien</option>
-                  <option value="Luxemburg">Luxemburg</option>
-                  <option value="USA">USA</option>
-                  <option value="Kanada">Kanada</option>
-                  <option value="Großbritannien">Großbritannien</option>
-                  <option value="Sonstige">Sonstige</option>
+                  <option value="DE">Deutschland</option>
+                  <option value="AT">Österreich</option>
+                  <option value="CH">Schweiz</option>
+                  <option value="FR">Frankreich</option>
+                  <option value="IT">Italien</option>
+                  <option value="ES">Spanien</option>
+                  <option value="NL">Niederlande</option>
+                  <option value="BE">Belgien</option>
+                  <option value="LU">Luxemburg</option>
+                  <option value="US">USA</option>
+                  <option value="CA">Kanada</option>
+                  <option value="GB">Großbritannien</option>
+                  <option value="OTHER">Sonstige</option>
                 </select>
-              </div>
-
-              <div>
-                <label htmlFor="taxId" className="block text-sm font-medium text-gray-200 mb-2">
-                  Steuernummer
-                </label>
-                <input
-                  type="text"
-                  id="taxId"
-                  name="taxId"
-                  defaultValue={customer.taxId || ''}
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
               </div>
 
               {/* Zusätzliche Informationen */}
@@ -213,29 +200,16 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-200 mb-2">
-                  Notizen
-                </label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  rows={4}
-                  defaultValue={customer.notes || ''}
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="md:col-span-2">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    id="isActive"
-                    name="isActive"
-                    defaultChecked={customer.isActive}
+                    id="marketingOptIn"
+                    name="marketingOptIn"
+                    defaultChecked={customer.marketingOptIn}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
                   />
-                  <label htmlFor="isActive" className="ml-2 block text-sm text-white">
-                    Kunde ist aktiv
+                  <label htmlFor="marketingOptIn" className="ml-2 block text-sm text-white">
+                    Marketing-Opt-In
                   </label>
                 </div>
               </div>

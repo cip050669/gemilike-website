@@ -1,9 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import type { ShopGemstone } from '@/components/shop/GemstoneGrid';
 import { prisma } from '@/lib/prisma';
-import { allGemstones, getGemstoneById } from '@/lib/data/gemstones';
-import { isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
-import type { Gemstone } from '@/lib/types/gemstone';
 
 export const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
 
@@ -88,52 +85,7 @@ const toShopGemstoneFromPrisma = (gem: GemstoneWithRelations): ShopGemstone => {
   };
 };
 
-const toShopGemstoneFromLibrary = (gem: Gemstone): ShopGemstone => {
-  const isCut = isCutGemstone(gem);
-  const isRough = isRoughGemstone(gem);
-  const images = [gem.mainImage, ...(gem.images ?? [])].filter(
-    (item): item is string => Boolean(item)
-  );
-  const videos = (gem.videos ?? []).filter((item): item is string => Boolean(item));
-  const dimensions = gem.dimensions
-    ? {
-        length: gem.dimensions.length ?? null,
-        width: gem.dimensions.width ?? null,
-        height: gem.dimensions.height ?? null,
-      }
-    : undefined;
-
-  return {
-    id: gem.id,
-    name: gem.name,
-    category: gem.category ?? 'Edelstein',
-    type: isRough ? 'rough' : 'cut',
-    price: gem.price,
-    currency: 'EUR',
-    weight: isCut ? gem.caratWeight ?? null : gem.gramWeight ?? null,
-    weightUnit: isRough ? 'g' : 'ct',
-    origin: gem.origin ?? null,
-    color: (gem as Gemstone & { color?: string }).color ?? null,
-    colorSaturation: isCut ? gem.colorIntensity ?? null : null,
-    clarity: isCut ? gem.clarity ?? null : null,
-    cut: isCut ? gem.cut ?? null : null,
-    cutForm: isCut ? gem.cutForm ?? null : null,
-    treatment: gem.treatment?.type ?? null,
-    description: gem.description ?? null,
-    shortDescription: gem.description ?? null,
-    certification: gem.certification?.lab ?? null,
-    rarity: gem.rarity ?? null,
-    dimensions,
-    inStock: Boolean(gem.inStock),
-    isSold: !gem.inStock,
-    stock: gem.quantity ?? 0,
-    isNew: gem.isNew ?? false,
-    images: ensureImages(images),
-    videos,
-  };
-};
-
-export async function loadShopGemstones(): Promise<{ gemstones: ShopGemstone[]; fallback: boolean }> {
+export async function loadShopGemstones(): Promise<ShopGemstone[]> {
   try {
     const gemstones = await prisma.gemstone.findMany({
       where: { status: 'PUBLISHED' },
@@ -162,26 +114,16 @@ export async function loadShopGemstones(): Promise<{ gemstones: ShopGemstone[]; 
       ],
     });
 
-    if (!gemstones.length) {
-      throw new Error('Keine Edelsteine in der Datenbank gefunden.');
-    }
-
-    return {
-      gemstones: gemstones.map(toShopGemstoneFromPrisma),
-      fallback: false,
-    };
+    return gemstones.map(toShopGemstoneFromPrisma);
   } catch (error) {
-    console.error('Shop: Fallback auf statische Edelsteine', error);
-    return {
-      gemstones: allGemstones.map(toShopGemstoneFromLibrary),
-      fallback: true,
-    };
+    console.error('Shop: Fehler beim Laden der Edelsteine aus der Datenbank', error);
+    return [];
   }
 }
 
 export async function loadShopGemstoneById(
   id: string
-): Promise<{ gemstone: ShopGemstone | null; fallback: boolean }> {
+): Promise<ShopGemstone | null> {
   try {
     const gemstone = await prisma.gemstone.findUnique({
       where: { id },
@@ -205,23 +147,13 @@ export async function loadShopGemstoneById(
       },
     });
 
-    if (gemstone) {
-      return {
-        gemstone: toShopGemstoneFromPrisma(gemstone),
-        fallback: false,
-      };
+    if (!gemstone) {
+      return null;
     }
+
+    return toShopGemstoneFromPrisma(gemstone);
   } catch (error) {
     console.error(`Shop: Fehler beim Laden des Edelsteins ${id}`, error);
+    return null;
   }
-
-  const fallbackGem = getGemstoneById(id);
-  if (fallbackGem) {
-    return {
-      gemstone: toShopGemstoneFromLibrary(fallbackGem),
-      fallback: true,
-    };
-  }
-
-  return { gemstone: null, fallback: false };
 }

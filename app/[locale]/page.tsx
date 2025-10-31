@@ -33,7 +33,7 @@ export default async function HomePage({
   const blogSettings = await loadBlogSectionSettings();
   const newstickerItems = loadNewstickerData();
   const activeNewstickerItems = newstickerItems.filter((item) => item.isActive);
-  const { gemstones: shopGemstones, fallback: shopFallback } = await loadShopGemstones();
+  const shopGemstones = await loadShopGemstones();
   const newGemstones = shopGemstones.filter((gem) => gem.isNew).slice(0, 12);
   const heroSettings = await loadHeroSettings();
   const stories = blogs
@@ -170,7 +170,6 @@ export default async function HomePage({
         gemstones={newGemstones}
         locale={locale}
         description="Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar."
-        fallback={shopFallback}
       />
     </div>
     </PublicLayout>

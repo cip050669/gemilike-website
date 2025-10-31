@@ -27,7 +27,7 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
     prisma.order.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
-      include: { user: true }
+      include: { customer: true }
     })
   ]);
 
@@ -57,7 +57,7 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
     ...recentOrders.slice(0, 2).map((order, index) => ({
       id: `order-${index}`,
       action: `Neue Bestellung #${order.orderNumber}`,
-      user: order.user?.name ?? 'Kunde',
+      user: order.customer ? `${order.customer.firstName || ''} ${order.customer.lastName || ''}`.trim() || 'Kunde' : 'Kunde',
       time: new Date(order.createdAt).toLocaleString('de-DE', { 
         day: '2-digit', 
         month: '2-digit', 

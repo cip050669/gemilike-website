@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Inter } from 'next/font/google';
-import { locales } from '@/lib/i18n/config';
+import { locales, type Locale } from '@/lib/i18n/config';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -22,11 +22,11 @@ export default async function SimpleLocaleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+  params: Promise<{ locale: Locale }>;
 }) {
   const { locale } = await params;
 
-  if (!locales.includes(locale as string)) {
+  if (!locales.includes(locale)) {
     notFound();
   }
 
@@ -49,4 +49,3 @@ export default async function SimpleLocaleLayout({
     </html>
   );
 }
-

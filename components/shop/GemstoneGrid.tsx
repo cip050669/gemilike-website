@@ -50,7 +50,6 @@ export interface ShopGemstone {
 
 export interface GemstoneGridProps {
   gemstones: ShopGemstone[];
-  fallback?: boolean;
 }
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
@@ -68,7 +67,7 @@ const formatWeight = (weight?: number | null, unit?: 'ct' | 'g') => {
   return `${weight.toFixed(2)} ${unit ?? 'ct'}`;
 };
 
-export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps) {
+export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
   const [selectedGemstone, setSelectedGemstone] = useState<ShopGemstone | null>(null);
   const params = useParams<{ locale: string }>();
   const locale = params?.locale ?? 'de';
@@ -89,13 +88,6 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
 
   return (
     <>
-      {fallback && (
-        <div className="mb-6 rounded-lg border border-yellow-400/30 bg-yellow-500/10 p-4 text-sm text-yellow-100">
-          Die angezeigten Edelsteine stammen aus einer Beispieldatenquelle, da aktuell keine
-          Datenbankverbindung möglich war.
-        </div>
-      )}
-
       <div
         className="grid gap-[16px]"
         style={{ gridTemplateColumns: 'repeat(5, 240px)', justifyContent: 'center', maxHeight: 'calc(6 * 340px + 5 * 16px)', overflowY: 'auto', paddingBottom: '16px' }}
@@ -158,13 +150,9 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
                 <div className="flex items-center justify-between gap-2">
                   <AddToCartButton
                     item={toCartItem(gem)}
-                    disabled={!gem.inStock || gem.isSold || fallback}
+                    disabled={!gem.inStock || gem.isSold}
                   />
-                  <WishlistButton
-                    item={toCartItem(gem)}
-                    className="border border-white/10"
-                    disabled={fallback}
-                  />
+                  <WishlistButton item={toCartItem(gem)} className="border border-white/10" />
                 </div>
                 <button
                   type="button"
@@ -304,12 +292,11 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
                     <div className="flex flex-wrap items-center gap-4">
                       <AddToCartButton
                         item={toCartItem(selectedGemstone)}
-                        disabled={!selectedGemstone.inStock || selectedGemstone.isSold || fallback}
+                        disabled={!selectedGemstone.inStock || selectedGemstone.isSold}
                       />
                       <WishlistButton
                         item={toCartItem(selectedGemstone)}
                         className="border border-white/10"
-                        disabled={fallback}
                       />
                       <Button
                         variant="outline"

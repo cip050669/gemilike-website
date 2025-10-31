@@ -38,12 +38,7 @@ export async function PUT(request: NextRequest, { params }: { params: ParamsProm
         email: body.email,
         phone: body.phone,
         company: body.company,
-        address: body.address,
-        city: body.city,
-        postalCode: body.postalCode,
-        country: body.country,
-        notes: body.notes,
-        isActive: body.isActive,
+        marketingOptIn: body.marketingOptIn,
       },
     });
 
@@ -76,13 +71,7 @@ export async function POST(request: NextRequest, { params }: { params: ParamsPro
         email: getValue('email'),
         phone: getValue('phone'),
         company: getValue('company'),
-        address: getValue('address'),
-        city: getValue('city'),
-        postalCode: getValue('postalCode'),
-        country: getValue('country'),
-        taxId: getValue('taxId'),
-        notes: getValue('notes'),
-        isActive: formData.get('isActive') === 'on',
+        marketingOptIn: formData.get('marketingOptIn') === 'on',
       };
 
       const updatedCustomer = await prisma.customer.update({

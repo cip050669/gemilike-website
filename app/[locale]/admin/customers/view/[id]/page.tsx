@@ -6,6 +6,10 @@ export default async function ViewCustomerPage({ params }: { params: Promise<{ i
   
   const customer = await prisma.customer.findUnique({
     where: { id },
+    include: {
+      billingAddress: true,
+      shippingAddress: true,
+    },
   });
 
   if (!customer) {
@@ -65,12 +69,8 @@ export default async function ViewCustomerPage({ params }: { params: Promise<{ i
                     <label className="block text-sm font-medium text-gray-200 mb-2">
                       Status
                     </label>
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      customer.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {customer.isActive ? 'Aktiv' : 'Inaktiv'}
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      Aktiv
                     </span>
                   </div>
                   <div>
@@ -118,47 +118,30 @@ export default async function ViewCustomerPage({ params }: { params: Promise<{ i
                     <label className="block text-sm font-medium text-gray-200 mb-2">
                       Straße und Hausnummer
                     </label>
-                    <p className="text-sm text-white">{customer.address}</p>
+                    <p className="text-sm text-white">{customer.billingAddress?.street || '-'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
                       Stadt
                     </label>
-                    <p className="text-sm text-white">{customer.city}</p>
+                    <p className="text-sm text-white">{customer.billingAddress?.city || '-'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
                       Postleitzahl
                     </label>
-                    <p className="text-sm text-white">{customer.postalCode}</p>
+                    <p className="text-sm text-white">{customer.billingAddress?.postalCode || '-'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
                       Land
                     </label>
-                    <p className="text-sm text-white">{customer.country}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-200 mb-2">
-                      Steuernummer
-                    </label>
-                    <p className="text-sm text-white">{customer.taxId || '-'}</p>
+                    <p className="text-sm text-white">{customer.billingAddress?.country || '-'}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Notizen */}
-            {customer.notes && (
-              <div className="bg-gray-800/30 rounded-lg shadow-sm border mt-6">
-                <div className="p-6 border-b">
-                  <h2 className="text-lg font-semibold">Notizen</h2>
-                </div>
-                <div className="p-6">
-                  <p className="text-sm text-white whitespace-pre-wrap">{customer.notes}</p>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Sidebar */}

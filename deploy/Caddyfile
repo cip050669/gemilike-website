@@ -1,0 +1,48 @@
+{
+  email you@example.com
+  acme_ca https://acme-v02.api.letsencrypt.org/directory
+  log {
+    output stdout
+    format console
+    level info
+  }
+}
+
+gemilike.example.com {
+  encode gzip zstd
+  reverse_proxy app:3000 {
+    header_up X-Forwarded-Proto {scheme}
+    header_up X-Forwarded-For {remote}
+    header_up Host {host}
+  }
+
+  @health {
+    path /healthz
+  }
+
+  respond @health 200
+
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Content-Security-Policy "
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data:;
+      connect-src 'self';
+      font-src 'self' data:;
+      frame-ancestors 'self';
+      base-uri 'self';
+      form-action 'self';
+    "
+  }
+}
+
+# Optional redirect from bare domain
+:80 {
+  @root host example.com
+  redir @root https://gemilike.example.com{uri} 308
+}

@@ -18,10 +18,22 @@ export async function DELETE(
     }
 
     // Check if address belongs to user
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    if (!customer) {
+      return NextResponse.json(
+        { success: false, error: 'Customer not found' },
+        { status: 404 }
+      );
+    }
+
     const address = await prisma.address.findFirst({
       where: {
         id,
-        userId
+        customerId: customer.id,
       }
     });
 
@@ -64,6 +76,18 @@ export async function PUT(
       );
     }
 
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    if (!customer) {
+      return NextResponse.json(
+        { success: false, error: 'Customer not found' },
+        { status: 400 }
+      );
+    }
+
     const body = await request.json();
     const { type, firstName, lastName, company, address1, address2, city, state, postalCode, country, phone, isDefault } = body;
 
@@ -71,7 +95,7 @@ export async function PUT(
     const existingAddress = await prisma.address.findFirst({
       where: {
         id,
-        userId
+        customerId: customer.id,
       }
     });
 
@@ -85,7 +109,7 @@ export async function PUT(
     // If this is set as default, unset other defaults of the same type
     if (isDefault) {
       await prisma.address.updateMany({
-        where: { userId, type, id: { not: id } },
+        where: { customerId: customer.id, type, id: { not: id } },
         data: {
           isDefault: false
         }
@@ -99,20 +123,24 @@ export async function PUT(
         firstName,
         lastName,
         company,
-        address1,
-        address2,
+        street: address1,
+        street2: address2,
         city,
         state,
         postalCode,
         country,
         phone,
-        isDefault: isDefault ?? false
+        isDefault: Boolean(isDefault)
       }
     });
 
     return NextResponse.json({
       success: true,
-      address
+      address: {
+        ...address,
+        address1: address.street ?? '',
+        address2: address.street2 ?? '',
+      }
     });
   } catch (error) {
     console.error('Error updating address:', error);

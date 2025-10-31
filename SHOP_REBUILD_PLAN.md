@@ -10,6 +10,7 @@
   - `minio` oder S3-kompatibler Storage (Strato HiDrive S3 Endpoint) für Medien.
 - **Reverse Proxy:** Caddy oder NGINX mit Let's Encrypt, HTTP/2, HTTP/3 optional.
 - **Monitoring:** Uptime Kuma/Prometheus + Grafana, zentralisierte Logs via Loki oder Strato Log-Streams.
+- **Referenz-Stack:** `deploy/strato-compose.yml` (Next.js-App, PostgreSQL, Redis, MinIO, Caddy, Loki/Promtail, Grafana) + `Dockerfile` für mehrstufigen Build; konfigurierbare Promtail-Pipeline in `deploy/promtail-config.yml`.
 
 ## 2. Datenmodell (Prisma, Ziel-PostgreSQL)
 
@@ -111,9 +112,9 @@ datasource db {
 6. **Deployment:** CI/CD (GitHub Actions) → Build → Docker push → Compose up auf Strato.
 
 ## 9. Nächste operative Schritte
-1. **ERD & Contracts finalisieren:** Tabellen, Relationen, Server-Action-Signaturen.
-2. **Prisma-Schema refactor:** SQLite → PostgreSQL, neue Models umsetzen, Migration erzeugen.
-3. **Service Layer:** Repositorys/Server Actions für Gemstones, Wishlist, Cart, Orders.
+   1. **ERD & Contracts finalisieren:** Tabellen, Relationen, Server-Action-Signaturen.
+   2. **Prisma-Schema refactor:** SQLite → PostgreSQL, neue Models umsetzen, Migration erzeugen.
+   3. **Service Layer:** Repositorys/Server Actions für Gemstones, Wishlist, Cart, Orders.
 4. **Admin UI Redesign:** Komponentenstruktur, Bulk-Upload, Status-Workflow implementieren.
 5. **Shop-Frontend Neuentwicklung:** Grid, Detail-Gallery, CTA-Integration, Scroll-Verhalten.
 6. **Auth-Aufrüstung:** Passkey/TOTP, Rollen, Schutz der Actions.
@@ -128,6 +129,7 @@ datasource db {
 - Shop-Kachelraster mit 5 Spalten × 240 px Breite, homogener Glow-Hover und Badges analog Startseite aktualisiert (`components/shop/GemstoneGrid.tsx`); Sichtfenster auf 6 Reihen mit vertikaler Scrollleiste begrenzt.
 - Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, serverseitige Checkout-Logs & Tests ergänzen.
 - Cart- & Wishlist-Flows auf Server Actions umgestellt (`lib/actions/cart.ts`, `lib/actions/wishlist.ts`) inklusive Zustands- und UI-Stores mit optimistischen Updates (`lib/store/cart.ts`, `lib/store/wishlist.ts`), Buttons/Seiten auf neue Stores gehoben.
-- Schliff- und Schliffform-Auswahllisten im Admin-Editor integriert; neue Prisma-Felder `Gemstone.cut`/`Gemstone.cutForm` werden über Editor, Management-Ansicht und Shop-Frontend konsistent gepflegt (`components/admin/GemstoneEditor.tsx`, `components/admin/GemstoneManagementSection.tsx`, `lib/shop/shopData.ts`).
-- Migration auf PostgreSQL abgeschlossen (`pnpm prisma migrate dev --name init_postgres`); bestehende SQLite-Historie bereinigt, neue Migration `20251031010241_add_cut_fields` aktiv.
-- Seed-Skript (`prisma/seed.ts`) + SQL-Fallback (`prisma/seed.sql`) legen HeroSettings, SelectOptions (Schliff/Schliffform) und drei Demo-Gemstones inkl. Inventar/Medien an; Daten wurden via `psql` erfolgreich eingespielt.
+   - Schliff- und Schliffform-Auswahllisten im Admin-Editor integriert; neue Prisma-Felder `Gemstone.cut`/`Gemstone.cutForm` werden über Editor, Management-Ansicht und Shop-Frontend konsistent gepflegt (`components/admin/GemstoneEditor.tsx`, `components/admin/GemstoneManagementSection.tsx`, `lib/shop/shopData.ts`).
+   - Migration auf PostgreSQL abgeschlossen (`pnpm prisma migrate dev --name init_postgres`); bestehende SQLite-Historie bereinigt, neue Migration `20251031010241_add_cut_fields` aktiv.
+   - Seed-Skript (`prisma/seed.ts`) + SQL-Fallback (`prisma/seed.sql`) legen HeroSettings, SelectOptions (Schliff/Schliffform) und drei Demo-Gemstones inkl. Inventar/Medien an; Daten wurden via `psql` erfolgreich eingespielt.
+   - Erstfassung des Strato-Deployments bereitgestellt: Mehrstufiges `Dockerfile`, Compose-Stack (`deploy/strato-compose.yml`) inkl. Caddy-Reverse-Proxy, MinIO, Redis, Loki/Promtail/Grafana sowie Beispiel-Konfigurationen (`deploy/Caddyfile`, `deploy/promtail-config.yml`).

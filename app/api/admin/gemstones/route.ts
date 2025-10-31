@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
     const gemstones = await prisma.gemstone.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
+        attributes: true,
         _count: {
           select: {
             wishlistItems: true,
@@ -33,10 +34,10 @@ export async function GET(request: NextRequest) {
 
     const filtered = gemstones.filter((gemstone) => {
       const name = gemstone.name?.toLowerCase() ?? '';
-      const description = gemstone.description?.toLowerCase() ?? '';
+      const description = (gemstone.shortDescription || gemstone.longDescription || '')?.toLowerCase() ?? '';
       const category = gemstone.category?.toLowerCase() ?? '';
-      const gemstoneColor = gemstone.color?.toLowerCase() ?? '';
-      const gemstoneCut = gemstone.cut?.toLowerCase() ?? '';
+      const gemstoneColor = (gemstone.attributes?.color || '')?.toLowerCase() ?? '';
+      const gemstoneCut = (gemstone.cut || '')?.toLowerCase() ?? '';
 
       const matchesSearch =
         !search ||

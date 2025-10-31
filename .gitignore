@@ -19,6 +19,7 @@ node_modules/.cache/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
 
 # Database
 *.db

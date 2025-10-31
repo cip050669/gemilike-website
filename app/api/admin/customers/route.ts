@@ -75,20 +75,23 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    if (!body.userId) {
+      return NextResponse.json(
+        { success: false, error: 'userId is required to create a customer' },
+        { status: 400 }
+      );
+    }
+    
     const newCustomer = await prisma.customer.create({
       data: {
+        userId: body.userId,
         customerNumber: `C${Date.now()}`,
         firstName: body.firstName,
         lastName: body.lastName,
         email: body.email,
         phone: body.phone,
         company: body.company,
-        address: body.address || '',
-        city: body.city || '',
-        postalCode: body.postalCode || '',
-        country: body.country || 'Deutschland',
-        notes: body.notes,
-        isActive: body.isActive !== false,
+        marketingOptIn: body.marketingOptIn || false,
       },
     });
 

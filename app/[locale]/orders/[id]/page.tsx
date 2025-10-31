@@ -37,11 +37,11 @@ interface Order {
   orderNumber: string;
   status: string;
   subtotal: number;
-  tax: number;
-  shipping: number;
+  taxAmount: number;
+  shippingAmount: number;
   total: number;
-  paymentMethod: string;
-  shippingMethod: string;
+  paymentMethod: string | null;
+  shippingMethod: string | null;
   trackingNumber?: string;
   notes?: string;
   createdAt: string;
@@ -89,38 +89,34 @@ export default function OrderPage({ params }: OrderPageProps) {
   }, [session, router, params]);
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pending':
+    switch (status.toUpperCase()) {
+      case 'PENDING':
         return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed':
+      case 'CONFIRMED':
         return 'bg-blue-100 text-blue-800';
-      case 'processing':
-        return 'bg-purple-100 text-purple-800';
-      case 'shipped':
+      case 'FULFILLED':
         return 'bg-green-100 text-green-800';
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
+      case 'CANCELLED':
         return 'bg-red-100 text-red-800';
+      case 'REFUNDED':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pending':
+    switch (status.toUpperCase()) {
+      case 'PENDING':
         return 'Ausstehend';
-      case 'confirmed':
+      case 'CONFIRMED':
         return 'Bestätigt';
-      case 'processing':
-        return 'In Bearbeitung';
-      case 'shipped':
-        return 'Versendet';
-      case 'delivered':
-        return 'Geliefert';
-      case 'cancelled':
+      case 'FULFILLED':
+        return 'Erfüllt';
+      case 'CANCELLED':
         return 'Storniert';
+      case 'REFUNDED':
+        return 'Erstattet';
       default:
         return status;
     }
@@ -348,11 +344,11 @@ export default function OrderPage({ params }: OrderPageProps) {
                   </div>
                   <div className="flex justify-between">
                     <span>Versand</span>
-                    <span>€{order.shipping.toFixed(2)}</span>
+                    <span>€{order.shippingAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>MwSt. (19%)</span>
-                    <span>€{order.tax.toFixed(2)}</span>
+                    <span>€{order.taxAmount.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">

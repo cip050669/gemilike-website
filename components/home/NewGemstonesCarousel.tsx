@@ -12,7 +12,6 @@ interface NewGemstonesCarouselProps {
   gemstones: ShopGemstone[];
   locale: string;
   description?: string;
-  fallback?: boolean;
 }
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
@@ -46,7 +45,6 @@ export function NewGemstonesCarousel({
   gemstones,
   locale,
   description,
-  fallback,
 }: NewGemstonesCarouselProps) {
   const items = useMemo(() => gemstones ?? [], [gemstones]);
 
@@ -65,11 +63,6 @@ export function NewGemstonesCarousel({
             <p className="mx-auto max-w-3xl text-base md:text-lg text-white/80">
               <span>{description}</span>
             </p>
-          )}
-          {fallback && (
-            <span className="inline-block rounded-md border border-yellow-400/30 bg-yellow-500/10 px-3 py-1 text-xs text-yellow-100">
-              Hinweis: Temporäre Beispiel-Daten
-            </span>
           )}
         </div>
 

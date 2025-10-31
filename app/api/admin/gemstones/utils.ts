@@ -121,31 +121,114 @@ export const normaliseGemstonePayload = (
   const videoList = toStringArray(payload.videos ?? payload.videoUrls ?? payload.existingVideos);
   const dedupedVideos = Array.from(new Set(videoList.filter(Boolean))).slice(0, 2);
 
-  return {
-    name: String(payload.name ?? '').trim(),
+  // Generate slug from name
+  const name = String(payload.name ?? '').trim();
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || `gemstone-${Date.now()}`;
+
+  // Base gemstone data (matches Prisma schema)
+  const gemstoneData: any = {
+    name,
+    slug,
     category: String(payload.category ?? 'Edelstein').trim() || 'Edelstein',
-    type: String(payload.type ?? 'cut').trim() || 'cut',
-    price: toNumber(payload.price, 0) ?? 0,
-    weight: toNumber(payload.weight),
-    dimensions: toStringOrNull(payload.dimensions),
-    color: toStringOrNull(payload.color),
-    colorIntensity: toStringOrNull(payload.colorIntensity),
-    colorBrightness: toStringOrNull(payload.colorBrightness),
-    clarity: toStringOrNull(payload.clarity),
+    condition: (payload.condition as string) || 'CUT',
+    shortDescription: toStringOrNull(payload.shortDescription ?? payload.description),
+    longDescription: toStringOrNull(payload.longDescription),
+    origin: toStringOrNull(payload.origin),
+    isNew: toBoolean(payload.isNew, false),
+    isSold: toBoolean(payload.isSold, false),
+    featured: toBoolean(payload.featured, false),
     cut: toStringOrNull(payload.cut),
     cutForm: toStringOrNull(payload.cutForm),
-    treatment: toStringOrNull(payload.treatment),
-    certification: toStringOrNull(payload.certification),
-    rarity: toStringOrNull(payload.rarity),
-    origin: toStringOrNull(payload.origin),
-    description: toStringOrNull(payload.description),
-    images: dedupedImages.length ? JSON.stringify(dedupedImages.slice(0, 10)) : null,
-    videos: dedupedVideos.length ? JSON.stringify(dedupedVideos) : null,
-    inStock: toBoolean(payload.inStock, true),
-    stock: toNumber(payload.stock, 0) ?? 0,
-    sku: toStringOrNull(payload.sku),
-    isNew: toBoolean(payload.isNew, false),
+    publishedAt: payload.publishedAt ? new Date(payload.publishedAt as string) : null,
   };
+
+  // Attributes relation data
+  if (payload.color || payload.colorIntensity || payload.colorBrightness || payload.clarity || 
+      payload.treatment || payload.certification || payload.certificateId || payload.certificateUrl ||
+      payload.lengthMm || payload.widthMm || payload.heightMm) {
+    gemstoneData.attributes = {
+      create: {
+        color: toStringOrNull(payload.color),
+        colorSaturation: toStringOrNull(payload.colorIntensity),
+        colorHue: toStringOrNull(payload.colorBrightness),
+        clarity: toStringOrNull(payload.clarity),
+        treatment: toStringOrNull(payload.treatment),
+        certification: toStringOrNull(payload.certification),
+        certificateId: toStringOrNull(payload.certificateId),
+        certificateUrl: toStringOrNull(payload.certificateUrl),
+        lengthMm: payload.lengthMm ? toNumber(payload.lengthMm, null) : null,
+        widthMm: payload.widthMm ? toNumber(payload.widthMm, null) : null,
+        heightMm: payload.heightMm ? toNumber(payload.heightMm, null) : null,
+      },
+    };
+  }
+
+  // Inventory relation data
+  const caratWeight = toNumber(payload.caratWeight ?? payload.weight, null);
+  const gramWeight = toNumber(payload.gramWeight, null);
+  const quantity = toNumber(payload.stock ?? payload.quantity, 1) ?? 1;
+  
+  if (caratWeight !== null || gramWeight !== null || quantity > 0 || payload.sku) {
+    gemstoneData.inventory = {
+      create: {
+        caratWeight: caratWeight ? caratWeight : null,
+        gramWeight: gramWeight ? gramWeight : null,
+        quantity: quantity,
+        sku: toStringOrNull(payload.sku),
+        condition: (payload.condition as string) || 'CUT',
+      },
+    };
+  }
+
+  // Price relation data
+  const priceNet = toNumber(payload.price ?? payload.priceNet, 0) ?? 0;
+  if (priceNet > 0) {
+    const taxRate = toNumber(payload.taxRate, 19) ?? 19;
+    const priceGross = priceNet * (1 + taxRate / 100);
+    
+    gemstoneData.priceBooks = {
+      create: {
+        currency: String(payload.currency ?? 'EUR'),
+        priceNet: priceNet,
+        priceGross: priceGross,
+        taxRate: taxRate,
+      },
+    };
+  }
+
+  // Media relation data (images and videos)
+  const mediaCreate: any[] = [];
+  
+  // Add images
+  dedupedImages.slice(0, 10).forEach((url, index) => {
+    mediaCreate.push({
+      type: 'IMAGE',
+      url: url,
+      position: index,
+      isPrimary: index === 0,
+    });
+  });
+
+  // Add videos
+  dedupedVideos.forEach((url, index) => {
+    mediaCreate.push({
+      type: 'VIDEO',
+      url: url,
+      position: dedupedImages.length + index,
+      isPrimary: false,
+    });
+  });
+
+  if (mediaCreate.length > 0) {
+    gemstoneData.media = {
+      create: mediaCreate,
+    };
+  }
+
+  return gemstoneData;
 };
 
 export const extractPayload = async (request: NextRequest) => {

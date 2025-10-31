@@ -1,89 +1,111 @@
-'use server';
-
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { getSessionWithUser } from '@/lib/session';
 
-const UNKNOWN_GEM_NAME = 'Unbekannter Edelstein';
+const toNumber = (value: Prisma.Decimal | number | bigint | null | undefined): number => {
+  if (value == null) return 0;
+  if (value instanceof Prisma.Decimal) {
+    return value.toNumber();
+  }
+  if (typeof value === 'bigint') {
+    return Number(value);
+  }
+  return Number(value);
+};
 
 export async function GET() {
   try {
-    const { session } = await getSessionWithUser();
-
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const [totalWishlistItems, totalActiveCarts, cartItemAggregate, wishlistGroup, cartGroup] =
+    const [wishlistCount, cartItemAggregate, activeCartCount, topWishlistedRaw, topCartedRaw] =
       await Promise.all([
         prisma.wishlistItem.count(),
-        prisma.cart.count({ where: { status: 'ACTIVE' } }),
         prisma.cartItem.aggregate({
           _sum: { quantity: true },
+        }),
+        prisma.cart.count({
+          where: { status: 'ACTIVE' },
         }),
         prisma.wishlistItem.groupBy({
           by: ['gemstoneId'],
           _count: { gemstoneId: true },
-          orderBy: { _count: { gemstoneId: 'desc' } },
+          orderBy: {
+            _count: {
+              gemstoneId: 'desc',
+            },
+          },
           take: 5,
         }),
         prisma.cartItem.groupBy({
           by: ['gemstoneId'],
           _sum: { quantity: true },
-          orderBy: { _sum: { quantity: 'desc' } },
+          orderBy: {
+            _sum: {
+              quantity: 'desc',
+            },
+          },
           take: 5,
         }),
       ]);
 
-    const wishlistGemIds = wishlistGroup.map((entry) => entry.gemstoneId);
-    const cartGemIds = cartGroup.map((entry) => entry.gemstoneId);
-    const uniqueGemstoneIds = Array.from(
-      new Set([...wishlistGemIds, ...cartGemIds].filter((value): value is string => Boolean(value)))
+    const gemstoneIds = Array.from(
+      new Set(
+        [...topWishlistedRaw, ...topCartedRaw]
+          .map((entry) => entry.gemstoneId)
+          .filter((id): id is string => typeof id === 'string' && id.length > 0)
+      )
     );
 
-    const gemstones =
-      uniqueGemstoneIds.length > 0
-        ? await prisma.gemstone.findMany({
-            where: { id: { in: uniqueGemstoneIds } },
-            select: { id: true, name: true, slug: true },
-          })
-        : [];
+    const gemstoneMap = gemstoneIds.length
+      ? new Map(
+          (
+            await prisma.gemstone.findMany({
+              where: { id: { in: gemstoneIds } },
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            })
+          ).map((gem) => [gem.id, gem])
+        )
+      : new Map<string, { id: string; name: string; slug: string | null }>();
 
-    const gemstoneLookup = new Map(gemstones.map((gem) => [gem.id, gem]));
-
-    const topWishlisted = wishlistGroup.map((entry) => {
-      const gemstone = entry.gemstoneId ? gemstoneLookup.get(entry.gemstoneId) : undefined;
+    const topWishlisted = topWishlistedRaw.map((entry) => {
+      const gemstone = entry.gemstoneId ? gemstoneMap.get(entry.gemstoneId) : null;
       return {
         gemstoneId: entry.gemstoneId,
-        name: gemstone?.name ?? UNKNOWN_GEM_NAME,
+        name: gemstone?.name ?? 'Unbekannter Edelstein',
         slug: gemstone?.slug ?? null,
-        count: entry._count.gemstoneId,
+        count: entry._count.gemstoneId ?? 0,
       };
     });
 
-    const topCarted = cartGroup.map((entry) => {
-      const gemstone = entry.gemstoneId ? gemstoneLookup.get(entry.gemstoneId) : undefined;
+    const topCarted = topCartedRaw.map((entry) => {
+      const gemstone = entry.gemstoneId ? gemstoneMap.get(entry.gemstoneId) : null;
       return {
         gemstoneId: entry.gemstoneId,
-        name: gemstone?.name ?? UNKNOWN_GEM_NAME,
+        name: gemstone?.name ?? 'Unbekannter Edelstein',
         slug: gemstone?.slug ?? null,
-        quantity: entry._sum.quantity ?? 0,
+        quantity: toNumber(entry._sum.quantity),
       };
     });
 
-    const data = {
-      totals: {
-        wishlistItems: totalWishlistItems,
-        cartItems: cartItemAggregate._sum.quantity ?? 0,
-        activeCarts: totalActiveCarts,
+    return NextResponse.json({
+      success: true,
+      data: {
+        totals: {
+          wishlistItems: wishlistCount,
+          cartItems: toNumber(cartItemAggregate._sum.quantity),
+          activeCarts: activeCartCount,
+        },
+        topWishlisted,
+        topCarted,
       },
-      topWishlisted,
-      topCarted,
-    };
-
-    return NextResponse.json({ success: true, data });
+    });
   } catch (error) {
-    console.error('Error fetching shop metrics:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error loading shop metrics:', error);
+    return NextResponse.json(
+      { success: false, error: 'Interner Fehler beim Laden der Shop-Kennzahlen.' },
+      { status: 500 }
+    );
   }
 }

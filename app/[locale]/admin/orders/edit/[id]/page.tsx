@@ -13,21 +13,21 @@ export default async function EditOrderPage({
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
-      user: {
+      customer: {
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           email: true,
           phone: true,
         }
       },
-      orderItems: {
+      items: {
         include: {
           gemstone: {
             select: {
               id: true,
               name: true,
-              price: true,
             }
           }
         }
@@ -58,13 +58,11 @@ export default async function EditOrderPage({
       orderNumber: order.orderNumber,
       status: order.status,
       subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
+      taxAmount: order.taxAmount,
+      shippingAmount: order.shippingAmount,
       total: order.total,
       paymentMethod: order.paymentMethod,
       paymentStatus: order.paymentStatus,
-      shippingMethod: order.shippingMethod,
-      trackingNumber: order.trackingNumber,
       notes: order.notes,
       billingAddress: order.billingAddress,
       shippingAddress: order.shippingAddress,
@@ -133,9 +131,9 @@ export default async function EditOrderPage({
             </p>
             <p>
               <span className="font-medium text-gray-100">PDF:</span>{' '}
-              {order.invoice.pdfUrl ? (
+              {order.invoice.pdfStorageKey ? (
                 <a
-                  href={order.invoice.pdfUrl}
+                  href={`/api/admin/invoices/${order.invoice.id}/pdf`}
                   className="text-blue-400 underline underline-offset-4 hover:text-blue-300"
                 >
                   herunterladen

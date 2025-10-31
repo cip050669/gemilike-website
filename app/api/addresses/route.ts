@@ -10,12 +10,27 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const addresses = await prisma.address.findMany({
+    const customer = await prisma.customer.findUnique({
       where: { userId },
+      select: { id: true },
+    });
+
+    if (!customer) {
+      return NextResponse.json([]);
+    }
+
+    const addresses = await prisma.address.findMany({
+      where: { customerId: customer.id },
       orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json(addresses);
+    const response = addresses.map(({ street, street2, ...rest }) => ({
+      ...rest,
+      address1: street ?? '',
+      address2: street2 ?? '',
+    }));
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching addresses:', error);
     return NextResponse.json(
@@ -31,6 +46,15 @@ export async function POST(request: NextRequest) {
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    if (!customer) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 400 });
     }
 
     const body = await request.json();
@@ -53,7 +77,7 @@ export async function POST(request: NextRequest) {
     if (isDefault) {
       await prisma.address.updateMany({
         where: {
-          userId,
+          customerId: customer.id,
           type: type
         },
         data: { isDefault: false }
@@ -62,23 +86,28 @@ export async function POST(request: NextRequest) {
 
     const address = await prisma.address.create({
       data: {
-        userId,
+        customerId: customer.id,
         type,
         firstName,
         lastName,
         company,
-        address1,
-        address2,
+        street: address1,
+        street2: address2,
         city,
         state,
         postalCode,
         country,
         phone,
-        isDefault: isDefault || false
+        isDefault: Boolean(isDefault)
       }
     });
 
-    return NextResponse.json(address, { status: 201 });
+    const { street, street2, ...rest } = address;
+
+    return NextResponse.json(
+      { ...rest, address1: street ?? '', address2: street2 ?? '' },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error creating address:', error);
     return NextResponse.json(

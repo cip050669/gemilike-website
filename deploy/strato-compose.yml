@@ -1,0 +1,147 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: gemilike/app:latest
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - ../.env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgresql://gemilike:gemilike@postgres:5432/gemilike?schema=public}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://minio:9000}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-gemilike-media}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-minioadmin}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-minioadmin}
+      NEXT_SHARP_PATH: /usr/lib
+    ports:
+      - '3000:3000'
+    command: >
+      sh -c "npx prisma migrate deploy && npm run start"
+    volumes:
+      - app_static:/app/public/uploads
+    restart: unless-stopped
+    networks:
+      - backend
+      - frontend
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gemilike}
+      POSTGRES_USER: ${POSTGRES_USER:-gemilike}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gemilike}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --save 60 1 --loglevel warning
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - backend
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY:-minioadmin}
+    volumes:
+      - minio_data:/data
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    restart: unless-stopped
+    networks:
+      - backend
+
+  caddy:
+    image: caddy:2.8
+    depends_on:
+      - app
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+
+  loki:
+    image: grafana/loki:2.9.6
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - '3100:3100'
+    volumes:
+      - loki_data:/loki
+    restart: unless-stopped
+    networks:
+      - observability
+
+  promtail:
+    image: grafana/promtail:2.9.6
+    depends_on:
+      - loki
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+      - promtail_positions:/var/lib/promtail
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    restart: unless-stopped
+    networks:
+      - observability
+      - backend
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-changeme}
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3001}
+    ports:
+      - '3001:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - observability
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  caddy_data:
+  caddy_config:
+  loki_data:
+  promtail_positions:
+  grafana_data:
+  app_static:
+
+networks:
+  frontend:
+  backend:
+  observability:

@@ -1,5 +1,4 @@
 'use client';
-'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import { useWishlistStore } from '@/lib/store/wishlist';
@@ -14,10 +13,9 @@ interface WishlistButtonProps {
     isSold?: boolean;
   };
   className?: string;
-  disabled?: boolean;
 }
 
-export function WishlistButton({ item, className, disabled = false }: WishlistButtonProps) {
+export function WishlistButton({ item, className }: WishlistButtonProps) {
   const toggleItem = useWishlistStore((state) => state.toggleItem);
   const removeItem = useWishlistStore((state) => state.removeItem);
   const isInWishlist = useWishlistStore((state) => state.isInWishlist(item.id));
@@ -34,7 +32,7 @@ export function WishlistButton({ item, className, disabled = false }: WishlistBu
   }, [summary, fetchWishlist]);
 
   const handleToggle = () => {
-    if (isPending || isStoreLoading || disabled) return;
+    if (isPending || isStoreLoading) return;
 
     setIsAnimating(true);
 
@@ -61,7 +59,7 @@ export function WishlistButton({ item, className, disabled = false }: WishlistBu
       variant="ghost"
       size="icon"
       onClick={handleToggle}
-      disabled={disabled || isPending || isStoreLoading}
+      disabled={isPending || isStoreLoading}
       className={`${className ?? ''} ${
         isInWishlist
           ? 'text-red-500 bg-red-50 hover:bg-red-100'

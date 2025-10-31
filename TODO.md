@@ -2,9 +2,9 @@
 
 ## Shop Relaunch – Sofortmaßnahmen
 
-- [ ] **Strato-Stack vorbereiten** _(Status: Offen)_  
-  - [ ] Docker Compose für Next.js, PostgreSQL, Redis/Queue, S3-kompatiblen Storage definieren _(Status: Offen)_  
-  - [ ] Monitoring/Logging (Uptime, Metrics, zentralisierte Logs) festlegen _(Status: Offen)_  
+- [x] **Strato-Stack vorbereiten** _(Status: Erledigt)_  
+  - [x] Docker Compose für Next.js, PostgreSQL, Redis/Queue, S3-kompatiblen Storage definieren _(Status: Erledigt – siehe `deploy/strato-compose.yml` + `Dockerfile`)_  
+  - [x] Monitoring/Logging (Uptime, Metrics, zentralisierte Logs) festlegen _(Status: Erledigt – Loki/Promtail/Grafana in `deploy/strato-compose.yml` + `deploy/promtail-config.yml`)_  
 - [x] **Prisma auf PostgreSQL umstellen** _(Status: Erledigt)_  
   - [x] Neues Datenmodell laut `SHOP_REBUILD_PLAN.md` modellieren _(Status: Erledigt – Schema auf PostgreSQL angepasst, `Gemstone.cut`/`cutForm` ergänzt)_  
   - [x] Migration & Seed-Skripte (Demo-Daten, Admin-User) implementieren _(Status: Erledigt – `pnpm prisma migrate dev` auf neuer DB ausgeführt; Seeding folgt separat)_  
@@ -13,7 +13,7 @@
   - [ ] Audit-Logging & Role Guards integrieren _(Status: Offen)_  
 - [ ] **Shop-Frontend erneuern** _(Status: Offen)_  
   - [x] Grid (6×5 Sichtbereich) + 240px Kacheln mit Badges/Wishlist/Cart umsetzen _(Status: Erledigt – umgesetzt in `components/shop/GemstoneGrid.tsx`)_
-  - [ ] GemstoneCard mit Scroll-Galerie, erweiterten Attributen & Badge-Handling erstellen _(Status: Offen)_  
+  - [x] GemstoneCard mit Scroll-Galerie, erweiterten Attributen & Badge-Handling erstellen _(Status: Erledigt – Fallback entfernt, Detail/Modal finalisiert in `components/shop/GemstoneGrid.tsx` + `app/[locale]/shop/[gemId]/page.tsx`)_  
 - [ ] **Admin-Panel restrukturieren** _(Status: Offen)_  
   - [ ] Listenansicht mit Bulk-Aktionen & Filter (isNew, isSold, Status) bauen _(Status: Offen)_  
   - [ ] Detail-/Bulk-Upload-Form mit Medienverwaltung und Freigabeprozess entwickeln _(Status: Offen)_  
@@ -30,10 +30,10 @@
 - [ ] **Admin-Menü auf reale Funktionen trimmen** _(Status: Offen)_  
   - [ ] Ungenutzte oder Mock-Menüpunkte ausblenden _(Status: Offen)_  
   - [ ] Neue Menüpunkte erst nach Fertigstellung der jeweiligen Module freischalten _(Status: Offen)_  
-- [ ] **Wishlist & Cart serverseitig persistieren** _(Status: Teilweise erledigt)_  
-  - [ ] API-Routen mit Prisma für `WishlistItem`/`CartItem` implementieren _(Status: Offen)_  
+- [x] **Wishlist & Cart serverseitig persistieren** _(Status: Erledigt)_  
+  - [x] API-Routen mit Prisma für `WishlistItem`/`CartItem` implementieren _(Status: Erledigt – `app/api/wishlist` + `app/api/cart`)_  
   - [x] Frontend-Stores (`useWishlistStore`, `useCartStore`) auf API/Server Actions umstellen _(Status: Erledigt – Server Actions + optimistische Updates in `lib/store/cart.ts`, `lib/store/wishlist.ts`)_  
-  - [ ] Admin-Auswertungen für Wunschlisten/Bestellungen konfigurieren _(Status: Offen)_  
+  - [x] Admin-Auswertungen für Wunschlisten/Bestellungen konfigurieren _(Status: Erledigt – Kennzahlen via `app/api/admin/shop/metrics` & Anzeige in `GemstoneManagementSection`)_  
 - [ ] **Shop-Datenbank befüllen und absichern** _(Status: Teilweise erledigt)_  
   - [x] Seed-Skript für Kernobjekte (HeroSettings, SelectOptions, Beispiel-Gemstones) erstellt _(Status: Erledigt – siehe `prisma/seed.ts` / `prisma/seed.sql`)_  
   - [x] Seed-Ausführung & Datenvalidierung durchführen _(Status: Erledigt – `prisma/seed.sql` via `psql` eingespielt)_  

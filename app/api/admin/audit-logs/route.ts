@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
         select: { role: true }
       });
 
-      if (user?.role !== 'admin') {
+      if (user?.role !== 'ADMIN') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     }
@@ -35,28 +35,28 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
     const action = searchParams.get('action');
-    const userId = searchParams.get('userId');
-    const entityType = searchParams.get('entityType');
+    const actorId = searchParams.get('userId') || searchParams.get('actorId');
+    const entityType = searchParams.get('entityType') || searchParams.get('entity');
 
-    console.log('🔍 Query parameters:', { page, limit, action, userId, entityType });
+    console.log('🔍 Query parameters:', { page, limit, action, actorId, entityType });
 
     // Erstelle neue Prisma-Instanz
     const prisma = new PrismaClient();
     
     try {
       // Direkte Prisma-Abfrage
-      const where: Partial<{ action: string; userId: string; entityType: string }> = {};
+      const where: Partial<{ action: string; actorId: string; entity: string }> = {};
       
       if (action) {
         where.action = action;
       }
       
-      if (userId) {
-        where.userId = userId;
+      if (actorId) {
+        where.actorId = actorId;
       }
       
       if (entityType) {
-        where.entityType = entityType;
+        where.entity = entityType;
       }
 
       console.log('🔍 Prisma where clause:', where);
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       const auditLogs = await prisma.auditLog.findMany({
         where,
         include: {
-          user: {
+          actor: {
             select: {
               name: true,
               email: true,
@@ -81,12 +81,12 @@ export async function GET(request: NextRequest) {
       // Transform data for frontend
       const transformedLogs = auditLogs.map(log => ({
         id: log.id,
-        userId: log.userId,
-        userName: log.user?.name || 'Unbekannt',
+        userId: log.actorId,
+        userName: log.actor?.name || 'Unbekannt',
         action: log.action,
-        entityType: log.entityType,
+        entityType: log.entity,
         entityId: log.entityId,
-        details: log.details ? JSON.parse(log.details) : null,
+        details: log.metadata,
         ipAddress: log.ipAddress,
         userAgent: log.userAgent,
         createdAt: log.createdAt,

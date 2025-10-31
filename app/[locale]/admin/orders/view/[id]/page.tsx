@@ -13,10 +13,11 @@ export default async function ViewOrderPage({
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
-      user: {
+      customer: {
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           email: true,
           phone: true,
         }
@@ -97,25 +98,25 @@ export default async function ViewOrderPage({
           {/* Kundeninformationen */}
           <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-semibold mb-4">Kundeninformationen</h2>
-            {order.user ? (
+            {order.customer ? (
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-200">Name</label>
-                  <p className="text-white">{order.user.name || 'Unbekannt'}</p>
+                  <p className="text-white">{order.customer.firstName && order.customer.lastName ? `${order.customer.firstName} ${order.customer.lastName}` : 'Unbekannt'}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-200">E-Mail</label>
-                  <p className="text-white">{order.user.email}</p>
+                  <p className="text-white">{order.customer.email || '-'}</p>
                 </div>
-                {order.user.phone && (
+                {order.customer.phone && (
                   <div>
                     <label className="block text-sm font-medium text-gray-200">Telefon</label>
-                    <p className="text-white">{order.user.phone}</p>
+                    <p className="text-white">{order.customer.phone}</p>
                   </div>
                 )}
                 <div className="pt-4">
                   <Link
-                    href={`/de/admin/customers/view/${order.user.id}`}
+                    href={`/de/admin/customers/view/${order.customer.id}`}
                     className="text-blue-600 hover:text-blue-800 font-medium"
                   >
                     👤 Kundenprofil anzeigen
@@ -137,11 +138,11 @@ export default async function ViewOrderPage({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-200">Steuer</label>
-                <p className="text-white">€{order.tax.toFixed(2)}</p>
+                <p className="text-white">€{order.taxAmount.toFixed(2)}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-200">Versand</label>
-                <p className="text-white">€{order.shipping.toFixed(2)}</p>
+                <p className="text-white">€{order.shippingAmount.toFixed(2)}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-200">Währung</label>
@@ -151,12 +152,6 @@ export default async function ViewOrderPage({
                 <div>
                   <label className="block text-sm font-medium text-gray-200">Zahlungsmethode</label>
                   <p className="text-white">{order.paymentMethod}</p>
-                </div>
-              )}
-              {order.trackingNumber && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-200">Tracking-Nummer</label>
-                  <p className="text-white">{order.trackingNumber}</p>
                 </div>
               )}
             </div>
@@ -185,9 +180,7 @@ export default async function ViewOrderPage({
 const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
   PENDING: 'bg-blue-100 text-blue-800',
   CONFIRMED: 'bg-indigo-100 text-indigo-800',
-  PROCESSING: 'bg-yellow-100 text-yellow-800',
-  SHIPPED: 'bg-green-100 text-green-800',
-  DELIVERED: 'bg-purple-100 text-purple-800',
+  FULFILLED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-red-100 text-red-800',
   REFUNDED: 'bg-gray-200 text-gray-800',
 };
@@ -195,9 +188,7 @@ const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
 const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: 'Offen',
   CONFIRMED: 'Bestätigt',
-  PROCESSING: 'In Bearbeitung',
-  SHIPPED: 'Versendet',
-  DELIVERED: 'Geliefert',
+  FULFILLED: 'Erfüllt',
   CANCELLED: 'Storniert',
   REFUNDED: 'Erstattet',
 };

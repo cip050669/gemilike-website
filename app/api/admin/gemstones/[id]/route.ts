@@ -41,6 +41,9 @@ export async function PUT(
     const { id } = await params;
     const existing = await prisma.gemstone.findUnique({
       where: { id },
+      include: {
+        media: true,
+      },
     });
 
     if (!existing) {
@@ -50,7 +53,10 @@ export async function PUT(
       );
     }
 
-    const fallbackImages = parseListFromDB(existing.images);
+    // Extract image URLs from media relation
+    const fallbackImages = existing.media
+      ?.filter((m) => m.type === 'IMAGE')
+      .map((m) => m.url) || [];
     const { payload, uploadedImage } = await extractPayload(request);
 
     if (!payload.name && !existing.name) {
@@ -64,7 +70,7 @@ export async function PUT(
       ...payload,
       name: payload.name ?? existing.name,
       category: payload.category ?? existing.category,
-      type: payload.type ?? existing.type,
+      condition: payload.condition ?? existing.condition,
     };
 
     const data = normaliseGemstonePayload(basePayload, uploadedImage, fallbackImages);

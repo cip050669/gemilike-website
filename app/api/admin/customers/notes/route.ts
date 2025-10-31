@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       select: { role: true }
     });
 
-    if (user?.role !== 'admin') {
+      if (user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -36,16 +36,16 @@ export async function POST(request: NextRequest) {
     });
 
     // Log the action
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        action: 'UPDATE_CUSTOMER_NOTES',
-        entityType: 'USER',
-        entityId: customerId,
-        details: JSON.stringify({
+      await prisma.auditLog.create({
+        data: {
+          actorId: userId,
+          action: 'UPDATE_CUSTOMER_NOTES',
+          entity: 'CUSTOMER',
+          entityId: customerId,
+        metadata: {
           customerId,
           notes: typeof notesData === 'string' ? notesData.substring(0, 100) + (notesData.length > 100 ? '...' : '') : JSON.stringify(notesData).substring(0, 100) + '...'
-        })
+        }
       }
     });
 

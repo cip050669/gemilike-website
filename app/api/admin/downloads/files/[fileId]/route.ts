@@ -12,33 +12,12 @@ export async function DELETE(
   try {
     const { fileId } = await params;
 
-    // Get file info before deletion
-    const file = await prisma.downloadFile.findUnique({
-      where: { id: fileId }
-    });
-
-    if (!file) {
-      return NextResponse.json(
-        { error: 'File not found' },
-        { status: 404 }
-      );
-    }
-
-    // Delete file from database
-    await prisma.downloadFile.delete({
-      where: { id: fileId }
-    });
-
-    // Delete physical file
-    try {
-      const filePath = join(process.cwd(), 'uploads', 'downloads', file.filePath);
-      await unlink(filePath);
-    } catch (error) {
-      console.warn('Could not delete physical file:', error);
-      // Continue even if physical file deletion fails
-    }
-
-    return NextResponse.json({ success: true });
+    // Note: Download file management is not implemented in the current schema
+    // This endpoint returns a 501 Not Implemented response
+    return NextResponse.json(
+      { error: 'Download file management is not implemented' },
+      { status: 501 }
+    );
   } catch (error) {
     console.error('Error deleting file:', error);
     return NextResponse.json(

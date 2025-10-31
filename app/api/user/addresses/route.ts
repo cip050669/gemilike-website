@@ -13,18 +13,33 @@ export async function GET() {
       );
     }
 
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    if (!customer) {
+      return NextResponse.json({ success: true, addresses: [] });
+    }
+
     const addresses = await prisma.address.findMany({
       where: {
-        userId
+        customerId: customer.id,
       },
       orderBy: {
         isDefault: 'desc'
       }
     });
 
+    const transformed = addresses.map(({ street, street2, ...rest }) => ({
+      ...rest,
+      address1: street ?? '',
+      address2: street2 ?? '',
+    }));
+
     return NextResponse.json({
       success: true,
-      addresses
+      addresses: transformed,
     });
   } catch (error) {
     console.error('Error fetching addresses:', error);
@@ -46,6 +61,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const customer = await prisma.customer.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    if (!customer) {
+      return NextResponse.json(
+        { success: false, error: 'Customer not found' },
+        { status: 400 }
+      );
+    }
+
     const body = await request.json();
     const { type, firstName, lastName, company, address1, address2, city, state, postalCode, country, phone, isDefault } = body;
 
@@ -53,7 +80,7 @@ export async function POST(request: NextRequest) {
     if (isDefault) {
       await prisma.address.updateMany({
         where: {
-          userId,
+          customerId: customer.id,
           type: type
         },
         data: {
@@ -64,25 +91,29 @@ export async function POST(request: NextRequest) {
 
     const address = await prisma.address.create({
       data: {
-        userId,
+        customerId: customer.id,
         type,
         firstName,
         lastName,
         company,
-        address1,
-        address2,
+        street: address1,
+        street2: address2,
         city,
         state,
         postalCode,
         country,
         phone,
-        isDefault: isDefault ?? false
+        isDefault: Boolean(isDefault)
       }
     });
 
     return NextResponse.json({
       success: true,
-      address
+      address: {
+        ...address,
+        address1: address.street ?? '',
+        address2: address.street2 ?? '',
+      }
     });
   } catch (error) {
     console.error('Error creating address:', error);

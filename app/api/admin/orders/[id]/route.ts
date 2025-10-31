@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { regenerateAndSendInvoice } from '@/lib/services/invoice';
-import type { Order } from '@prisma/client';
+import type { Order, OrderStatus, PaymentStatus } from '@prisma/client';
 
 type OrderUpdateData = Parameters<typeof prisma.order.update>[0]['data'];
 
@@ -39,10 +39,10 @@ const updateOrderAndDispatchInvoice = async (id: string, data: OrderUpdateData) 
   const currentStatus = updatedOrder.status?.toUpperCase?.() ?? updatedOrder.status;
 
   const paymentBecamePaid = previousPayment !== 'PAID' && currentPayment === 'PAID';
-  const statusBecameDelivered = previousStatus !== 'DELIVERED' && currentStatus === 'DELIVERED';
+  const statusBecameFulfilled = previousStatus !== 'FULFILLED' && currentStatus === 'FULFILLED';
 
   const shouldSendInvoice =
-    (paymentBecamePaid || statusBecameDelivered) && currentPayment === 'PAID';
+    (paymentBecamePaid || statusBecameFulfilled) && currentPayment === 'PAID';
 
   let invoiceDispatched = false;
   let invoiceError: string | null = null;
@@ -116,8 +116,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const body = await request.json();
 
     // Validate order status
-    const validStatuses = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
-    const validPaymentStatuses = ['PENDING', 'PAID', 'FAILED', 'REFUNDED', 'PARTIALLY_REFUNDED'];
+    const validStatuses: OrderStatus[] = ['PENDING', 'CONFIRMED', 'FULFILLED', 'CANCELLED', 'REFUNDED'];
+    const validPaymentStatuses: PaymentStatus[] = ['UNPAID', 'PENDING', 'PAID', 'FAILED', 'REFUNDED'];
 
     const requestedStatus = body.status ? String(body.status).toUpperCase() : undefined;
     const requestedPaymentStatus = body.paymentStatus ? String(body.paymentStatus).toUpperCase() : undefined;
@@ -135,8 +135,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       status: requestedStatus as Order['status'] | undefined,
       total: parseAmount(body.total),
       subtotal: parseAmount(body.subtotal),
-      tax: parseAmount(body.tax),
-      shipping: parseAmount(body.shipping),
+      taxAmount: parseAmount(body.taxAmount),
+      shippingAmount: parseAmount(body.shippingAmount),
       paymentMethod: body.paymentMethod,
       paymentStatus: requestedPaymentStatus as Order['paymentStatus'] | undefined,
       shippingMethod: body.shippingMethod,

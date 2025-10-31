@@ -6,10 +6,11 @@ export default async function OrdersPage() {
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      user: {
+      customer: {
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           email: true,
         }
       }
@@ -61,21 +62,15 @@ export default async function OrdersPage() {
               </button>
             </form>
             <form action="/de/admin/orders" method="get" className="inline">
-              <input type="hidden" name="status" value="PROCESSING" />
+              <input type="hidden" name="status" value="CONFIRMED" />
               <button type="submit" className="px-4 py-2 bg-gray-200 text-gray-200 rounded-lg hover:bg-gray-300">
-                In Bearbeitung ({orders.filter(o => o.status === 'PROCESSING').length})
+                Bestätigt ({orders.filter(o => o.status === 'CONFIRMED').length})
               </button>
             </form>
             <form action="/de/admin/orders" method="get" className="inline">
-              <input type="hidden" name="status" value="SHIPPED" />
+              <input type="hidden" name="status" value="FULFILLED" />
               <button type="submit" className="px-4 py-2 bg-gray-200 text-gray-200 rounded-lg hover:bg-gray-300">
-                Versandt ({orders.filter(o => o.status === 'SHIPPED').length})
-              </button>
-            </form>
-            <form action="/de/admin/orders" method="get" className="inline">
-              <input type="hidden" name="status" value="DELIVERED" />
-              <button type="submit" className="px-4 py-2 bg-gray-200 text-gray-200 rounded-lg hover:bg-gray-300">
-                Geliefert ({orders.filter(o => o.status === 'DELIVERED').length})
+                Erfüllt ({orders.filter(o => o.status === 'FULFILLED').length})
               </button>
             </form>
             <form action="/de/admin/orders" method="get" className="inline">
@@ -174,10 +169,10 @@ export default async function OrdersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-white">
-                        {order.user ? order.user.name || 'Unbekannt' : 'Unbekannt'}
+                        {order.customer ? (order.customer.firstName && order.customer.lastName ? `${order.customer.firstName} ${order.customer.lastName}` : 'Unbekannt') : 'Unbekannt'}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {order.user?.email || '-'}
+                        {order.customer?.email || '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
@@ -186,12 +181,18 @@ export default async function OrdersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         order.status === 'PENDING' ? 'bg-blue-100 text-blue-800' :
-                        order.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
-                        order.status === 'SHIPPED' ? 'bg-green-100 text-green-800' :
-                        order.status === 'DELIVERED' ? 'bg-gray-100 text-gray-800' :
-                        'bg-red-100 text-red-800'
+                        order.status === 'CONFIRMED' ? 'bg-yellow-100 text-yellow-800' :
+                        order.status === 'FULFILLED' ? 'bg-green-100 text-green-800' :
+                        order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+                        order.status === 'REFUNDED' ? 'bg-gray-100 text-gray-800' :
+                        'bg-gray-100 text-gray-800'
                       }`}>
-                        {order.status}
+                        {order.status === 'PENDING' ? 'Ausstehend' :
+                         order.status === 'CONFIRMED' ? 'Bestätigt' :
+                         order.status === 'FULFILLED' ? 'Erfüllt' :
+                         order.status === 'CANCELLED' ? 'Storniert' :
+                         order.status === 'REFUNDED' ? 'Erstattet' :
+                         order.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">

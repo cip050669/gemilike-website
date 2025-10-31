@@ -36,7 +36,7 @@ const formatCurrency = (value: number, currency = 'EUR') =>
 
 export default async function GemstoneDetailPage({ params }: GemstoneDetailPageProps) {
   const { gemId, locale } = await params;
-  const { gemstone, fallback } = await loadShopGemstoneById(gemId);
+  const gemstone = await loadShopGemstoneById(gemId);
 
   if (!gemstone) {
     notFound();
@@ -55,7 +55,6 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
   };
 
   const weightLabel = formatWeight(gemstone.weight, gemstone.weightUnit, gemstone.type);
-  const disableCartActions = !gemstone.inStock || gemstone.isSold || fallback;
   const detailBlocks = ([
     {
       title: 'Preis',
@@ -188,11 +187,6 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                     </div>
                   </div>
 
-                  {fallback && (
-                    <div className="rounded-lg border border-yellow-400/30 bg-yellow-500/10 p-4 text-sm text-yellow-100">
-                      Hinweis: Temporäre Beispiel-Daten, da aktuell keine Datenbankverbindung möglich war.
-                    </div>
-                  )}
                 </div>
 
                 <MediaGallery
@@ -228,13 +222,9 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                 <div className="flex flex-wrap items-center gap-4">
                   <AddToCartButton
                     item={cartItem}
-                    disabled={disableCartActions}
+                    disabled={!gemstone.inStock || gemstone.isSold}
                   />
-                  <WishlistButton
-                    item={cartItem}
-                    className="border border-white/10"
-                    disabled={fallback}
-                  />
+                  <WishlistButton item={cartItem} className="border border-white/10" />
                   <Link
                     href={`/${locale}/shop`}
                     className={cn(navStyles.navButton, navStyles.navButtonTight, 'px-4 py-2')}

@@ -125,13 +125,13 @@ export default function NewOrderPage() {
                 id="status"
                 name="status"
                 className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                defaultValue="PENDING"
+                defaultValue="UNPAID"
               >
                 <option value="PENDING">Ausstehend</option>
-                <option value="PROCESSING">In Bearbeitung</option>
-                <option value="SHIPPED">Versandt</option>
-                <option value="DELIVERED">Geliefert</option>
+                <option value="CONFIRMED">Bestätigt</option>
+                <option value="FULFILLED">Erfüllt</option>
                 <option value="CANCELLED">Storniert</option>
+                <option value="REFUNDED">Erstattet</option>
               </select>
             </div>
 
@@ -152,13 +152,13 @@ export default function NewOrderPage() {
 
             {/* Steuer */}
             <div>
-              <label htmlFor="tax" className="block text-sm font-medium text-gray-200 mb-2">
+              <label htmlFor="taxAmount" className="block text-sm font-medium text-gray-200 mb-2">
                 Steuer (€)
               </label>
               <input
                 type="number"
-                id="tax"
-                name="tax"
+                id="taxAmount"
+                name="taxAmount"
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="0"
@@ -167,13 +167,13 @@ export default function NewOrderPage() {
 
             {/* Versand */}
             <div>
-              <label htmlFor="shipping" className="block text-sm font-medium text-gray-200 mb-2">
+              <label htmlFor="shippingAmount" className="block text-sm font-medium text-gray-200 mb-2">
                 Versand (€)
               </label>
               <input
                 type="number"
-                id="shipping"
-                name="shipping"
+                id="shippingAmount"
+                name="shippingAmount"
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="0"
@@ -224,11 +224,11 @@ export default function NewOrderPage() {
                 className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Zahlungsmethode wählen</option>
-                <option value="credit_card">Kreditkarte</option>
-                <option value="paypal">PayPal</option>
-                <option value="bank_transfer">Überweisung</option>
-                <option value="cash">Bar</option>
-                <option value="other">Sonstige</option>
+                <option value="CREDIT_CARD">Kreditkarte</option>
+                <option value="PAYPAL">PayPal</option>
+                <option value="BANK_TRANSFER">Überweisung</option>
+                <option value="SEPA">SEPA-Lastschrift</option>
+                <option value="OTHER">Sonstige</option>
               </select>
             </div>
 
@@ -243,6 +243,7 @@ export default function NewOrderPage() {
                 className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 defaultValue="PENDING"
               >
+                <option value="UNPAID">Unbezahlt</option>
                 <option value="PENDING">Ausstehend</option>
                 <option value="PAID">Bezahlt</option>
                 <option value="FAILED">Fehlgeschlagen</option>

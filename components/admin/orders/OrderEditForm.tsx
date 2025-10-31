@@ -19,8 +19,8 @@ type OrderEditData = {
   orderNumber: string;
   status: string;
   subtotal: number;
-  tax: number;
-  shipping: number;
+  taxAmount: number;
+  shippingAmount: number;
   total: number;
   paymentMethod?: string | null;
   paymentStatus: string;
@@ -49,19 +49,17 @@ type ApiResponse =
 const STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Ausstehend' },
   { value: 'CONFIRMED', label: 'Bestätigt' },
-  { value: 'PROCESSING', label: 'In Bearbeitung' },
-  { value: 'SHIPPED', label: 'Versandt' },
-  { value: 'DELIVERED', label: 'Geliefert' },
+  { value: 'FULFILLED', label: 'Erfüllt' },
   { value: 'CANCELLED', label: 'Storniert' },
   { value: 'REFUNDED', label: 'Erstattet' },
 ];
 
 const PAYMENT_STATUS_OPTIONS = [
+  { value: 'UNPAID', label: 'Unbezahlt' },
   { value: 'PENDING', label: 'Ausstehend' },
   { value: 'PAID', label: 'Bezahlt' },
   { value: 'FAILED', label: 'Fehlgeschlagen' },
   { value: 'REFUNDED', label: 'Erstattet' },
-  { value: 'PARTIALLY_REFUNDED', label: 'Teilweise erstattet' },
 ];
 
 const buildMessage = (response: ApiResponse) => {
@@ -100,8 +98,8 @@ export function OrderEditForm({ order }: { order: OrderEditData }) {
       status: formData.get('status'),
       total: formData.get('total'),
       subtotal: formData.get('subtotal'),
-      tax: formData.get('tax'),
-      shipping: formData.get('shipping'),
+      taxAmount: formData.get('taxAmount'),
+      shippingAmount: formData.get('shippingAmount'),
       paymentMethod: formData.get('paymentMethod'),
       paymentStatus: formData.get('paymentStatus'),
       shippingMethod: formData.get('shippingMethod'),
@@ -212,30 +210,30 @@ export function OrderEditForm({ order }: { order: OrderEditData }) {
         </div>
 
         <div>
-          <label htmlFor="tax" className="block text-sm font-medium text-gray-200 mb-2">
+          <label htmlFor="taxAmount" className="block text-sm font-medium text-gray-200 mb-2">
             Steuer (€)
           </label>
           <input
             type="number"
-            id="tax"
-            name="tax"
+            id="taxAmount"
+            name="taxAmount"
             step="0.01"
-            defaultValue={order.tax}
+            defaultValue={order.taxAmount}
             className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
         <div>
-          <label htmlFor="shipping" className="block text-sm font-medium text-gray-200 mb-2">
+          <label htmlFor="shippingAmount" className="block text-sm font-medium text-gray-200 mb-2">
             Versand (€)
           </label>
           <input
             type="number"
-            id="shipping"
-            name="shipping"
+            id="shippingAmount"
+            name="shippingAmount"
             step="0.01"
-            defaultValue={order.shipping}
+            defaultValue={order.shippingAmount}
             className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
