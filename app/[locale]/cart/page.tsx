@@ -7,11 +7,43 @@ import { Input } from '@/components/ui/input';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCartStore } from '@/lib/store/cart';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export default function CartPage() {
   const t = useTranslations('shop');
   const locale = useLocale();
-  const { items, removeItem, updateQuantity, getTotalPrice, clearCart } = useCartStore();
+  const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const getTotalPrice = useCartStore((state) => state.getTotalPrice);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const fetchCart = useCartStore((state) => state.fetchCart);
+  const isLoading = useCartStore((state) => state.isLoading);
+  const error = useCartStore((state) => state.error);
+
+  useEffect(() => {
+    void fetchCart();
+  }, [fetchCart]);
+
+  if (isLoading && items.length === 0) {
+    return (
+      <div className="container py-12 md:py-20">
+        <div className="mx-auto max-w-2xl text-center text-muted-foreground">
+          <p>Lädt Warenkorb...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && items.length === 0) {
+    return (
+      <div className="container py-12 md:py-20">
+        <div className="mx-auto max-w-2xl text-center text-red-400">
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

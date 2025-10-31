@@ -17,6 +17,8 @@ type DisplayGemstone = {
   name: string;
   gemstoneType: string;
   type: 'cut' | 'rough';
+  cut?: string;
+  cutForm?: string;
   origin: string;
   mainImage: string;
   price: number;
@@ -65,12 +67,16 @@ const convertLibraryGemstone = (gem: Gemstone): DisplayGemstone => {
     : undefined;
 
   const mainImage = gem.mainImage || gem.images?.[0] || PLACEHOLDER_IMAGE;
+  const cut = isCutGemstone(gem) ? gem.cut ?? undefined : undefined;
+  const cutForm = isCutGemstone(gem) ? gem.cutForm ?? undefined : undefined;
 
   return {
     id: gem.id,
     name: gem.name,
     gemstoneType: gem.category ?? 'Edelstein',
     type: gem.type,
+    cut,
+    cutForm,
     origin: gem.origin ?? '–',
     mainImage,
     price: gem.price,
@@ -131,6 +137,8 @@ export function GemstoneManagementSection() {
       name: gem.name,
       gemstoneType: gem.category ?? 'Edelstein',
       type: (gem.type as 'cut' | 'rough') ?? 'cut',
+      cut: typeof gem.cut === 'string' && gem.cut ? String(gem.cut) : undefined,
+      cutForm: typeof gem.cutForm === 'string' && gem.cutForm ? String(gem.cutForm) : undefined,
       origin: gem.origin ?? '–',
       mainImage: images[0] || PLACEHOLDER_IMAGE,
       price: typeof gem.price === 'number' ? gem.price : Number(gem.price ?? 0),
@@ -186,6 +194,8 @@ export function GemstoneManagementSection() {
           name: gemstone.name,
           gemstoneType: gemstone.gemstoneType,
           type: gemstone.type,
+          cut: gemstone.cut ?? '',
+          cutForm: gemstone.cutForm ?? '',
           origin: gemstone.origin === '–' ? '' : gemstone.origin,
           price: gemstone.price ? String(gemstone.price) : '',
           weight: gemstone.weight ? gemstone.weight.replace(/[^0-9.,]/g, '') : '',
@@ -225,6 +235,8 @@ export function GemstoneManagementSection() {
       name: values.name,
       category: values.gemstoneType,
       type: values.type,
+      cut: values.type === 'cut' ? values.cut : '',
+      cutForm: values.type === 'cut' ? values.cutForm : '',
       origin: values.origin,
       price: values.price ? Number(values.price) : 0,
       weight: values.weight ? Number(values.weight) : null,
@@ -436,6 +448,12 @@ export function GemstoneManagementSection() {
                     <span>Edelsteinart: <span className="text-white/80">{gemstone.gemstoneType}</span></span>
                     <span>Herkunft: <span className="text-white/80">{gemstone.origin}</span></span>
                     {gemstone.weight && <span>Gewicht: <span className="text-white/80">{gemstone.weight}</span></span>}
+                    {gemstone.type === 'cut' && gemstone.cut && (
+                      <span>Schliff: <span className="text-white/80">{gemstone.cut}</span></span>
+                    )}
+                    {gemstone.type === 'cut' && gemstone.cutForm && (
+                      <span>Schliffform: <span className="text-white/80">{gemstone.cutForm}</span></span>
+                    )}
                     {gemstone.dimensions && (
                       <span>
                         Größe: <span className="text-white/80">{gemstone.dimensions.length ?? '–'} × {gemstone.dimensions.width ?? '–'} × {gemstone.dimensions.height ?? '–'} mm</span>
@@ -615,6 +633,12 @@ export function GemstoneManagementSection() {
               <p><span className="text-white/50">Edelsteinart:</span> {detailGemstone.gemstoneType}</p>
               <p><span className="text-white/50">Herkunft:</span> {detailGemstone.origin}</p>
               <p><span className="text-white/50">Gewicht:</span> {detailGemstone.weight ?? '–'}</p>
+              {detailGemstone.type === 'cut' && (
+                <>
+                  <p><span className="text-white/50">Schliff:</span> {detailGemstone.cut ?? '–'}</p>
+                  <p><span className="text-white/50">Schliffform:</span> {detailGemstone.cutForm ?? '–'}</p>
+                </>
+              )}
               <p>
                 <span className="text-white/50">Größe:</span>{' '}
                 {detailGemstone.dimensions

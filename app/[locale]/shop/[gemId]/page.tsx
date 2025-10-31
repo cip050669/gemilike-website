@@ -46,9 +46,11 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
     id: gemstone.id,
     name: gemstone.name,
     price: gemstone.price,
+    currency: gemstone.currency ?? 'EUR',
     image: gemstone.images[0],
     category: gemstone.category,
     weight: typeof gemstone.weight === 'number' ? gemstone.weight : undefined,
+    weightUnit: gemstone.weightUnit,
     origin: gemstone.origin ?? undefined,
   };
 

@@ -23,7 +23,7 @@ datasource db {
 ### Kern-Tabellen
 | Tabelle | Zweck | Schlüssel-Felder |
 | --- | --- | --- |
-| `Gemstone` | Stammdaten je Stein | `id`, `slug`, `status (draft/review/published/archived)`, `category`, `name`, `shortDescription`, `longDescription`, `origin`, `isNew`, `isSold`, `featured`, `createdAt`, `updatedAt` |
+| `Gemstone` | Stammdaten je Stein | `id`, `slug`, `status (draft/review/published/archived)`, `category`, `name`, `shortDescription`, `longDescription`, `origin`, `isNew`, `isSold`, `featured`, `cut`, `cutForm`, `createdAt`, `updatedAt` |
 | `GemstoneInventory` | Lager-/Gewichtsdaten | `gemstoneId (1:1)`, `condition (cut/rough)`, `caratWeight`, `gramWeight`, `quantity`, `sku`, `warehouseLocation`, `availableFrom`, `availableTo` |
 | `GemstoneAttributes` | Technische Attribute | `gemstoneId (1:1)`, `lengthMm`, `widthMm`, `heightMm`, `color`, `colorSaturation`, `colorHue`, `clarity`, `cutGrade`, `treatment`, `certification`, `certificateId`, `certificateUrl` |
 | `GemstoneMedia` | Mediengalerie | `id`, `gemstoneId`, `type (image/video)`, `url`, `thumbnailUrl`, `alt`, `position`, `isPrimary` |
@@ -126,4 +126,6 @@ datasource db {
 - Intro-Story-Card „Unsere Auswahl an Edelsteinen“ auf der Shop-Seite implementiert (`components/shop/ShopShowcase.tsx`), Design und Typografie spiegeln die Startseiten-Sektion „Neue Edelsteine“.
 - Navigations-Button „Zurück zur Startseite“ rechtsbündig in die Shop-Intro-Card integriert, gleiche Nav-Styles wie Header/Footer (Locale-aware Link).
 - Shop-Kachelraster mit 5 Spalten × 240 px Breite, homogener Glow-Hover und Badges analog Startseite aktualisiert (`components/shop/GemstoneGrid.tsx`); Sichtfenster auf 6 Reihen mit vertikaler Scrollleiste begrenzt.
-- Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, Wishlist/Cart-Serveraktionen anbinden.
+- Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, serverseitige Checkout-Logs & Tests ergänzen.
+- Cart- & Wishlist-Flows auf Server Actions umgestellt (`lib/actions/cart.ts`, `lib/actions/wishlist.ts`) inklusive Zustands- und UI-Stores mit optimistischen Updates (`lib/store/cart.ts`, `lib/store/wishlist.ts`), Buttons/Seiten auf neue Stores gehoben.
+- Schliff- und Schliffform-Auswahllisten im Admin-Editor integriert; neue Prisma-Felder `Gemstone.cut`/`Gemstone.cutForm` werden über Editor, Management-Ansicht und Shop-Frontend konsistent gepflegt (`components/admin/GemstoneEditor.tsx`, `components/admin/GemstoneManagementSection.tsx`, `lib/shop/shopData.ts`).

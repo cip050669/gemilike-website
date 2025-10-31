@@ -29,6 +29,7 @@ export interface ShopGemstone {
   colorSaturation?: string | null;
   clarity?: string | null;
   cut?: string | null;
+  cutForm?: string | null;
   treatment?: string | null;
   description?: string | null;
   shortDescription?: string | null;
@@ -78,9 +79,11 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
     id: gem.id,
     name: gem.name,
     price: gem.price,
+    currency: gem.currency ?? 'EUR',
     image: gem.images[0],
     category: gem.category,
     weight: typeof gem.weight === 'number' ? gem.weight : undefined,
+    weightUnit: gem.weightUnit,
     origin: gem.origin ?? undefined,
   });
 
@@ -264,6 +267,9 @@ export function GemstoneGrid({ gemstones, fallback = false }: GemstoneGridProps)
                       )}
                       {selectedGemstone.cut && (
                         <DetailRow label="Schliff">{selectedGemstone.cut}</DetailRow>
+                      )}
+                      {selectedGemstone.cutForm && (
+                        <DetailRow label="Schliffform">{selectedGemstone.cutForm}</DetailRow>
                       )}
                       {selectedGemstone.treatment && (
                         <DetailRow label="Behandlung">{selectedGemstone.treatment}</DetailRow>

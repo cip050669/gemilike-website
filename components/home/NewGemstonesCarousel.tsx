@@ -34,9 +34,11 @@ const toCartItem = (gem: ShopGemstone) => ({
   id: gem.id,
   name: gem.name,
   price: gem.price,
+  currency: gem.currency ?? 'EUR',
   image: gem.images[0],
   category: gem.category,
   weight: typeof gem.weight === 'number' ? gem.weight : undefined,
+  weightUnit: gem.weightUnit,
   origin: gem.origin ?? undefined,
 });
 

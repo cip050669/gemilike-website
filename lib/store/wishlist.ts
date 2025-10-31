@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import type { WishlistSummary } from '@/lib/actions/wishlist';
+import type { WishlistSummary, WishlistItemDTO } from '@/lib/actions/wishlist';
 import {
   getWishlistSummary,
   toggleWishlistItem,
@@ -9,12 +9,14 @@ import {
   clearWishlist as clearWishlistAction,
 } from '@/lib/actions/wishlist';
 
+type OptimisticWishlistItem = Partial<WishlistItemDTO> & { gemstoneId: string };
+
 interface WishlistStoreState {
   summary: WishlistSummary | null;
   isLoading: boolean;
   error: string | null;
   fetchWishlist: () => Promise<void>;
-  toggleItem: (gemstoneId: string) => Promise<void>;
+  toggleItem: (gemstoneId: string, optimistic?: OptimisticWishlistItem) => Promise<void>;
   removeItem: (gemstoneId: string) => Promise<void>;
   clearWishlist: () => Promise<void>;
   isInWishlist: (gemstoneId: string) => boolean;
@@ -26,6 +28,46 @@ const handleError = (error: unknown): string => {
   if (error instanceof Error) return error.message;
   if (typeof error === 'string') return error;
   return 'Unbekannter Fehler';
+};
+
+const ensureWishlist = (summary: WishlistSummary | null): WishlistSummary => {
+  if (summary) return summary;
+  return {
+    id: 'optimistic-wishlist',
+    items: [],
+    totalItems: 0,
+  };
+};
+
+const optimisticToggle = (
+  summary: WishlistSummary | null,
+  gemstoneId: string,
+  optimistic?: OptimisticWishlistItem
+): WishlistSummary => {
+  const base = ensureWishlist(summary);
+  const exists = base.items.some((item) => item.gemstoneId === gemstoneId);
+
+  let items: WishlistItemDTO[];
+  if (exists) {
+    items = base.items.filter((item) => item.gemstoneId !== gemstoneId);
+  } else {
+    const newItem: WishlistItemDTO = {
+      id: `wishlist-optimistic-${Date.now()}`,
+      gemstoneId,
+      name: optimistic?.name ?? 'Edelstein',
+      slug: optimistic?.slug ?? null,
+      image: optimistic?.image ?? null,
+      isSold: optimistic?.isSold ?? false,
+      createdAt: optimistic?.createdAt ?? new Date(),
+    };
+    items = [...base.items, newItem];
+  }
+
+  return {
+    ...base,
+    items,
+    totalItems: items.length,
+  };
 };
 
 export const useWishlistStore = create<WishlistStoreState>((set, get) => ({
@@ -51,9 +93,18 @@ export const useWishlistStore = create<WishlistStoreState>((set, get) => ({
     }
   },
 
-  toggleItem: async (gemstoneId: string) => {
+  toggleItem: async (gemstoneId: string, optimisticData?: OptimisticWishlistItem) => {
+    const previousSummary = get().summary;
+    const optimisticSummary = optimisticToggle(previousSummary, gemstoneId, optimisticData);
+    set({
+      summary: optimisticSummary,
+      items: optimisticSummary.items,
+      totalItems: optimisticSummary.totalItems,
+      error: null,
+      isLoading: true,
+    });
+
     try {
-      set({ isLoading: true, error: null });
       const summary = await toggleWishlistItem(gemstoneId);
       set({
         summary,
@@ -63,7 +114,13 @@ export const useWishlistStore = create<WishlistStoreState>((set, get) => ({
       });
     } catch (error) {
       console.error('Wishlist toggle error:', error);
-      set({ error: handleError(error), isLoading: false });
+      set({
+        summary: previousSummary,
+        items: previousSummary?.items ?? [],
+        totalItems: previousSummary?.totalItems ?? 0,
+        error: handleError(error),
+        isLoading: false,
+      });
     }
   },
 
@@ -76,7 +133,15 @@ export const useWishlistStore = create<WishlistStoreState>((set, get) => ({
         return;
       }
 
-      set({ isLoading: true, error: null });
+      const optimisticSummary = optimisticToggle(current, gemstoneId);
+      set({
+        summary: optimisticSummary,
+        items: optimisticSummary.items,
+        totalItems: optimisticSummary.totalItems,
+        error: null,
+        isLoading: true,
+      });
+
       const summary = await removeWishlistItem(wishlistItem.id);
       set({
         summary,
@@ -86,13 +151,28 @@ export const useWishlistStore = create<WishlistStoreState>((set, get) => ({
       });
     } catch (error) {
       console.error('Wishlist remove error:', error);
-      set({ error: handleError(error), isLoading: false });
+      const fallback = get().summary;
+      set({
+        summary: fallback,
+        items: fallback?.items ?? [],
+        totalItems: fallback?.totalItems ?? 0,
+        error: handleError(error),
+        isLoading: false,
+      });
     }
   },
 
   clearWishlist: async () => {
+    const previousSummary = get().summary;
+    set({
+      summary: previousSummary ? { ...previousSummary, items: [], totalItems: 0 } : previousSummary,
+      items: [],
+      totalItems: 0,
+      error: null,
+      isLoading: true,
+    });
+
     try {
-      set({ isLoading: true, error: null });
       const summary = await clearWishlistAction();
       set({
         summary,
@@ -102,7 +182,13 @@ export const useWishlistStore = create<WishlistStoreState>((set, get) => ({
       });
     } catch (error) {
       console.error('Wishlist clear error:', error);
-      set({ error: handleError(error), isLoading: false });
+      set({
+        summary: previousSummary,
+        items: previousSummary?.items ?? [],
+        totalItems: previousSummary?.totalItems ?? 0,
+        error: handleError(error),
+        isLoading: false,
+      });
     }
   },
 

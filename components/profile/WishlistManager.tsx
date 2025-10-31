@@ -44,7 +44,17 @@ export default function WishlistManager() {
 
   const handleAddToCart = (gemstone: Gemstone) => {
     try {
-      void addCartItem(gemstone.id);
+      void addCartItem(gemstone.id, 1, {
+        gemstoneId: gemstone.id,
+        name: gemstone.name,
+        price: gemstone.price,
+        image: gemstone.images?.[0] || gemstone.mainImage,
+        category: gemstone.category,
+        weight: isCutGemstone(gemstone) ? gemstone.caratWeight : gemstone.gramWeight,
+        weightUnit: isCutGemstone(gemstone) ? 'ct' : 'g',
+        origin: gemstone.origin ?? undefined,
+        currency: 'EUR',
+      });
     } catch (error) {
       console.error('Error adding to cart:', error);
     }

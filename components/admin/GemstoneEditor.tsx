@@ -22,6 +22,8 @@ export type GemstoneFormValues = {
   name: string;
   gemstoneType: string;
   type: 'cut' | 'rough';
+  cut: string;
+  cutForm: string;
   origin: string;
   price: string;
   weight: string;
@@ -72,6 +74,36 @@ const GEMSTONE_TYPE_OPTIONS: OptionItem[] = [
   'Granat',
   'Kunzit',
   'Mondstein',
+].map((value) => ({ value }));
+
+const CUT_STYLE_OPTIONS: OptionItem[] = [
+  'Brillant',
+  'Princess',
+  'Emerald',
+  'Oval',
+  'Radiant',
+  'Asscher',
+  'Marquise',
+  'Herz',
+  'Tropfen',
+  'Baguette',
+  'Cushion',
+  'Trillion',
+].map((value) => ({ value }));
+
+const CUT_FORM_OPTIONS: OptionItem[] = [
+  'Rund',
+  'Oval',
+  'Kissen',
+  'Herz',
+  'Tropfen',
+  'Marquise',
+  'Princess',
+  'Brillant',
+  'Smaragd',
+  'Baguette',
+  'Asscher',
+  'Trillion',
 ].map((value) => ({ value }));
 
 const ORIGIN_OPTIONS: OptionItem[] = [
@@ -155,6 +187,8 @@ const EMPTY_FORM: GemstoneFormValues = {
   name: '',
   gemstoneType: '',
   type: 'cut',
+  cut: '',
+  cutForm: '',
   origin: '',
   price: '',
   weight: '',
@@ -184,6 +218,8 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
       setFormValues({
         ...EMPTY_FORM,
         ...initialValues,
+        cut: initialValues.cut ?? '',
+        cutForm: initialValues.cutForm ?? '',
         images: initialValues.images.length ? initialValues.images.slice(0, 10) : [''],
         videos: initialValues.videos.length ? initialValues.videos.slice(0, 2) : [''],
       });
@@ -193,7 +229,14 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
   }, [initialValues]);
 
   const handleChange = <K extends keyof GemstoneFormValues>(field: K, value: GemstoneFormValues[K]) => {
-    setFormValues((prev) => ({ ...prev, [field]: value }));
+    setFormValues((prev) => {
+      const next: GemstoneFormValues = { ...prev, [field]: value } as GemstoneFormValues;
+      if (field === 'type' && value === 'rough') {
+        next.cut = '';
+        next.cutForm = '';
+      }
+      return next;
+    });
   };
 
   const updateDimension = (field: keyof GemstoneFormValues['dimensions'], value: string) => {
@@ -236,6 +279,10 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
       images: formValues.images.filter((url) => url.trim()).slice(0, 10),
       videos: formValues.videos.filter((url) => url.trim()).slice(0, 2),
     };
+    if (sanitized.type === 'rough') {
+      sanitized.cut = '';
+      sanitized.cutForm = '';
+    }
     onSubmit(sanitized);
   };
 
@@ -391,6 +438,29 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               />
             </div>
           </div>
+
+          {formValues.type === 'cut' && (
+            <div className="grid grid-cols-2 gap-3">
+              <OverlaySelectField
+                label="Schliff"
+                placeholder="Schliff auswählen oder eingeben"
+                value={formValues.cut}
+                options={CUT_STYLE_OPTIONS}
+                onChange={(value) => handleChange('cut', value)}
+                allowCustom
+                allowEmpty
+              />
+              <OverlaySelectField
+                label="Schliffform"
+                placeholder="Form auswählen oder eingeben"
+                value={formValues.cutForm}
+                options={CUT_FORM_OPTIONS}
+                onChange={(value) => handleChange('cutForm', value)}
+                allowCustom
+                allowEmpty
+              />
+            </div>
+          )}
 
           <OverlaySelectField
             label="Farbe"

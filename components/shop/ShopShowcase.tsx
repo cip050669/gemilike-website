@@ -92,16 +92,13 @@ export function ShopShowcase({ gemstones, fallback = false }: ShopShowcaseProps)
     <div className="space-y-16">
       <section className="main-container">
         <div className="story-card space-y-4 p-6 md:p-8">
-          <div className="flex flex-col items-center gap-3 text-center md:flex-row md:items-start md:justify-between md:text-left">
-            <span className="text-xs uppercase tracking-[0.4em] text-white/50">
-              Edelstein-Shop
-            </span>
+          <div className="flex flex-col items-center gap-3 md:flex-row md:justify-end md:items-end w-full">
             <Link
               href={`/${locale}`}
               className={cn(
                 navStyles.navButton,
                 navStyles.navButtonTight,
-                'px-4 py-2 text-sm'
+                'px-4 py-2 text-sm md:ml-auto'
               )}
             >
               <span className={navStyles.navLabel}>Zurück zur Startseite</span>

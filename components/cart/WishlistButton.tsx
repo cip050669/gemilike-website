@@ -1,4 +1,5 @@
 'use client';
+'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import { useWishlistStore } from '@/lib/store/wishlist';
@@ -8,6 +9,9 @@ import { HeartIcon } from 'lucide-react';
 interface WishlistButtonProps {
   item: {
     id: string;
+    name?: string;
+    image?: string;
+    isSold?: boolean;
   };
   className?: string;
 }
@@ -18,6 +22,7 @@ export function WishlistButton({ item, className }: WishlistButtonProps) {
   const isInWishlist = useWishlistStore((state) => state.isInWishlist(item.id));
   const fetchWishlist = useWishlistStore((state) => state.fetchWishlist);
   const summary = useWishlistStore((state) => state.summary);
+  const isStoreLoading = useWishlistStore((state) => state.isLoading);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -28,15 +33,25 @@ export function WishlistButton({ item, className }: WishlistButtonProps) {
   }, [summary, fetchWishlist]);
 
   const handleToggle = () => {
-    if (isPending) return;
+    if (isPending || isStoreLoading) return;
 
     setIsAnimating(true);
 
     startTransition(() => {
-      const action = isInWishlist ? removeItem : toggleItem;
-      action(item.id).finally(() => {
-        setTimeout(() => setIsAnimating(false), 300);
-      });
+      if (isInWishlist) {
+        removeItem(item.id).finally(() => {
+          setTimeout(() => setIsAnimating(false), 300);
+        });
+      } else {
+        toggleItem(item.id, {
+          gemstoneId: item.id,
+          name: item.name,
+          image: item.image,
+          isSold: item.isSold,
+        }).finally(() => {
+          setTimeout(() => setIsAnimating(false), 300);
+        });
+      }
     });
   };
 
@@ -45,7 +60,7 @@ export function WishlistButton({ item, className }: WishlistButtonProps) {
       variant="ghost"
       size="icon"
       onClick={handleToggle}
-      disabled={isPending}
+      disabled={isPending || isStoreLoading}
       className={`${className ?? ''} ${
         isInWishlist
           ? 'text-red-500 bg-red-50 hover:bg-red-100'

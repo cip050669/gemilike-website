@@ -77,8 +77,8 @@ export function Newsticker({ items, autoRotate = true, rotationInterval = 7000 }
 
   return (
     <div className="newsticker-container mx-auto space-y-4" style={{ width: 'calc(100% - 16rem)' }}>
-      <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-white text-center">
-        Newsticker
+      <h2 className="text-3xl md:text-4xl font-impact font-weight-impact text-center">
+        <span className="gemilike-text-gradient">Newsticker</span>
       </h2>
       <div
         className="story-card bg-[#2D2D2D] border border-white/10 px-6 py-2 flex items-center gap-4"

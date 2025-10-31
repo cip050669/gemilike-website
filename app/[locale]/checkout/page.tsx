@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { useCartStore } from '@/lib/store/cart';
@@ -13,7 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CheckIcon, CreditCardIcon, TruckIcon } from 'lucide-react';
 
 export default function CheckoutPage() {
-  const { items, getTotalPrice, getTotalItems, clearCart } = useCartStore();
+  const items = useCartStore((state) => state.items);
+  const getTotalPrice = useCartStore((state) => state.getTotalPrice);
+  const getTotalItems = useCartStore((state) => state.getTotalItems);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const fetchCart = useCartStore((state) => state.fetchCart);
+  const isLoading = useCartStore((state) => state.isLoading);
+  const error = useCartStore((state) => state.error);
   const locale = useLocale();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -38,6 +44,26 @@ export default function CheckoutPage() {
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    void fetchCart();
+  }, [fetchCart]);
+
+  if (isLoading && items.length === 0) {
+    return (
+      <div className="min-h-screen public-page-bg flex items-center justify-center text-muted-foreground">
+        Warenkorb wird geladen...
+      </div>
+    );
+  }
+
+  if (error && items.length === 0) {
+    return (
+      <div className="min-h-screen public-page-bg flex items-center justify-center text-red-400">
+        {error}
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

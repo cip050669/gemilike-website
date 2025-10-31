@@ -32,7 +32,7 @@
   - [ ] Neue Menüpunkte erst nach Fertigstellung der jeweiligen Module freischalten _(Status: Offen)_  
 - [ ] **Wishlist & Cart serverseitig persistieren** _(Status: Offen)_  
   - [ ] API-Routen mit Prisma für `WishlistItem`/`CartItem` implementieren _(Status: Offen)_  
-  - [ ] Frontend-Stores (`useWishlistStore`, `useCartStore`) auf API/Server Actions umstellen _(Status: Offen)_  
+  - [x] Frontend-Stores (`useWishlistStore`, `useCartStore`) auf API/Server Actions umstellen _(Status: Erledigt – Server Actions + optimistische Updates in `lib/store/cart.ts`, `lib/store/wishlist.ts`)_
   - [ ] Admin-Auswertungen für Wunschlisten/Bestellungen konfigurieren _(Status: Offen)_  
 - [ ] **Shop-Datenbank befüllen und absichern** _(Status: Offen)_  
   - [ ] Seed-Skripte für Produkte, Varianten und Lagerbestände ergänzen _(Status: Offen)_  

@@ -10,9 +10,11 @@ interface AddToCartButtonProps {
     id: string;
     name: string;
     price: number;
+    currency?: string;
     image?: string;
     category?: string;
     weight?: number;
+    weightUnit?: 'ct' | 'g';
     origin?: string;
   };
   disabled?: boolean;
@@ -20,30 +22,39 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({ item, disabled = false }: AddToCartButtonProps) {
   const addItem = useCartStore((state) => state.addItem);
+  const isStoreLoading = useCartStore((state) => state.isLoading);
   const [isAdded, setIsAdded] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleAddToCart = () => {
-    if (disabled || isPending) {
+    if (disabled || isPending || isStoreLoading) {
       return;
     }
 
+    setIsAdded(true);
     startTransition(() => {
-      addItem(item.id)
-        .then(() => {
-          setIsAdded(true);
-          setTimeout(() => setIsAdded(false), 2000);
-        })
-        .catch(() => {
-          setIsAdded(false);
-        });
+      addItem(item.id, 1, {
+        gemstoneId: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        category: item.category,
+        weight: item.weight,
+        weightUnit: item.weightUnit,
+        origin: item.origin,
+        currency: item.currency ?? 'EUR',
+      }).catch(() => {
+        setIsAdded(false);
+      });
     });
+
+    setTimeout(() => setIsAdded(false), 2000);
   };
 
   return (
     <Button
       onClick={handleAddToCart}
-      disabled={disabled || isPending}
+      disabled={disabled || isPending || isStoreLoading}
       className={`${
         disabled
           ? 'bg-gray-700 text-gray-300 hover:bg-gray-700'

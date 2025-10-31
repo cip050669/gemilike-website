@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCartStore } from '@/lib/store/cart';
+import type { CartItemDTO } from '@/lib/actions/cart';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,17 +10,7 @@ import Image from 'next/image';
 import { XIcon, PlusIcon, MinusIcon, ShoppingCartIcon } from 'lucide-react';
 import Link from 'next/link';
 
-const EMPTY_ITEMS: ReadonlyArray<{
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  category?: string;
-  weight?: number;
-  weightUnit?: string;
-  origin?: string;
-}> = Object.freeze([]);
+const EMPTY_ITEMS: ReadonlyArray<CartItemDTO> = Object.freeze([]);
 
 export function Cart() {
   const isOpen = useCartStore((state) => state.isOpen);
@@ -28,7 +19,7 @@ export function Cart() {
   const removeItem = useCartStore((state) => state.removeItem);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const getTotalItems = useCartStore((state) => state.getTotalItems);
-  const items = useCartStore((state) => state.summary?.items ?? EMPTY_ITEMS);
+  const items = useCartStore((state) => state.items ?? EMPTY_ITEMS);
   const currency = useCartStore((state) => state.summary?.currency ?? 'EUR');
   const isLoading = useCartStore((state) => state.isLoading);
   const fetchCart = useCartStore((state) => state.fetchCart);
@@ -119,6 +110,7 @@ export function Cart() {
                             variant="outline"
                             size="icon"
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            disabled={isLoading}
                           >
                             <MinusIcon className="h-4 w-4" />
                           </Button>
@@ -127,6 +119,7 @@ export function Cart() {
                             variant="outline"
                             size="icon"
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            disabled={isLoading}
                           >
                             <PlusIcon className="h-4 w-4" />
                           </Button>
@@ -134,6 +127,7 @@ export function Cart() {
                             variant="ghost"
                             size="icon"
                             onClick={() => removeItem(item.id)}
+                            disabled={isLoading}
                           >
                             <XIcon className="h-4 w-4" />
                           </Button>

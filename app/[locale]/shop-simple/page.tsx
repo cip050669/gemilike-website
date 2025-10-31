@@ -56,11 +56,16 @@ export default function SimpleShopPage() {
   }, [filteredGemstones, sortOption]);
 
   const handleAddToCart = (gemstone: Gemstone) => {
-    addItem({
-      id: gemstone.id,
+    addItem(gemstone.id, 1, {
+      gemstoneId: gemstone.id,
       name: gemstone.name,
       price: gemstone.price,
       image: gemstone.mainImage,
+      category: gemstone.category,
+      weight: gemstone.type === 'cut' ? gemstone.caratWeight : gemstone.gramWeight,
+      weightUnit: gemstone.type === 'cut' ? 'ct' : 'g',
+      origin: gemstone.origin,
+      currency: 'EUR',
     });
     setAddedItems(new Set(addedItems).add(gemstone.id));
     setTimeout(() => {
@@ -200,4 +205,3 @@ export default function SimpleShopPage() {
     </div>
   );
 }
-

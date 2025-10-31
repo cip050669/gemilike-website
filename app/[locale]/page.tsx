@@ -79,8 +79,8 @@ export default async function HomePage({
 
       {/* Container 1: Geschichten um Edelsteine */}
       <div className="main-container">
-        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-white text-center">
-          <span style={{ color: blogSettings.headingColor }}>{blogSettings.heading}</span>
+        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-center">
+          <span className="gemilike-text-gradient">{blogSettings.heading}</span>
         </h2>
         <p className="text-lg text-gray-300 text-center mb-16">
           <span style={{ color: blogSettings.subheadingColor }}>{blogSettings.subheading}</span>
@@ -107,7 +107,7 @@ export default async function HomePage({
                     <div className="flex flex-col gap-6 justify-center flex-1">
                       <div className="flex items-center gap-6 w-full">
                         <div className="flex flex-col gap-3 text-left flex-1">
-                          <h3 className="text-xl font-bold text-white">
+                          <h3 className="text-xl font-bold gemilike-text-gradient">
                             {story.title}
                           </h3>
                           <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">
@@ -147,7 +147,7 @@ export default async function HomePage({
           </div>
         ) : (
           <div className="story-card text-center">
-            <h3 className="text-2xl font-bold mb-4 text-white">
+            <h3 className="text-2xl font-bold mb-4 gemilike-text-gradient">
               Noch keine Geschichten veröffentlicht
             </h3>
             <p className="text-gray-300 text-base leading-relaxed">
