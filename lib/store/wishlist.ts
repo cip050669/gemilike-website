@@ -59,6 +59,7 @@ const optimisticToggle = (
       image: optimistic?.image ?? null,
       isSold: optimistic?.isSold ?? false,
       createdAt: optimistic?.createdAt ?? new Date(),
+      gemstone: optimistic?.gemstone ?? null,
     };
     items = [...base.items, newItem];
   }

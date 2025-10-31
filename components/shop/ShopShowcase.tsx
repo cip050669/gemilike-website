@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ShopGemstone, GemstoneGrid } from '@/components/shop/GemstoneGrid';
+import { GemstoneGrid } from '@/components/shop/GemstoneGrid';
+import type { ShopGemstone } from '@/lib/services/shop/types';
 import { Input } from '@/components/ui/input';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { cn } from '@/lib/utils';

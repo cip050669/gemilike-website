@@ -8,8 +8,9 @@
 - [x] **Prisma auf PostgreSQL umstellen** _(Status: Erledigt)_  
   - [x] Neues Datenmodell laut `SHOP_REBUILD_PLAN.md` modellieren _(Status: Erledigt – Schema auf PostgreSQL angepasst, `Gemstone.cut`/`cutForm` ergänzt)_  
   - [x] Migration & Seed-Skripte (Demo-Daten, Admin-User) implementieren _(Status: Erledigt – `pnpm prisma migrate dev` auf neuer DB ausgeführt; Seeding folgt separat)_  
-- [ ] **Server Actions & Domain-Layer bauen** _(Status: Offen)_  
-  - [ ] Repository/Service-Schicht für Gemstones, Wishlist, Cart, Orders anlegen _(Status: Offen)_  
+- [ ] **Server Actions & Domain-Layer bauen** _(Status: Teilweise erledigt)_  
+  - [x] Repository/Service-Schicht für Gemstones anlegen _(Status: Erledigt – `lib/services/shop/*` eingeführt)_  
+  - [ ] Repository/Service-Schicht für Wishlist, Cart, Orders anlegen _(Status: Offen)_  
   - [ ] Audit-Logging & Role Guards integrieren _(Status: Offen)_  
 - [ ] **Shop-Frontend erneuern** _(Status: Offen)_  
   - [x] Grid (6×5 Sichtbereich) + 240px Kacheln mit Badges/Wishlist/Cart umsetzen _(Status: Erledigt – umgesetzt in `components/shop/GemstoneGrid.tsx`)_
@@ -37,7 +38,7 @@
 - [ ] **Shop-Datenbank befüllen und absichern** _(Status: Teilweise erledigt)_  
   - [x] Seed-Skript für Kernobjekte (HeroSettings, SelectOptions, Beispiel-Gemstones) erstellt _(Status: Erledigt – siehe `prisma/seed.ts` / `prisma/seed.sql`)_  
   - [x] Seed-Ausführung & Datenvalidierung durchführen _(Status: Erledigt – `prisma/seed.sql` via `psql` eingespielt)_  
-  - [ ] Fallback-Libraries entfernen oder mit Prisma-Daten verknüpfen _(Status: Offen)_  
+  - [ ] Fallback-Libraries entfernen oder mit Prisma-Daten verknüpfen _(Status: Teilweise erledigt – statische Gemstone-Fallbacks im Shop/Wishlist/Admin entfernt)_  
 - [ ] **Rechtstexte entsperren** _(Status: Offen)_  
   - [ ] Datenmodell für Rechtstexte inkl. Versionierung (z. B. `LegalDocument`) anlegen _(Status: Offen)_  
   - [ ] Admin-Editor (Markdown/HTML) & Veröffentlichungsworkflow bauen _(Status: Offen)_  

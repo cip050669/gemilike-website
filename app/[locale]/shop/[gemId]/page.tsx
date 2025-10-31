@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { MediaGallery } from '@/components/shop/MediaGallery';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { WishlistButton } from '@/components/cart/WishlistButton';
-import { loadShopGemstoneById, PLACEHOLDER_IMAGE } from '@/lib/shop/shopData';
+import { loadShopGemstoneById } from '@/lib/shop/shopData';
+import { GEMSTONE_PLACEHOLDER_IMAGE } from '@/lib/services/shop/gemstone.service';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { cn } from '@/lib/utils';
 
@@ -190,7 +191,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                 </div>
 
                 <MediaGallery
-                  images={gemstone.images.length ? gemstone.images : [PLACEHOLDER_IMAGE]}
+                  images={gemstone.images.length ? gemstone.images : [GEMSTONE_PLACEHOLDER_IMAGE]}
                   videos={gemstone.videos}
                   gemName={gemstone.name}
                   className="rounded-xl"

@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { GemstoneGrid, type ShopGemstone } from '@/components/shop/GemstoneGrid'
+import { GemstoneGrid } from '@/components/shop/GemstoneGrid'
+import type { ShopGemstone } from '@/lib/services/shop/types'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -162,4 +163,3 @@ describe('GemstoneGrid Component', () => {
     expect(screen.getByText(/2\.50.*ct/i)).toBeInTheDocument()
   })
 })
-

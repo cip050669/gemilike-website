@@ -4,6 +4,7 @@ import { SessionProvider } from '@/components/providers/SessionProvider';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { Header } from '@/components/layout/Header';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -43,6 +44,7 @@ export default async function LocaleLayout({
       <body className={`${inter.className} public-page-bg`} suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>
+            <Header />
             {children}
           </SessionProvider>
         </NextIntlClientProvider>

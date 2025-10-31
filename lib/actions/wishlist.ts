@@ -3,21 +3,18 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { resolveShopIdentity } from '@/lib/server/shop-context';
+import {
+  gemstoneWithRelationsInclude,
+  toShopGemstone,
+  type GemstoneWithRelations,
+} from '@/lib/services/shop/gemstone.service';
+import type { ShopGemstone } from '@/lib/services/shop/types';
 
 const wishlistInclude = {
   items: {
     include: {
       gemstone: {
-        include: {
-          media: {
-            orderBy: [
-              { isPrimary: 'desc' },
-              { position: 'asc' },
-              { createdAt: 'asc' },
-            ],
-            take: 1,
-          },
-        },
+        include: gemstoneWithRelationsInclude,
       },
     },
   },
@@ -28,6 +25,7 @@ type WishlistWithItems = Prisma.WishlistGetPayload<{ include: typeof wishlistInc
 export interface WishlistItemDTO {
   id: string;
   gemstoneId: string;
+  gemstone: ShopGemstone | null;
   name: string;
   slug?: string | null;
   image?: string | null;
@@ -42,15 +40,22 @@ export interface WishlistSummary {
 }
 
 const serializeWishlist = (wishlist: WishlistWithItems): WishlistSummary => {
-  const items = wishlist.items.map((item) => ({
-    id: item.id,
-    gemstoneId: item.gemstoneId,
-    name: item.gemstone?.name ?? 'Edelstein',
-    slug: item.gemstone?.slug ?? null,
-    image: item.gemstone?.media?.[0]?.url ?? null,
-    isSold: item.gemstone?.isSold ?? false,
-    createdAt: item.createdAt,
-  }));
+  const items = wishlist.items.map((item) => {
+    const gemstoneEntity = item.gemstone
+      ? toShopGemstone(item.gemstone as GemstoneWithRelations)
+      : null;
+
+    return {
+      id: item.id,
+      gemstoneId: item.gemstoneId,
+      gemstone: gemstoneEntity,
+      name: gemstoneEntity?.name ?? 'Edelstein',
+      slug: gemstoneEntity?.slug ?? null,
+      image: gemstoneEntity?.images[0] ?? null,
+      isSold: gemstoneEntity?.isSold ?? false,
+      createdAt: item.createdAt,
+    } satisfies WishlistItemDTO;
+  });
 
   return {
     id: wishlist.id,

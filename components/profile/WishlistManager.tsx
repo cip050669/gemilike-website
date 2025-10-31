@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +10,57 @@ import { Separator } from '@/components/ui/separator';
 import { Heart, ShoppingCart, Eye, Trash2, Share2, Plus } from 'lucide-react';
 import { useWishlistStore } from '@/lib/store/wishlist';
 import { useCartStore } from '@/lib/store/cart';
-import { Gemstone, Treatment, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
-import { allGemstones } from '@/lib/data/gemstones';
+import type { WishlistItemDTO } from '@/lib/actions/wishlist';
+
+const GEM_IMAGE_PLACEHOLDER = '/products/placeholder-gem.jpg';
+
+const normalizeTreatment = (treatment?: string | null) => treatment?.toLowerCase() ?? 'none';
+
+const getTreatmentIcon = (treatment?: string | null) => {
+  switch (normalizeTreatment(treatment)) {
+    case 'heated':
+      return '🔥';
+    case 'irradiated':
+      return '⚡';
+    case 'coated':
+      return '✨';
+    case 'filled':
+      return '🔧';
+    case 'oiled':
+      return '💧';
+    case 'diffused':
+      return '🌈';
+    case 'none':
+    default:
+      return '💎';
+  }
+};
+
+const getTreatmentColor = (treatment?: string | null) => {
+  switch (normalizeTreatment(treatment)) {
+    case 'heated':
+      return 'text-orange-600';
+    case 'irradiated':
+      return 'text-purple-600';
+    case 'coated':
+      return 'text-blue-600';
+    case 'filled':
+      return 'text-gray-300';
+    case 'oiled':
+      return 'text-emerald-600';
+    case 'diffused':
+      return 'text-indigo-600';
+    case 'none':
+    default:
+      return 'text-green-600';
+  }
+};
+
+const formatPrice = (price: number, currency: string) =>
+  new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency,
+  }).format(price);
 
 export default function WishlistManager() {
   const router = useRouter();
@@ -22,45 +71,38 @@ export default function WishlistManager() {
   const wishlistError = useWishlistStore((state) => state.error);
   const wishlistLoading = useWishlistStore((state) => state.isLoading);
   const addCartItem = useCartStore((state) => state.addItem);
-  const [wishlistData, setWishlistData] = useState<Gemstone[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadWishlistData = useCallback(() => {
-    const gemstones = allGemstones.filter((gemstone) =>
-      wishlistItems.some((item) => item.gemstoneId === gemstone.id)
-    );
-    setWishlistData(gemstones);
-    setIsLoading(false);
-  }, [wishlistItems]);
 
   useEffect(() => {
-    setIsLoading(true);
-    void fetchWishlist().then(loadWishlistData);
-  }, [fetchWishlist, loadWishlistData]);
+    void fetchWishlist();
+  }, [fetchWishlist]);
 
   const handleRemoveFromWishlist = (gemstoneId: string) => {
     void removeItem(gemstoneId);
   };
 
-  const handleAddToCart = (gemstone: Gemstone) => {
+  const handleAddToCart = (item: WishlistItemDTO) => {
+    const gemstone = item.gemstone;
+    if (!gemstone) return;
+
     try {
       void addCartItem(gemstone.id, 1, {
         gemstoneId: gemstone.id,
         name: gemstone.name,
         price: gemstone.price,
-        image: gemstone.images?.[0] || gemstone.mainImage,
+        image: gemstone.images[0],
         category: gemstone.category,
-        weight: isCutGemstone(gemstone) ? gemstone.caratWeight : gemstone.gramWeight,
-        weightUnit: isCutGemstone(gemstone) ? 'ct' : 'g',
+        weight: gemstone.weight ?? undefined,
+        weightUnit: gemstone.weightUnit,
         origin: gemstone.origin ?? undefined,
-        currency: 'EUR',
+        currency: gemstone.currency,
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
   };
 
-  const handleViewDetails = (gemstoneId: string) => {
+  const handleViewDetails = (item: WishlistItemDTO) => {
+    const gemstoneId = item.gemstone?.id ?? item.gemstoneId;
     router.push(`/shop/${gemstoneId}`);
   };
 
@@ -76,71 +118,17 @@ export default function WishlistManager() {
         console.error('Error sharing:', error);
       }
     } else {
-      // Fallback: Copy to clipboard
       navigator.clipboard.writeText(window.location.href);
     }
   };
 
   const handleClearWishlist = () => {
     if (confirm('Sind Sie sicher, dass Sie Ihre gesamte Merkliste löschen möchten?')) {
-      clearWishlist();
+      void clearWishlist();
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(price);
-  };
-
-  const getTreatmentIcon = (treatment?: Treatment | null) => {
-    if (!treatment) return '💎';
-    
-    switch (treatment.type) {
-      case 'none':
-        return '💎';
-      case 'heated':
-        return '🔥';
-      case 'irradiated':
-        return '⚡';
-      case 'coated':
-        return '✨';
-      case 'filled':
-        return '🔧';
-      case 'oiled':
-        return '💧';
-      case 'diffused':
-        return '🌈';
-      default:
-        return '💎';
-    }
-  };
-
-  const getTreatmentColor = (treatment?: Treatment | null) => {
-    if (!treatment) return 'text-green-600';
-    
-    switch (treatment.type) {
-      case 'none':
-        return 'text-green-600';
-      case 'heated':
-        return 'text-orange-600';
-      case 'irradiated':
-        return 'text-purple-600';
-      case 'coated':
-        return 'text-blue-600';
-      case 'filled':
-        return 'text-gray-300';
-      case 'oiled':
-        return 'text-emerald-600';
-      case 'diffused':
-        return 'text-indigo-600';
-      default:
-        return 'text-green-600';
-    }
-  };
-
-  if (wishlistLoading || isLoading) {
+  if (wishlistLoading) {
     return (
       <Card>
         <CardContent className="py-8">
@@ -166,11 +154,11 @@ export default function WishlistManager() {
         <div>
           <h2 className="text-2xl font-bold">Meine Merkliste</h2>
           <p className="text-muted-foreground">
-            Ihre gespeicherten Edelsteine ({wishlistData.length} Artikel)
+            Ihre gespeicherten Edelsteine ({wishlistItems.length} Artikel)
           </p>
         </div>
         <div className="flex gap-2">
-          {wishlistData.length > 0 && (
+          {wishlistItems.length > 0 && (
             <>
               <Button variant="outline" onClick={handleShareWishlist}>
                 <Share2 className="h-4 w-4 mr-2" />
@@ -189,7 +177,7 @@ export default function WishlistManager() {
         </div>
       </div>
 
-      {wishlistData.length === 0 ? (
+      {wishlistItems.length === 0 ? (
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
@@ -207,147 +195,85 @@ export default function WishlistManager() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {wishlistData.map((gemstone) => (
-            <Card key={gemstone.id} className="group hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="relative">
-                  <div className="aspect-square bg-muted rounded-lg overflow-hidden mb-3 relative">
-                    <Image
-                      src={gemstone.images[0]}
-                      alt={gemstone.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+          {wishlistItems.map((item) => {
+            const gemstone = item.gemstone;
+            const image = gemstone?.images[0] ?? GEM_IMAGE_PLACEHOLDER;
+            const treatment = gemstone?.treatment ?? 'none';
+            const weightLabel = gemstone?.weight != null
+              ? `${gemstone.weight.toFixed(2)} ${gemstone.weightUnit}`
+              : '—';
+
+            return (
+              <Card key={item.id} className="group hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="relative">
+                    <div className="aspect-square bg-muted rounded-lg overflow-hidden mb-3 relative">
+                      <Image
+                        src={image}
+                        alt={gemstone?.name ?? 'Edelstein'}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <CardTitle className="text-xl">
+                      {gemstone?.name ?? 'Edelstein'}
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-2">
+                      <Badge variant="outline">{gemstone?.category ?? 'Unbekannt'}</Badge>
+                      {gemstone?.isNew && <Badge variant="secondary">Neu</Badge>}
+                      {gemstone?.isSold && <Badge variant="destructive">Verkauft</Badge>}
+                    </CardDescription>
                   </div>
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    {gemstone.certification?.certified && (
-                      <Badge variant="secondary" className="text-xs">
-                        Zertifiziert
-                      </Badge>
-                    )}
-                    {!gemstone.inStock && (
-                      <Badge variant="destructive" className="text-xs">
-                        Ausverkauft
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                <CardTitle className="text-lg line-clamp-2">
-                  {gemstone.name}
-                </CardTitle>
-                <CardDescription className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">Kategorie:</span>
-                    <Badge variant="outline" className="text-xs">
-                      {gemstone.category}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Badge variant="outline" className="text-lg p-2">
+                      {getTreatmentIcon(treatment)}
                     </Badge>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Preis</p>
+                      <p className="text-2xl font-semibold">
+                        {formatPrice(gemstone?.price ?? 0, gemstone?.currency ?? 'EUR')}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Gewicht</p>
+                      <p className="text-lg">{weightLabel}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Herkunft</p>
+                      <p>{gemstone?.origin ?? 'Unbekannt'}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">Herkunft:</span>
-                    <span className="text-sm font-medium">{gemstone.origin}</span>
+                  <Separator />
+                  <div className="grid gap-2 text-sm">
+                    <p>
+                      <span className="font-medium">Farbe:</span> {gemstone?.color ?? 'Unbekannt'}
+                    </p>
+                    <p className={getTreatmentColor(treatment)}>
+                      <span className="font-medium">Behandlung:</span> {gemstone?.treatment ?? 'Keine Angabe'}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">Behandlung:</span>
-                    <span className={`text-sm font-medium ${getTreatmentColor(gemstone.treatment)}`}>
-                      {getTreatmentIcon(gemstone.treatment)} {gemstone.treatment?.type === 'none' ? 'Unbehandelt' : gemstone.treatment?.type}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <Button variant="outline" onClick={() => handleViewDetails(item)}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Details ansehen
+                    </Button>
+                    <Button onClick={() => handleAddToCart(item)} disabled={gemstone?.isSold}>
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      In den Warenkorb
+                    </Button>
+                    <Button variant="destructive" onClick={() => handleRemoveFromWishlist(item.gemstoneId)}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Entfernen
+                    </Button>
                   </div>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold text-primary">
-                    {formatPrice(gemstone.price)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {isCutGemstone(gemstone)
-                      ? `${gemstone.caratWeight} ct`
-                      : isRoughGemstone(gemstone)
-                        ? `${gemstone.gramWeight} g`
-                        : '—'}
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="flex gap-2">
-                  <Button
-                    className="flex-1"
-                    onClick={() => handleViewDetails(gemstone.id)}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Details
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleRemoveFromWishlist(gemstone.id)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {gemstone.inStock && (
-                  <Button
-                    className="w-full"
-                    onClick={() => handleAddToCart(gemstone)}
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    In den Warenkorb
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
-      )}
-
-      {/* Quick Actions */}
-      {wishlistData.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Schnellaktionen</CardTitle>
-            <CardDescription>
-              Verwalten Sie Ihre Merkliste effizient
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // Add all items to cart
-                  wishlistData.forEach(gemstone => {
-                    if (gemstone.inStock) {
-                      handleAddToCart(gemstone);
-                    }
-                  });
-                }}
-                disabled={!wishlistData.some(g => g.inStock)}
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Alle verfügbaren in den Warenkorb
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleShareWishlist}
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Merkliste teilen
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleClearWishlist}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Merkliste leeren
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       )}
     </div>
   );

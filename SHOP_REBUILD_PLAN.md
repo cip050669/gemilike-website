@@ -10,7 +10,7 @@
   - `minio` oder S3-kompatibler Storage (Strato HiDrive S3 Endpoint) für Medien.
 - **Reverse Proxy:** Caddy oder NGINX mit Let's Encrypt, HTTP/2, HTTP/3 optional.
 - **Monitoring:** Uptime Kuma/Prometheus + Grafana, zentralisierte Logs via Loki oder Strato Log-Streams.
-- **Referenz-Stack:** `deploy/strato-compose.yml` (Next.js-App, PostgreSQL, Redis, MinIO, Caddy, Loki/Promtail, Grafana) + `Dockerfile` für mehrstufigen Build; konfigurierbare Promtail-Pipeline in `deploy/promtail-config.yml`.
+- **Referenz-Stack:** `deploy/strato-compose.yml` (Next.js-App, PostgreSQL, Redis, MinIO, Caddy, Loki/Promtail, Grafana) + `Dockerfile` für mehrstufigen Build; `.dockerignore` reduziert Build-Kontext für Rootless Docker, Promtail-Host-Mount optional.
 
 ## 2. Datenmodell (Prisma, Ziel-PostgreSQL)
 
@@ -127,7 +127,9 @@ datasource db {
 - Intro-Story-Card „Unsere Auswahl an Edelsteinen“ auf der Shop-Seite implementiert (`components/shop/ShopShowcase.tsx`), Design und Typografie spiegeln die Startseiten-Sektion „Neue Edelsteine“.
 - Navigations-Button „Zurück zur Startseite“ rechtsbündig in die Shop-Intro-Card integriert, gleiche Nav-Styles wie Header/Footer (Locale-aware Link).
 - Shop-Kachelraster mit 5 Spalten × 240 px Breite, homogener Glow-Hover und Badges analog Startseite aktualisiert (`components/shop/GemstoneGrid.tsx`); Sichtfenster auf 6 Reihen mit vertikaler Scrollleiste begrenzt.
-- Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, serverseitige Checkout-Logs & Tests ergänzen.
+- Gemstone-Service-Layer eingeführt (`lib/services/shop/*`); Cart/Wishlist-Server-Actions nutzen neue Konvertierung, Shop lädt ausschließlich Prisma-Daten.
+- Statische Fallback-Gemstones (Wishlist/Profile/Admin) entfernt; Seed-Daten bilden einzige Quelle.
+- Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, serverseitige Checkout-Logs & Tests ergänzen, restliche Fallback-Verwendungen (Reports etc.) abschalten.
 - Cart- & Wishlist-Flows auf Server Actions umgestellt (`lib/actions/cart.ts`, `lib/actions/wishlist.ts`) inklusive Zustands- und UI-Stores mit optimistischen Updates (`lib/store/cart.ts`, `lib/store/wishlist.ts`), Buttons/Seiten auf neue Stores gehoben.
    - Schliff- und Schliffform-Auswahllisten im Admin-Editor integriert; neue Prisma-Felder `Gemstone.cut`/`Gemstone.cutForm` werden über Editor, Management-Ansicht und Shop-Frontend konsistent gepflegt (`components/admin/GemstoneEditor.tsx`, `components/admin/GemstoneManagementSection.tsx`, `lib/shop/shopData.ts`).
    - Migration auf PostgreSQL abgeschlossen (`pnpm prisma migrate dev --name init_postgres`); bestehende SQLite-Historie bereinigt, neue Migration `20251031010241_add_cut_fields` aktiv.

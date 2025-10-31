@@ -7,7 +7,6 @@ import { AdminButton } from './AdminButton';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GemstoneEditor, GemstoneFormValues } from '@/components/admin/GemstoneEditor';
-import { allGemstones } from '@/lib/data/gemstones';
 import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
@@ -119,12 +118,7 @@ interface ShopMetrics {
 }
 
 export function GemstoneManagementSection() {
-  const fallbackGemstones = useMemo(
-    () => allGemstones.map(convertLibraryGemstone),
-    []
-  );
-
-  const [gemstones, setGemstones] = useState<DisplayGemstone[]>(fallbackGemstones);
+  const [gemstones, setGemstones] = useState<DisplayGemstone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(true);
@@ -203,18 +197,16 @@ export function GemstoneManagementSection() {
         throw new Error(result.error || 'Fehler beim Laden der Edelsteine');
       }
       const mapped = Array.isArray(result.data) ? result.data.map(mapApiGemstone) : [];
-      console.log('Loaded gemstones from API:', mapped.length, mapped.map(g => ({ name: g.name, mainImage: g.mainImage })));
       setGemstones(mapped);
       setUsingFallback(Boolean(result.fallback));
     } catch (err) {
-      console.log('Using fallback gemstones:', fallbackGemstones.length, fallbackGemstones.map(g => ({ name: g.name, mainImage: g.mainImage })));
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
-      setGemstones(fallbackGemstones);
+      setGemstones([]);
       setUsingFallback(true);
     } finally {
       setIsLoading(false);
     }
-  }, [fallbackGemstones, mapApiGemstone]);
+  }, [mapApiGemstone]);
 
   useEffect(() => {
     loadGemstones();

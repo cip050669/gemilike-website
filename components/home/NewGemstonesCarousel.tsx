@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShopGemstone } from '@/components/shop/GemstoneGrid';
+import type { ShopGemstone } from '@/lib/services/shop/types';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { WishlistButton } from '@/components/cart/WishlistButton';
 import { Badge } from '@/components/ui/badge';

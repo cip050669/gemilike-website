@@ -3,6 +3,11 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { resolveShopIdentity } from '@/lib/server/shop-context';
+import {
+  gemstoneWithRelationsInclude,
+  toShopGemstone,
+  type GemstoneWithRelations,
+} from '@/lib/services/shop/gemstone.service';
 
 const decimalToNumber = (value: Prisma.Decimal | number | string): number => {
   if (value instanceof Prisma.Decimal) return Number(value);
@@ -14,18 +19,7 @@ const cartInclude = {
   items: {
     include: {
       gemstone: {
-        include: {
-          inventory: true,
-          attributes: true,
-          media: {
-            orderBy: [
-              { isPrimary: 'desc' },
-              { position: 'asc' },
-              { createdAt: 'asc' },
-            ],
-            take: 1,
-          },
-        },
+        include: gemstoneWithRelationsInclude,
       },
     },
   },
@@ -59,31 +53,24 @@ export interface CartSummary {
 
 const serializeCart = (cart: CartWithItems): CartSummary => {
   const items = cart.items.map((item) => {
-    const gemstone = item.gemstone;
-    const image = gemstone?.media?.[0]?.url ?? null;
-    const inventory = gemstone?.inventory;
-    const condition = inventory?.condition ?? gemstone?.condition ?? 'CUT';
-    const weightDecimal =
-      condition === 'ROUGH'
-        ? inventory?.gramWeight
-        : inventory?.caratWeight ?? inventory?.gramWeight;
-    const weight =
-      weightDecimal != null ? decimalToNumber(weightDecimal as Prisma.Decimal | number | string) : null;
+    const gemstoneEntity = item.gemstone
+      ? toShopGemstone(item.gemstone as GemstoneWithRelations)
+      : null;
 
     return {
       id: item.id,
       gemstoneId: item.gemstoneId,
-      name: gemstone?.name ?? 'Edelstein',
-      slug: gemstone?.slug ?? null,
+      name: gemstoneEntity?.name ?? 'Edelstein',
+      slug: gemstoneEntity?.slug ?? null,
       quantity: item.quantity,
       price: decimalToNumber(item.priceSnapshot),
       currency: cart.currency,
-      image,
-      isSold: gemstone?.isSold ?? false,
-      category: gemstone?.category ?? null,
-      weight,
-      weightUnit: (condition === 'ROUGH' ? 'g' : 'ct') as 'ct' | 'g',
-      origin: gemstone?.origin ?? null,
+      image: gemstoneEntity?.images[0] ?? null,
+      isSold: gemstoneEntity?.isSold ?? false,
+      category: gemstoneEntity?.category ?? null,
+      weight: gemstoneEntity?.weight ?? null,
+      weightUnit: gemstoneEntity?.weightUnit ?? 'ct',
+      origin: gemstoneEntity?.origin ?? null,
     };
   });
 

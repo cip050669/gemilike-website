@@ -59,18 +59,9 @@ export function Header() {
   };
 
   return (
-    <div 
-      className="fixed top-0 z-50 h-16 bg-gem-bgDark/90 backdrop-blur-md border-b border-gem-iceDark/20"
-      style={{
-        backdropFilter: 'blur(15px)',
-        WebkitBackdropFilter: 'blur(15px)',
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        width: '100%',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-      }}
+    <header 
+      data-header-fixed
+      className="sticky top-0 h-16 bg-gem-bgDark/95 backdrop-blur-md border-b border-gem-iceDark/20 z-[9999]"
     >
       {/* Header Content - zentriert im Container */}
       <div className="flex items-center justify-between w-full h-full px-6 gap-4" style={{ width: '100%', maxWidth: 'none' }}>
@@ -171,6 +162,6 @@ export function Header() {
       </div>
       
       <Cart />
-    </div>
+    </header>
   );
 }
