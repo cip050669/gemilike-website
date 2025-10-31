@@ -5,9 +5,9 @@
 - [ ] **Strato-Stack vorbereiten** _(Status: Offen)_  
   - [ ] Docker Compose für Next.js, PostgreSQL, Redis/Queue, S3-kompatiblen Storage definieren _(Status: Offen)_  
   - [ ] Monitoring/Logging (Uptime, Metrics, zentralisierte Logs) festlegen _(Status: Offen)_  
-- [ ] **Prisma auf PostgreSQL umstellen** _(Status: Offen)_  
-  - [ ] Neues Datenmodell laut `SHOP_REBUILD_PLAN.md` modellieren _(Status: Offen)_  
-  - [ ] Migration & Seed-Skripte (Demo-Daten, Admin-User) implementieren _(Status: Offen)_  
+- [x] **Prisma auf PostgreSQL umstellen** _(Status: Erledigt)_  
+  - [x] Neues Datenmodell laut `SHOP_REBUILD_PLAN.md` modellieren _(Status: Erledigt – Schema auf PostgreSQL angepasst, `Gemstone.cut`/`cutForm` ergänzt)_  
+  - [x] Migration & Seed-Skripte (Demo-Daten, Admin-User) implementieren _(Status: Erledigt – `pnpm prisma migrate dev` auf neuer DB ausgeführt; Seeding folgt separat)_  
 - [ ] **Server Actions & Domain-Layer bauen** _(Status: Offen)_  
   - [ ] Repository/Service-Schicht für Gemstones, Wishlist, Cart, Orders anlegen _(Status: Offen)_  
   - [ ] Audit-Logging & Role Guards integrieren _(Status: Offen)_  
@@ -30,9 +30,9 @@
 - [ ] **Admin-Menü auf reale Funktionen trimmen** _(Status: Offen)_  
   - [ ] Ungenutzte oder Mock-Menüpunkte ausblenden _(Status: Offen)_  
   - [ ] Neue Menüpunkte erst nach Fertigstellung der jeweiligen Module freischalten _(Status: Offen)_  
-- [ ] **Wishlist & Cart serverseitig persistieren** _(Status: Offen)_  
+- [ ] **Wishlist & Cart serverseitig persistieren** _(Status: Teilweise erledigt)_  
   - [ ] API-Routen mit Prisma für `WishlistItem`/`CartItem` implementieren _(Status: Offen)_  
-  - [x] Frontend-Stores (`useWishlistStore`, `useCartStore`) auf API/Server Actions umstellen _(Status: Erledigt – Server Actions + optimistische Updates in `lib/store/cart.ts`, `lib/store/wishlist.ts`)_
+  - [x] Frontend-Stores (`useWishlistStore`, `useCartStore`) auf API/Server Actions umstellen _(Status: Erledigt – Server Actions + optimistische Updates in `lib/store/cart.ts`, `lib/store/wishlist.ts`)_  
   - [ ] Admin-Auswertungen für Wunschlisten/Bestellungen konfigurieren _(Status: Offen)_  
 - [ ] **Shop-Datenbank befüllen und absichern** _(Status: Offen)_  
   - [ ] Seed-Skripte für Produkte, Varianten und Lagerbestände ergänzen _(Status: Offen)_  

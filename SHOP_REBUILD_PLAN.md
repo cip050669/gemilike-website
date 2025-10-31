@@ -129,3 +129,4 @@ datasource db {
 - Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, serverseitige Checkout-Logs & Tests ergänzen.
 - Cart- & Wishlist-Flows auf Server Actions umgestellt (`lib/actions/cart.ts`, `lib/actions/wishlist.ts`) inklusive Zustands- und UI-Stores mit optimistischen Updates (`lib/store/cart.ts`, `lib/store/wishlist.ts`), Buttons/Seiten auf neue Stores gehoben.
 - Schliff- und Schliffform-Auswahllisten im Admin-Editor integriert; neue Prisma-Felder `Gemstone.cut`/`Gemstone.cutForm` werden über Editor, Management-Ansicht und Shop-Frontend konsistent gepflegt (`components/admin/GemstoneEditor.tsx`, `components/admin/GemstoneManagementSection.tsx`, `lib/shop/shopData.ts`).
+- Migration auf PostgreSQL abgeschlossen (`pnpm prisma migrate dev --name init_postgres`); bestehende SQLite-Historie bereinigt, neue Migration `20251031010241_add_cut_fields` aktiv.
