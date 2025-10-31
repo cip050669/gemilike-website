@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
+import { getOrderForCustomer, updateOrder } from '@/lib/services/shop/order.service';
 
 export async function GET(
   request: NextRequest,
@@ -24,17 +25,7 @@ export async function GET(
     }
 
     const { id } = await params;
-    const order = await prisma.order.findFirst({
-      where: { 
-        id,
-        customerId: customer.id
-      },
-      include: {
-        items: true,
-        billingAddress: true,
-        shippingAddress: true
-      }
-    });
+    const order = await getOrderForCustomer(id, customer.id);
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
@@ -85,18 +76,16 @@ export async function PUT(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: {
-        ...(status && { status }),
-        ...(notes && { notes })
-      },
-      include: {
-        items: true,
-        billingAddress: true,
-        shippingAddress: true
-      }
+    await updateOrder(id, {
+      status,
+      notes: notes ?? undefined,
     });
+
+    const updatedOrder = await getOrderForCustomer(id, customer.id);
+
+    if (!updatedOrder) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
 
     return NextResponse.json(updatedOrder);
   } catch (error) {

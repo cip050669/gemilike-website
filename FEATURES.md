@@ -2,7 +2,7 @@
 
 Diese Dokumentation beschreibt alle implementierten Features der Gemilike Website.
 
-**Letzte Aktualisierung:** 15. Oktober 2025 - Version 2.3
+**Letzte Aktualisierung:** 15. Januar 2025 - Version 2.3.1
 
 ---
 
@@ -157,6 +157,7 @@ Diese Dokumentation beschreibt alle implementierten Features der Gemilike Websit
 - **💻 Desktop-Ansicht** - Vollständige Funktionalität
 - **📊 Grid-Layout** - Adaptive Produktkarten
 - **🎯 Touch-Optimiert** - Benutzerfreundliche Bedienung
+- **📌 Sticky Header** - Fixierter Header auf allen Seiten (Version 2.3.1)
 
 ### **Benutzerfreundlichkeit**
 - **⚡ Schnelle Ladezeiten** - Optimierte Performance
@@ -489,6 +490,6 @@ Bei Fragen oder Problemen:
 
 ---
 
-**Letzte Aktualisierung: 10.10.2025 - Version 1.4.0**
+**Letzte Aktualisierung: 15.01.2025 - Version 2.3.1**
 
 *Diese Dokumentation wird regelmäßig aktualisiert, um alle neuen Features zu reflektieren.*

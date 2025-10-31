@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
+import { listOrders } from '@/lib/services/shop/order.service';
 
 export async function GET() {
   try {
@@ -26,20 +27,10 @@ export async function GET() {
       );
     }
 
-    const orders = await prisma.order.findMany({
-      where: {
-        customerId: customer.id
+    const orders = await listOrders({
+      filters: {
+        customerId: customer.id,
       },
-      include: {
-        items: {
-          include: {
-            gemstone: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
     });
 
     return NextResponse.json({

@@ -1,7 +1,7 @@
 # Deployment-Anleitung für Strato
 
-**Version:** 1.2.0  
-**Datum:** 03. Oktober 2025  
+**Version:** 1.2.1  
+**Datum:** 15. Januar 2025  
 **Status:** ✅ Vollständig funktionsfähig mit Admin-Panel
 
 ## Voraussetzungen

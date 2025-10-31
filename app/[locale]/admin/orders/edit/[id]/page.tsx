@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { OrderEditForm } from '@/components/admin/orders/OrderEditForm';
+import { getOrderById } from '@/lib/services/shop/order.service';
 
 export default async function EditOrderPage({
   params,
@@ -10,64 +11,39 @@ export default async function EditOrderPage({
 }) {
   const { id } = await params;
   
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      customer: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          phone: true,
-        }
-      },
-      items: {
-        include: {
-          gemstone: {
-            select: {
-              id: true,
-              name: true,
-            }
-          }
-        }
-      },
-      billingAddress: true,
-      shippingAddress: true,
-      invoice: {
-        include: {
-          customer: {
-            select: {
-              email: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-        },
-      },
-    }
-  });
+  const order = await getOrderById(id);
 
   if (!order) {
     notFound();
   }
 
-  const serialisedOrder = JSON.parse(
-    JSON.stringify({
-      id: order.id,
-      orderNumber: order.orderNumber,
-      status: order.status,
-      subtotal: order.subtotal,
-      taxAmount: order.taxAmount,
-      shippingAmount: order.shippingAmount,
-      total: order.total,
-      paymentMethod: order.paymentMethod,
-      paymentStatus: order.paymentStatus,
-      notes: order.notes,
-      billingAddress: order.billingAddress,
-      shippingAddress: order.shippingAddress,
-    })
-  );
+  const invoice = await prisma.invoice.findFirst({
+    where: { orderId: id },
+    include: {
+      customer: {
+        select: {
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+
+  const serialisedOrder = {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    status: order.status,
+    subtotal: order.subtotal,
+    taxAmount: order.taxAmount,
+    shippingAmount: order.shippingAmount,
+    total: order.total,
+    paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus,
+    notes: order.notes,
+    billingAddress: order.billingAddress,
+    shippingAddress: order.shippingAddress,
+  };
 
 
   return (
@@ -101,39 +77,39 @@ export default async function EditOrderPage({
 
         <OrderEditForm order={serialisedOrder} />
 
-        {order.invoice && (
+        {invoice && (
           <div className="mt-6 bg-gray-800/20 border rounded-lg p-6 text-sm text-gray-200 space-y-2">
             <h2 className="text-lg font-semibold text-white">Rechnungsstatus</h2>
             <p>
               <span className="font-medium text-gray-100">Rechnung:</span>{' '}
-              {order.invoice.invoiceNumber}
+              {invoice.invoiceNumber}
             </p>
             <p>
               <span className="font-medium text-gray-100">Empfänger:</span>{' '}
-              {order.invoice.customer
-                ? `${order.invoice.customer.firstName ?? ''} ${order.invoice.customer.lastName ?? ''}`.trim() ||
-                  order.invoice.customer.email
+              {invoice.customer
+                ? `${invoice.customer.firstName ?? ''} ${invoice.customer.lastName ?? ''}`.trim() ||
+                  invoice.customer.email
                 : '—'}
             </p>
             <p>
               <span className="font-medium text-gray-100">E-Mail:</span>{' '}
-              {order.invoice.customer?.email ?? '—'}
+              {invoice.customer?.email ?? '—'}
             </p>
             <p>
               <span className="font-medium text-gray-100">Versendet:</span>{' '}
-              {order.invoice.emailSent
+              {invoice.emailSent
                 ? `Ja, zuletzt am ${
-                    order.invoice.sentAt
-                      ? new Date(order.invoice.sentAt).toLocaleString('de-DE')
+                    invoice.sentAt
+                      ? new Date(invoice.sentAt).toLocaleString('de-DE')
                       : 'unbekannt'
                   }`
                 : 'Nein'}
             </p>
             <p>
               <span className="font-medium text-gray-100">PDF:</span>{' '}
-              {order.invoice.pdfStorageKey ? (
+              {invoice.pdfStorageKey ? (
                 <a
-                  href={`/api/admin/invoices/${order.invoice.id}/pdf`}
+                  href={`/api/admin/invoices/${invoice.id}/pdf`}
                   className="text-blue-400 underline underline-offset-4 hover:text-blue-300"
                 >
                   herunterladen

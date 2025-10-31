@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import type { OrderStatus } from '@prisma/client';
+import { getOrderById } from '@/lib/services/shop/order.service';
 
 export default async function ViewOrderPage({
   params,
@@ -10,20 +10,7 @@ export default async function ViewOrderPage({
 }) {
   const { id } = await params;
 
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      customer: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          phone: true,
-        }
-      }
-    }
-  });
+  const order = await getOrderById(id);
 
   if (!order) {
     notFound();
@@ -102,7 +89,11 @@ export default async function ViewOrderPage({
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-200">Name</label>
-                  <p className="text-white">{order.customer.firstName && order.customer.lastName ? `${order.customer.firstName} ${order.customer.lastName}` : 'Unbekannt'}</p>
+                  <p className="text-white">
+                    {order.customer.firstName && order.customer.lastName
+                      ? `${order.customer.firstName} ${order.customer.lastName}`
+                      : 'Unbekannt'}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-200">E-Mail</label>

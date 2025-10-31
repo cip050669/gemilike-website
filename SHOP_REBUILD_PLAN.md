@@ -114,7 +114,7 @@ datasource db {
 ## 9. Nächste operative Schritte
    1. **ERD & Contracts finalisieren:** Tabellen, Relationen, Server-Action-Signaturen.
    2. **Prisma-Schema refactor:** SQLite → PostgreSQL, neue Models umsetzen, Migration erzeugen.
-   3. **Service Layer:** Repositorys/Server Actions für Gemstones, Wishlist, Cart, Orders.
+3. **Service Layer:** Repositorys/Server Actions für Gemstones, Wishlist, Cart, Orders (Gemstones/Wishlist/Orders umgesetzt, Cart folgt).
 4. **Admin UI Redesign:** Komponentenstruktur, Bulk-Upload, Status-Workflow implementieren.
 5. **Shop-Frontend Neuentwicklung:** Grid, Detail-Gallery, CTA-Integration, Scroll-Verhalten.
 6. **Auth-Aufrüstung:** Passkey/TOTP, Rollen, Schutz der Actions.
@@ -129,8 +129,9 @@ datasource db {
 - Shop-Kachelraster mit 5 Spalten × 240 px Breite, homogener Glow-Hover und Badges analog Startseite aktualisiert (`components/shop/GemstoneGrid.tsx`); Sichtfenster auf 6 Reihen mit vertikaler Scrollleiste begrenzt.
 - Gemstone-Service-Layer eingeführt (`lib/services/shop/*`); Cart/Wishlist-Server-Actions nutzen neue Konvertierung, Shop lädt ausschließlich Prisma-Daten.
 - Statische Fallback-Gemstones (Wishlist/Profile/Admin) entfernt; Seed-Daten bilden einzige Quelle.
-- Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, serverseitige Checkout-Logs & Tests ergänzen, restliche Fallback-Verwendungen (Reports etc.) abschalten.
+- Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, serverseitige Checkout-Logs & Tests ergänzen, restliche Fallback-Verwendungen (Reports etc.) abschalten sowie dedizierten Cart-Service + zusätzliche Order-Tests nachziehen.
 - Cart- & Wishlist-Flows auf Server Actions umgestellt (`lib/actions/cart.ts`, `lib/actions/wishlist.ts`) inklusive Zustands- und UI-Stores mit optimistischen Updates (`lib/store/cart.ts`, `lib/store/wishlist.ts`), Buttons/Seiten auf neue Stores gehoben.
+- Wishlist- und Order-Domain-Services ergänzt (`lib/services/shop/wishlist.service.ts`, `lib/services/shop/order.service.ts`); Admin-/Customer-Order-APIs sowie Shop-/Admin-Seiten nutzen den Service-Layer, Invoice-Trigger bleibt erhalten. Unit-Test für Order-Serialisierung hinzugefügt (`__tests__/services/order.service.test.ts`).
    - Schliff- und Schliffform-Auswahllisten im Admin-Editor integriert; neue Prisma-Felder `Gemstone.cut`/`Gemstone.cutForm` werden über Editor, Management-Ansicht und Shop-Frontend konsistent gepflegt (`components/admin/GemstoneEditor.tsx`, `components/admin/GemstoneManagementSection.tsx`, `lib/shop/shopData.ts`).
    - Migration auf PostgreSQL abgeschlossen (`pnpm prisma migrate dev --name init_postgres`); bestehende SQLite-Historie bereinigt, neue Migration `20251031010241_add_cut_fields` aktiv.
    - Seed-Skript (`prisma/seed.ts`) + SQL-Fallback (`prisma/seed.sql`) legen HeroSettings, SelectOptions (Schliff/Schliffform) und drei Demo-Gemstones inkl. Inventar/Medien an; Daten wurden via `psql` erfolgreich eingespielt.

@@ -1,8 +1,8 @@
 # Gemilike Website - Projekt Status
 
-**Datum:** 15. Oktober 2025  
+**Datum:** 15. Januar 2025  
 **Status:** ✅ Vollständig funktionsfähig  
-**Version:** 2.3.0
+**Version:** 2.3.1
 
 ---
 
@@ -160,6 +160,12 @@ Die Gemilike Website ist eine vollständige E-Commerce-Plattform für Edelsteine
 - ✅ **Logo-Positionierung** - "I" in "Gem I Like" um 6px nach rechts verschoben
 - ✅ **Verbesserte Lesbarkeit** - Optimierte Schriftpositionierung
 - ✅ **Konsistentes Design** - Einheitliche Abstände im Text-Logo
+
+### Sticky Header Implementierung (15.01.2025)
+- ✅ **Header-Fixierung** - Header bleibt jetzt auf allen Seiten fixiert oben
+- ✅ **Root-Layout Integration** - Header direkt im Root-Layout platziert
+- ✅ **Position Sticky** - CSS `position: sticky` für konsistente Header-Funktionalität
+- ✅ **Alle Seiten abgedeckt** - Shop, Wissenswertes, Fundorte, Kontakt und alle anderen Seiten
 
 ### Erweiterte Admin-Funktionen (10.10.2025)
 - ✅ **Piktogramm-Erklärungssystem** - Tooltip-basierte Erklärungen für alle Edelstein-Symbole
@@ -412,5 +418,5 @@ Die Gemilike Website ist eine vollständige E-Commerce-Plattform für Edelsteine
 
 ---
 
-**Letztes Update:** 07.10.2025 18:00 Uhr  
+**Letztes Update:** 15.01.2025  
 **Nächste geplante Updates:** Logo-Integration, Farbschema-Anpassung, Produktbilder

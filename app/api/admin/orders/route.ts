@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { OrderStatus, PaymentStatus } from '@prisma/client';
+import { OrderStatus, PaymentStatus, PaymentMethod } from '@prisma/client';
+import { createOrder, listOrders } from '@/lib/services/shop/order.service';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,42 +8,16 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') as string | null;
 
-    const where: {
-      OR?: Array<
-        | { orderNumber: { contains: string; mode: 'insensitive' } }
-        | { customer: { firstName: { contains: string; mode: 'insensitive' } } }
-        | { customer: { lastName: { contains: string; mode: 'insensitive' } } }
-        | { customer: { email: { contains: string; mode: 'insensitive' } } }
-      >;
-      status?: OrderStatus;
-    } = {};
+    const statusFilter =
+      status && status !== 'all' && Object.values(OrderStatus).includes(status as OrderStatus)
+        ? (status as OrderStatus)
+        : ('all' as const);
 
-    if (search) {
-      where.OR = [
-        { orderNumber: { contains: search, mode: 'insensitive' } },
-        { customer: { firstName: { contains: search, mode: 'insensitive' } } },
-        { customer: { lastName: { contains: search, mode: 'insensitive' } } },
-        { customer: { email: { contains: search, mode: 'insensitive' } } },
-      ];
-    }
-
-    if (status && status !== 'all') {
-      where.status = status as OrderStatus;
-    }
-
-    const orders = await prisma.order.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        customer: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          }
-        }
-      }
+    const orders = await listOrders({
+      filters: {
+        search: search || undefined,
+        status: statusFilter,
+      },
     });
 
     return NextResponse.json({ success: true, data: orders });
@@ -85,20 +59,37 @@ export async function POST(request: NextRequest) {
       ? (requestedPaymentStatus as PaymentStatus)
       : PaymentStatus.PENDING;
 
-    const newOrder = await prisma.order.create({
-      data: {
-        orderNumber: body.orderNumber,
-        customerId: body.customerId,
-        status,
-        subtotal: parseAmount(body.subtotal),
-        taxAmount: parseAmount(body.taxAmount),
-        shippingAmount: parseAmount(body.shippingAmount),
-        total: parseAmount(body.total),
-        currency: body.currency || 'EUR',
-        paymentMethod: body.paymentMethod ? (body.paymentMethod as string) as any : null,
-        paymentStatus,
-        notes: body.notes,
-      },
+    const allowedPaymentMethods = Object.values(PaymentMethod);
+    const normalizedPaymentMethod = body.paymentMethod
+      ? String(body.paymentMethod).toUpperCase()
+      : null;
+
+    const paymentMethod = normalizedPaymentMethod &&
+      allowedPaymentMethods.includes(normalizedPaymentMethod as PaymentMethod)
+      ? (normalizedPaymentMethod as PaymentMethod)
+      : null;
+
+    const newOrder = await createOrder({
+      customerId: body.customerId,
+      orderNumber: body.orderNumber,
+      status,
+      subtotal: parseAmount(body.subtotal),
+      taxAmount: parseAmount(body.taxAmount),
+      shippingAmount: parseAmount(body.shippingAmount),
+      total: parseAmount(body.total),
+      currency: body.currency || 'EUR',
+      paymentMethod,
+      paymentStatus,
+      notes: body.notes,
+      items: Array.isArray(body.items)
+        ? body.items.map(
+            (item: { gemstoneId?: string | null; quantity?: number; unitPrice?: number }) => ({
+              gemstoneId: item.gemstoneId ?? null,
+              quantity: item.quantity ?? 1,
+              unitPrice: item.unitPrice ?? 0,
+            })
+          )
+        : undefined,
     });
 
     return NextResponse.json({ success: true, data: newOrder, message: 'Bestellung erfolgreich erstellt' }, { status: 201 });

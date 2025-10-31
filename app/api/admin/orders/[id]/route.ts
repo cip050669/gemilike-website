@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { regenerateAndSendInvoice } from '@/lib/services/invoice';
-import type { Order, OrderStatus, PaymentStatus, PaymentMethod } from '@prisma/client';
-
-type OrderUpdateData = Parameters<typeof prisma.order.update>[0]['data'];
+import { OrderStatus, PaymentStatus, PaymentMethod } from '@prisma/client';
+import {
+  deleteOrder,
+  getOrderById,
+  updateOrder,
+  type ShopOrder,
+} from '@/lib/services/shop/order.service';
 
 const parseAmount = (value: unknown) => {
   if (value === null || value === undefined || value === '') {
@@ -13,88 +16,26 @@ const parseAmount = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const updateOrderAndDispatchInvoice = async (id: string, data: OrderUpdateData) => {
-  const previousOrder = await prisma.order.findUnique({
-    where: { id },
-    select: {
-      status: true,
-      paymentStatus: true,
-    },
-  });
-
-  if (!previousOrder) {
-    return {
-      notFound: true,
-    } as const;
-  }
-
-  const updatedOrder = await prisma.order.update({
-    where: { id },
-    data,
-  });
-
-  const previousPayment = previousOrder.paymentStatus?.toUpperCase?.() ?? previousOrder.paymentStatus;
-  const previousStatus = previousOrder.status?.toUpperCase?.() ?? previousOrder.status;
-  const currentPayment = updatedOrder.paymentStatus?.toUpperCase?.() ?? updatedOrder.paymentStatus;
-  const currentStatus = updatedOrder.status?.toUpperCase?.() ?? updatedOrder.status;
+const shouldTriggerInvoice = (previous: ShopOrder, current: ShopOrder) => {
+  const previousPayment = previous.paymentStatus?.toUpperCase?.() ?? previous.paymentStatus;
+  const previousStatus = previous.status?.toUpperCase?.() ?? previous.status;
+  const currentPayment = current.paymentStatus?.toUpperCase?.() ?? current.paymentStatus;
+  const currentStatus = current.status?.toUpperCase?.() ?? current.status;
 
   const paymentBecamePaid = previousPayment !== 'PAID' && currentPayment === 'PAID';
   const statusBecameFulfilled = previousStatus !== 'FULFILLED' && currentStatus === 'FULFILLED';
 
-  const shouldSendInvoice =
-    (paymentBecamePaid || statusBecameFulfilled) && currentPayment === 'PAID';
-
-  let invoiceDispatched = false;
-  let invoiceError: string | null = null;
-
-  if (shouldSendInvoice) {
-    try {
-      await regenerateAndSendInvoice(updatedOrder.id);
-      invoiceDispatched = true;
-    } catch (error) {
-      invoiceError = (error as Error).message;
-      console.error('Rechnung konnte nicht generiert oder versendet werden:', error);
-    }
-  }
-
   return {
-    notFound: false,
-    updatedOrder,
-    shouldSendInvoice,
-    invoiceDispatched,
-    invoiceError,
-  } as const;
+    shouldDispatch: (paymentBecamePaid || statusBecameFulfilled) && currentPayment === 'PAID',
+    paymentBecamePaid,
+    statusBecameFulfilled,
+  };
 };
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const order = await prisma.order.findUnique({
-      where: { id },
-      include: {
-        customer: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            phone: true,
-          }
-        },
-        items: {
-          include: {
-            gemstone: {
-              select: {
-                id: true,
-                name: true,
-              }
-            }
-          }
-        },
-        billingAddress: true,
-        shippingAddress: true
-      }
-    });
+    const order = await getOrderById(id);
 
     if (!order) {
       return NextResponse.json({ success: false, error: 'Bestellung nicht gefunden' }, { status: 404 });
@@ -130,31 +71,59 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ success: false, error: 'Invalid payment status' }, { status: 400 });
     }
 
-    const updateData: OrderUpdateData = {
-      orderNumber: body.orderNumber,
-      status: requestedStatus as OrderStatus | undefined,
-      total: parseAmount(body.total),
-      subtotal: parseAmount(body.subtotal),
-      taxAmount: parseAmount(body.taxAmount),
-      shippingAmount: parseAmount(body.shippingAmount),
-      paymentMethod: body.paymentMethod ? (body.paymentMethod as string) as PaymentMethod : undefined,
-      paymentStatus: requestedPaymentStatus as PaymentStatus | undefined,
-      notes: body.notes,
-    };
+    const previousOrder = await getOrderById(id);
 
-    const result = await updateOrderAndDispatchInvoice(id, updateData);
-
-    if (result.notFound) {
+    if (!previousOrder) {
       return NextResponse.json({ success: false, error: 'Bestellung nicht gefunden' }, { status: 404 });
     }
 
-    const { updatedOrder, invoiceDispatched, invoiceError, shouldSendInvoice } = result;
+    const paymentMethodRaw = body.paymentMethod ? String(body.paymentMethod).toUpperCase() : undefined;
+    const paymentMethod =
+      paymentMethodRaw && Object.values(PaymentMethod).includes(paymentMethodRaw as PaymentMethod)
+        ? (paymentMethodRaw as PaymentMethod)
+        : undefined;
+
+    const updatedOrder = await updateOrder(id, {
+      orderNumber: body.orderNumber ?? undefined,
+      status: requestedStatus as OrderStatus | undefined,
+      total: body.total !== undefined ? parseAmount(body.total) : undefined,
+      subtotal: body.subtotal !== undefined ? parseAmount(body.subtotal) : undefined,
+      taxAmount: body.taxAmount !== undefined ? parseAmount(body.taxAmount) : undefined,
+      shippingAmount:
+        body.shippingAmount !== undefined ? parseAmount(body.shippingAmount) : undefined,
+      paymentMethod,
+      paymentStatus: requestedPaymentStatus as PaymentStatus | undefined,
+      notes: body.notes ?? undefined,
+      placedAt: body.placedAt ? new Date(body.placedAt) : undefined,
+      paidAt: body.paidAt ? new Date(body.paidAt) : undefined,
+      canceledAt: body.canceledAt ? new Date(body.canceledAt) : undefined,
+      billingAddressId: body.billingAddressId ?? undefined,
+      shippingAddressId: body.shippingAddressId ?? undefined,
+    });
+
+    if (!updatedOrder) {
+      return NextResponse.json({ success: false, error: 'Bestellung nicht gefunden' }, { status: 404 });
+    }
+
+    const invoiceDecision = shouldTriggerInvoice(previousOrder, updatedOrder);
+    let invoiceDispatched = false;
+    let invoiceError: string | null = null;
+
+    if (invoiceDecision.shouldDispatch) {
+      try {
+        await regenerateAndSendInvoice(updatedOrder.id);
+        invoiceDispatched = true;
+      } catch (error) {
+        invoiceError = (error as Error).message;
+        console.error('Rechnung konnte nicht generiert oder versendet werden:', error);
+      }
+    }
 
     const responseBody: Record<string, unknown> = {
       success: true,
       data: updatedOrder,
       message: 'Bestellung erfolgreich aktualisiert',
-      invoiceTriggered: shouldSendInvoice,
+      invoiceTriggered: invoiceDecision.shouldDispatch,
       invoiceDispatched,
     };
 
@@ -178,9 +147,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    await prisma.order.delete({
-      where: { id },
-    });
+    const deleted = await deleteOrder(id);
+
+    if (!deleted) {
+      return NextResponse.json({ success: false, error: 'Bestellung nicht gefunden' }, { status: 404 });
+    }
 
     return NextResponse.json({ success: true, message: 'Bestellung erfolgreich gelöscht' });
   } catch (error) {
@@ -200,14 +171,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const method = formData.get('_method') as string;
 
     if (method === 'DELETE') {
-      await prisma.order.delete({
-        where: { id },
-      });
+      await deleteOrder(id);
 
       return NextResponse.redirect(new URL('/de/admin/orders', request.url));
     }
 
     if (method === 'PUT') {
+      const previousOrder = await getOrderById(id);
+
+      if (!previousOrder) {
+        return NextResponse.json({ success: false, error: 'Bestellung nicht gefunden' }, { status: 404 });
+      }
+
       const requestedStatus = formData.get('status')
         ? String(formData.get('status')).toUpperCase()
         : undefined;
@@ -215,28 +190,62 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         ? String(formData.get('paymentStatus')).toUpperCase()
         : undefined;
 
-      const updateData: OrderUpdateData = {
-        orderNumber: formData.get('orderNumber') as string,
+      const paymentMethodRaw = formData.get('paymentMethod')
+        ? String(formData.get('paymentMethod')).toUpperCase()
+        : undefined;
+
+      if (requestedStatus && !Object.values(OrderStatus).includes(requestedStatus as OrderStatus)) {
+        return NextResponse.json({ success: false, error: 'Invalid order status' }, { status: 400 });
+      }
+
+      if (
+        requestedPaymentStatus &&
+        !Object.values(PaymentStatus).includes(requestedPaymentStatus as PaymentStatus)
+      ) {
+        return NextResponse.json({ success: false, error: 'Invalid payment status' }, { status: 400 });
+      }
+
+      const updatedOrder = await updateOrder(id, {
+        orderNumber: (formData.get('orderNumber') as string) ?? undefined,
         status: requestedStatus as OrderStatus | undefined,
-        total: parseAmount(formData.get('total')),
-        subtotal: parseAmount(formData.get('subtotal')),
-        taxAmount: parseAmount(formData.get('tax')),
-        shippingAmount: parseAmount(formData.get('shipping')),
-        paymentMethod: formData.get('paymentMethod') ? (formData.get('paymentMethod') as string) as PaymentMethod : undefined,
+        total:
+          formData.has('total') && formData.get('total') !== null
+            ? parseAmount(formData.get('total'))
+            : undefined,
+        subtotal:
+          formData.has('subtotal') && formData.get('subtotal') !== null
+            ? parseAmount(formData.get('subtotal'))
+            : undefined,
+        taxAmount:
+          formData.has('tax') && formData.get('tax') !== null
+            ? parseAmount(formData.get('tax'))
+            : undefined,
+        shippingAmount:
+          formData.has('shipping') && formData.get('shipping') !== null
+            ? parseAmount(formData.get('shipping'))
+            : undefined,
+        paymentMethod:
+          paymentMethodRaw && Object.values(PaymentMethod).includes(paymentMethodRaw as PaymentMethod)
+            ? (paymentMethodRaw as PaymentMethod)
+            : undefined,
         paymentStatus: requestedPaymentStatus as PaymentStatus | undefined,
-        notes: formData.get('notes') as string,
-      };
+        notes: (formData.get('notes') as string) ?? undefined,
+      });
 
-      const result = await updateOrderAndDispatchInvoice(id, updateData);
-
-      if (result.notFound) {
+      if (!updatedOrder) {
         return NextResponse.json({ success: false, error: 'Bestellung nicht gefunden' }, { status: 404 });
       }
 
-      if (result.invoiceError) {
-        console.error(
-          `Rechnung konnte nach Formular-Update nicht versendet werden: ${result.invoiceError}`
-        );
+      const invoiceDecision = shouldTriggerInvoice(previousOrder, updatedOrder);
+
+      if (invoiceDecision.shouldDispatch) {
+        try {
+          await regenerateAndSendInvoice(updatedOrder.id);
+        } catch (error) {
+          console.error(
+            `Rechnung konnte nach Formular-Update nicht versendet werden: ${(error as Error).message}`
+          );
+        }
       }
 
       return NextResponse.redirect(new URL('/de/admin/orders', request.url));

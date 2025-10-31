@@ -36,6 +36,7 @@ Eine vollständige E-Commerce-Website für Edelsteinhandel mit modernen Web-Tech
 - **Ursprüngliches Farbschema** (Orange-Rot, Cyan, Gold)
 - **Hero-Section** mit Logo-Gradienten
 - **Impact-Schriftart** für Branding
+- **Sticky Header** - Fixierter Header auf allen Seiten
 
 ## 🛠️ Technologie-Stack
 

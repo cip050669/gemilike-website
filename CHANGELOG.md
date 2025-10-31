@@ -4,6 +4,27 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 
 ---
 
+## [2.3.1] - 2025-01-15
+
+### 🎨 UI/UX Verbesserungen
+
+#### ✨ Fixed
+- **Sticky Header Implementierung** - Header bleibt jetzt auf allen Seiten fixiert
+- **Root-Layout Integration** - Header direkt im Root-Layout platziert (nicht im Portal)
+- **Position Sticky** - CSS `position: sticky` für konsistente Header-Funktionalität
+
+#### 🔧 Technical
+- **Header aus PublicLayout entfernt** - Header jetzt im `app/[locale]/layout.tsx` platziert
+- **CSS-Regeln verstärkt** - `position: sticky !important` mit erweiterten Selektoren
+- **Z-Index-Optimierung** - `z-index: 9999` für korrekte Überlagerung
+- **Scroll-Padding** - `scroll-padding-top: 4rem` für besseres Scroll-Verhalten
+
+#### 📚 Documentation
+- **CHANGELOG.md** - Header-Fixierung dokumentiert
+- **PROJECT_STATUS.md** - Neueste Änderungen aktualisiert
+
+---
+
 ## [2.1.0] - 2025-10-10 12:00
 
 ### 🎨 UI/UX Verbesserungen

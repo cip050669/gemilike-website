@@ -1,20 +1,12 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
+import { listOrders } from '@/lib/services/shop/order.service';
 
 export default async function OrdersPage() {
   // Fetch orders from database
-  const orders = await prisma.order.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      customer: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-        }
-      }
-    }
+  const orders = await listOrders({
+    filters: {
+      status: 'all',
+    },
   });
 
   return (

@@ -2,7 +2,7 @@
 
 **Tägliche Wiedervorlage** - Diese Liste wird täglich überprüft und aktualisiert.
 
-*Letzte Aktualisierung: 09.10.2025 - Storytelling-Sektion & Admin-Story-Management ergänzt*
+*Letzte Aktualisierung: 15.01.2025 - Header-Fixierung auf allen Seiten implementiert*
 
 ---
 

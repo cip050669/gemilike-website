@@ -10,7 +10,7 @@
   - [x] Migration & Seed-Skripte (Demo-Daten, Admin-User) implementieren _(Status: Erledigt – `pnpm prisma migrate dev` auf neuer DB ausgeführt; Seeding folgt separat)_  
 - [ ] **Server Actions & Domain-Layer bauen** _(Status: Teilweise erledigt)_  
   - [x] Repository/Service-Schicht für Gemstones anlegen _(Status: Erledigt – `lib/services/shop/*` eingeführt)_  
-  - [ ] Repository/Service-Schicht für Wishlist, Cart, Orders anlegen _(Status: Offen)_  
+  - [ ] Repository/Service-Schicht für Wishlist, Cart, Orders anlegen _(Status: Teilweise erledigt – Wishlist & Order Services fertig, Cart folgt)_  
   - [ ] Audit-Logging & Role Guards integrieren _(Status: Offen)_  
 - [ ] **Shop-Frontend erneuern** _(Status: Offen)_  
   - [x] Grid (6×5 Sichtbereich) + 240px Kacheln mit Badges/Wishlist/Cart umsetzen _(Status: Erledigt – umgesetzt in `components/shop/GemstoneGrid.tsx`)_
@@ -77,9 +77,9 @@
   - [ ] Tabellen `BlogPost`, `Story`, `TickerItem` anlegen _(Status: Offen)_  
   - [ ] Import-Skripte für bestehende JSON-Inhalte schreiben _(Status: Offen)_  
   - [ ] Admin-UI-Komponenten (Listen/Formulare) auf neue APIs umstellen _(Status: Offen)_  
-- [ ] **Wishlist/Cart Persistenz abschließen** _(Status: Offen)_  
-  - [ ] API-Endpunkte finalisieren _(Status: Offen)_  
-  - [ ] Optimistic Updates / Server Actions implementieren _(Status: Offen)_  
+- [ ] **Wishlist/Cart Persistenz abschließen** _(Status: Teilweise erledigt)_  
+  - [ ] API-Endpunkte finalisieren _(Status: Teilweise erledigt – Domain-Services + Server Actions aktualisiert, finale API-Review folgt)_  
+  - [x] Optimistic Updates / Server Actions implementieren _(Status: Erledigt – Stores & Actions refaktoriert)_  
 - [ ] **Rechnungen & Downloads fertigstellen** _(Status: Offen)_  
   - [ ] CRUD + Business-Logik (Erstellung, Statuswechsel, Logging) _(Status: Offen)_  
   - [ ] Admin-UI für Rechnungs- und Download-Management _(Status: Offen)_  
@@ -102,7 +102,7 @@
   - [ ] Zentrales `prisma/seed.ts` (Hero, Navigation, Demo-Produkte etc.) _(Status: Offen)_  
   - [ ] Import-Routinen für JSON-Daten einmalig ausführen _(Status: Offen)_  
 - [ ] **Tests & QA erweitern** _(Status: Offen)_  
-  - [ ] API-Tests (HeroSettings, Rechnungen, Downloads) schreiben _(Status: Offen)_  
+  - [ ] API-Tests (HeroSettings, Rechnungen, Downloads) schreiben _(Status: Teilweise erledigt – neue Unit-Tests für Order-Service vorhanden, API/E2E folgen)_  
   - [ ] Smoke-/E2E-Tests für Admin→Frontend-Flows (Cypress/Playwright) _(Status: Offen)_  
 - [ ] **Deployment-Vorbereitung abschließen** _(Status: Offen)_  
   - [ ] Upload-Verzeichnisse oder externes Storage absichern _(Status: Offen)_  
