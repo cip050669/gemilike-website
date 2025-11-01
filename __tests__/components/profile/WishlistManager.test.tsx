@@ -54,10 +54,16 @@ describe('WishlistManager', () => {
     {
       id: 'wish-1',
       gemstoneId: 'gem-1',
-      name: 'Diamond',
-      price: 1000,
-      image: '/images/diamond.jpg',
-      category: 'diamond',
+      gemstone: {
+        id: 'gem-1',
+        name: 'Diamond',
+        price: 1000,
+        images: ['/images/diamond.jpg'],
+        category: 'diamond',
+        weight: 1.5,
+        weightUnit: 'ct',
+        currency: 'EUR',
+      },
     },
   ]
 
@@ -105,7 +111,9 @@ describe('WishlistManager', () => {
     render(<WishlistManager />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Diamond/i)).toBeInTheDocument()
+      // Use getAllByText and check that at least one exists
+      const diamondElements = screen.getAllByText(/Diamond/i)
+      expect(diamondElements.length).toBeGreaterThan(0)
     })
   })
 
@@ -114,7 +122,9 @@ describe('WishlistManager', () => {
     render(<WishlistManager />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Diamond/i)).toBeInTheDocument()
+      // Use getAllByText to handle multiple instances
+      const diamondElements = screen.getAllByText(/Diamond/i)
+      expect(diamondElements.length).toBeGreaterThan(0)
     })
 
     const removeButtons = screen.getAllByRole('button', { name: /entfernen/i })
@@ -132,7 +142,9 @@ describe('WishlistManager', () => {
     render(<WishlistManager />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Diamond/i)).toBeInTheDocument()
+      // Use getAllByText to handle multiple instances
+      const diamondElements = screen.getAllByText(/Diamond/i)
+      expect(diamondElements.length).toBeGreaterThan(0)
     })
 
     const clearButton = screen.queryByRole('button', { name: /alle löschen/i }) || 
@@ -188,7 +200,7 @@ describe('WishlistManager', () => {
     mockedUseWishlistStore.mockImplementation((selector) => {
       const selectorStr = selector.toString()
       if (selectorStr.includes('items')) {
-        return mockWishlistItems
+        return []
       }
       if (selectorStr.includes('removeItem')) {
         return mockRemoveItem
@@ -210,8 +222,8 @@ describe('WishlistManager', () => {
 
     render(<WishlistManager />)
     
-    // Component should handle loading state gracefully
-    expect(screen.queryByText(/Diamond/i) || screen.queryByText(/laden/i)).toBeTruthy()
+    // Component should handle loading state gracefully - should show loading text
+    expect(screen.getByText(/lädt merkliste/i)).toBeInTheDocument()
   })
 })
 

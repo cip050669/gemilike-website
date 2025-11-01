@@ -84,9 +84,11 @@ describe('AddToCartButton', () => {
     const button = screen.getByRole('button', { name: /In den Warenkorb/i })
     await user.click(button)
 
+    // Wait for the state to update - setIsAdded(true) should happen immediately
+    // before startTransition
     await waitFor(() => {
       expect(screen.getByText(/Hinzugefügt/i)).toBeInTheDocument()
-    })
+    }, { timeout: 5000, interval: 50 })
   })
 
   it('should be disabled when disabled prop is true', () => {
@@ -123,13 +125,14 @@ describe('AddToCartButton', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Hinzugefügt/i)).toBeInTheDocument()
-    })
+    }, { timeout: 1000 })
 
+    // Advance time and wait for state reset
     jest.advanceTimersByTime(2000)
-
     await waitFor(() => {
-      expect(screen.getByText(/In den Warenkorb/i)).toBeInTheDocument()
-    })
+      const buttonAfter = screen.getByRole('button')
+      expect(buttonAfter.textContent).toMatch(/In den Warenkorb/i)
+    }, { timeout: 1000 })
   })
 
   it('should handle addItem errors gracefully', async () => {

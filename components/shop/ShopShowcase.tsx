@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { GemstoneGrid } from '@/components/shop/GemstoneGrid';
 import type { ShopGemstone } from '@/lib/services/shop/types';
 import { Input } from '@/components/ui/input';
@@ -15,14 +15,22 @@ interface ShopShowcaseProps {
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'weight-asc' | 'weight-desc';
 
+const LOAD_STEP = 15;
+
 export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string>('alle');
   const [origin, setOrigin] = useState<string>('alle');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [hideSold, setHideSold] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(LOAD_STEP);
   const params = useParams<{ locale: string }>();
   const locale = params?.locale ?? 'de';
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setVisibleCount(LOAD_STEP);
+  }, [search, category, origin, sortBy, hideSold, gemstones]);
 
   const categoryOptions = useMemo(() => {
     const options = new Set<string>();
@@ -87,6 +95,34 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
         }
       });
   }, [gemstones, hideSold, category, origin, sortBy, search]);
+
+  useEffect(() => {
+    if (!searchParams) {
+      return;
+    }
+    const gemId = searchParams.get('gem');
+    if (!gemId) {
+      return;
+    }
+    const index = filteredGemstones.findIndex((gem) => gem.id === gemId);
+    if (index === -1) {
+      return;
+    }
+    setVisibleCount((current) => {
+      if (index < current) {
+        return current;
+      }
+      const required = Math.ceil((index + 1) / LOAD_STEP) * LOAD_STEP;
+      return Math.max(current, required);
+    });
+  }, [filteredGemstones, searchParams]);
+
+  const visibleGemstones = useMemo(
+    () => filteredGemstones.slice(0, visibleCount),
+    [filteredGemstones, visibleCount]
+  );
+  const hasMore = visibleCount < filteredGemstones.length;
+  const shownCount = visibleGemstones.length;
 
   return (
     <div className="space-y-16">
@@ -216,7 +252,34 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
         </div>
 
         {filteredGemstones.length > 0 ? (
-          <GemstoneGrid gemstones={filteredGemstones} />
+          <>
+            <GemstoneGrid gemstones={visibleGemstones} />
+            <div className="mt-10 flex flex-col items-center gap-4">
+              <p className="text-xs uppercase tracking-[0.3em] text-white/45">
+                {hasMore
+                  ? `Zeigt ${shownCount} von ${filteredGemstones.length} Edelsteinen`
+                  : `Alle ${filteredGemstones.length} Edelsteine werden angezeigt`}
+              </p>
+              {hasMore && (
+                <button
+                  type="button"
+                  className={cn(
+                    navStyles.navButton,
+                    navStyles.navButtonTight,
+                    'px-6 py-2 text-sm'
+                  )}
+                  onClick={() =>
+                    setVisibleCount((count) =>
+                      Math.min(count + LOAD_STEP, filteredGemstones.length)
+                    )
+                  }
+                >
+                  <span className={navStyles.navLabel}>Weitere Edelsteine laden</span>
+                  <span className={navStyles.navGlow} />
+                </button>
+              )}
+            </div>
+          </>
         ) : (
           <div className="rounded-3xl border border-white/10 bg-gray-900/60 p-10 text-center text-white/70">
             Keine Edelsteine gefunden. Passen Sie die Filter oder die Suche an.

@@ -85,6 +85,12 @@ describe('CartSync', () => {
   })
 
   it('displays last synced time', () => {
+    // Mock Date.toLocaleTimeString to return consistent time
+    const originalToLocaleTimeString = Date.prototype.toLocaleTimeString
+    Date.prototype.toLocaleTimeString = jest.fn(function() {
+      return '10:30'
+    })
+    
     const lastSynced = new Date('2024-01-01T10:30:00Z')
     const { usePersistentCartStore } = require('@/lib/store/persistentCart')
     usePersistentCartStore.mockReturnValue({
@@ -95,12 +101,16 @@ describe('CartSync', () => {
     render(<CartSync />)
     
     expect(screen.getByText('10:30')).toBeInTheDocument()
+    
+    // Restore original
+    Date.prototype.toLocaleTimeString = originalToLocaleTimeString
   })
 
   it('calls saveCartToServer when manual sync button is clicked', () => {
     render(<CartSync />)
     
-    const syncButton = screen.getByRole('button', { name: /refresh/i })
+    // Find the refresh button by aria-label
+    const syncButton = screen.getByRole('button', { name: /synchronisieren/i })
     fireEvent.click(syncButton)
     
     expect(mockStore.saveCartToServer).toHaveBeenCalledWith('user123')

@@ -131,7 +131,7 @@ describe('Cart Component', () => {
     render(<Cart />)
     expect(screen.getByText('Gemstone 1')).toBeInTheDocument()
     expect(screen.getByText('Gemstone 2')).toBeInTheDocument()
-    expect(screen.getByText('300.00')).toBeInTheDocument()
+    expect(screen.getByText(/EUR 300\.00/)).toBeInTheDocument()
   })
 
   it('should call toggleCart when close button is clicked', () => {
@@ -153,7 +153,7 @@ describe('Cart Component', () => {
     })
 
     render(<Cart />)
-    const closeButton = screen.getByRole('button', { name: /close/i })
+    const closeButton = screen.getByRole('button', { name: /warenkorb schließen/i })
     fireEvent.click(closeButton)
     expect(mockToggleCart).toHaveBeenCalled()
   })
@@ -300,4 +300,3 @@ describe('Cart Component', () => {
     // This would need useEffect to be properly tested
   })
 })
-

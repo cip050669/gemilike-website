@@ -1,37 +1,73 @@
 # syntax=docker/dockerfile:1.5
 
-FROM node:20-alpine AS base
-
+# ============================================
+# Dependencies Stage
+# ============================================
+FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install dependencies
+RUN npm ci --legacy-peer-deps --only=production
+
+# ============================================
+# Builder Stage
+# ============================================
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Copy package files and install ALL dependencies (including devDependencies)
 COPY package.json package-lock.json* ./
 RUN npm ci --legacy-peer-deps
 
+# Copy Prisma schema and generate client
 COPY prisma ./prisma
 RUN npx prisma generate
 
+# Copy source code
 COPY . .
+
+# Set build-time environment variables
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
+# Build the application
 RUN npm run build
 
+# ============================================
+# Runner Stage (Production)
+# ============================================
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production \
-    PORT=3000 \
-    NEXT_TELEMETRY_DISABLED=1
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000
 
-RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -G nodejs -u 1001
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 -G nodejs
 
-COPY --from=base /app/node_modules ./node_modules
-COPY --from=base /app/package.json ./package.json
-COPY --from=base /app/.next ./.next
-COPY --from=base /app/public ./public
-COPY --from=base /app/prisma ./prisma
-COPY --from=base /app/next.config.ts ./next.config.ts
+# Copy necessary files from builder
+# With standalone output, Next.js creates a self-contained server
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy Prisma schema (needed for migrations at runtime)
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+
+# Note: Prisma Client is already included in the standalone output
+# The standalone build includes all necessary node_modules dependencies
 
 USER nextjs
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]

@@ -103,7 +103,7 @@ describe('AdvancedSearch', () => {
     expect(screen.getByText('Besonderheiten')).toBeInTheDocument();
   });
 
-  it('displays filter options correctly', () => {
+  it('displays filter options correctly', async () => {
     render(
       <AdvancedSearch
         gemstones={mockGemstones}
@@ -113,6 +113,11 @@ describe('AdvancedSearch', () => {
 
     const filterButton = screen.getByText('Erweiterte Suche');
     fireEvent.click(filterButton);
+
+    // Wait for filter panel to appear
+    await waitFor(() => {
+      expect(screen.getByText('Erweiterte Suchfilter')).toBeInTheDocument();
+    });
 
     // Check basic filters
     expect(screen.getByText('Kategorie')).toBeInTheDocument();
@@ -164,7 +169,7 @@ describe('AdvancedSearch', () => {
     expect(screen.getByText('Suche speichern')).toBeInTheDocument();
   });
 
-  it('opens save dialog when save button is clicked', () => {
+  it('opens save dialog when save button is clicked', async () => {
     render(
       <AdvancedSearch
         gemstones={mockGemstones}
@@ -176,8 +181,10 @@ describe('AdvancedSearch', () => {
     const saveButton = screen.getByText('Suche speichern');
     fireEvent.click(saveButton);
 
-    expect(screen.getByText('Suche speichern')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/z.B. 'Hochwertige Smaragde'/)).toBeInTheDocument();
+    // Wait for dialog to appear
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/z\.B\. 'Hochwertige Smaragde'/)).toBeInTheDocument();
+    });
   });
 
   it('displays saved searches when provided', () => {
@@ -210,7 +217,34 @@ describe('AdvancedSearch', () => {
       {
         id: '1',
         name: 'Hochwertige Smaragde',
-        filters: {} as any,
+        filters: {
+          searchTerm: '',
+          category: 'all',
+          origin: 'all',
+          type: 'all',
+          priceRange: [0, 100000],
+          weightRange: [0, 100],
+          treatment: 'all',
+          certification: 'all',
+          inStockOnly: false,
+          color: 'all',
+          clarity: 'all',
+          cutQuality: 'all',
+          symmetry: 'all',
+          polish: 'all',
+          colorGrade: 'all',
+          colorIntensity: 'all',
+          crystalQuality: 'all',
+          transparency: 'all',
+          dimensionsRange: {
+            length: [0, 50],
+            width: [0, 50],
+            height: [0, 50],
+          },
+          hasVideos: false,
+          hasCertificates: false,
+          estimatedYieldRange: [0, 100],
+        } as any,
         createdAt: new Date(),
         updatedAt: new Date(),
         usageCount: 0,
@@ -229,7 +263,7 @@ describe('AdvancedSearch', () => {
     const savedSearchButton = screen.getByText('Hochwertige Smaragde');
     fireEvent.click(savedSearchButton);
 
-    expect(mockOnLoadSearch).toHaveBeenCalledWith(savedSearches[0]);
+    expect(mockOnLoadSearch).toHaveBeenCalledWith(savedSearches[0].filters);
   });
 
   it('resets filters when reset button is clicked', () => {
@@ -265,7 +299,7 @@ describe('AdvancedSearch', () => {
     expect(screen.getByText('1')).toBeInTheDocument();
   });
 
-  it('handles tab switching correctly', () => {
+  it('handles tab switching correctly', async () => {
     render(
       <AdvancedSearch
         gemstones={mockGemstones}
@@ -276,9 +310,16 @@ describe('AdvancedSearch', () => {
     const filterButton = screen.getByText('Erweiterte Suche');
     fireEvent.click(filterButton);
 
+    // Wait for filter panel to appear
+    await waitFor(() => {
+      expect(screen.getByText('Erweiterte Suchfilter')).toBeInTheDocument();
+    });
+
     // Click on different tabs
     fireEvent.click(screen.getByText('Qualität'));
-    expect(screen.getByText('Behandlung')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Behandlung')).toBeInTheDocument();
+    });
 
     fireEvent.click(screen.getByText('Abmessungen'));
     expect(screen.getByText('Länge:')).toBeInTheDocument();

@@ -2,7 +2,7 @@
  * WishlistButton Component Tests
  */
 
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { WishlistButton } from '@/components/cart/WishlistButton'
 import { useWishlistStore } from '@/lib/store/wishlist'
@@ -27,32 +27,24 @@ describe('WishlistButton', () => {
   const mockSummary = { items: [], totalItems: 0 }
   const mockIsLoading = jest.fn().mockReturnValue(false)
 
+  const setStoreState = (overrides: Partial<Record<string, any>> = {}) => {
+    mockedUseWishlistStore.mockImplementation((selector) =>
+      selector({
+        toggleItem: mockToggleItem,
+        removeItem: mockRemoveItem,
+        isInWishlist: mockIsInWishlist,
+        fetchWishlist: mockFetchWishlist,
+        summary: mockSummary,
+        isLoading: mockIsLoading(),
+        ...overrides,
+      } as any)
+    )
+  }
+
   beforeEach(() => {
     jest.clearAllMocks()
     jest.useFakeTimers()
-
-    mockedUseWishlistStore.mockImplementation((selector) => {
-      const selectorStr = selector.toString()
-      if (selectorStr.includes('toggleItem')) {
-        return mockToggleItem
-      }
-      if (selectorStr.includes('removeItem')) {
-        return mockRemoveItem
-      }
-      if (selectorStr.includes('isInWishlist')) {
-        return mockIsInWishlist
-      }
-      if (selectorStr.includes('fetchWishlist')) {
-        return mockFetchWishlist
-      }
-      if (selectorStr.includes('summary')) {
-        return mockSummary
-      }
-      if (selectorStr.includes('isLoading')) {
-        return mockIsLoading()
-      }
-      return undefined
-    })
+    setStoreState()
   })
 
   afterEach(() => {
@@ -75,6 +67,9 @@ describe('WishlistButton', () => {
     
     const button = screen.getByRole('button')
     await user.click(button)
+    await act(async () => {
+      jest.runOnlyPendingTimers()
+    })
 
     await waitFor(() => {
       expect(mockToggleItem).toHaveBeenCalledWith('gem-1', {
@@ -94,6 +89,9 @@ describe('WishlistButton', () => {
     
     const button = screen.getByRole('button')
     await user.click(button)
+    await act(async () => {
+      jest.runOnlyPendingTimers()
+    })
 
     await waitFor(() => {
       expect(mockRemoveItem).toHaveBeenCalledWith('gem-1')
@@ -101,28 +99,7 @@ describe('WishlistButton', () => {
   })
 
   it('should fetch wishlist if summary is not available', () => {
-    mockedUseWishlistStore.mockImplementation((selector) => {
-      const selectorStr = selector.toString()
-      if (selectorStr.includes('toggleItem')) {
-        return mockToggleItem
-      }
-      if (selectorStr.includes('removeItem')) {
-        return mockRemoveItem
-      }
-      if (selectorStr.includes('isInWishlist')) {
-        return mockIsInWishlist
-      }
-      if (selectorStr.includes('fetchWishlist')) {
-        return mockFetchWishlist
-      }
-      if (selectorStr.includes('summary')) {
-        return null // No summary
-      }
-      if (selectorStr.includes('isLoading')) {
-        return false
-      }
-      return undefined
-    })
+    setStoreState({ summary: null, isLoading: false })
 
     render(<WishlistButton item={mockItem} />)
 
@@ -132,28 +109,7 @@ describe('WishlistButton', () => {
   it('should be disabled when store is loading', () => {
     mockIsLoading.mockReturnValue(true)
     
-    mockedUseWishlistStore.mockImplementation((selector) => {
-      const selectorStr = selector.toString()
-      if (selectorStr.includes('toggleItem')) {
-        return mockToggleItem
-      }
-      if (selectorStr.includes('removeItem')) {
-        return mockRemoveItem
-      }
-      if (selectorStr.includes('isInWishlist')) {
-        return mockIsInWishlist
-      }
-      if (selectorStr.includes('fetchWishlist')) {
-        return mockFetchWishlist
-      }
-      if (selectorStr.includes('summary')) {
-        return mockSummary
-      }
-      if (selectorStr.includes('isLoading')) {
-        return true
-      }
-      return undefined
-    })
+    setStoreState({ isLoading: true })
 
     render(<WishlistButton item={mockItem} />)
     
@@ -188,4 +144,3 @@ describe('WishlistButton', () => {
     expect(button.className).toContain('custom-class')
   })
 })
-

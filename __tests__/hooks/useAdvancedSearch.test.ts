@@ -4,11 +4,12 @@ import { SearchFilters } from '@/components/shop/AdvancedSearch';
 
 // Mock next-auth
 jest.mock('next-auth/react', () => ({
-  useSession: () => ({
-    data: { user: { id: 'test-user' } },
-    status: 'authenticated',
-  }),
+  useSession: jest.fn(),
 }));
+
+import { useSession } from 'next-auth/react';
+
+const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
 
 // Mock fetch
 global.fetch = jest.fn();
@@ -16,7 +17,15 @@ global.fetch = jest.fn();
 describe('useAdvancedSearch', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (global.fetch as jest.Mock).mockClear();
+    (global.fetch as jest.Mock).mockReset();
+    (global.fetch as jest.Mock).mockImplementation(async () => ({
+      ok: true,
+      json: async () => ({}),
+    }));
+    mockUseSession.mockReturnValue({
+      data: null,
+      status: 'unauthenticated',
+    });
   });
 
   it('initializes with default state', () => {
@@ -153,6 +162,11 @@ describe('useAdvancedSearch', () => {
   });
 
   it('saves search successfully', async () => {
+    mockUseSession.mockReturnValue({
+      data: { user: { id: 'test-user' } },
+      status: 'authenticated',
+    });
+
     const mockSavedSearch = {
       id: 'search-1',
       name: 'Test Search',
@@ -163,10 +177,15 @@ describe('useAdvancedSearch', () => {
       usageCount: 0,
     };
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ search: mockSavedSearch }),
-    });
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ searches: [] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ search: mockSavedSearch }),
+      });
 
     const { result } = renderHook(() => useAdvancedSearch());
 
@@ -238,6 +257,11 @@ describe('useAdvancedSearch', () => {
   });
 
   it('deletes saved search', async () => {
+    mockUseSession.mockReturnValue({
+      data: { user: { id: 'test-user' } },
+      status: 'authenticated',
+    });
+
     const mockSavedSearch = {
       id: 'search-1',
       name: 'Test Search',
@@ -255,10 +279,15 @@ describe('useAdvancedSearch', () => {
       result.current.savedSearches.push(mockSavedSearch);
     });
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true }),
-    });
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ searches: [] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true }),
+      });
 
     await act(async () => {
       await result.current.deleteSavedSearch('search-1');
@@ -294,9 +323,10 @@ describe('useAdvancedSearch', () => {
 
   it('handles authentication required error for save search', async () => {
     // Mock no session
-    jest.doMock('next-auth/react', () => ({
-      useSession: () => ({ data: null, status: 'unauthenticated' }),
-    }));
+    mockUseSession.mockReturnValue({
+      data: null,
+      status: 'unauthenticated',
+    });
 
     const { result } = renderHook(() => useAdvancedSearch());
 
@@ -329,10 +359,8 @@ describe('useAdvancedSearch', () => {
       estimatedYieldRange: [0, 100],
     };
 
-    await expect(
-      act(async () => {
-        await result.current.saveSearch('Test Search', filters);
-      })
-    ).rejects.toThrow('Authentication required');
+    await expect(result.current.saveSearch('Test Search', filters)).rejects.toThrow(
+      'Authentication required'
+    );
   });
 });

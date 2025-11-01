@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { DashboardStats } from '@/components/admin/DashboardStats';
 import { Gemstone } from '@/lib/types/gemstone';
 
@@ -65,173 +65,185 @@ const mockGemstones: Gemstone[] = [
 ];
 
 describe('DashboardStats', () => {
+  let anchorClickSpy: jest.SpyInstance | null = null;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
+    if (!anchorClickSpy) {
+      anchorClickSpy = jest
+        .spyOn(HTMLAnchorElement.prototype, 'click')
+        .mockImplementation(() => {});
+    }
   });
 
   it('renders loading state initially', () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
+
     expect(screen.getByText('Dashboard Statistiken')).toBeInTheDocument();
     expect(screen.getByText('Lade Statistiken...')).toBeInTheDocument();
   });
 
+  const flushStats = async () => {
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+      await Promise.resolve();
+    });
+  };
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  afterAll(() => {
+    anchorClickSpy?.mockRestore();
+    anchorClickSpy = null;
+  });
+
   it('renders dashboard statistics after loading', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Gesamtumsatz')).toBeInTheDocument();
-      expect(screen.getByText('Bestellungen')).toBeInTheDocument();
-      expect(screen.getByText('Kunden')).toBeInTheDocument();
-      expect(screen.getByText('Produkte')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Dashboard Statistiken' })).toBeInTheDocument();
+    expect(await screen.findByText('Gesamtumsatz')).toBeInTheDocument();
+    expect(screen.getByText('Bestellungen')).toBeInTheDocument();
+    expect(screen.getByText('Kunden')).toBeInTheDocument();
+    expect(screen.getByText('Produkte')).toBeInTheDocument();
   });
 
   it('displays key metrics correctly', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      // Check that key metrics are displayed
-      expect(screen.getByText('Gesamtumsatz')).toBeInTheDocument();
-      expect(screen.getByText('Bestellungen')).toBeInTheDocument();
-      expect(screen.getByText('Kunden')).toBeInTheDocument();
-      expect(screen.getByText('Produkte')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Gesamtumsatz')).toBeInTheDocument();
+    expect(screen.getByText('Bestellungen')).toBeInTheDocument();
+    expect(screen.getByText('Kunden')).toBeInTheDocument();
+    expect(screen.getByText('Produkte')).toBeInTheDocument();
   });
 
   it('displays product status information', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Lagerbestand')).toBeInTheDocument();
-      expect(screen.getByText('Verfügbar')).toBeInTheDocument();
-      expect(screen.getByText('Ausverkauft')).toBeInTheDocument();
-      expect(screen.getByText('Niedrig')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Lagerbestand')).toBeInTheDocument();
+    expect(screen.getByText('Verfügbar')).toBeInTheDocument();
+    expect(screen.getByText('Ausverkauft')).toBeInTheDocument();
+    expect(screen.getByText('Niedrig')).toBeInTheDocument();
   });
 
   it('displays certification statistics', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Zertifizierung')).toBeInTheDocument();
-      expect(screen.getByText('Zertifiziert')).toBeInTheDocument();
-      expect(screen.getByText('Nicht zertifiziert')).toBeInTheDocument();
-      expect(screen.getByText('Zertifizierungsrate')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Zertifizierung')).toBeInTheDocument();
+    expect(screen.getByText('Zertifiziert')).toBeInTheDocument();
+    expect(screen.getByText('Nicht zertifiziert')).toBeInTheDocument();
+    expect(screen.getByText('Zertifizierungsrate')).toBeInTheDocument();
   });
 
   it('displays price statistics', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Preis-Statistiken')).toBeInTheDocument();
-      expect(screen.getByText('Durchschnitt')).toBeInTheDocument();
-      expect(screen.getByText('Median')).toBeInTheDocument();
-      expect(screen.getByText('Bereich')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Preis-Statistiken')).toBeInTheDocument();
+    expect(screen.getByText('Durchschnitt')).toBeInTheDocument();
+    expect(screen.getByText('Median')).toBeInTheDocument();
+    expect(screen.getByText('Bereich')).toBeInTheDocument();
   });
 
   it('displays top selling products', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Beliebteste Produkte')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Beliebteste Produkte')).toBeInTheDocument();
   });
 
   it('displays category statistics', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Kategorien-Statistiken')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Kategorien-Statistiken')).toBeInTheDocument();
   });
 
   it('displays origin statistics', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Herkunft-Statistiken')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Herkunft-Statistiken')).toBeInTheDocument();
   });
 
   it('displays treatment statistics', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Behandlungs-Statistiken')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Behandlungs-Statistiken')).toBeInTheDocument();
   });
 
   it('displays weight statistics', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Gewichts-Statistiken')).toBeInTheDocument();
-      expect(screen.getByText('Geschliffene Steine (Karat)')).toBeInTheDocument();
-      expect(screen.getByText('Rohsteine (Gramm)')).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(await screen.findByText('Gewichts-Statistiken')).toBeInTheDocument();
+    expect(screen.getByText('Geschliffene Steine (Karat)')).toBeInTheDocument();
+    expect(screen.getByText('Rohsteine (Gramm)')).toBeInTheDocument();
   });
 
   it('handles refresh button click', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      const refreshButton = screen.getByText('Aktualisieren');
-      expect(refreshButton).toBeInTheDocument();
-      
-      fireEvent.click(refreshButton);
-    });
+
+    await flushStats();
+
+    const refreshButton = screen.getByText('Aktualisieren');
+    fireEvent.click(refreshButton);
   });
 
   it('handles export button click', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      const exportButton = screen.getByText('Export CSV');
-      expect(exportButton).toBeInTheDocument();
-      
-      fireEvent.click(exportButton);
-    });
-    
+
+    await flushStats();
+
+    const exportButton = screen.getByText('Export CSV');
+    fireEvent.click(exportButton);
+
     // Check that URL.createObjectURL was called
     expect(global.URL.createObjectURL).toHaveBeenCalled();
   });
 
   it('shows last updated timestamp', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/Letzte Aktualisierung:/)).toBeInTheDocument();
-    });
+
+    await flushStats();
+
+    expect(screen.getByText(/Letzte Aktualisierung:/)).toBeInTheDocument();
   });
 
   it('displays correct product counts', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      // Should show 2 total products
-      expect(screen.getByText('2')).toBeInTheDocument();
-    });
-  });
 
-  it('handles empty gemstones array', async () => {
-    render(<DashboardStats gemstones={[]} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Dashboard Statistiken')).toBeInTheDocument();
-    });
+    await flushStats();
+
+    expect(screen.getByText('Produkte')).toBeInTheDocument();
+    expect(
+      screen.getByText('1 verfügbar, 1 ausverkauft')
+    ).toBeInTheDocument();
   });
 
   it('displays revenue growth indicator', async () => {
     render(<DashboardStats gemstones={mockGemstones} />);
-    
-    await waitFor(() => {
-      // Should show either trending up or down icon
-      const trendingIcons = screen.getAllByRole('img', { hidden: true });
-      expect(trendingIcons.length).toBeGreaterThan(0);
-    });
+
+    await flushStats();
+
+    expect(screen.getByLabelText(/revenue-trend/i)).toBeInTheDocument();
   });
 
   it('shows proper loading animation', () => {

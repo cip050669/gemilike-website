@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { MediaGallery } from '@/components/shop/MediaGallery';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
@@ -38,6 +38,9 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
   const [selectedGemstone, setSelectedGemstone] = useState<ShopGemstone | null>(null);
   const params = useParams<{ locale: string }>();
   const locale = params?.locale ?? 'de';
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const displayGemstones = gemstones;
 
@@ -52,6 +55,49 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
     weightUnit: gem.weightUnit,
     origin: gem.origin ?? undefined,
   });
+
+  const updateUrl = (paramsToApply: URLSearchParams) => {
+    const queryString = paramsToApply.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
+  };
+
+  const openGemstone = (gem: ShopGemstone) => {
+    setSelectedGemstone(gem);
+    const paramsCopy = new URLSearchParams(searchParams?.toString() ?? '');
+    paramsCopy.set('gem', gem.id);
+    updateUrl(paramsCopy);
+  };
+
+  const closeGemstone = () => {
+    const paramsCopy = new URLSearchParams(searchParams?.toString() ?? '');
+    if (paramsCopy.has('gem')) {
+      paramsCopy.delete('gem');
+      updateUrl(paramsCopy);
+    }
+    setSelectedGemstone(null);
+  };
+
+  useEffect(() => {
+    if (!searchParams) {
+      return;
+    }
+    const gemParam = searchParams.get('gem');
+    if (!gemParam) {
+      if (selectedGemstone !== null) {
+        setSelectedGemstone(null);
+      }
+      return;
+    }
+
+    if (selectedGemstone?.id === gemParam) {
+      return;
+    }
+
+    const match = gemstones.find((gem) => gem.id === gemParam);
+    if (match) {
+      setSelectedGemstone(match);
+    }
+  }, [searchParams, gemstones, selectedGemstone]);
 
   return (
     <>
@@ -71,7 +117,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
             >
               <button
                 type="button"
-                onClick={() => setSelectedGemstone(gem)}
+                onClick={() => openGemstone(gem)}
                 className="group relative block w-full overflow-hidden rounded-[18px]"
                 style={{ height: '240px' }}
               >
@@ -128,7 +174,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                     navStyles.navButtonTight,
                     'w-full justify-center text-sm'
                   )}
-                  onClick={() => setSelectedGemstone(gem)}
+                  onClick={() => openGemstone(gem)}
                 >
                   <span className={navStyles.navLabel}>Details öffnen</span>
                   <span className={navStyles.navGlow} />
@@ -138,8 +184,14 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
           );
         })}
       </div>
-
-      <Dialog open={selectedGemstone != null} onOpenChange={() => setSelectedGemstone(null)}>
+      <Dialog
+        open={selectedGemstone != null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            closeGemstone();
+          }
+        }}
+      >
         <DialogContent className="max-w-5xl bg-[#111111] text-white">
           {selectedGemstone &&
             (() => {
@@ -192,6 +244,11 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                           </Badge>
                         )}
                       </div>
+                      <DialogDescription className="text-sm text-white/60">
+                        {selectedGemstone.shortDescription ??
+                          selectedGemstone.description ??
+                          'Ausführliche Informationen zu diesem Edelstein.'}
+                      </DialogDescription>
                     </DialogHeader>
 
                     {selectedGemstone.description && (
@@ -268,7 +325,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                       <Button
                         variant="outline"
                         className="border-white/20 text-white hover:bg-gray-800/40"
-                        onClick={() => setSelectedGemstone(null)}
+                        onClick={closeGemstone}
                       >
                         Schließen
                       </Button>

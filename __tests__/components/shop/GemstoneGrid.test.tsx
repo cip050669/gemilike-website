@@ -3,15 +3,29 @@ import { GemstoneGrid } from '@/components/shop/GemstoneGrid'
 import type { ShopGemstone } from '@/lib/services/shop/types'
 
 // Mock dependencies
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-  }),
-  useSearchParams: () => new URLSearchParams(),
-  usePathname: () => '/shop',
-  useParams: () => ({ locale: 'de' }),
-}))
+jest.mock('next/navigation', () => {
+  let currentParams = new URLSearchParams()
+  const replaceMock = jest.fn()
+
+  return {
+    useRouter: () => ({
+      push: jest.fn(),
+      replace: (url: string) => {
+        replaceMock(url)
+        const queryIndex = url.indexOf('?')
+        const query = queryIndex >= 0 ? url.slice(queryIndex + 1) : ''
+        currentParams = new URLSearchParams(query)
+      },
+    }),
+    useSearchParams: () => currentParams,
+    usePathname: () => '/shop',
+    useParams: () => ({ locale: 'de' }),
+    __TEST_RESET__: () => {
+      currentParams = new URLSearchParams()
+      replaceMock.mockClear()
+    },
+  }
+})
 
 jest.mock('@/lib/store/cart', () => ({
   useCartStore: () => ({
@@ -74,6 +88,8 @@ describe('GemstoneGrid Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    const navigation = jest.requireMock('next/navigation') as { __TEST_RESET__: () => void }
+    navigation.__TEST_RESET__()
   })
 
   it('should render gemstones', () => {

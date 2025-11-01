@@ -1,204 +1,145 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { useSession } from 'next-auth/react'
-import AuditLogPage from '@/app/[locale]/admin/audit/page'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import AuditLogPage from '@/app/[locale]/admin/audit/page';
+import { useSession } from 'next-auth/react';
 
-// Mock next-auth
 jest.mock('next-auth/react', () => ({
-  useSession: jest.fn()
-}))
-const mockUseSession = useSession as jest.MockedFunction<typeof useSession>
+  useSession: jest.fn(),
+}));
 
-// Mock fetch
-global.fetch = jest.fn()
-const mockFetch = fetch as jest.MockedFunction<typeof fetch>
+const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
 
-// Mock data
-const mockAuditLogs = [
-  {
-    id: '1',
-    userId: 'admin1',
-    userName: 'Admin User',
-    action: 'CREATE',
-    entityType: 'GEMSTONE',
-    entityId: 'gem-001',
-    details: { name: 'New Emerald', price: 500 },
-    ipAddress: '192.168.1.1',
-    userAgent: 'Mozilla/5.0...',
-    createdAt: '2024-01-01T10:00:00Z'
-  },
-  {
-    id: '2',
-    userId: 'admin1',
-    userName: 'Admin User',
-    action: 'UPDATE',
-    entityType: 'CUSTOMER',
-    entityId: 'customer-001',
-    details: { notes: 'Updated customer notes' },
-    ipAddress: '192.168.1.1',
-    userAgent: 'Mozilla/5.0...',
-    createdAt: '2024-01-01T11:00:00Z'
-  }
-]
+const getCardValue = (label: string) => {
+  const header = screen.getByText(label).parentElement;
+  return header?.nextElementSibling?.querySelector('.text-2xl') as HTMLElement | null;
+};
 
 describe('AuditLogPage', () => {
+  let alertSpy: jest.SpyInstance | null = null;
+  let anchorClickSpy: jest.SpyInstance | null = null;
+
   beforeEach(() => {
     mockUseSession.mockReturnValue({
-      data: { user: { id: 'admin1', role: 'admin' } },
-      status: 'authenticated'
-    })
-    
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => mockAuditLogs
-    } as Response)
-  })
+      data: { user: { id: 'admin-001', role: 'admin' } },
+      status: 'authenticated',
+    });
+
+    alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    anchorClickSpy = jest
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {});
+
+    jest.useFakeTimers();
+  });
 
   afterEach(() => {
-    jest.clearAllMocks()
-  })
+    alertSpy?.mockRestore();
+    anchorClickSpy?.mockRestore();
+    jest.useRealTimers();
+  });
 
-  it('renders audit log page', async () => {
-    render(<AuditLogPage />)
-    
-    expect(screen.getByText('Audit-Log')).toBeInTheDocument()
-    expect(screen.getByText('Vollständige Nachverfolgung aller Admin-Aktionen')).toBeInTheDocument()
-    
-    await waitFor(() => {
-      expect(screen.getByText('Admin User')).toBeInTheDocument()
-    })
-  })
+  const renderPage = async () => {
+    render(<AuditLogPage />);
+    await waitFor(() => expect(screen.getByText('Audit-Log')).toBeInTheDocument());
+  };
+
+  it('renders header and default logs', async () => {
+    await renderPage();
+    expect(screen.getAllByText('Admin User').length).toBeGreaterThan(0);
+  });
 
   it('displays audit log statistics', async () => {
-    render(<AuditLogPage />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('2')).toBeInTheDocument() // Total entries
-      expect(screen.getByText('1')).toBeInTheDocument() // Active users
-      expect(screen.getByText('2')).toBeInTheDocument() // Actions
-    })
-  })
+    await renderPage();
 
-  it('filters audit logs by search term', async () => {
-    render(<AuditLogPage />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('Admin User')).toBeInTheDocument()
-    })
-    
-    const searchInput = screen.getByPlaceholderText('Audit-Logs suchen...')
-    fireEvent.change(searchInput, { target: { value: 'CREATE' } })
-    
-    expect(screen.getByText('CREATE')).toBeInTheDocument()
-    
-    fireEvent.change(searchInput, { target: { value: 'DELETE' } })
-    
-    expect(screen.queryByText('CREATE')).not.toBeInTheDocument()
-  })
+    expect(getCardValue('Gesamt Einträge')?.textContent).toContain('5');
+    expect(getCardValue('Aktive Benutzer')?.textContent).toContain('2');
+    expect(getCardValue('Aktionen')?.textContent).toContain('5');
+  });
 
-  it('filters audit logs by action', async () => {
-    render(<AuditLogPage />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('Admin User')).toBeInTheDocument()
-    })
-    
-    const actionSelect = screen.getByDisplayValue('Alle Aktionen')
-    fireEvent.change(actionSelect, { target: { value: 'CREATE' } })
-    
-    expect(screen.getByText('CREATE')).toBeInTheDocument()
-    
-    fireEvent.change(actionSelect, { target: { value: 'DELETE' } })
-    
-    expect(screen.queryByText('CREATE')).not.toBeInTheDocument()
-  })
+  it('filters logs via search input', async () => {
+    await renderPage();
 
-  it('filters audit logs by date', async () => {
-    render(<AuditLogPage />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('Admin User')).toBeInTheDocument()
-    })
-    
-    const dateSelect = screen.getByDisplayValue('Alle Zeiten')
-    fireEvent.change(dateSelect, { target: { value: 'today' } })
-    
-    // Should still show logs from today
-    expect(screen.getByText('Admin User')).toBeInTheDocument()
-  })
+    const searchInput = screen.getByPlaceholderText('Audit-Logs suchen...');
+    fireEvent.change(searchInput, { target: { value: 'CREATE' } });
 
-  it('exports audit logs as CSV', async () => {
-    render(<AuditLogPage />)
-    
+    // Wait for filtering to complete
     await waitFor(() => {
-      expect(screen.getByText('Admin User')).toBeInTheDocument()
-    })
-    
-    const exportButton = screen.getByText('Export CSV')
-    fireEvent.click(exportButton)
-    
-    // Check if download was triggered
-    expect(exportButton).toBeInTheDocument()
-  })
+      expect(screen.getByText('EMERALD-001')).toBeInTheDocument();
+    });
 
-  it('shows audit log details modal when view button is clicked', async () => {
-    render(<AuditLogPage />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('Admin User')).toBeInTheDocument()
-    })
-    
-    const viewButtons = screen.getAllByRole('button')
-    const viewButton = viewButtons.find(button => 
-      button.querySelector('svg') // Looking for the Eye icon
-    )
-    
-    if (viewButton) {
-      fireEvent.click(viewButton)
-      
-      await waitFor(() => {
-        expect(screen.getByText('Audit-Log Details')).toBeInTheDocument()
-      })
-    }
-  })
+    fireEvent.change(searchInput, { target: { value: 'DELETE' } });
 
-  it('displays correct action badges', async () => {
-    render(<AuditLogPage />)
-    
     await waitFor(() => {
-      expect(screen.getByText('CREATE')).toBeInTheDocument()
-      expect(screen.getByText('UPDATE')).toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText('SAPPHIRE-003')).toBeInTheDocument();
+      expect(screen.queryByText('EMERALD-001')).not.toBeInTheDocument();
+    });
+  });
 
-  it('handles empty audit log list', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => []
-    } as Response)
-    
-    render(<AuditLogPage />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('Keine Audit-Logs gefunden')).toBeInTheDocument()
-    })
-  })
+  it('filters logs by action select', async () => {
+    await renderPage();
 
-  it('handles API errors gracefully', async () => {
-    mockFetch.mockRejectedValue(new Error('API Error'))
-    
-    render(<AuditLogPage />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('Lade Audit-Logs...')).toBeInTheDocument()
-    })
-  })
+    const actionSelect = screen.getByDisplayValue('Alle Aktionen');
+    fireEvent.change(actionSelect, { target: { value: 'CREATE' } });
 
-  it('shows correct timestamps', async () => {
-    render(<AuditLogPage />)
-    
     await waitFor(() => {
-      // Check if timestamps are displayed in German format
-      expect(screen.getByText(/01\.01\.2024/)).toBeInTheDocument()
-    })
-  })
-})
+      expect(screen.getByText('EMERALD-001')).toBeInTheDocument();
+      expect(screen.queryByText('SAPPHIRE-003')).not.toBeInTheDocument();
+    });
+  });
+
+  it('filters logs by date option', async () => {
+    await renderPage();
+
+    const dateSelect = screen.getByDisplayValue('Alle Zeiten');
+    fireEvent.change(dateSelect, { target: { value: 'today' } });
+
+    expect(screen.getAllByText('Admin User').length).toBeGreaterThan(0);
+  });
+
+  it('exports logs to CSV', async () => {
+    await renderPage();
+
+    const exportButton = screen.getByText('Export CSV');
+    fireEvent.click(exportButton);
+
+    await act(async () => {
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(anchorClickSpy).toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalled();
+  });
+
+  it('shows audit log details modal on click', async () => {
+    await renderPage();
+
+    const viewButtons = screen.getAllByRole('button').filter((button) =>
+      button.querySelector('svg')?.classList.contains('lucide-eye')
+    );
+
+    expect(viewButtons.length).toBeGreaterThan(0);
+
+    fireEvent.click(viewButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Audit-Log Details')).toBeInTheDocument();
+    });
+  });
+
+  it('shows empty state when no entries match filters', async () => {
+    await renderPage();
+
+    const searchInput = screen.getByPlaceholderText('Audit-Logs suchen...');
+    fireEvent.change(searchInput, { target: { value: 'unbekannt' } });
+
+    expect(screen.getByText('Keine Audit-Logs gefunden')).toBeInTheDocument();
+  });
+
+  it('renders localized timestamps', async () => {
+    await renderPage();
+
+    const dateString = new Date().toLocaleDateString('de-DE');
+    expect(
+      screen.getAllByText((content) => content.includes(dateString)).length
+    ).toBeGreaterThan(0);
+  });
+});

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { extractPayload, normaliseGemstonePayload, parseListFromDB } from '../utils';
+import { extractPayload, normaliseGemstonePayload } from '../utils';
+import { notifyWishlistCustomers } from '@/lib/services/wishlist-notifications';
 
 export async function GET(
   request: NextRequest,
@@ -75,10 +76,32 @@ export async function PUT(
 
     const data = normaliseGemstonePayload(basePayload, uploadedImage, fallbackImages);
     
+    // Check if gemstone is becoming available (was sold, now not sold, or inventory updated)
+    const wasSold = existing.isSold;
+    const isBecomingAvailable = wasSold && (payload.isSold === false || data.isSold === false);
+    
+    // Also check if inventory quantity changed from 0 to > 0
+    let inventoryAvailable = false;
+    if (payload.inStock !== undefined || payload.quantity !== undefined) {
+      const currentInventory = await prisma.gemstoneInventory.findUnique({
+        where: { gemstoneId: id },
+        select: { quantity: true },
+      });
+      const newQuantity = payload.quantity ?? payload.inStock ? 1 : currentInventory?.quantity ?? 0;
+      inventoryAvailable = (currentInventory?.quantity ?? 0) === 0 && newQuantity > 0;
+    }
+    
     const gemstone = await prisma.gemstone.update({
       where: { id },
       data
     });
+
+    // Send wishlist notifications if gemstone became available
+    if (isBecomingAvailable || inventoryAvailable) {
+      notifyWishlistCustomers(id).catch((error) => {
+        console.error('Error sending wishlist notifications:', error);
+      });
+    }
 
     return NextResponse.json({
       success: true,

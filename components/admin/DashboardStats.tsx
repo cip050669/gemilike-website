@@ -350,9 +350,17 @@ export function DashboardStats({ gemstones }: DashboardStatsProps) {
             <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString('de-DE')} €</div>
             <div className="flex items-center text-xs text-muted-foreground">
               {stats.revenueGrowth >= 0 ? (
-                <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
+                <TrendingUp
+                  className="h-3 w-3 text-green-500 mr-1"
+                  role="img"
+                  aria-label="revenue-trend"
+                />
               ) : (
-                <TrendingDown className="h-3 w-3 text-red-500 mr-1" />
+                <TrendingDown
+                  className="h-3 w-3 text-red-500 mr-1"
+                  role="img"
+                  aria-label="revenue-trend"
+                />
               )}
               {Math.abs(stats.revenueGrowth).toFixed(1)}% vs. letzter Monat
             </div>

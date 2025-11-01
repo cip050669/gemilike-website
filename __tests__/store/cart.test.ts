@@ -9,7 +9,11 @@ jest.mock('@/lib/server/shop-context', () => ({
   resolveShopIdentity: jest.fn().mockResolvedValue({ shopId: 'test-shop' }),
 }))
 
-const mockedCartActions = cartActions as jest.Mocked<typeof cartActions>
+const mockedGetCartSummary = cartActions.getCartSummary as jest.MockedFunction<typeof cartActions.getCartSummary>
+const mockedAddCartItem = cartActions.addCartItem as jest.MockedFunction<typeof cartActions.addCartItem>
+const mockedUpdateCartItemQuantity = cartActions.updateCartItemQuantity as jest.MockedFunction<typeof cartActions.updateCartItemQuantity>
+const mockedRemoveCartItem = cartActions.removeCartItem as jest.MockedFunction<typeof cartActions.removeCartItem>
+const mockedClearActiveCart = cartActions.clearActiveCart as jest.MockedFunction<typeof cartActions.clearActiveCart>
 
 describe('Cart Store', () => {
   beforeEach(() => {
@@ -72,7 +76,7 @@ describe('Cart Store', () => {
         totalQuantity: 1,
       }
 
-      mockedCartActions.getCartSummary.mockResolvedValue(mockSummary)
+      mockedGetCartSummary.mockResolvedValue(mockSummary)
 
       const { result } = renderHook(() => useCartStore())
 
@@ -88,7 +92,7 @@ describe('Cart Store', () => {
 
     it('should handle fetch error', async () => {
       const errorMessage = 'Failed to fetch cart'
-      mockedCartActions.getCartSummary.mockRejectedValue(new Error(errorMessage))
+      mockedGetCartSummary.mockRejectedValue(new Error(errorMessage))
 
       const { result } = renderHook(() => useCartStore())
 
@@ -101,7 +105,7 @@ describe('Cart Store', () => {
     })
 
     it('should set loading state during fetch', async () => {
-      mockedCartActions.getCartSummary.mockImplementation(
+      mockedGetCartSummary.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve({
           id: 'cart-1',
           currency: 'EUR',
@@ -135,7 +139,7 @@ describe('Cart Store', () => {
         totalQuantity: 1,
       }
 
-      mockedCartActions.addCartItem.mockResolvedValue(mockSummary)
+      mockedAddCartItem.mockResolvedValue(mockSummary)
 
       const { result } = renderHook(() => useCartStore())
 
@@ -147,7 +151,7 @@ describe('Cart Store', () => {
         })
       })
 
-      expect(mockedCartActions.addCartItem).toHaveBeenCalledWith('gemstone-1', 1)
+      expect(mockedAddCartItem).toHaveBeenCalledWith('gemstone-1', 1)
       expect(result.current.summary).toEqual(mockSummary)
       expect(result.current.items).toEqual(mockSummary.items)
       expect(result.current.isLoading).toBe(false)
@@ -162,7 +166,7 @@ describe('Cart Store', () => {
         totalQuantity: 0,
       }
 
-      mockedCartActions.addCartItem.mockResolvedValue({
+      mockedAddCartItem.mockResolvedValue({
         ...mockSummary,
         items: [createMockCartItem({ id: 'item-1', gemstoneId: 'gemstone-1' })],
         totalPrice: 100,
@@ -201,7 +205,7 @@ describe('Cart Store', () => {
         totalQuantity: 2,
       }
 
-      mockedCartActions.addCartItem.mockResolvedValue({
+      mockedAddCartItem.mockResolvedValue({
         ...mockSummary,
         items: [{ ...existingItem, quantity: 3 }],
         totalPrice: 300,
@@ -234,7 +238,7 @@ describe('Cart Store', () => {
         useCartStore.setState({ summary: previousSummary })
       })
 
-      mockedCartActions.addCartItem.mockRejectedValue(new Error('Add failed'))
+      mockedAddCartItem.mockRejectedValue(new Error('Add failed'))
 
       const { result } = renderHook(() => useCartStore())
 
@@ -258,7 +262,7 @@ describe('Cart Store', () => {
         totalQuantity: 2,
       }
 
-      mockedCartActions.updateCartItemQuantity.mockResolvedValue({
+      mockedUpdateCartItemQuantity.mockResolvedValue({
         ...mockSummary,
         items: [{ ...item, quantity: 5 }],
         totalPrice: 500,
@@ -275,7 +279,7 @@ describe('Cart Store', () => {
         await result.current.updateQuantity('item-1', 5)
       })
 
-      expect(mockedCartActions.updateCartItemQuantity).toHaveBeenCalledWith('item-1', 5)
+      expect(mockedUpdateCartItemQuantity).toHaveBeenCalledWith('item-1', 5)
       expect(result.current.items[0].quantity).toBe(5)
     })
 
@@ -289,7 +293,7 @@ describe('Cart Store', () => {
         totalQuantity: 1,
       }
 
-      mockedCartActions.updateCartItemQuantity.mockResolvedValue({
+      mockedUpdateCartItemQuantity.mockResolvedValue({
         ...mockSummary,
         items: [],
         totalPrice: 0,
@@ -322,7 +326,7 @@ describe('Cart Store', () => {
         useCartStore.setState({ summary: previousSummary })
       })
 
-      mockedCartActions.updateCartItemQuantity.mockRejectedValue(new Error('Update failed'))
+      mockedUpdateCartItemQuantity.mockRejectedValue(new Error('Update failed'))
 
       const { result } = renderHook(() => useCartStore())
 
@@ -346,7 +350,7 @@ describe('Cart Store', () => {
         totalQuantity: 1,
       }
 
-      mockedCartActions.removeCartItem.mockResolvedValue({
+      mockedRemoveCartItem.mockResolvedValue({
         ...mockSummary,
         items: [],
         totalPrice: 0,
@@ -363,7 +367,7 @@ describe('Cart Store', () => {
         await result.current.removeItem('item-1')
       })
 
-      expect(mockedCartActions.removeCartItem).toHaveBeenCalledWith('item-1')
+      expect(mockedRemoveCartItem).toHaveBeenCalledWith('item-1')
       expect(result.current.items).toHaveLength(0)
     })
 
@@ -380,7 +384,7 @@ describe('Cart Store', () => {
         useCartStore.setState({ summary: previousSummary })
       })
 
-      mockedCartActions.removeCartItem.mockRejectedValue(new Error('Remove failed'))
+      mockedRemoveCartItem.mockRejectedValue(new Error('Remove failed'))
 
       const { result } = renderHook(() => useCartStore())
 
@@ -403,7 +407,7 @@ describe('Cart Store', () => {
         totalQuantity: 2,
       }
 
-      mockedCartActions.clearActiveCart.mockResolvedValue({
+      mockedClearActiveCart.mockResolvedValue({
         ...mockSummary,
         items: [],
         totalPrice: 0,
@@ -420,7 +424,7 @@ describe('Cart Store', () => {
         await result.current.clearCart()
       })
 
-      expect(mockedCartActions.clearActiveCart).toHaveBeenCalled()
+      expect(mockedClearActiveCart).toHaveBeenCalled()
       expect(result.current.items).toHaveLength(0)
       expect(result.current.summary?.totalQuantity).toBe(0)
     })
@@ -438,7 +442,7 @@ describe('Cart Store', () => {
         useCartStore.setState({ summary: previousSummary })
       })
 
-      mockedCartActions.clearActiveCart.mockRejectedValue(new Error('Clear failed'))
+      mockedClearActiveCart.mockRejectedValue(new Error('Clear failed'))
 
       const { result } = renderHook(() => useCartStore())
 

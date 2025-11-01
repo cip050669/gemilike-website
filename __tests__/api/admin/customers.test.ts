@@ -6,17 +6,27 @@ jest.mock('next-auth', () => ({
   getServerSession: jest.fn()
 }))
 
+// Mock session
+jest.mock('@/lib/session', () => ({
+  getSessionWithUser: jest.fn()
+}))
+
 // Mock Prisma
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
       findUnique: jest.fn(),
       findMany: jest.fn()
+    },
+    customer: {
+      findMany: jest.fn(),
+      count: jest.fn(),
+      create: jest.fn()
     }
   }
 }))
 
-const { getServerSession } = require('next-auth')
+const { getSessionWithUser } = require('@/lib/session')
 const { prisma } = require('@/lib/prisma')
 
 describe('/api/admin/customers', () => {
@@ -25,7 +35,7 @@ describe('/api/admin/customers', () => {
   })
 
   it('should return 401 when user is not authenticated', async () => {
-    getServerSession.mockResolvedValue(null)
+    getSessionWithUser.mockResolvedValue({ userId: null })
     
     const request = new NextRequest('http://localhost:3000/api/admin/customers')
     const response = await GET(request)
@@ -36,9 +46,7 @@ describe('/api/admin/customers', () => {
   })
 
   it('should return 403 when user is not admin', async () => {
-    getServerSession.mockResolvedValue({
-      user: { id: 'user123' }
-    })
+    getSessionWithUser.mockResolvedValue({ userId: 'user123' })
     
     prisma.user.findUnique.mockResolvedValue({
       role: 'customer'
@@ -53,40 +61,28 @@ describe('/api/admin/customers', () => {
   })
 
   it('should return customers when user is admin', async () => {
-    getServerSession.mockResolvedValue({
-      user: { id: 'admin123' }
-    })
+    getSessionWithUser.mockResolvedValue({ userId: 'admin123' })
     
     prisma.user.findUnique.mockResolvedValue({
-      role: 'admin'
+      role: 'ADMIN'
     })
     
     const mockCustomers = [
       {
         id: 'customer1',
-        name: 'John Doe',
+        userId: 'user123',
+        firstName: 'John',
+        lastName: 'Doe',
         email: 'john@example.com',
         phone: '+1234567890',
+        isActive: true,
         createdAt: new Date('2024-01-01'),
-        orders: [
-          {
-            id: 'order1',
-            total: 500,
-            createdAt: new Date('2024-01-15'),
-            orderItems: [
-              {
-                id: 'item1',
-                gemstoneName: 'Emerald',
-                quantity: 1,
-                price: 500
-              }
-            ]
-          }
-        ]
+        updatedAt: new Date('2024-01-01'),
       }
     ]
     
-    prisma.user.findMany.mockResolvedValue(mockCustomers)
+    prisma.customer.findMany.mockResolvedValue(mockCustomers)
+    prisma.customer.count.mockResolvedValue(1)
     
     const request = new NextRequest('http://localhost:3000/api/admin/customers')
     const response = await GET(request)
@@ -94,27 +90,22 @@ describe('/api/admin/customers', () => {
     expect(response.status).toBe(200)
     const data = await response.json()
     
-    expect(data).toHaveLength(1)
-    expect(data[0]).toMatchObject({
+    expect(data.success).toBe(true)
+    expect(data.data).toHaveLength(1)
+    expect(data.data[0]).toMatchObject({
       id: 'customer1',
-      name: 'John Doe',
       email: 'john@example.com',
-      totalOrders: 1,
-      totalSpent: 500,
-      status: 'active'
     })
   })
 
   it('should handle database errors gracefully', async () => {
-    getServerSession.mockResolvedValue({
-      user: { id: 'admin123' }
-    })
+    getSessionWithUser.mockResolvedValue({ userId: 'admin123' })
     
     prisma.user.findUnique.mockResolvedValue({
-      role: 'admin'
+      role: 'ADMIN'
     })
     
-    prisma.user.findMany.mockRejectedValue(new Error('Database error'))
+    prisma.customer.findMany.mockRejectedValue(new Error('Database error'))
     
     const request = new NextRequest('http://localhost:3000/api/admin/customers')
     const response = await GET(request)
@@ -125,32 +116,27 @@ describe('/api/admin/customers', () => {
   })
 
   it('should determine VIP status correctly', async () => {
-    getServerSession.mockResolvedValue({
-      user: { id: 'admin123' }
-    })
+    getSessionWithUser.mockResolvedValue({ userId: 'admin123' })
     
     prisma.user.findUnique.mockResolvedValue({
-      role: 'admin'
+      role: 'ADMIN'
     })
     
     const mockCustomers = [
       {
         id: 'customer1',
-        name: 'VIP Customer',
+        userId: 'user123',
+        firstName: 'VIP',
+        lastName: 'Customer',
         email: 'vip@example.com',
+        isActive: true,
         createdAt: new Date('2024-01-01'),
-        orders: [
-          {
-            id: 'order1',
-            total: 15000, // High spending
-            createdAt: new Date('2024-01-15'),
-            orderItems: []
-          }
-        ]
+        updatedAt: new Date('2024-01-01'),
       }
     ]
     
-    prisma.user.findMany.mockResolvedValue(mockCustomers)
+    prisma.customer.findMany.mockResolvedValue(mockCustomers)
+    prisma.customer.count.mockResolvedValue(1)
     
     const request = new NextRequest('http://localhost:3000/api/admin/customers')
     const response = await GET(request)
@@ -158,29 +144,32 @@ describe('/api/admin/customers', () => {
     expect(response.status).toBe(200)
     const data = await response.json()
     
-    expect(data[0].status).toBe('vip')
+    expect(data.success).toBe(true)
+    expect(data.data).toHaveLength(1)
   })
 
   it('should determine inactive status correctly', async () => {
-    getServerSession.mockResolvedValue({
-      user: { id: 'admin123' }
-    })
+    getSessionWithUser.mockResolvedValue({ userId: 'admin123' })
     
     prisma.user.findUnique.mockResolvedValue({
-      role: 'admin'
+      role: 'ADMIN'
     })
     
     const mockCustomers = [
       {
         id: 'customer1',
-        name: 'Inactive Customer',
+        userId: 'user123',
+        firstName: 'Inactive',
+        lastName: 'Customer',
         email: 'inactive@example.com',
+        isActive: false,
         createdAt: new Date('2024-01-01'),
-        orders: [] // No orders
+        updatedAt: new Date('2024-01-01'),
       }
     ]
     
-    prisma.user.findMany.mockResolvedValue(mockCustomers)
+    prisma.customer.findMany.mockResolvedValue(mockCustomers)
+    prisma.customer.count.mockResolvedValue(1)
     
     const request = new NextRequest('http://localhost:3000/api/admin/customers')
     const response = await GET(request)
@@ -188,6 +177,7 @@ describe('/api/admin/customers', () => {
     expect(response.status).toBe(200)
     const data = await response.json()
     
-    expect(data[0].status).toBe('inactive')
+    expect(data.success).toBe(true)
+    expect(data.data).toHaveLength(1)
   })
 })

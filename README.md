@@ -42,13 +42,61 @@ Eine vollständige E-Commerce-Website für Edelsteinhandel mit modernen Web-Tech
 
 - **Next.js 15** mit App Router
 - **TypeScript** für Typsicherheit
-- **Prisma** als ORM mit SQLite
+- **Prisma** als ORM mit PostgreSQL
 - **NextAuth.js** für Authentifizierung
 - **Tailwind CSS** für Styling
 - **Zustand** für State Management
 - **Lucide React** für Icons
+- **Nodemailer** für E-Mail-Versand
+
+## ⚙️ Umgebungsvariablen
+
+Wichtige Umgebungsvariablen (siehe `ENV_VARIABLES.md` für vollständige Liste):
+
+```bash
+# Datenbank
+DATABASE_URL=postgresql://user:password@localhost:5432/gemilike
+
+# E-Mail
+SMTP_HOST=smtp.strato.de
+SMTP_PORT=587
+SMTP_USER=info@gemilike.com
+SMTP_PASSWORD=dein_passwort
+SMTP_FROM=info@gemilike.com
+
+# Admin-E-Mail für Benachrichtigungen (Review-Benachrichtigungen, etc.)
+# Priorität: 1. ENV-Variable, 2. CompanySettings.email, 3. Default
+ADMIN_EMAIL=admin@gemilike.com
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXTAUTH_SECRET=dein_secret
+NEXTAUTH_URL=http://localhost:3000
+```
 
 ## 📦 Installation
+
+### Mit Docker (Empfohlen)
+
+```bash
+# Repository klonen
+git clone https://github.com/username/gemilike-website.git
+cd gemilike-website
+
+# Umgebungsvariablen konfigurieren
+cp env.example .env
+# Bearbeiten Sie .env mit Ihren Werten
+
+# Production mit Docker Compose starten
+docker-compose up -d
+
+# Oder Development mit Hot Reload
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+📖 **Ausführliche Docker-Anleitung**: Siehe [DOCKER_SETUP.md](./DOCKER_SETUP.md)
+
+### Manuelle Installation
 
 ```bash
 # Repository klonen
@@ -121,10 +169,12 @@ SMTP_PASS="your-password"
 ## 🚀 Deployment
 
 Die Website ist bereit für Deployment auf:
+- **Docker** (siehe [DOCKER_SETUP.md](./DOCKER_SETUP.md))
 - **Vercel** (empfohlen für Next.js)
 - **Netlify**
 - **Railway**
 - **Heroku**
+- **Eigener Server** mit Docker Compose
 
 ## 📝 Lizenz
 

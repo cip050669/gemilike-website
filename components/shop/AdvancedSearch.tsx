@@ -361,8 +361,8 @@ export function AdvancedSearch({
     if (filters.origin !== 'all') count++;
     if (filters.type !== 'all') count++;
     if (filters.color !== 'all') count++;
-    if (filters.priceRange[0] > 0 || filters.priceRange[1] < dataRanges.maxPrice) count++;
-    if (filters.weightRange[0] > 0 || filters.weightRange[1] < dataRanges.maxWeight) count++;
+    if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < dataRanges.maxPrice)) count++;
+    if (filters.weightRange && (filters.weightRange[0] > 0 || filters.weightRange[1] < dataRanges.maxWeight)) count++;
     if (filters.treatment !== 'all') count++;
     if (filters.certification !== 'all') count++;
     if (filters.clarity !== 'all') count++;

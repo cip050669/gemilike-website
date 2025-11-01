@@ -1,8 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getSessionWithUser } from '@/lib/session';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const { userId } = await getSessionWithUser();
+    
+    if (!userId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user is admin
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    });
+
+    if (user?.role !== 'ADMIN') {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
+
     console.log('API: Fetching customers...');
     
     const { searchParams } = new URL(request.url);
@@ -65,7 +83,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching customers:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch customers: ' + (error as Error).message },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -73,6 +91,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const { userId: sessionUserId } = await getSessionWithUser();
+    
+    if (!sessionUserId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user is admin
+    const user = await prisma.user.findUnique({
+      where: { id: sessionUserId },
+      select: { role: true }
+    });
+
+    if (user?.role !== 'ADMIN') {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
+
     const body = await request.json();
     
     if (!body.userId) {
@@ -99,7 +134,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating customer:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create customer: ' + (error as Error).message },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

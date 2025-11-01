@@ -1,6 +1,7 @@
 # Folders and files we do not want to copy into Docker build context
 .git
 .gitignore
+.gitattributes
 node_modules
 .cache
 coverage
@@ -16,13 +17,25 @@ logs
 .idea
 .vscode
 *.code-workspace
-Dockerfile
-Dockerfile.*
+Dockerfile*
 .dockerignore
+docker-compose*.yml
 .env
 .env.*
 *.md
+!README.md
 TEST_PLAN.md
 deploy/
 scripts/
 public/uploads
+public/invoices
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+jest.config.js
+jest.setup.js
+.eslintrc*
+eslint.config.*
+tsconfig.*.json
+!tsconfig.json

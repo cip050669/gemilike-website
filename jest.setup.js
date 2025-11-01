@@ -23,10 +23,10 @@ jest.mock('next/navigation', () => ({
 // Mock Next.js image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props) => {
-    const { alt = '', ...rest } = props
+  default: ({ alt = '', src, width, height, fill: _fill, priority: _priority, onLoadingComplete: _onLoadingComplete, ...rest }) => {
+    const resolvedSrc = typeof src === 'string' ? src : src?.src ?? ''
     // eslint-disable-next-line @next/next/no-img-element
-    return <img alt={alt} {...rest} />
+    return <img alt={alt} src={resolvedSrc} width={width} height={height} {...rest} />
   },
 }))
 
@@ -45,6 +45,38 @@ jest.mock('next-auth/react', () => ({
   signIn: jest.fn(),
   signOut: jest.fn(),
 }))
+
+jest.mock('next-auth/next', () => ({
+  getServerSession: jest.fn(async () => null),
+}))
+
+jest.mock('@/lib/auth', () => ({
+  authOptions: {},
+}))
+
+jest.mock('next/server', () => {
+  const headers = () => new Headers()
+  class MockNextRequest extends Request {
+    constructor(input, init = {}) {
+      super(input, init)
+    }
+  }
+  return {
+    NextRequest: MockNextRequest,
+    NextResponse: {
+      json: (body, init) => ({
+        status: init?.status ?? 200,
+        json: async () => body,
+        text: async () => JSON.stringify(body),
+        ok: (init?.status ?? 200) >= 200 && (init?.status ?? 200) < 300,
+        headers: headers(),
+      }),
+      redirect: jest.fn(),
+      rewrite: jest.fn(),
+      next: jest.fn(),
+    },
+  }
+})
 
 // Mock fetch
 global.fetch = jest.fn()
@@ -82,6 +114,7 @@ global.URL.revokeObjectURL = jest.fn()
 if (typeof global.Request === 'undefined') {
   try {
     // Check if undici is available
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const undici = require('undici')
     // undici exports fetch, not directly Request/Response in older versions
     // But in newer versions, we can use the global fetch which includes Request/Response
@@ -96,7 +129,7 @@ if (typeof global.Request === 'undefined') {
         global.Request = class Request {
           constructor(input, init = {}) {
             const url = typeof input === 'string' ? input : (input && input.url) || ''
-            Object.defineProperty(this, 'url', { value: url, writable: false, enumerable: true, configurable: false })
+            Object.defineProperty(this, 'url', { value: url, writable: false, enumerable: true, configurable: true })
             Object.defineProperty(this, 'method', { value: init.method || 'GET', writable: false, enumerable: true })
             this.headers = new Headers(init.headers)
             this.body = init.body || null
@@ -122,7 +155,7 @@ if (typeof global.Request === 'undefined') {
     global.Request = class Request {
       constructor(input, init = {}) {
         const url = typeof input === 'string' ? input : (input && input.url) || ''
-        Object.defineProperty(this, 'url', { value: url, writable: false, enumerable: true, configurable: false })
+        Object.defineProperty(this, 'url', { value: url, writable: false, enumerable: true, configurable: true })
         Object.defineProperty(this, 'method', { value: init.method || 'GET', writable: false, enumerable: true })
         this.headers = new Headers(init.headers || {})
         this.body = init.body || null

@@ -44,7 +44,7 @@ export function Cart() {
               <h2 className="text-lg font-semibold">Warenkorb</h2>
               <Badge variant="secondary">{getTotalItems()}</Badge>
             </div>
-            <Button variant="ghost" size="icon" onClick={toggleCart}>
+            <Button variant="ghost" size="icon" onClick={toggleCart} aria-label="Warenkorb schließen">
               <XIcon className="h-4 w-4" />
             </Button>
           </div>

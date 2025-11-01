@@ -10,7 +10,7 @@ import { GET as GET_ORDERS, POST as POST_ORDER } from '@/app/api/orders/route'
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSessionWithUser } from '@/lib/session'
-import { cartActions } from '@/lib/actions/cart'
+import * as cartActions from '@/lib/actions/cart'
 
 // Mock dependencies
 jest.mock('@/lib/prisma', () => ({
@@ -23,6 +23,9 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn(),
       update: jest.fn(),
       deleteMany: jest.fn(),
+    },
+    customer: {
+      findUnique: jest.fn(),
     },
     order: {
       create: jest.fn(),
@@ -39,9 +42,12 @@ jest.mock('@/lib/session', () => ({
 }))
 
 jest.mock('@/lib/actions/cart', () => ({
-  cartActions: {
-    getCartSummary: jest.fn(),
-  },
+  getCartSummary: jest.fn(),
+}))
+
+jest.mock('@/lib/services/shop/order.service', () => ({
+  createOrder: jest.fn(),
+  listOrders: jest.fn(),
 }))
 
 jest.mock('@/lib/server/shop-context', () => ({
@@ -68,7 +74,11 @@ jest.mock('next/server', () => {
 
 const mockedPrisma = prisma as jest.Mocked<typeof prisma>
 const mockedGetSession = getSessionWithUser as jest.MockedFunction<typeof getSessionWithUser>
-const mockedCartActions = cartActions as jest.Mocked<typeof cartActions>
+const { getCartSummary } = require('@/lib/actions/cart')
+const mockedGetCartSummary = getCartSummary as jest.MockedFunction<typeof getCartSummary>
+const { createOrder, listOrders } = require('@/lib/services/shop/order.service')
+const mockedCreateOrder = createOrder as jest.MockedFunction<typeof createOrder>
+const mockedListOrders = listOrders as jest.MockedFunction<typeof listOrders>
 
 describe('Checkout Flow Integration', () => {
   const mockUserId = 'test-user-id'
@@ -102,7 +112,7 @@ describe('Checkout Flow Integration', () => {
         currency: 'EUR',
       }
 
-      mockedCartActions.getCartSummary.mockResolvedValue(cartSummary as any)
+      mockedGetCartSummary.mockResolvedValue(cartSummary as any)
       mockedPrisma.cart.findFirst.mockResolvedValue({
         id: 'cart-1',
         userId: mockUserId,
@@ -137,7 +147,16 @@ describe('Checkout Flow Integration', () => {
         shippingAddress: null,
       }
 
-      mockedPrisma.order.create.mockResolvedValue(mockOrder as any)
+      mockedPrisma.customer.findUnique.mockResolvedValue({
+        id: 'customer-1',
+        userId: mockUserId,
+      } as any)
+      
+      mockedCreateOrder.mockResolvedValue({
+        id: 'order-1',
+        orderNumber: 'GM-1234567890-ABCD',
+        ...mockOrder,
+      } as any)
 
       const orderRequest = new NextRequest('http://localhost/api/orders', {
         method: 'POST',
@@ -151,7 +170,7 @@ describe('Checkout Flow Integration', () => {
       // Assertions
       expect(orderResponse.status).toBe(201)
       expect(orderResult.orderNumber).toBeDefined()
-      expect(mockedPrisma.order.create).toHaveBeenCalled()
+      expect(mockedCreateOrder).toHaveBeenCalled()
     })
 
     it('should handle cart-to-order flow with coupon', async () => {
@@ -164,7 +183,7 @@ describe('Checkout Flow Integration', () => {
         currency: 'EUR',
       }
 
-      mockedCartActions.getCartSummary.mockResolvedValue(cartSummary as any)
+      mockedGetCartSummary.mockResolvedValue(cartSummary as any)
 
       const orderData = {
         items: cartSummary.items.map((item) => ({
@@ -189,7 +208,16 @@ describe('Checkout Flow Integration', () => {
         shippingAddress: null,
       }
 
-      mockedPrisma.order.create.mockResolvedValue(mockOrder as any)
+      mockedPrisma.customer.findUnique.mockResolvedValue({
+        id: 'customer-1',
+        userId: mockUserId,
+      } as any)
+      
+      mockedCreateOrder.mockResolvedValue({
+        id: 'order-2',
+        orderNumber: 'GM-1234567891-ABCD',
+        ...mockOrder,
+      } as any)
       mockedPrisma.coupon.update.mockResolvedValue({} as any)
 
       const orderRequest = new NextRequest('http://localhost/api/orders', {
@@ -219,9 +247,14 @@ describe('Checkout Flow Integration', () => {
         },
       ]
 
-      mockedPrisma.order.findMany.mockResolvedValue(mockOrders as any)
+      mockedPrisma.customer.findUnique.mockResolvedValue({
+        id: 'customer-1',
+        userId: mockUserId,
+      } as any)
+      mockedListOrders.mockResolvedValue(mockOrders as any)
 
-      const ordersResponse = await GET_ORDERS()
+      const ordersRequest = new NextRequest('http://localhost/api/orders')
+      const ordersResponse = await GET_ORDERS(ordersRequest)
       const orders = await ordersResponse.json()
 
       expect(ordersResponse.status).toBe(200)

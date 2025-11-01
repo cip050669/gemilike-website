@@ -26,7 +26,11 @@ jest.mock('next/server', () => {
   }
 })
 
-const mockedCartActions = cartActions as jest.Mocked<typeof cartActions>
+const mockedGetCartSummary = cartActions.getCartSummary as jest.MockedFunction<typeof cartActions.getCartSummary>
+const mockedAddCartItem = cartActions.addCartItem as jest.MockedFunction<typeof cartActions.addCartItem>
+const mockedUpdateCartItemQuantity = cartActions.updateCartItemQuantity as jest.MockedFunction<typeof cartActions.updateCartItemQuantity>
+const mockedClearActiveCart = cartActions.clearActiveCart as jest.MockedFunction<typeof cartActions.clearActiveCart>
+const mockedRemoveCartItem = cartActions.removeCartItem as jest.MockedFunction<typeof cartActions.removeCartItem>
 
 describe('Cart API Routes', () => {
   beforeEach(() => {
@@ -43,18 +47,18 @@ describe('Cart API Routes', () => {
         totalQuantity: 0,
       }
 
-      mockedCartActions.getCartSummary.mockResolvedValue(mockSummary)
+      mockedGetCartSummary.mockResolvedValue(mockSummary)
 
       const response = await GET()
       const data = await response.json()
 
       expect(response.status).toBe(200)
       expect(data).toEqual(mockSummary)
-      expect(mockedCartActions.getCartSummary).toHaveBeenCalled()
+      expect(mockedGetCartSummary).toHaveBeenCalled()
     })
 
     it('should handle errors when fetching cart', async () => {
-      mockedCartActions.getCartSummary.mockRejectedValue(new Error('Database error'))
+      mockedGetCartSummary.mockRejectedValue(new Error('Database error'))
 
       const response = await GET()
       const data = await response.json()
@@ -88,7 +92,7 @@ describe('Cart API Routes', () => {
         totalQuantity: 1,
       }
 
-      mockedCartActions.addCartItem.mockResolvedValue(mockSummary)
+      mockedAddCartItem.mockResolvedValue(mockSummary)
 
       const request = new NextRequest('http://localhost/api/cart', {
         method: 'POST',
@@ -103,7 +107,7 @@ describe('Cart API Routes', () => {
 
       expect(response.status).toBe(200)
       expect(data).toEqual(mockSummary)
-      expect(mockedCartActions.addCartItem).toHaveBeenCalledWith('gem-1', 1)
+      expect(mockedAddCartItem).toHaveBeenCalledWith('gem-1', 1)
     })
 
     it('should validate gemstoneId', async () => {
@@ -146,7 +150,7 @@ describe('Cart API Routes', () => {
         totalQuantity: 0,
       }
 
-      mockedCartActions.addCartItem.mockResolvedValue(mockSummary)
+      mockedAddCartItem.mockResolvedValue(mockSummary)
 
       const request = new NextRequest('http://localhost/api/cart', {
         method: 'POST',
@@ -157,11 +161,11 @@ describe('Cart API Routes', () => {
 
       await POST(request)
 
-      expect(mockedCartActions.addCartItem).toHaveBeenCalledWith('gem-1', 1)
+      expect(mockedAddCartItem).toHaveBeenCalledWith('gem-1', 1)
     })
 
     it('should handle errors when adding item', async () => {
-      mockedCartActions.addCartItem.mockRejectedValue(new Error('Add failed'))
+      mockedAddCartItem.mockRejectedValue(new Error('Add failed'))
 
       const request = new NextRequest('http://localhost/api/cart', {
         method: 'POST',
@@ -203,7 +207,7 @@ describe('Cart API Routes', () => {
         totalQuantity: 5,
       }
 
-      mockedCartActions.updateCartItemQuantity.mockResolvedValue(mockSummary)
+      mockedUpdateCartItemQuantity.mockResolvedValue(mockSummary)
 
       const request = new NextRequest('http://localhost/api/cart', {
         method: 'PATCH',
@@ -218,7 +222,7 @@ describe('Cart API Routes', () => {
 
       expect(response.status).toBe(200)
       expect(data).toEqual(mockSummary)
-      expect(mockedCartActions.updateCartItemQuantity).toHaveBeenCalledWith('item-1', 5)
+      expect(mockedUpdateCartItemQuantity).toHaveBeenCalledWith('item-1', 5)
     })
 
     it('should validate cartItemId', async () => {
@@ -253,7 +257,7 @@ describe('Cart API Routes', () => {
     })
 
     it('should handle errors when updating quantity', async () => {
-      mockedCartActions.updateCartItemQuantity.mockRejectedValue(new Error('Update failed'))
+      mockedUpdateCartItemQuantity.mockRejectedValue(new Error('Update failed'))
 
       const request = new NextRequest('http://localhost/api/cart', {
         method: 'PATCH',
@@ -281,7 +285,7 @@ describe('Cart API Routes', () => {
         totalQuantity: 0,
       }
 
-      mockedCartActions.clearActiveCart.mockResolvedValue(mockSummary)
+      mockedClearActiveCart.mockResolvedValue(mockSummary)
 
       const request = new NextRequest('http://localhost/api/cart?clear=true', {
         method: 'DELETE',
@@ -292,7 +296,7 @@ describe('Cart API Routes', () => {
 
       expect(response.status).toBe(200)
       expect(data).toEqual(mockSummary)
-      expect(mockedCartActions.clearActiveCart).toHaveBeenCalled()
+      expect(mockedClearActiveCart).toHaveBeenCalled()
     })
 
     it('should remove item when cartItemId is provided', async () => {
@@ -304,7 +308,7 @@ describe('Cart API Routes', () => {
         totalQuantity: 0,
       }
 
-      mockedCartActions.removeCartItem.mockResolvedValue(mockSummary)
+      mockedRemoveCartItem.mockResolvedValue(mockSummary)
 
       const request = new NextRequest('http://localhost/api/cart?cartItemId=item-1', {
         method: 'DELETE',
@@ -315,7 +319,7 @@ describe('Cart API Routes', () => {
 
       expect(response.status).toBe(200)
       expect(data).toEqual(mockSummary)
-      expect(mockedCartActions.removeCartItem).toHaveBeenCalledWith('item-1')
+      expect(mockedRemoveCartItem).toHaveBeenCalledWith('item-1')
     })
 
     it('should require either clear or cartItemId', async () => {
@@ -331,7 +335,7 @@ describe('Cart API Routes', () => {
     })
 
     it('should handle errors when removing item', async () => {
-      mockedCartActions.removeCartItem.mockRejectedValue(new Error('Remove failed'))
+      mockedRemoveCartItem.mockRejectedValue(new Error('Remove failed'))
 
       const request = new NextRequest('http://localhost/api/cart?cartItemId=item-1', {
         method: 'DELETE',

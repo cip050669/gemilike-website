@@ -58,7 +58,7 @@ export function CartSync() {
   return (
     <div className="flex items-center gap-2 text-sm">
       {isSyncing ? (
-        <div className="flex items-center gap-1 text-muted-foreground">
+        <div className="flex items-center gap-1 text-muted-foreground" role="status">
           <RefreshCw className="w-4 h-4 animate-spin" />
           <span>Synchronisiere...</span>
         </div>
@@ -89,6 +89,7 @@ export function CartSync() {
             size="sm"
             onClick={handleManualSync}
             className="h-6 px-2 text-xs"
+            aria-label="Synchronisieren"
           >
             <RefreshCw className="w-3 h-3" />
           </Button>

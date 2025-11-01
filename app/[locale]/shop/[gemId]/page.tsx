@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -7,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { MediaGallery } from '@/components/shop/MediaGallery';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { WishlistButton } from '@/components/cart/WishlistButton';
+import { ReviewsDisplay } from '@/components/shop/ReviewsDisplay';
+import { ReviewForm } from '@/components/shop/ReviewForm';
 import { loadShopGemstoneById } from '@/lib/shop/shopData';
 import { GEMSTONE_PLACEHOLDER_IMAGE } from '@/lib/services/shop/gemstone.service';
 import navStyles from '@/components/layout/HeaderNav.module.css';
@@ -34,6 +37,47 @@ const formatCurrency = (value: number, currency = 'EUR') =>
     currency,
     minimumFractionDigits: 2,
   }).format(value);
+
+export async function generateMetadata({ params }: GemstoneDetailPageProps): Promise<Metadata> {
+  const { gemId } = await params;
+  const gemstone = await loadShopGemstoneById(gemId);
+
+  if (!gemstone) {
+    return {
+      title: 'Edelstein nicht gefunden – Gemilike',
+      description: 'Der angeforderte Edelstein ist nicht mehr verfügbar.',
+    };
+  }
+
+  const title = `${gemstone.name} – Edelstein im Detail | Gemilike`;
+  const baseDescription =
+    gemstone.shortDescription ??
+    gemstone.description ??
+    `Entdecken Sie ${gemstone.name} mit Herkunft, Gewicht und Zertifizierung.`;
+  const description =
+    baseDescription.length > 160 ? `${baseDescription.slice(0, 157)}…` : baseDescription;
+  const previewImage = gemstone.images[0] ?? GEMSTONE_PLACEHOLDER_IMAGE;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: previewImage,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [previewImage],
+    },
+  };
+}
 
 export default async function GemstoneDetailPage({ params }: GemstoneDetailPageProps) {
   const { gemId, locale } = await params;
@@ -236,6 +280,12 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-12 space-y-8">
+            <ReviewsDisplay gemstoneId={gemId} verifiedOnly={false} />
+            <ReviewForm gemstoneId={gemId} />
           </div>
         </div>
       </div>

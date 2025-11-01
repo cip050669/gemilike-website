@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   // Temporarily disable static export for development
   // output: 'export',
   trailingSlash: true,
+  // Enable standalone output for Docker optimization
+  output: 'standalone',
   images: {
     unoptimized: true,
     remotePatterns: [
