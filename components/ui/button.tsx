@@ -4,24 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-200 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold transition-all duration-200 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 relative overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "bg-gem-fire text-gem-bgDark shadow-primary-glow hover:bg-gem-fireLight hover:text-gem-bgDark active:bg-gem-fireDark focus-visible:ring-gem-fire/50",
+          "bg-gradient-to-r from-gem-fire via-gem-fireLight to-gem-fire text-gem-bgDark shadow-primary-glow hover:from-gem-fireLight hover:via-gem-fire hover:to-gem-fireDark hover:scale-105 hover:shadow-[0_0_30px_rgba(255,148,71,0.6)] active:scale-100 focus-visible:ring-gem-fire/50",
         destructive:
-          "bg-gem-compGreen text-gem-text hover:bg-gem-compGreen/90 focus-visible:ring-gem-compGreen/50",
+          "bg-gem-compGreen text-gem-text hover:bg-gem-compGreen/90 hover:shadow-[0_0_20px_rgba(184,0,15,0.6)] focus-visible:ring-gem-compGreen/50",
         outline:
-          "border border-gem-ice/70 bg-transparent text-gem-ice hover:bg-gem-ice/10 hover:text-gem-iceLight focus-visible:ring-gem-ice/50",
+          "border-2 border-gem-ice/80 bg-transparent text-gem-ice hover:bg-gem-ice/20 hover:text-gem-iceLight hover:border-gem-iceLight hover:shadow-[0_0_20px_rgba(0,229,255,0.5)] focus-visible:ring-gem-ice/50",
         secondary:
-          "bg-gem-ice text-gem-bgDark shadow-secondary-glow hover:bg-gem-iceLight hover:text-gem-bgDark active:bg-gem-iceDark focus-visible:ring-gem-ice/50",
+          "bg-gradient-to-r from-gem-ice via-gem-iceLight to-gem-ice text-gem-bgDark shadow-secondary-glow hover:from-gem-iceLight hover:via-gem-ice hover:to-gem-iceDark hover:scale-105 hover:shadow-[0_0_30px_rgba(0,229,255,0.6)] active:scale-100 focus-visible:ring-gem-ice/50",
         accent:
-          "bg-gem-green text-gem-bgDark hover:bg-gem-green/90 focus-visible:ring-gem-green/50",
+          "bg-gradient-to-r from-gem-green via-gem-green to-gem-green/90 text-gem-bgDark hover:bg-gem-green/95 hover:shadow-[0_0_20px_rgba(0,184,169,0.6)] focus-visible:ring-gem-green/50",
         ghost:
-          "text-gem-ice hover:text-gem-iceLight hover:bg-gem-ice/10 focus-visible:ring-gem-ice/50",
+          "text-gem-ice hover:text-gem-iceLight hover:bg-gem-ice/15 hover:shadow-[0_0_15px_rgba(0,229,255,0.3)] focus-visible:ring-gem-ice/50",
         link:
-          "text-gem-ice underline-offset-4 hover:text-gem-iceLight hover:underline focus-visible:ring-gem-ice/50",
+          "text-gem-ice underline-offset-4 hover:text-gem-iceLight hover:underline hover:shadow-[0_2px_10px_rgba(0,229,255,0.3)] focus-visible:ring-gem-ice/50",
       },
       size: {
         default: "h-10 px-4 py-2",

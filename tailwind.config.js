@@ -71,8 +71,9 @@ module.exports = {
         'gem-hero': 'linear-gradient(90deg, #6A1B9A 0%, #478EFF 40%, #FF9447 100%)',
       },
       boxShadow: {
-        'primary-glow': '0 8px 18px rgba(255, 107, 53, 0.35)',
-        'secondary-glow': '0 6px 20px rgba(0, 188, 212, 0.28)',
+        'primary-glow': '0 8px 24px rgba(255, 107, 53, 0.55), 0 0 30px rgba(255, 148, 71, 0.4)',
+        'secondary-glow': '0 8px 24px rgba(0, 188, 212, 0.55), 0 0 30px rgba(0, 229, 255, 0.4)',
+        'gem-glow-intense': '0 0 40px rgba(0, 229, 255, 0.6), 0 0 60px rgba(255, 148, 71, 0.4), 0 0 80px rgba(138, 92, 246, 0.3)',
       },
       animation: {
         'gem-shift': 'gem-shift 3s ease-in-out infinite',

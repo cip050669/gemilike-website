@@ -61,7 +61,7 @@ export function Header() {
   return (
     <header 
       data-header-fixed
-      className="sticky top-0 h-16 bg-gem-bgDark/95 backdrop-blur-md border-b border-gem-iceDark/20 z-[9999]"
+      className="sticky top-0 h-16 z-[9999] header-gradient-bg"
     >
       {/* Header Content - zentriert im Container */}
       <div className="flex items-center justify-between w-full h-full px-6 gap-4" style={{ width: '100%', maxWidth: 'none' }}>
