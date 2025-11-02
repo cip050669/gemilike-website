@@ -34,25 +34,30 @@ export default function KnowledgeArticlePage() {
     const loadArticle = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/admin/knowledge');
+        const response = await fetch(`/api/knowledge-base/${articleId}?locale=${locale}`);
         if (!response.ok) {
-          router.push(`/${locale}`);
+          router.push(`/${locale}/wissenswertes`);
           return;
         }
-        const data = await response.json();
-        if (!data.success || !data.articles) {
-          router.push(`/${locale}`);
+        const found = await response.json();
+        if (!found) {
+          router.push(`/${locale}/wissenswertes`);
           return;
         }
-        const found = data.articles.find((item: KnowledgeArticle) => item.id === articleId || item.slug === articleId);
-        if (!found || !found.published) {
-          router.push(`/${locale}`);
-          return;
-        }
-        setArticle(found);
+        setArticle({
+          id: found.id,
+          title: found.title,
+          excerpt: found.excerpt,
+          content: found.content,
+          image: found.image || '/images/stories/placeholder-gem.svg',
+          createdAt: found.createdAt,
+          updatedAt: found.updatedAt,
+          published: found.published,
+          slug: found.slug,
+        });
       } catch (error) {
         console.error('Fehler beim Laden Wissenswertes:', error);
-        router.push(`/${locale}`);
+        router.push(`/${locale}/wissenswertes`);
       } finally {
         setLoading(false);
       }

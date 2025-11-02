@@ -1,8 +1,147 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+
+interface AboutContent {
+  id: string;
+  section: string;
+  title?: string | null;
+  content: string;
+  locale: string;
+}
+
+interface Service {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  icon: string | null;
+  features: string[];
+  order: number;
+}
+
 export default function AboutAdminPage() {
+  const params = useParams();
+  const locale = (params.locale as string) || 'de';
+
+  const [content, setContent] = useState<AboutContent[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const sections = [
+    { key: 'title', label: 'Haupttitel' },
+    { key: 'subtitle', label: 'Untertitel' },
+    { key: 'intro1', label: 'Einleitung 1' },
+    { key: 'intro2', label: 'Einleitung 2' },
+    { key: 'mission', label: 'Mission Titel' },
+    { key: 'missionDesc', label: 'Mission Beschreibung' },
+    { key: 'values', label: 'Werte Titel' },
+    { key: 'valuesDesc', label: 'Werte Beschreibung' },
+    { key: 'expertise', label: 'Expertise Titel' },
+    { key: 'expertiseDesc', label: 'Expertise Beschreibung' },
+    { key: 'quality', label: 'Qualität Titel' },
+    { key: 'qualityDesc', label: 'Qualität Beschreibung' },
+  ];
+
+  useEffect(() => {
+    loadData();
+  }, [locale]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [contentRes, servicesRes] = await Promise.all([
+        fetch(`/api/admin/about-content?locale=${locale}`),
+        fetch(`/api/admin/services?locale=${locale}`),
+      ]);
+
+      if (contentRes.ok) {
+        const contentData = await contentRes.json();
+        setContent(contentData);
+      }
+
+      if (servicesRes.ok) {
+        const servicesData = await servicesRes.json();
+        setServices(servicesData.sort((a: Service, b: Service) => a.order - b.order));
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateContent = async (section: string, contentValue: string) => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/admin/about-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          section,
+          content: contentValue,
+          locale,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save');
+      }
+
+      await loadData();
+    } catch (error) {
+      console.error('Error saving content:', error);
+      alert('Fehler beim Speichern');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateService = async (id: string, data: Partial<Service>) => {
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/admin/services/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save');
+      }
+
+      await loadData();
+    } catch (error) {
+      console.error('Error saving service:', error);
+      alert('Fehler beim Speichern');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const getContentValue = (section: string): string => {
+    const item = content.find((c) => c.section === section);
+    return item?.content || '';
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-800/50 flex items-center justify-center">
+        <div className="text-white">Laden...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 text-white">Über uns - Verwaltung</h1>
           <p className="text-gray-300">
@@ -10,344 +149,95 @@ export default function AboutAdminPage() {
           </p>
         </div>
 
-        {/* Hero Section */}
-        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Hero-Bereich</h2>
-          
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="hero-title" className="block text-sm font-medium text-gray-200 mb-2">
-                Haupttitel
-              </label>
-              <input
-                type="text"
-                id="hero-title"
-                name="hero-title"
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Über Gemilike"
-              />
-            </div>
+        {/* About Content Sections */}
+        <div className="space-y-6 mb-8">
+          <Card className="bg-gray-800/30 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white">Hauptinhalte</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {sections.map((section) => (
+                <div key={section.key}>
+                  <Label htmlFor={section.key} className="text-gray-200">
+                    {section.label}
+                  </Label>
+                  <Textarea
+                    id={section.key}
+                    value={getContentValue(section.key)}
+                    onChange={(e) => {
+                      const currentContent = [...content];
+                      const existing = currentContent.findIndex((c) => c.section === section.key);
+                      if (existing >= 0) {
+                        currentContent[existing].content = e.target.value;
+                      } else {
+                        currentContent.push({
+                          id: '',
+                          section: section.key,
+                          content: e.target.value,
+                          locale,
+                        });
+                      }
+                      setContent(currentContent);
+                    }}
+                    onBlur={(e) => updateContent(section.key, e.target.value)}
+                    className="mt-2 bg-gray-900/50 border-gray-600 text-white"
+                    rows={section.key.includes('Desc') || section.key.includes('intro') ? 4 : 2}
+                  />
+                  {saving && (
+                    <p className="text-xs text-gray-500 mt-1">Speichern...</p>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
 
-            <div>
-              <label htmlFor="hero-subtitle" className="block text-sm font-medium text-gray-200 mb-2">
-                Untertitel
-              </label>
-              <input
-                type="text"
-                id="hero-subtitle"
-                name="hero-subtitle"
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Ihr Spezialist für Edelsteine"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="hero-description" className="block text-sm font-medium text-gray-200 mb-2">
-                Beschreibung
-              </label>
-              <textarea
-                id="hero-description"
-                name="hero-description"
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Seit über 20 Jahren sind wir Ihr vertrauensvoller Partner für hochwertige Edelsteine..."
-              ></textarea>
-            </div>
-
-            <div>
-              <label htmlFor="hero-image" className="block text-sm font-medium text-gray-200 mb-2">
-                Hero-Bild
-              </label>
-              <input
-                type="file"
-                id="hero-image"
-                name="hero-image"
-                accept="image/*"
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Company Story */}
-        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Unsere Geschichte</h2>
-          
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="story-title" className="block text-sm font-medium text-gray-200 mb-2">
-                Titel
-              </label>
-              <input
-                type="text"
-                id="story-title"
-                name="story-title"
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Unsere Geschichte"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="story-content" className="block text-sm font-medium text-gray-200 mb-2">
-                Geschichte
-              </label>
-              <textarea
-                id="story-content"
-                name="story-content"
-                rows={8}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Erzählen Sie die Geschichte Ihres Unternehmens..."
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        {/* Mission & Vision */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold mb-4">Mission</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="mission-title" className="block text-sm font-medium text-gray-200 mb-2">
-                  Titel
-                </label>
-                <input
-                  type="text"
-                  id="mission-title"
-                  name="mission-title"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Unsere Mission"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="mission-content" className="block text-sm font-medium text-gray-200 mb-2">
-                  Mission
-                </label>
-                <textarea
-                  id="mission-content"
-                  name="mission-content"
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Beschreiben Sie Ihre Mission..."
-                ></textarea>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold mb-4">Vision</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="vision-title" className="block text-sm font-medium text-gray-200 mb-2">
-                  Titel
-                </label>
-                <input
-                  type="text"
-                  id="vision-title"
-                  name="vision-title"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Unsere Vision"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="vision-content" className="block text-sm font-medium text-gray-200 mb-2">
-                  Vision
-                </label>
-                <textarea
-                  id="vision-content"
-                  name="vision-content"
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Beschreiben Sie Ihre Vision..."
-                ></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Team Section */}
-        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Team</h2>
-          
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="team-title" className="block text-sm font-medium text-gray-200 mb-2">
-                Team-Titel
-              </label>
-              <input
-                type="text"
-                id="team-title"
-                name="team-title"
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Unser Team"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="team-description" className="block text-sm font-medium text-gray-200 mb-2">
-                Team-Beschreibung
-              </label>
-              <textarea
-                id="team-description"
-                name="team-description"
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Lernen Sie unser erfahrenes Team kennen..."
-              ></textarea>
-            </div>
-
-            {/* Team Members */}
-            <div>
-              <h3 className="text-lg font-medium mb-3">Team-Mitglieder</h3>
-              <div className="space-y-4">
-                <div className="border border-gray-600 rounded-lg p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Services */}
+          <Card className="bg-gray-800/30 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white">Services</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {services.map((service) => (
+                <div key={service.id} className="border border-gray-700 rounded-lg p-4 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="member1-name" className="block text-sm font-medium text-gray-200 mb-1">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        id="member1-name"
-                        name="member1-name"
-                        className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Max Mustermann"
+                      <Label className="text-gray-200">Titel</Label>
+                      <Input
+                        value={service.title}
+                        onChange={(e) =>
+                          updateService(service.id, { title: e.target.value })
+                        }
+                        className="mt-2 bg-gray-900/50 border-gray-600 text-white"
                       />
                     </div>
                     <div>
-                      <label htmlFor="member1-position" className="block text-sm font-medium text-gray-200 mb-1">
-                        Position
-                      </label>
-                      <input
-                        type="text"
-                        id="member1-position"
-                        name="member1-position"
-                        className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Geschäftsführer"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="member1-image" className="block text-sm font-medium text-gray-200 mb-1">
-                        Bild
-                      </label>
-                      <input
-                        type="file"
-                        id="member1-image"
-                        name="member1-image"
-                        accept="image/*"
-                        className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      <Label className="text-gray-200">Beschreibung</Label>
+                      <Input
+                        value={service.description}
+                        onChange={(e) =>
+                          updateService(service.id, { description: e.target.value })
+                        }
+                        className="mt-2 bg-gray-900/50 border-gray-600 text-white"
                       />
                     </div>
                   </div>
-                  <div className="mt-3">
-                    <label htmlFor="member1-bio" className="block text-sm font-medium text-gray-200 mb-1">
-                      Biografie
-                    </label>
-                    <textarea
-                      id="member1-bio"
-                      name="member1-bio"
-                      rows={2}
-                      className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Kurze Biografie..."
-                    ></textarea>
+                  <div>
+                    <Label className="text-gray-200">Features (kommagetrennt)</Label>
+                    <Input
+                      value={service.features.join(', ')}
+                      onChange={(e) =>
+                        updateService(service.id, {
+                          features: e.target.value.split(',').map((f) => f.trim()).filter(Boolean),
+                        })
+                      }
+                      className="mt-2 bg-gray-900/50 border-gray-600 text-white"
+                      placeholder="Feature 1, Feature 2, Feature 3"
+                    />
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Values */}
-        <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Unsere Werte</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="values-title" className="block text-sm font-medium text-gray-200 mb-2">
-                Werte-Titel
-              </label>
-              <input
-                type="text"
-                id="values-title"
-                name="values-title"
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Unsere Werte"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="value1-title" className="block text-sm font-medium text-gray-200 mb-1">
-                  Wert 1 Titel
-                </label>
-                <input
-                  type="text"
-                  id="value1-title"
-                  name="value1-title"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Qualität"
-                />
-                <textarea
-                  id="value1-description"
-                  name="value1-description"
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                  placeholder="Beschreibung..."
-                ></textarea>
-              </div>
-              <div>
-                <label htmlFor="value2-title" className="block text-sm font-medium text-gray-200 mb-1">
-                  Wert 2 Titel
-                </label>
-                <input
-                  type="text"
-                  id="value2-title"
-                  name="value2-title"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Vertrauen"
-                />
-                <textarea
-                  id="value2-description"
-                  name="value2-description"
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                  placeholder="Beschreibung..."
-                ></textarea>
-              </div>
-              <div>
-                <label htmlFor="value3-title" className="block text-sm font-medium text-gray-200 mb-1">
-                  Wert 3 Titel
-                </label>
-                <input
-                  type="text"
-                  id="value3-title"
-                  name="value3-title"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Innovation"
-                />
-                <textarea
-                  id="value3-description"
-                  name="value3-description"
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                  placeholder="Beschreibung..."
-                ></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Save Button */}
-        <div className="mt-8 flex justify-end">
-          <form action="/api/admin/about" method="post">
-            <button type="submit" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium">
-              Über uns Seite speichern
-            </button>
-          </form>
+              ))}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

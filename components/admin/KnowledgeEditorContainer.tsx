@@ -36,11 +36,14 @@ export function KnowledgeEditorContainer({
     payload: Omit<KnowledgeArticle, 'id' | 'createdAt' | 'updatedAt' | 'slug'> & { slug?: string }
   ) => {
     const endpoint =
-      mode === 'create' ? '/api/admin/knowledge' : `/api/admin/knowledge/${article?.id}`;
+      mode === 'create' ? '/api/admin/knowledge-base' : `/api/admin/knowledge-base/${article?.id}`;
     const method = mode === 'create' ? 'POST' : 'PUT';
     const body =
       mode === 'create'
-        ? payload
+        ? {
+            ...payload,
+            locale: locale,
+          }
         : {
             ...payload,
             id: article?.id,

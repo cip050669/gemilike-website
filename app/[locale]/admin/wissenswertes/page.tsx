@@ -1,13 +1,12 @@
 import Link from 'next/link';
-import { loadKnowledgeArticles } from '@/lib/data/knowledge';
+import { getKnowledgeArticles } from '@/lib/services/knowledge.service';
 import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
-import type { KnowledgeArticle } from '@/lib/types/knowledge';
 import { KnowledgeTable } from '@/components/admin/KnowledgeTable';
 import { KnowledgeSettingsForm } from '@/components/admin/KnowledgeSettingsForm';
 
 const PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
-const toListItem = (article: KnowledgeArticle) => ({
+const toListItem = (article: any) => ({
   id: article.id,
   title: article.title,
   excerpt: article.excerpt,
@@ -15,24 +14,15 @@ const toListItem = (article: KnowledgeArticle) => ({
   category: article.category,
   published: article.published,
   featured: article.featured,
-  updatedAt:
-    article.updatedAt instanceof Date
-      ? article.updatedAt.toISOString()
-      : String(article.updatedAt),
-  createdAt:
-    article.createdAt instanceof Date
-      ? article.createdAt.toISOString()
-      : String(article.createdAt),
-  publishedAt:
-    article.publishedAt instanceof Date
-      ? article.publishedAt.toISOString()
-      : article.publishedAt,
+  updatedAt: article.updatedAt?.toISOString() || new Date().toISOString(),
+  createdAt: article.createdAt?.toISOString() || new Date().toISOString(),
+  publishedAt: article.publishedAt?.toISOString(),
   slug: article.slug,
-  tags: article.tags,
+  tags: article.tags || [],
   image: article.image?.trim() ? article.image : PLACEHOLDER_IMAGE,
 });
 
-const countByStatus = (articles: KnowledgeArticle[]) => ({
+const countByStatus = (articles: any[]) => ({
   total: articles.length,
   published: articles.filter((article) => article.published).length,
   draft: articles.filter((article) => !article.published).length,
@@ -45,7 +35,7 @@ export default async function KnowledgeAdminPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const articles = await loadKnowledgeArticles();
+  const articles = await getKnowledgeArticles(locale, false);
   const settings = await loadKnowledgeSectionSettings();
   const sorted = [...articles].sort((a, b) => {
     const aTime = new Date(a.updatedAt ?? a.createdAt).getTime();

@@ -66,7 +66,7 @@ export function KnowledgeTable({
       return;
     }
     startTransition(async () => {
-      const response = await fetch(`/api/admin/knowledge/${encodeURIComponent(id)}`, {
+      const response = await fetch(`/api/admin/knowledge-base/${encodeURIComponent(id)}`, {
         method: 'DELETE',
       });
       if (response.ok) {

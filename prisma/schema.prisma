@@ -506,6 +506,82 @@ model LegalLink {
   updatedAt DateTime @updatedAt
 }
 
+model LegalPage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  content     String
+  locale      String   @default("de")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([slug, locale])
+  @@index([slug, locale])
+}
+
+model KnowledgeBase {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  excerpt         String
+  content         String
+  author          String    @default("Gemilike Redaktion")
+  category        String
+  tags            String[]  @default([])
+  image           String?
+  contentImages   String[]  @default([])
+  published       Boolean   @default(false)
+  featured        Boolean   @default(false)
+  locale          String    @default("de")
+  metaDescription String?
+  readingTime     Int?
+  difficulty      String?   // 'beginner' | 'intermediate' | 'advanced'
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([slug, locale])
+  @@index([slug, locale])
+  @@index([published, locale])
+  @@index([category])
+}
+
+model AboutContent {
+  id          String   @id @default(cuid())
+  section     String   // 'title', 'subtitle', 'intro1', 'intro2', 'mission', 'missionDesc', 'values', 'valuesDesc', 'expertise', 'expertiseDesc', 'quality', 'qualityDesc'
+  title       String?
+  content     String
+  image       String?
+  order       Int      @default(0)
+  locale      String   @default("de")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([section, locale])
+  @@index([section, locale])
+  @@index([locale, order])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  icon        String?  // Icon name from lucide-react
+  features    String[] @default([]) // Array of feature strings
+  order       Int      @default(0)
+  locale      String   @default("de")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([slug, locale])
+  @@index([locale, order])
+  @@index([isActive])
+}
+
 model Location {
   id          String   @id @default(cuid())
   name        String   @unique

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { KnowledgeEditorContainer } from '@/components/admin/KnowledgeEditorContainer';
-import { loadKnowledgeArticles } from '@/lib/data/knowledge';
+import { getKnowledgeArticleById } from '@/lib/services/knowledge.service';
 
 export default async function KnowledgeEditPage({
   params,
@@ -9,15 +9,28 @@ export default async function KnowledgeEditPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale, id } = await params;
-  const articles = await loadKnowledgeArticles();
-  const article = articles.find((item) => item.id === id);
+  const article = await getKnowledgeArticleById(id);
 
   if (!article) {
     notFound();
   }
 
   const serializable = {
-    ...article,
+    id: article.id,
+    title: article.title,
+    slug: article.slug,
+    excerpt: article.excerpt,
+    content: article.content,
+    author: article.author,
+    category: article.category,
+    tags: article.tags,
+    image: article.image || '',
+    contentImages: article.contentImages || [],
+    published: article.published,
+    featured: article.featured,
+    metaDescription: article.metaDescription || '',
+    readingTime: article.readingTime || undefined,
+    difficulty: article.difficulty || 'beginner',
     createdAt: article.createdAt.toISOString(),
     updatedAt: article.updatedAt.toISOString(),
     publishedAt: article.publishedAt?.toISOString(),

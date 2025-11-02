@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { loadKnowledgeArticles } from '@/lib/data/knowledge';
+import { getKnowledgeArticles } from '@/lib/services/knowledge.service';
 import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
 import { ArrowLeftIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,11 +13,10 @@ export default async function KnowledgeListPage({
 }) {
   const { locale } = await params;
   const [articles, settings] = await Promise.all([
-    loadKnowledgeArticles(),
+    getKnowledgeArticles(locale, true), // publishedOnly = true
     loadKnowledgeSectionSettings(),
   ]);
-  const publishedArticles = articles.filter((article) => article.published);
-  const sorted = publishedArticles.sort((a, b) => {
+  const sorted = articles.sort((a, b) => {
     const dateA = new Date(a.publishedAt ?? a.updatedAt ?? a.createdAt).getTime();
     const dateB = new Date(b.publishedAt ?? b.updatedAt ?? b.createdAt).getTime();
     return dateB - dateA;

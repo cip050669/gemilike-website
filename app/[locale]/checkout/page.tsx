@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckIcon, CreditCardIcon, TruckIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { CheckIcon, CreditCardIcon, TruckIcon, TagIcon, X } from 'lucide-react';
 
 export default function CheckoutPage() {
   const items = useCartStore((state) => state.items);
@@ -33,17 +34,152 @@ export default function CheckoutPage() {
     paymentMethod: '',
     notes: ''
   });
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    type: string;
+    value: number;
+    discount: number;
+    description: string;
+  } | null>(null);
+  const [couponError, setCouponError] = useState('');
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Hier würde die Bestellung verarbeitet werden
-    alert('Bestellung erfolgreich aufgegeben!');
-    clearCart();
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      // Erstelle oder hole Adresse
+      let billingAddressId: string | null = null;
+      let shippingAddressId: string | null = null;
+
+      try {
+        // Erstelle Rechnungsadresse
+        const billingResponse = await fetch('/api/user/addresses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'BILLING',
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            address1: formData.address,
+            city: formData.city,
+            postalCode: formData.zipCode,
+            country: formData.country,
+            phone: formData.phone,
+            isDefault: true,
+          }),
+        });
+
+        if (billingResponse.ok) {
+          const billingData = await billingResponse.json();
+          billingAddressId = billingData.address?.id || null;
+          shippingAddressId = billingAddressId; // Verwende Rechnungsadresse als Lieferadresse, wenn nicht anders angegeben
+        }
+      } catch (addressError) {
+        console.error('Error creating address:', addressError);
+        // Fortsetzen auch wenn Adress-Erstellung fehlschlägt (könnte bereits existieren)
+      }
+
+      // Berechne Preise
+      const subtotal = getSubtotal();
+      const discount = getDiscount();
+      const finalTotal = getFinalTotal();
+      const shipping = 0; // Kostenlos ab €50, sonst €4,95 - könnte später berechnet werden
+      const tax = finalTotal * 0.19; // 19% MwSt (könnte später konfigurierbar sein)
+
+      // Erstelle Order
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            gemstoneId: item.gemstoneId,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          billingAddressId,
+          shippingAddressId,
+          paymentMethod: formData.paymentMethod || null,
+          subtotal: subtotal,
+          shipping: shipping,
+          tax: tax,
+          total: finalTotal + tax,
+          notes: formData.notes || null,
+          couponCode: appliedCoupon?.code || null,
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        throw new Error(errorData.error || 'Fehler beim Erstellen der Bestellung');
+      }
+
+      const order = await orderResponse.json();
+
+      // Cart leeren
+      await clearCart();
+
+      // Weiterleitung zur Bestellbestätigung
+      window.location.href = `/${locale}/orders/${order.id}`;
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Fehler beim Absenden der Bestellung');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('Bitte geben Sie einen Gutscheincode ein');
+      return;
+    }
+
+    setIsValidatingCoupon(true);
+    setCouponError('');
+
+    try {
+      const subtotal = getTotalPrice();
+      const response = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode.trim(), subtotal }),
+      });
+
+      if (response.ok) {
+        const coupon = await response.json();
+        setAppliedCoupon(coupon);
+        setCouponCode('');
+      } else {
+        const error = await response.json();
+        setCouponError(error.error || 'Ungültiger Gutscheincode');
+      }
+    } catch (error) {
+      console.error('Error validating coupon:', error);
+      setCouponError('Fehler beim Validieren des Gutscheins');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  };
+
+  const getSubtotal = () => getTotalPrice();
+  const getDiscount = () => appliedCoupon?.discount || 0;
+  const getFinalTotal = () => Math.max(0, getSubtotal() - getDiscount());
 
   useEffect(() => {
     void fetchCart();
@@ -282,22 +418,107 @@ export default function CheckoutPage() {
                     </div>
                   ))}
                   
-                  <div className="border-t border-border pt-4">
-                    <div className="flex justify-between text-lg font-semibold">
+                  <div className="border-t border-border pt-4 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Zwischensumme:</span>
+                      <span>€{getSubtotal().toFixed(2)}</span>
+                    </div>
+                    
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <Badge variant="secondary" className="gap-1">
+                            <TagIcon className="h-3 w-3" />
+                            {appliedCoupon.code}
+                          </Badge>
+                          <span className="text-green-600">{appliedCoupon.description}:</span>
+                        </span>
+                        <span className="text-green-600">-€{getDiscount().toFixed(2)}</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex justify-between text-lg font-semibold pt-2 border-t border-border">
                       <span>Gesamt ({getTotalItems()} Artikel):</span>
-                      <span className="text-primary">€{getTotalPrice().toFixed(2)}</span>
+                      <span className="text-primary">€{getFinalTotal().toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Coupon Code */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TagIcon className="h-5 w-5" />
+                  Gutscheincode
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{appliedCoupon.code}</Badge>
+                      <span className="text-sm text-green-700 dark:text-green-300">
+                        {appliedCoupon.description}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveCoupon}
+                      className="h-8 w-8 p-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Gutscheincode eingeben"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value);
+                          setCouponError('');
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleApplyCoupon();
+                          }
+                        }}
+                        className="flex-1"
+                      />
+                      <Button
+                        onClick={handleApplyCoupon}
+                        disabled={isValidatingCoupon || !couponCode.trim()}
+                        variant="outline"
+                      >
+                        {isValidatingCoupon ? 'Prüfe...' : 'Anwenden'}
+                      </Button>
+                    </div>
+                    {couponError && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{couponError}</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {submitError && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-600 dark:text-red-400 text-sm">
+                {submitError}
+              </div>
+            )}
+            
             <Button 
               onClick={handleSubmit}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 text-lg"
+              disabled={isSubmitting}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckIcon className="h-5 w-5 mr-2" />
-              Bestellung abschließen
+              {isSubmitting ? 'Wird verarbeitet...' : 'Bestellung abschließen'}
             </Button>
           </div>
         </div>
