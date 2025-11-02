@@ -59,31 +59,57 @@ describe('AuditLogPage', () => {
     await renderPage();
 
     const searchInput = screen.getByPlaceholderText('Audit-Logs suchen...');
-    fireEvent.change(searchInput, { target: { value: 'CREATE' } });
-
-    // Wait for filtering to complete
-    await waitFor(() => {
-      expect(screen.getByText('EMERALD-001')).toBeInTheDocument();
+    
+    // First verify EMERALD-001 is visible before filtering
+    expect(screen.getByText(/EMERALD-001/)).toBeInTheDocument();
+    
+    // Type the search term - this triggers the filter
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'EMERALD' } });
     });
 
-    fireEvent.change(searchInput, { target: { value: 'DELETE' } });
+    // Wait for filtering to complete - entityId appears as "Gemstone: EMERALD-001"
+    await waitFor(() => {
+      expect(screen.getByText(/EMERALD-001/)).toBeInTheDocument();
+    }, { timeout: 3000, interval: 100 });
+
+    // Clear and search for SAPPHIRE
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: '' } });
+    });
+    
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'SAPPHIRE' } });
+    });
 
     await waitFor(() => {
-      expect(screen.getByText('SAPPHIRE-003')).toBeInTheDocument();
-      expect(screen.queryByText('EMERALD-001')).not.toBeInTheDocument();
-    });
+      expect(screen.getByText(/SAPPHIRE-003/)).toBeInTheDocument();
+      expect(screen.queryByText(/EMERALD-001/)).not.toBeInTheDocument();
+    }, { timeout: 3000, interval: 100 });
   });
 
   it('filters logs by action select', async () => {
     await renderPage();
 
-    const actionSelect = screen.getByDisplayValue('Alle Aktionen');
-    fireEvent.change(actionSelect, { target: { value: 'CREATE' } });
+    // First verify all logs are visible
+    expect(screen.getByText(/EMERALD-001/)).toBeInTheDocument();
+    expect(screen.getByText(/SAPPHIRE-003/)).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.getByText('EMERALD-001')).toBeInTheDocument();
-      expect(screen.queryByText('SAPPHIRE-003')).not.toBeInTheDocument();
+    const actionSelect = screen.getByDisplayValue('Alle Aktionen');
+    
+    await act(async () => {
+      fireEvent.change(actionSelect, { target: { value: 'CREATE' } });
     });
+
+    // Wait for re-render after filter change - use regex for flexible matching
+    await waitFor(() => {
+      expect(screen.getByText(/EMERALD-001/)).toBeInTheDocument();
+    }, { timeout: 3000, interval: 100 });
+
+    // SAPPHIRE-003 should not be visible as it's a DELETE action
+    await waitFor(() => {
+      expect(screen.queryByText(/SAPPHIRE-003/)).not.toBeInTheDocument();
+    }, { timeout: 2000, interval: 100 });
   });
 
   it('filters logs by date option', async () => {

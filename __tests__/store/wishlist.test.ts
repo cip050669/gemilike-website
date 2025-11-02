@@ -221,12 +221,19 @@ describe('Wishlist Store', () => {
 
       const { result } = renderHook(() => useWishlistStore())
 
+      // Suppress console.error for this test since it's expected
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
       await act(async () => {
         await result.current.toggleItem('gem-1')
       })
 
-      expect(result.current.error).toBe('Toggle failed')
-      expect(result.current.summary).toEqual(previousSummary)
+      await waitFor(() => {
+        expect(result.current.error).toBe('Toggle failed')
+        expect(result.current.summary).toEqual(previousSummary)
+      })
+
+      consoleErrorSpy.mockRestore()
     })
   })
 
@@ -295,6 +302,9 @@ describe('Wishlist Store', () => {
 
       const { result } = renderHook(() => useWishlistStore())
 
+      // Suppress console.error for this test since it's expected
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
       await act(async () => {
         await result.current.removeItem('gem-1')
       })
@@ -310,6 +320,8 @@ describe('Wishlist Store', () => {
       expect(result.current.error).toBe('Remove failed')
       expect(result.current.summary).toBeDefined()
       expect(result.current.isLoading).toBe(false)
+
+      consoleErrorSpy.mockRestore()
     })
   })
 
@@ -386,12 +398,19 @@ describe('Wishlist Store', () => {
 
       const { result } = renderHook(() => useWishlistStore())
 
+      // Suppress console.error for this test since it's expected
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
       await act(async () => {
         await result.current.clearWishlist()
       })
 
-      expect(result.current.error).toBe('Clear failed')
-      expect(result.current.summary).toEqual(previousSummary)
+      await waitFor(() => {
+        expect(result.current.error).toBe('Clear failed')
+        expect(result.current.summary).toEqual(previousSummary)
+      })
+
+      consoleErrorSpy.mockRestore()
     })
   })
 
