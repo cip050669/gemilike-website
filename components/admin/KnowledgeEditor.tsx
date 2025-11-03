@@ -229,7 +229,7 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
             {isLoading && <span className="text-xs text-white/60">Lade...</span>}
           </Label>
           <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-gray-800/50/40">
+            <div className="relative h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-gray-800/50/40" style={{ minHeight: '160px' }}>
               <Image
                 src={formData.image || PLACEHOLDER_IMAGE}
                 alt="Titelbild"

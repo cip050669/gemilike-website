@@ -195,6 +195,7 @@ model Cart {
   customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
   items       CartItem[]
   orders      Order[]     @relation("CartOrders")
+  checkoutEvents CheckoutEvent[]
 
   @@index([sessionId])
 }
@@ -286,9 +287,10 @@ model Customer {
   wishlists         Wishlist[]
   carts             Cart[]
   orders            Order[]
-  downloadGrants    DownloadGrant[]
+  downloadGrants     DownloadGrant[]
   invoices          Invoice[]
   reviews           Review[]
+  checkoutEvents    CheckoutEvent[]
 }
 
 model Gemstone {
@@ -330,6 +332,7 @@ model GemstoneAttributes {
   color          String?
   colorSaturation String?
   colorHue       String?
+  colorBrightness Int?             // 0-10 (Weiß bis Schwarz)
   clarity        String?
   cutGrade       String?
   treatment      String?
@@ -506,6 +509,33 @@ model LegalLink {
   updatedAt DateTime @updatedAt
 }
 
+model FooterLink {
+  id        String   @id @default(cuid())
+  text      String
+  url       String
+  section   String   // 'about' | 'legal'
+  order     Int      @default(0)
+  locale    String   @default("de")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([section, locale])
+  @@index([section, locale, order])
+}
+
+model FooterSection {
+  id        String   @id @default(cuid())
+  section   String   // 'about' | 'legal'
+  title     String
+  locale    String   @default("de")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([section, locale])
+  @@index([section, locale])
+}
+
 model LegalPage {
   id          String   @id @default(cuid())
   slug        String   @unique
@@ -658,6 +688,30 @@ model NewstickerItem {
   order     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CheckoutEvent {
+  id          String   @id @default(cuid())
+  cartId      String?
+  customerId  String?
+  sessionId   String?
+  step        String   // 'start', 'address', 'payment', 'shipping', 'coupon', 'review', 'submit', 'success', 'abandon'
+  stepOrder   Int      // Reihenfolge des Schritts (1, 2, 3, etc.)
+  duration    Int?     // Verweilzeit in Millisekunden
+  metadata    Json?    // Zusätzliche Daten (z.B. Felder ausgefüllt, Fehler)
+  error       String?  // Fehlermeldung, falls vorhanden
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  cart        Cart?    @relation(fields: [cartId], references: [id], onDelete: SetNull)
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  
+  @@index([cartId])
+  @@index([customerId])
+  @@index([sessionId])
+  @@index([step])
+  @@index([createdAt])
+  @@index([cartId, step])
 }
 
 model Order {

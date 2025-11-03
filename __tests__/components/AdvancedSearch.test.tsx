@@ -97,16 +97,16 @@ describe('AdvancedSearch', () => {
         return;
       }
       // Call original console.error for other messages
-      // @ts-ignore
+      // @ts-expect-error - mock implementation may have originalImplementation
       const originalError = console.error.originalImplementation || console.error;
       originalError(message);
     });
   });
 
   afterEach(() => {
-    // @ts-ignore
+    // @ts-expect-error - jest mock may have mockRestore
     if (console.error.mockRestore) {
-      // @ts-ignore
+      // @ts-expect-error - jest mock may have mockRestore
       console.error.mockRestore();
     }
   });

@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -50,16 +49,18 @@ export default function AboutAdminPage() {
     { key: 'qualityDesc', label: 'Qualität Beschreibung' },
   ];
 
-  useEffect(() => {
-    loadData();
-  }, [locale]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [contentRes, servicesRes] = await Promise.all([
-        fetch(`/api/admin/about-content?locale=${locale}`),
-        fetch(`/api/admin/services?locale=${locale}`),
+        fetch(`/api/admin/about-content?locale=${locale}`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        fetch(`/api/admin/services?locale=${locale}`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        }),
       ]);
 
       if (contentRes.ok) {
@@ -76,13 +77,18 @@ export default function AboutAdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const updateContent = async (section: string, contentValue: string) => {
     setSaving(true);
     try {
       const response = await fetch('/api/admin/about-content', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           section,
@@ -109,6 +115,7 @@ export default function AboutAdminPage() {
     try {
       const response = await fetch(`/api/admin/services/${id}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
@@ -147,6 +154,16 @@ export default function AboutAdminPage() {
           <p className="text-gray-300">
             Verwalten Sie den Inhalt der &quot;Über uns&quot; Seite
           </p>
+          <div className="mt-4 p-3 bg-blue-900/30 border border-blue-700 rounded text-sm text-blue-200">
+            <p className="font-semibold mb-2">ℹ️ Footer-Links:</p>
+            <p className="mb-1">Die Links unter &quot;Wer sind wir?&quot; im Footer sind fest definiert:</p>
+            <ul className="list-disc list-inside ml-2 space-y-1">
+              <li><strong>Über uns</strong> → /about (verwaltet durch diese Seite)</li>
+              <li><strong>Unsere Leistungen</strong> → /services (verwaltet durch diese Seite - Services-Bereich)</li>
+              <li><strong>Wissenswertes</strong> → /wissenswertes (verwaltet in /admin/wissenswertes)</li>
+              <li><strong>Kontakt</strong> → /contact (verwaltet in /admin/contact-data)</li>
+            </ul>
+          </div>
         </div>
 
         {/* About Content Sections */}

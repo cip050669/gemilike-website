@@ -25,6 +25,8 @@ type DisplayGemstone = {
   dimensions?: { length?: string; width?: string; height?: string };
   color?: string;
   colorSaturation?: string;
+  colorBrightness?: number; // 0-10
+  clarity?: string;
   treatment?: string;
   certification?: string;
   description?: string;
@@ -131,8 +133,23 @@ export function GemstoneManagementSection() {
   const [metricsError, setMetricsError] = useState<string | null>(null);
 
   const mapApiGemstone = useCallback((gem: Record<string, unknown>): DisplayGemstone => {
-    const images = parseList(gem.images);
-    const videos = parseList(gem.videos);
+    // Extract images from media relation if available, otherwise from images field
+    const mediaImages = Array.isArray((gem as { media?: Array<{ type?: string; url?: string }> }).media)
+      ? (gem as { media: Array<{ type?: string; url?: string }> }).media
+          .filter((m) => m.type === 'IMAGE' && m.url)
+          .map((m) => m.url!)
+      : [];
+    const fallbackImages = parseList(gem.images);
+    const images = mediaImages.length > 0 ? mediaImages : fallbackImages;
+    
+    // Extract videos from media relation if available, otherwise from videos field
+    const mediaVideos = Array.isArray((gem as { media?: Array<{ type?: string; url?: string }> }).media)
+      ? (gem as { media: Array<{ type?: string; url?: string }> }).media
+          .filter((m) => m.type === 'VIDEO' && m.url)
+          .map((m) => m.url!)
+      : [];
+    const fallbackVideos = parseList(gem.videos);
+    const videos = mediaVideos.length > 0 ? mediaVideos : fallbackVideos;
 
     const dimensionsString: string | null = typeof gem.dimensions === 'string' ? gem.dimensions : null;
     let dimensions: DisplayGemstone['dimensions'];
@@ -173,11 +190,13 @@ export function GemstoneManagementSection() {
       price: typeof gem.price === 'number' ? gem.price : Number(gem.price ?? 0),
       weight,
       dimensions,
-      color: (typeof gem.color === 'string' ? gem.color : undefined),
-      colorSaturation: (typeof gem.colorIntensity === 'string' ? gem.colorIntensity : undefined),
-      treatment: (typeof gem.treatment === 'string' ? gem.treatment : '–'),
-      certification: (typeof gem.certification === 'string' ? gem.certification : '–'),
-      description: (typeof gem.description === 'string' ? gem.description : ''),
+      color: (typeof (gem as { color?: unknown }).color === 'string' ? (gem as { color: string }).color : (typeof (gem as { attributes?: { color?: unknown } }).attributes?.color === 'string' ? (gem as { attributes: { color: string } }).attributes.color : undefined)),
+      colorSaturation: (typeof (gem as { colorIntensity?: unknown }).colorIntensity === 'string' ? (gem as { colorIntensity: string }).colorIntensity : (typeof (gem as { attributes?: { colorSaturation?: unknown } }).attributes?.colorSaturation === 'string' ? (gem as { attributes: { colorSaturation: string } }).attributes.colorSaturation : undefined)),
+      colorBrightness: (typeof (gem as { attributes?: { colorBrightness?: unknown } }).attributes?.colorBrightness === 'number' ? (gem as { attributes: { colorBrightness: number } }).attributes.colorBrightness : undefined),
+      clarity: (typeof (gem as { clarity?: unknown }).clarity === 'string' ? (gem as { clarity: string }).clarity : (typeof (gem as { attributes?: { clarity?: unknown } }).attributes?.clarity === 'string' ? (gem as { attributes: { clarity: string } }).attributes.clarity : undefined)),
+      treatment: (typeof gem.treatment === 'string' ? gem.treatment : (typeof gem.attributes?.treatment === 'string' ? gem.attributes.treatment : '–')),
+      certification: (typeof gem.certification === 'string' ? gem.certification : (typeof gem.attributes?.certification === 'string' ? gem.attributes.certification : '–')),
+      description: (typeof gem.description === 'string' ? gem.description : (typeof gem.longDescription === 'string' ? gem.longDescription : (typeof gem.shortDescription === 'string' ? gem.shortDescription : ''))),
       isNew: Boolean(gem.isNew),
       isSold: gem.inStock === false,
       images: images.length ? images : [PLACEHOLDER_IMAGE],
@@ -257,6 +276,8 @@ export function GemstoneManagementSection() {
           },
           color: gemstone.color ?? '',
           colorSaturation: gemstone.colorSaturation ?? '',
+          colorBrightness: gemstone.colorBrightness ?? 5,
+          clarity: gemstone.clarity ?? '',
           treatment: gemstone.treatment === '–' ? '' : gemstone.treatment ?? '',
           certification: gemstone.certification === '–' ? '' : gemstone.certification ?? '',
           images: gemstone.images.length ? gemstone.images.slice(0, 10) : [''],
@@ -277,31 +298,49 @@ export function GemstoneManagementSection() {
       return;
     }
 
-    const dimensionsString =
-      values.dimensions.length || values.dimensions.width || values.dimensions.height
-        ? `${values.dimensions.length || '0'}x${values.dimensions.width || '0'}x${values.dimensions.height || '0'}mm`
-        : null;
-
-    const payload = {
+    const weightValue = values.weight ? Number(values.weight) : null;
+    
+    const payload: Record<string, unknown> = {
       name: values.name,
       category: values.gemstoneType,
       type: values.type,
+      condition: values.type === 'cut' ? 'CUT' : 'ROUGH',
       cut: values.type === 'cut' ? values.cut : '',
       cutForm: values.type === 'cut' ? values.cutForm : '',
       origin: values.origin,
       price: values.price ? Number(values.price) : 0,
-      weight: values.weight ? Number(values.weight) : null,
-      dimensions: dimensionsString,
+      weight: weightValue,
+      // For cut gemstones, use caratWeight; for rough, use gramWeight
+      ...(values.type === 'cut' 
+        ? { caratWeight: weightValue } 
+        : { gramWeight: weightValue }),
+      description: values.description,
+      shortDescription: values.description,
       color: values.color,
       colorIntensity: values.colorSaturation,
+      colorBrightness: values.colorBrightness,
+      clarity: values.clarity,
       treatment: values.treatment,
       certification: values.certification,
-      description: values.description,
       images: values.images.filter((url) => url.trim()).slice(0, 10),
       videos: values.videos.filter((url) => url.trim()).slice(0, 2),
       isNew: values.isNew,
+      isSold: values.isSold,
       inStock: !values.isSold,
     };
+
+    // Add dimensions as separate fields (lengthMm, widthMm, heightMm)
+    if (values.dimensions.length) {
+      payload.lengthMm = Number(values.dimensions.length) || null;
+    }
+    if (values.dimensions.width) {
+      payload.widthMm = Number(values.dimensions.width) || null;
+    }
+    if (values.dimensions.height) {
+      payload.heightMm = Number(values.dimensions.height) || null;
+    }
+
+    console.log('Saving gemstone with payload:', payload);
 
     const isUpdate = Boolean(values.id);
     const endpoint = isUpdate ? `/api/admin/gemstones/${values.id}` : '/api/admin/gemstones';
@@ -314,15 +353,18 @@ export function GemstoneManagementSection() {
     })
       .then(async (response) => {
         const result = await response.json();
+        console.log('API Response:', result);
         if (!response.ok || !result.success) {
           throw new Error(result.error || 'Speichern fehlgeschlagen');
         }
+        return result;
       })
       .then(() => {
         setEditorState({ open: false, initial: null });
         loadGemstones();
       })
       .catch((err: Error) => {
+        console.error('Error saving gemstone:', err);
         setError(err.message);
       });
   };
@@ -582,6 +624,10 @@ export function GemstoneManagementSection() {
                     {gemstone.colorSaturation && (
                       <span>Farbsättigung: <span className="text-white/80">{gemstone.colorSaturation}</span></span>
                     )}
+                    {gemstone.colorBrightness !== undefined && (
+                      <span>Farbhelligkeit: <span className="text-white/80">{gemstone.colorBrightness}/10</span></span>
+                    )}
+                    {gemstone.clarity && <span>Reinheit: <span className="text-white/80">{gemstone.clarity}</span></span>}
                     {gemstone.treatment && <span>Behandlung: <span className="text-white/80">{gemstone.treatment}</span></span>}
                     {gemstone.certification && <span>Zertifizierung: <span className="text-white/80">{gemstone.certification}</span></span>}
                   </div>
@@ -766,6 +812,10 @@ export function GemstoneManagementSection() {
               </p>
               <p><span className="text-white/50">Farbe:</span> {detailGemstone.color ?? '–'}</p>
               <p><span className="text-white/50">Farbsättigung:</span> {detailGemstone.colorSaturation ?? '–'}</p>
+              {detailGemstone.colorBrightness !== undefined && (
+                <p><span className="text-white/50">Farbhelligkeit:</span> {detailGemstone.colorBrightness}/10 ({detailGemstone.colorBrightness === 0 ? 'Weiß' : detailGemstone.colorBrightness === 10 ? 'Schwarz' : `Stufe ${detailGemstone.colorBrightness}`})</p>
+              )}
+              <p><span className="text-white/50">Reinheit:</span> {detailGemstone.clarity ?? '–'}</p>
               <p><span className="text-white/50">Behandlung:</span> {detailGemstone.treatment ?? '–'}</p>
               <p><span className="text-white/50">Zertifizierung:</span> {detailGemstone.certification ?? '–'}</p>
               <p><span className="text-white/50">Wishlist-Einträge:</span> {detailGemstone.wishlistCount ?? 0}</p>

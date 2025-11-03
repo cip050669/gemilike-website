@@ -1,9 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Gem, ShoppingCart, DollarSign } from 'lucide-react';
+import { Users, Gem, ShoppingCart, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import Link from 'next/link';
 
 export default async function AdminDashboardPage({ params }: { params: Promise<{ locale: string }> }) {
-  await params; // Await params even if not used
+  const { locale } = await params;
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 30);
 
   // Get real data from database
   const [
@@ -12,7 +16,8 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
     totalOrders,
     totalRevenue,
     recentGemstones,
-    recentOrders
+    recentOrders,
+    checkoutStats,
   ] = await Promise.all([
     prisma.gemstone.count(),
     prisma.user.count(),
@@ -28,7 +33,34 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
       take: 5,
       orderBy: { createdAt: 'desc' },
       include: { customer: true }
-    })
+    }),
+    // Checkout-Analytics (letzten 30 Tage)
+    Promise.all([
+      prisma.checkoutEvent.count({
+        where: {
+          step: 'start',
+          createdAt: { gte: startDate },
+        },
+      }),
+      prisma.checkoutEvent.count({
+        where: {
+          step: 'success',
+          createdAt: { gte: startDate },
+        },
+      }),
+      prisma.checkoutEvent.count({
+        where: {
+          step: 'abandon',
+          createdAt: { gte: startDate },
+        },
+      }),
+    ]).then(([starts, successes, abandons]) => ({
+      totalCheckouts: starts,
+      completedCheckouts: successes,
+      abandonedCheckouts: abandons,
+      conversionRate: starts > 0 ? (successes / starts) * 100 : 0,
+      abandonmentRate: starts > 0 ? (abandons / starts) * 100 : 0,
+    })),
   ]);
 
   const stats = {
@@ -131,6 +163,64 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
           </CardContent>
         </Card>
       </div>
+
+      {/* Checkout Analytics Summary */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Checkout-Analytics (30 Tage)</CardTitle>
+              <CardDescription>
+                Überwachung des Checkout-Funnels und Conversion-Rate
+              </CardDescription>
+            </div>
+            <Link href={`/${locale}/admin/checkout-analytics`}>
+              <button className="text-sm text-primary hover:underline">
+                Details anzeigen →
+              </button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Checkouts gestartet</p>
+              <p className="text-2xl font-bold">{checkoutStats.totalCheckouts}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 text-green-400" />
+                Erfolgreich abgeschlossen
+              </p>
+              <p className="text-2xl font-bold text-green-400">{checkoutStats.completedCheckouts}</p>
+              <p className="text-xs text-muted-foreground">
+                {checkoutStats.conversionRate.toFixed(1)}% Conversion-Rate
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <AlertCircle className="h-3 w-3 text-red-400" />
+                Abgebrochen
+              </p>
+              <p className="text-2xl font-bold text-red-400">{checkoutStats.abandonedCheckouts}</p>
+              <p className="text-xs text-muted-foreground">
+                {checkoutStats.abandonmentRate.toFixed(1)}% Abandonment-Rate
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Potenzial</p>
+              <p className="text-2xl font-bold text-yellow-400">
+                {checkoutStats.abandonedCheckouts > 0 
+                  ? `+${Math.round(checkoutStats.abandonedCheckouts * (checkoutStats.conversionRate / 100))}`
+                  : '0'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Zusätzliche Bestellungen möglich
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         {/* Recent Activity */}

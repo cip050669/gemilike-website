@@ -30,7 +30,9 @@ export default async function KnowledgeEditPage({
     featured: article.featured,
     metaDescription: article.metaDescription || '',
     readingTime: article.readingTime || undefined,
-    difficulty: article.difficulty || 'beginner',
+    difficulty: (article.difficulty === 'beginner' || article.difficulty === 'intermediate' || article.difficulty === 'advanced') 
+      ? article.difficulty 
+      : 'beginner' as 'beginner' | 'intermediate' | 'advanced',
     createdAt: article.createdAt.toISOString(),
     updatedAt: article.updatedAt.toISOString(),
     publishedAt: article.publishedAt?.toISOString(),

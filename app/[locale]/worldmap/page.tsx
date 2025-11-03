@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeftIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
+import { PublicLayout } from '@/components/layout/PublicLayout';
 
 export default async function WorldMapPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -47,29 +48,31 @@ export default async function WorldMapPage({ params }: { params: Promise<{ local
   }));
 
   return (
-    <div className="min-h-screen public-page-bg">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <Link
-              href={`/${locale}`}
-              className={cn(navStyles.navButton, navStyles.navButtonTight, 'gap-2 px-3')}
-            >
-              <ArrowLeftIcon className="relative z-[1] h-4 w-4" />
-              <span className={navStyles.navLabel}>Zurück zur Startseite</span>
-              <span className={navStyles.navGlow} />
-            </Link>
+    <PublicLayout>
+      <div className="min-h-screen public-page-bg">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <Link
+                href={`/${locale}`}
+                className={cn(navStyles.navButton, navStyles.navButtonTight, 'gap-2 px-3')}
+              >
+                <ArrowLeftIcon className="relative z-[1] h-4 w-4" />
+                <span className={navStyles.navLabel}>Zurück zur Startseite</span>
+                <span className={navStyles.navGlow} />
+              </Link>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              <span className="gradient-text animate-glow">Edelstein-Fundorte</span>
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Entdecken Sie die wichtigsten Fundorte der 20 bedeutendsten Edelsteine auf unserer interaktiven Weltkarte
+            </p>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            <span className="gradient-text animate-glow">Edelstein-Fundorte</span>
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Entdecken Sie die wichtigsten Fundorte der 20 bedeutendsten Edelsteine auf unserer interaktiven Weltkarte
-          </p>
-        </div>
 
-        <InteractiveWorldMap locations={locations} gemTypes={gemTypes} />
+          <InteractiveWorldMap locations={locations} gemTypes={gemTypes} />
+        </div>
       </div>
-    </div>
+    </PublicLayout>
   );
 }

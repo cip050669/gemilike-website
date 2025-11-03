@@ -176,7 +176,7 @@ export function CartAnalyticsDashboard({ locale }: { locale: string }) {
               {data.metrics.conversionRate.toFixed(2)}%
             </p>
             <p className="text-sm text-gray-400 mt-1">
-              {data.metrics.checkedOutCarts} / {data.metrics.cartsCreatedInPeriod} Carts
+              {data.overview.checkedOutCarts} / {data.metrics.cartsCreatedInPeriod} Carts
             </p>
           </CardContent>
         </Card>

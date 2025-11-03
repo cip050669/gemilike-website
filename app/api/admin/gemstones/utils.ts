@@ -134,6 +134,7 @@ export const normaliseGemstonePayload = (
     slug,
     category: String(payload.category ?? 'Edelstein').trim() || 'Edelstein',
     condition: (payload.condition as string) || 'CUT',
+    status: (payload.status as string) || 'PUBLISHED', // Default to PUBLISHED so gemstones appear in shop
     shortDescription: toStringOrNull(payload.shortDescription ?? payload.description),
     longDescription: toStringOrNull(payload.longDescription),
     origin: toStringOrNull(payload.origin),
@@ -142,18 +143,23 @@ export const normaliseGemstonePayload = (
     featured: toBoolean(payload.featured, false),
     cut: toStringOrNull(payload.cut),
     cutForm: toStringOrNull(payload.cutForm),
-    publishedAt: payload.publishedAt ? new Date(payload.publishedAt as string) : null,
+    publishedAt: payload.publishedAt ? new Date(payload.publishedAt as string) : new Date(), // Set publishedAt when creating
   };
 
   // Attributes relation data
-  if (payload.color || payload.colorIntensity || payload.colorBrightness || payload.clarity || 
+  const colorBrightness = payload.colorBrightness !== undefined && payload.colorBrightness !== null 
+    ? toNumber(payload.colorBrightness, null) 
+    : null;
+  
+  if (payload.color || payload.colorIntensity || colorBrightness !== null || payload.clarity || 
       payload.treatment || payload.certification || payload.certificateId || payload.certificateUrl ||
       payload.lengthMm || payload.widthMm || payload.heightMm) {
     gemstoneData.attributes = {
       create: {
         color: toStringOrNull(payload.color),
         colorSaturation: toStringOrNull(payload.colorIntensity),
-        colorHue: toStringOrNull(payload.colorBrightness),
+        colorBrightness: colorBrightness !== null ? Math.max(0, Math.min(10, Math.round(colorBrightness))) : null,
+        colorHue: toStringOrNull(payload.colorHue),
         clarity: toStringOrNull(payload.clarity),
         treatment: toStringOrNull(payload.treatment),
         certification: toStringOrNull(payload.certification),

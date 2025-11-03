@@ -46,6 +46,91 @@ export default function CheckoutPage() {
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [checkoutStartTime, setCheckoutStartTime] = useState<number | null>(null);
+  const [currentStep, setCurrentStep] = useState<string>('start');
+  const [stepStartTime, setStepStartTime] = useState<number>(Date.now());
+  const [cartId, setCartId] = useState<string | null>(null);
+
+  // Tracking-Funktion
+  const trackCheckoutEvent = async (
+    step: string,
+    stepOrder: number,
+    completed: boolean = false,
+    error?: string,
+    metadata?: Record<string, any>
+  ) => {
+    try {
+      const duration = Date.now() - stepStartTime;
+      
+      await fetch('/api/checkout/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cartId,
+          step,
+          stepOrder,
+          duration,
+          metadata,
+          error,
+          completed,
+        }),
+      });
+
+      // Neuen Schritt starten
+      setStepStartTime(Date.now());
+    } catch (error) {
+      console.error('Error tracking checkout event:', error);
+      // Fail silently - tracking sollte nicht den Checkout blockieren
+    }
+  };
+
+  useEffect(() => {
+    // Hole Cart-ID
+    const loadCartId = async () => {
+      try {
+        const response = await fetch('/api/cart');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.cart?.id) {
+            setCartId(data.cart.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading cart ID:', error);
+      }
+    };
+    
+    void loadCartId();
+    
+    // Track Checkout-Start
+    const startTime = Date.now();
+    setCheckoutStartTime(startTime);
+    void trackCheckoutEvent('start', 1);
+  }, []);
+
+  // Track Schritt-Wechsel
+  useEffect(() => {
+    if (currentStep !== 'start') {
+      // Track vorherigen Schritt als abgeschlossen
+      const stepOrderMap: Record<string, number> = {
+        start: 1,
+        address: 2,
+        payment: 3,
+        shipping: 4,
+        coupon: 5,
+        review: 6,
+        submit: 7,
+      };
+      
+      void trackCheckoutEvent(
+        currentStep,
+        stepOrderMap[currentStep] || 0,
+        false,
+        undefined,
+        { formFieldsFilled: Object.values(formData).filter(v => v).length }
+      );
+    }
+  }, [currentStep]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +206,14 @@ export default function CheckoutPage() {
 
       const order = await orderResponse.json();
 
+      // Track erfolgreiche Bestellung
+      await trackCheckoutEvent('success', 8, true, undefined, {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        totalItems: getTotalItems(),
+        totalAmount: finalTotal + tax,
+      });
+
       // Cart leeren
       await clearCart();
 
@@ -128,7 +221,11 @@ export default function CheckoutPage() {
       window.location.href = `/${locale}/orders/${order.id}`;
     } catch (error) {
       console.error('Error submitting order:', error);
-      setSubmitError(error instanceof Error ? error.message : 'Fehler beim Absenden der Bestellung');
+      const errorMessage = error instanceof Error ? error.message : 'Fehler beim Absenden der Bestellung';
+      setSubmitError(errorMessage);
+      
+      // Track Fehler
+      await trackCheckoutEvent('submit', 7, false, errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -146,6 +243,11 @@ export default function CheckoutPage() {
 
     setIsValidatingCoupon(true);
     setCouponError('');
+    
+    // Track Coupon-Schritt
+    if (currentStep !== 'coupon') {
+      setCurrentStep('coupon');
+    }
 
     try {
       const subtotal = getTotalPrice();
@@ -184,6 +286,34 @@ export default function CheckoutPage() {
   useEffect(() => {
     void fetchCart();
   }, [fetchCart]);
+
+  // Track Abandonment wenn Seite verlassen wird
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Track Abandonment nur wenn Checkout gestartet wurde und noch nicht abgeschlossen
+      if (checkoutStartTime && currentStep !== 'success' && !isSubmitting) {
+        // Synchrones Tracking über sendBeacon (wird auch bei Seitenwechsel ausgeführt)
+        const eventData = JSON.stringify({
+          cartId,
+          step: 'abandon',
+          stepOrder: 999,
+          duration: Date.now() - (checkoutStartTime || Date.now()),
+          completed: false,
+          metadata: { lastStep: currentStep },
+        });
+        
+        // sendBeacon für zuverlässiges Tracking beim Verlassen
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/checkout/track', eventData);
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [checkoutStartTime, currentStep, isSubmitting, cartId]);
 
   if (isLoading && items.length === 0) {
     return (
@@ -331,7 +461,12 @@ export default function CheckoutPage() {
                       id="paypal"
                       name="paymentMethod"
                       value="paypal"
-                      onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+                      onChange={(e) => {
+                        handleInputChange('paymentMethod', e.target.value);
+                        if (currentStep !== 'payment') {
+                          setCurrentStep('payment');
+                        }
+                      }}
                     />
                     <Label htmlFor="paypal" className="flex items-center space-x-2">
                       <CreditCardIcon className="h-4 w-4" />
@@ -513,7 +648,14 @@ export default function CheckoutPage() {
             )}
             
             <Button 
-              onClick={handleSubmit}
+              onClick={(e) => {
+                setCurrentStep('submit');
+                void trackCheckoutEvent('submit', 7, false, undefined, {
+                  hasCoupon: !!appliedCoupon,
+                  itemCount: getTotalItems(),
+                });
+                handleSubmit(e);
+              }}
               disabled={isSubmitting}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >

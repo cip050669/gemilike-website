@@ -9,6 +9,7 @@ import { MailIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckIcon, XIcon, ArrowLeft
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
+import { PublicLayout } from '@/components/layout/PublicLayout';
 
 export default function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
@@ -59,8 +60,9 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
   };
 
   return (
-    <div className="min-h-screen public-page-bg">
-      <div className="container mx-auto px-4 py-8">
+    <PublicLayout>
+      <div className="min-h-screen public-page-bg">
+        <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4">
@@ -272,5 +274,6 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
         </div>
       </div>
     </div>
+    </PublicLayout>
   );
 }

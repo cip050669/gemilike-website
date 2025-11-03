@@ -72,6 +72,7 @@ export async function PUT(
       name: payload.name ?? existing.name,
       category: payload.category ?? existing.category,
       condition: payload.condition ?? existing.condition,
+      status: payload.status ?? existing.status, // Preserve status if not explicitly changed
     };
 
     const data = normaliseGemstonePayload(basePayload, uploadedImage, fallbackImages);

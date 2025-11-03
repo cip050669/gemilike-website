@@ -5,6 +5,7 @@ import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
 import { ArrowLeftIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
+import { PublicLayout } from '@/components/layout/PublicLayout';
 
 export default async function KnowledgeListPage({
   params,
@@ -23,8 +24,9 @@ export default async function KnowledgeListPage({
   });
 
   return (
-    <div className="min-h-screen public-page-bg text-foreground">
-      <div className="container py-12 md:py-20 space-y-10">
+    <PublicLayout>
+      <div className="public-page-bg text-foreground">
+        <div className="container py-12 md:py-20 space-y-10">
         <header className="space-y-4 text-center">
           <div className="flex justify-center mb-4">
             <Link
@@ -100,7 +102,8 @@ export default async function KnowledgeListPage({
             ))}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </PublicLayout>
   );
 }

@@ -12,17 +12,16 @@ body {
 /* Header Background - Option 1: Gradient mit Gem-Farben (angepasst an Container) */
 .header-gradient-bg {
   background: linear-gradient(135deg, 
-    rgba(11, 12, 16, 0.90) 0%,       /* Dunkler Basis */
-    rgba(255, 148, 71, 0.22) 25%,    /* Orange-Akzent (gem-fire) - stärker wie Container */
-    rgba(11, 12, 16, 0.90) 40%,      /* Dunkler Basis */
-    rgba(138, 92, 246, 0.18) 50%,    /* Lila-Akzent (gem-purple) - wie Container */
-    rgba(11, 12, 16, 0.90) 60%,      /* Dunkler Basis */
-    rgba(0, 188, 212, 0.22) 75%,     /* Cyan-Akzent (gem-ice) - stärker wie Container */
-    rgba(11, 12, 16, 0.90) 100%      /* Dunkler Basis */
+    rgba(11, 12, 16, 1.0) 0%,        /* Dunkler Basis */
+    rgba(255, 148, 71, 0.47) 25%,    /* Orange-Akzent (gem-fire) - stärker wie Container */
+    rgba(11, 12, 16, 1.0) 40%,       /* Dunkler Basis */
+    rgba(138, 92, 246, 0.43) 50%,    /* Lila-Akzent (gem-purple) - wie Container */
+    rgba(11, 12, 16, 1.0) 60%,       /* Dunkler Basis */
+    rgba(0, 188, 212, 0.47) 75%,      /* Cyan-Akzent (gem-ice) - stärker wie Container */
+    rgba(11, 12, 16, 1.0) 100%       /* Dunkler Basis */
   ) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.5) !important;
   box-shadow: 
     0 4px 20px rgba(0, 0, 0, 0.3), 
     0 0 30px rgba(0, 229, 255, 0.15),
@@ -81,7 +80,15 @@ header[class*="fixed"] {
 
   /* Container-Klassen - Lebendiger & Auffälliger */
   .main-container {
-    background: linear-gradient(135deg, rgba(255, 148, 71, 0.28), rgba(0, 188, 212, 0.28), rgba(138, 92, 246, 0.2)) !important;
+    background: linear-gradient(135deg, 
+      rgba(11, 12, 16, 0.90) 0%,       /* Dunkler Basis */
+      rgba(255, 148, 71, 0.22) 25%,    /* Orange-Akzent (gem-fire) */
+      rgba(11, 12, 16, 0.90) 40%,      /* Dunkler Basis */
+      rgba(138, 92, 246, 0.18) 50%,    /* Lila-Akzent (gem-purple) */
+      rgba(11, 12, 16, 0.90) 60%,      /* Dunkler Basis */
+      rgba(0, 188, 212, 0.22) 75%,     /* Cyan-Akzent (gem-ice) */
+      rgba(11, 12, 16, 0.90) 100%       /* Dunkler Basis */
+    ) !important;
     margin: 4rem 8rem;
     padding: 3rem;
     border-radius: 0.9rem;
@@ -104,7 +111,15 @@ header[class*="fixed"] {
   }
 
   .newsticker-container {
-    background: linear-gradient(135deg, rgba(255, 148, 71, 0.28), rgba(0, 188, 212, 0.28), rgba(138, 92, 246, 0.2));
+    background: linear-gradient(135deg, 
+      rgba(11, 12, 16, 0.90) 0%,       /* Dunkler Basis */
+      rgba(255, 148, 71, 0.22) 25%,    /* Orange-Akzent (gem-fire) */
+      rgba(11, 12, 16, 0.90) 40%,      /* Dunkler Basis */
+      rgba(138, 92, 246, 0.18) 50%,    /* Lila-Akzent (gem-purple) */
+      rgba(11, 12, 16, 0.90) 60%,      /* Dunkler Basis */
+      rgba(0, 188, 212, 0.22) 75%,     /* Cyan-Akzent (gem-ice) */
+      rgba(11, 12, 16, 0.90) 100%       /* Dunkler Basis */
+    );
     margin: 0 8rem;
     padding: 1.25rem 2rem;
     border-radius: 0.9rem;
@@ -214,7 +229,15 @@ header[class*="fixed"] {
   }
 
   .container-dark {
-    background: linear-gradient(135deg, rgba(255, 148, 71, 0.28), rgba(0, 188, 212, 0.28), rgba(138, 92, 246, 0.2));
+    background: linear-gradient(135deg, 
+      rgba(11, 12, 16, 0.90) 0%,       /* Dunkler Basis */
+      rgba(255, 148, 71, 0.22) 25%,    /* Orange-Akzent (gem-fire) */
+      rgba(11, 12, 16, 0.90) 40%,      /* Dunkler Basis */
+      rgba(138, 92, 246, 0.18) 50%,    /* Lila-Akzent (gem-purple) */
+      rgba(11, 12, 16, 0.90) 60%,      /* Dunkler Basis */
+      rgba(0, 188, 212, 0.22) 75%,     /* Cyan-Akzent (gem-ice) */
+      rgba(11, 12, 16, 0.90) 100%       /* Dunkler Basis */
+    );
     border: 1px solid rgba(0, 229, 255, 0.6);
     border-radius: 1rem;
     box-shadow: 

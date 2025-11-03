@@ -23,6 +23,14 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
       include: {
         attributes: true,
+        inventory: true,
+        priceBooks: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        media: {
+          orderBy: { position: 'asc' },
+        },
         _count: {
           select: {
             wishlistItems: true,
@@ -153,6 +161,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { payload, uploadedImage } = await extractPayload(request);
+    console.log('POST /api/admin/gemstones - Received payload:', JSON.stringify(payload, null, 2));
 
     if (!payload.name) {
       return NextResponse.json(
@@ -162,10 +171,13 @@ export async function POST(request: NextRequest) {
     }
 
     const data = normaliseGemstonePayload(payload, uploadedImage);
+    console.log('POST /api/admin/gemstones - Normalized data:', JSON.stringify(data, null, 2));
     
     const gemstone = await prisma.gemstone.create({
       data,
     });
+
+    console.log('POST /api/admin/gemstones - Created gemstone:', gemstone.id);
 
     return NextResponse.json({
       success: true,
@@ -174,8 +186,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating gemstone:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create gemstone';
     return NextResponse.json(
-      { success: false, error: 'Failed to create gemstone' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

@@ -51,6 +51,7 @@ export function KnowledgeEditorContainer({
 
     const response = await fetch(endpoint, {
       method,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

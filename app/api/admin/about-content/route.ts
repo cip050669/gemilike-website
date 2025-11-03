@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import {
   getAboutContent,
@@ -30,9 +30,24 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 About Content API - POST request received');
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    console.log('🔍 Session check:', {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      userId: session?.user?.id,
+      role: (session?.user as { role?: string })?.role,
+      email: session?.user?.email,
+    });
+    
+    if (!session?.user) {
+      console.error('❌ No session or user found');
+      return NextResponse.json({ error: 'Unauthorized - No session' }, { status: 401 });
+    }
+    
+    if ((session.user as { role?: string }).role !== 'ADMIN') {
+      console.error('❌ User is not ADMIN:', (session.user as { role?: string }).role);
+      return NextResponse.json({ error: 'Unauthorized - Not ADMIN' }, { status: 401 });
     }
 
     const body = await request.json();

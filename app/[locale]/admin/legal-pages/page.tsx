@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState, useCallback } from 'react';
 import { useLocale } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ export default function LegalPagesAdminPage() {
   const locale = useLocale();
   const [pages, setPages] = useState<LegalPage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     slug: '',
@@ -35,23 +35,44 @@ export default function LegalPagesAdminPage() {
   });
   const [showNewForm, setShowNewForm] = useState(false);
 
-  useEffect(() => {
-    fetchPages();
-  }, [locale]);
-
-  const fetchPages = async () => {
+  const fetchPages = useCallback(async () => {
     try {
-      const response = await fetch(`/api/admin/legal-pages?locale=${locale}`);
+      setError(null);
+      const response = await fetch(`/api/admin/legal-pages?locale=${locale}`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       if (response.ok) {
         const data = await response.json();
-        setPages(data);
+        // Sortiere: deutsche Slugs zuerst, dann alphabetisch
+        const germanSlugs = ['impressum', 'datenschutz', 'agb', 'widerruf', 'versand', 'cookies'];
+        const sorted = data.sort((a: LegalPage, b: LegalPage) => {
+          const aIsGerman = germanSlugs.includes(a.slug);
+          const bIsGerman = germanSlugs.includes(b.slug);
+          if (aIsGerman && !bIsGerman) return -1;
+          if (!aIsGerman && bIsGerman) return 1;
+          return a.slug.localeCompare(b.slug);
+        });
+        setPages(sorted);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        setError(`Fehler beim Laden der Seiten: ${errorData.error || response.statusText} (Status: ${response.status})`);
+        console.error('Error fetching legal pages:', response.status, errorData);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
+      setError(`Fehler beim Laden der Seiten: ${errorMessage}`);
       console.error('Error fetching legal pages:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale]);
+
+  useEffect(() => {
+    fetchPages();
+  }, [fetchPages]);
 
   const handleSave = async (id?: string) => {
     try {
@@ -60,6 +81,7 @@ export default function LegalPagesAdminPage() {
       
       const response = await fetch(url, {
         method,
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
@@ -88,6 +110,7 @@ export default function LegalPagesAdminPage() {
     try {
       const response = await fetch(`/api/admin/legal-pages/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -145,8 +168,62 @@ export default function LegalPagesAdminPage() {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <Card className="mb-4 border-red-500">
+            <CardContent className="py-4">
+              <div className="text-red-400">
+                <strong>Fehler:</strong> {error}
+              </div>
+              {error.includes('No session') || error.includes('Unauthorized') ? (
+                <div className="mt-4 space-y-2">
+                  <p className="text-sm text-yellow-400">
+                    ⚠️ Sie sind nicht eingeloggt oder Ihre Session ist abgelaufen.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        window.location.href = `/${locale}/admin/login`;
+                      }}
+                    >
+                      Zum Login
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fetchPages()}
+                    >
+                      Erneut versuchen
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => fetchPages()}
+                >
+                  Erneut versuchen
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              Lade Seiten...
+            </CardContent>
+          </Card>
+        )}
+
         {/* New/Edit Form */}
-        {(showNewForm || editingId) && (
+        {!loading && (showNewForm || editingId) && (
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>
@@ -214,8 +291,9 @@ export default function LegalPagesAdminPage() {
         )}
 
         {/* Pages List */}
-        <div className="grid gap-4">
-          {pages.map((page) => (
+        {!loading && (
+          <div className="grid gap-4">
+            {pages.map((page) => (
             <Card key={page.id}>
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -234,6 +312,16 @@ export default function LegalPagesAdminPage() {
                     <p className="text-sm text-muted-foreground mt-1">
                       Route: <code className="bg-gray-800 px-2 py-1 rounded">/{locale}/{page.slug}</code>
                     </p>
+                    {page.isActive && ['impressum', 'datenschutz', 'agb', 'widerruf', 'versand', 'cookies'].includes(page.slug) && (
+                      <p className="text-xs text-green-400 mt-2">
+                        ✓ Diese Seite wird im Footer unter "Rechtliches" angezeigt
+                      </p>
+                    )}
+                    {page.isActive && !['impressum', 'datenschutz', 'agb', 'widerruf', 'versand', 'cookies'].includes(page.slug) && (
+                      <p className="text-xs text-yellow-400 mt-2">
+                        ⚠️ Diese Seite ist aktiv, wird aber nicht im Footer angezeigt (nur deutsche Slugs werden im Footer angezeigt)
+                      </p>
+                    )}
                   </div>
                   <div className="flex space-x-2">
                     <Button
@@ -263,14 +351,15 @@ export default function LegalPagesAdminPage() {
               </CardContent>
             </Card>
           ))}
-          {pages.length === 0 && (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                Keine Seiten vorhanden. Erstellen Sie eine neue Seite.
-              </CardContent>
-            </Card>
-          )}
-        </div>
+            {pages.length === 0 && !error && (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Keine Seiten vorhanden. Erstellen Sie eine neue Seite.
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

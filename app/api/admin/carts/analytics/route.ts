@@ -133,22 +133,30 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         slug: true,
-        priceGross: true,
+        priceBooks: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            priceGross: true,
+          },
+        },
       },
     });
 
     const gemstoneMap = new Map(gemstones.map((g) => [g.id, g]));
 
-    const topProducts = topCarted.map((item) => ({
-      gemstoneId: item.gemstoneId,
-      name: gemstoneMap.get(item.gemstoneId)?.name || 'Unbekannt',
-      slug: gemstoneMap.get(item.gemstoneId)?.slug || null,
-      totalQuantity: toNumber(item._sum.quantity),
-      cartCount: item._count.gemstoneId,
-      averagePrice: gemstoneMap.get(item.gemstoneId)?.priceGross
-        ? toNumber(gemstoneMap.get(item.gemstoneId)?.priceGross)
-        : 0,
-    }));
+    const topProducts = topCarted.map((item) => {
+      const gemstone = gemstoneMap.get(item.gemstoneId);
+      const priceGross = gemstone?.priceBooks[0]?.priceGross;
+      return {
+        gemstoneId: item.gemstoneId,
+        name: gemstone?.name || 'Unbekannt',
+        slug: gemstone?.slug || null,
+        totalQuantity: toNumber(item._sum.quantity),
+        cartCount: item._count.gemstoneId,
+        averagePrice: priceGross ? toNumber(priceGross) : 0,
+      };
+    });
 
     // Zeitbasierte Analyse (letzte 30 Tage täglich)
     const dailyStats = await prisma.cart.groupBy({
