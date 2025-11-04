@@ -50,8 +50,15 @@ export function MediaGallery({
 
   const mediaItems: MediaItem[] = useMemo(() => {
     const mappedImages = images.map<MediaItem>((src) => ({ type: 'image', src }));
-    const mappedVideos = videos.map<MediaItem>((src) => ({ type: 'video', src }));
+    const mappedVideos = (videos || []).map<MediaItem>((src) => ({ type: 'video', src }));
     const combined = [...mappedImages, ...mappedVideos];
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[MediaGallery] Media items:', {
+        imagesCount: images.length,
+        videosCount: videos?.length || 0,
+        totalItems: combined.length,
+      });
+    }
     return combined.length ? combined : [{ type: 'image', src: PLACEHOLDER }];
   }, [images, videos]);
 
@@ -135,20 +142,21 @@ export function MediaGallery({
   }
 
   return (
-    <div className={cn('w-full space-y-4', className)}>
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gray-900/60">
+    <div className={cn('w-full space-y-4', className)} style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
+      <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-gray-900/70 backdrop-blur" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
         <div
           ref={scrollContainerRef}
           className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scroll-smooth"
           onScroll={handleScroll}
+          style={{ minHeight: '360px', maxWidth: '100%', boxSizing: 'border-box' }}
         >
           {mediaItems.map((item, index) => {
             const baseKey = `${item.type}-${index}`;
             return (
               <div
                 key={baseKey}
-                className="relative h-full w-full flex-shrink-0 snap-center"
-                style={{ minWidth: '100%' }}
+                className="relative h-full w-full flex-shrink-0 snap-center flex items-center justify-center"
+                style={{ minWidth: '100%', minHeight: '360px' }}
               >
                 {item.type === 'video' ? (
                   <video
@@ -216,18 +224,24 @@ export function MediaGallery({
                   </div>
                 )}
 
+                {mediaItems.length > 1 && (
+                  <div 
+                    className="absolute z-10 rounded-full bg-gray-800/80 border border-white/20 px-3 py-1 text-xs font-semibold text-white shadow-lg backdrop-blur"
+                    style={{ bottom: '12px', right: '12px', position: 'absolute' }}
+                  >
+                    {index + 1} / {mediaItems.length}
+                  </div>
+                )}
+
                 {certification?.certified && (
-                  <div className="absolute bottom-4 right-4 z-10">
+                  <div 
+                    className="absolute z-10"
+                    style={{ bottom: '16px', left: '16px', position: 'absolute' }}
+                  >
                     <Badge className="flex items-center gap-2 bg-slate-700/90 text-[11px] text-white">
                       <Award className="h-3.5 w-3.5" />
                       {certification.lab ?? 'Zertifiziert'}
                     </Badge>
-                  </div>
-                )}
-
-                {mediaItems.length > 1 && (
-                  <div className="absolute bottom-3 left-3 rounded-full bg-black/50 px-2 py-0.5 text-xs text-white">
-                    {index + 1} / {mediaItems.length}
                   </div>
                 )}
               </div>
@@ -240,7 +254,7 @@ export function MediaGallery({
             <Button
               size="icon"
               variant="secondary"
-              className="absolute left-3 top-1/2 hidden -translate-y-1/2 rounded-full bg-black/50 text-white shadow-lg transition hover:bg-black/70 md:flex"
+              className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-gray-800/80 text-white border border-white/20 shadow-lg transition hover:bg-gray-800/90 hover:border-white/30 flex"
               onClick={handlePrev}
               aria-label="Vorheriges Medium"
             >
@@ -249,7 +263,7 @@ export function MediaGallery({
             <Button
               size="icon"
               variant="secondary"
-              className="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-full bg-black/50 text-white shadow-lg transition hover:bg-black/70 md:flex"
+              className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-gray-800/80 text-white border border-white/20 shadow-lg transition hover:bg-gray-800/90 hover:border-white/30 flex"
               onClick={handleNext}
               aria-label="Nächstes Medium"
             >
@@ -260,40 +274,47 @@ export function MediaGallery({
       </div>
 
       {mediaItems.length > 1 && (
-        <div className="flex flex-wrap gap-3" role="tablist" aria-label="Medienauswahl">
-          {mediaItems.map((item, index) => {
-            const isActive = index === selectedIndex;
-            const thumbSrc = item.type === 'video' ? images[0] ?? PLACEHOLDER : item.src;
-            return (
-              <button
-                key={`${item.type}-${index}`}
-                type="button"
-                onClick={() => {
-                  setSelectedIndex(index);
-                  setIsVideoPlaying(null);
-                  scrollToIndex(index);
-                }}
-                className={cn(
-                  'relative h-16 w-16 overflow-hidden rounded-lg border-2 border-transparent transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                  isActive ? 'border-primary shadow-lg' : 'border-white/20'
-                )}
-                aria-label={`${item.type === 'video' ? 'Video' : 'Bild'} ${index + 1} auswählen`}
-              >
-                <Image
-                  src={thumbSrc || PLACEHOLDER}
-                  alt={`${gemName} Vorschau ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="64px"
-                />
-                {item.type === 'video' && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                    <Play className="h-4 w-4 text-white" />
+        <div className="bg-gray-900/70 border border-white/20 p-4 rounded-lg backdrop-blur" role="tablist" aria-label="Medienauswahl">
+          <p className="text-sm text-white/90 mb-4 font-semibold">Medien ({mediaItems.length}):</p>
+          <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
+            {mediaItems.map((item, index) => {
+              const isActive = index === selectedIndex;
+              const thumbSrc = item.type === 'video' ? images[0] ?? PLACEHOLDER : item.src;
+              return (
+                <button
+                  key={`${item.type}-${index}`}
+                  type="button"
+                  onClick={() => {
+                    setSelectedIndex(index);
+                    setIsVideoPlaying(null);
+                    scrollToIndex(index);
+                  }}
+                  className={cn(
+                    'relative flex-shrink-0 overflow-hidden rounded-lg border-2 transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    'h-[120px] w-[120px]',
+                    isActive ? 'border-primary shadow-lg ring-2 ring-primary/50 scale-105' : 'border-white/30 hover:border-white/50'
+                  )}
+                  aria-label={`${item.type === 'video' ? 'Video' : 'Bild'} ${index + 1} auswählen`}
+                >
+                  <Image
+                    src={thumbSrc || PLACEHOLDER}
+                    alt={`${gemName} Vorschau ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="120px"
+                  />
+                  {item.type === 'video' && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                      <Play className="h-10 w-10 text-white" />
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-sm px-2 py-1 text-center font-bold">
+                    {index + 1}
                   </div>
-                )}
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

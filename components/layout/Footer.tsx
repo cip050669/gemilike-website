@@ -96,8 +96,8 @@ export function Footer() {
                 <Image 
                   src="/logo.png" 
                   alt="Gemilike Logo" 
-                  width={180} 
-                  height={80} 
+                  width={120} 
+                  height={53} 
                   className="object-contain"
                   style={{ width: 'auto', height: 'auto' }}
                 />

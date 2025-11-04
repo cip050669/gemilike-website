@@ -107,7 +107,8 @@ export const toStringArray = (value: unknown): string[] => {
 export const normaliseGemstonePayload = (
   payload: Record<string, unknown>,
   uploadedImage?: string,
-  fallbackImages: string[] = []
+  fallbackImages: string[] = [],
+  isUpdate: boolean = false
 ) => {
   const collectedImages = toStringArray(payload.images ?? payload.existingImages ?? payload.imageUrls);
   let finalImages = collectedImages.length ? collectedImages : fallbackImages;
@@ -143,6 +144,7 @@ export const normaliseGemstonePayload = (
     featured: toBoolean(payload.featured, false),
     cut: toStringOrNull(payload.cut),
     cutForm: toStringOrNull(payload.cutForm),
+    rarity: toStringOrNull(payload.rarity),
     publishedAt: payload.publishedAt ? new Date(payload.publishedAt as string) : new Date(), // Set publishedAt when creating
   };
 
@@ -154,22 +156,61 @@ export const normaliseGemstonePayload = (
   if (payload.color || payload.colorIntensity || colorBrightness !== null || payload.clarity || 
       payload.treatment || payload.certification || payload.certificateId || payload.certificateUrl ||
       payload.lengthMm || payload.widthMm || payload.heightMm) {
-    gemstoneData.attributes = {
-      create: {
-        color: toStringOrNull(payload.color),
-        colorSaturation: toStringOrNull(payload.colorIntensity),
-        colorBrightness: colorBrightness !== null ? Math.max(0, Math.min(10, Math.round(colorBrightness))) : null,
-        colorHue: toStringOrNull(payload.colorHue),
-        clarity: toStringOrNull(payload.clarity),
-        treatment: toStringOrNull(payload.treatment),
-        certification: toStringOrNull(payload.certification),
-        certificateId: toStringOrNull(payload.certificateId),
-        certificateUrl: toStringOrNull(payload.certificateUrl),
-        lengthMm: payload.lengthMm ? toNumber(payload.lengthMm, null) : null,
-        widthMm: payload.widthMm ? toNumber(payload.widthMm, null) : null,
-        heightMm: payload.heightMm ? toNumber(payload.heightMm, null) : null,
-      },
-    };
+    if (isUpdate) {
+      // For updates, use upsert with gemstoneId as unique constraint
+      gemstoneData.attributes = {
+        upsert: {
+          where: {
+            gemstoneId: payload.id as string,
+          },
+          create: {
+            color: toStringOrNull(payload.color),
+            colorSaturation: toStringOrNull(payload.colorIntensity),
+            colorBrightness: colorBrightness !== null ? Math.max(0, Math.min(10, Math.round(colorBrightness))) : null,
+            colorHue: toStringOrNull(payload.colorHue),
+            clarity: toStringOrNull(payload.clarity),
+            treatment: toStringOrNull(payload.treatment),
+            certification: toStringOrNull(payload.certification),
+            certificateId: toStringOrNull(payload.certificateId),
+            certificateUrl: toStringOrNull(payload.certificateUrl),
+            lengthMm: payload.lengthMm ? toNumber(payload.lengthMm, null) : null,
+            widthMm: payload.widthMm ? toNumber(payload.widthMm, null) : null,
+            heightMm: payload.heightMm ? toNumber(payload.heightMm, null) : null,
+          },
+          update: {
+            color: toStringOrNull(payload.color),
+            colorSaturation: toStringOrNull(payload.colorIntensity),
+            colorBrightness: colorBrightness !== null ? Math.max(0, Math.min(10, Math.round(colorBrightness))) : null,
+            colorHue: toStringOrNull(payload.colorHue),
+            clarity: toStringOrNull(payload.clarity),
+            treatment: toStringOrNull(payload.treatment),
+            certification: toStringOrNull(payload.certification),
+            certificateId: toStringOrNull(payload.certificateId),
+            certificateUrl: toStringOrNull(payload.certificateUrl),
+            lengthMm: payload.lengthMm ? toNumber(payload.lengthMm, null) : null,
+            widthMm: payload.widthMm ? toNumber(payload.widthMm, null) : null,
+            heightMm: payload.heightMm ? toNumber(payload.heightMm, null) : null,
+          },
+        },
+      };
+    } else {
+      gemstoneData.attributes = {
+        create: {
+          color: toStringOrNull(payload.color),
+          colorSaturation: toStringOrNull(payload.colorIntensity),
+          colorBrightness: colorBrightness !== null ? Math.max(0, Math.min(10, Math.round(colorBrightness))) : null,
+          colorHue: toStringOrNull(payload.colorHue),
+          clarity: toStringOrNull(payload.clarity),
+          treatment: toStringOrNull(payload.treatment),
+          certification: toStringOrNull(payload.certification),
+          certificateId: toStringOrNull(payload.certificateId),
+          certificateUrl: toStringOrNull(payload.certificateUrl),
+          lengthMm: payload.lengthMm ? toNumber(payload.lengthMm, null) : null,
+          widthMm: payload.widthMm ? toNumber(payload.widthMm, null) : null,
+          heightMm: payload.heightMm ? toNumber(payload.heightMm, null) : null,
+        },
+      };
+    }
   }
 
   // Inventory relation data
@@ -178,31 +219,73 @@ export const normaliseGemstonePayload = (
   const quantity = toNumber(payload.stock ?? payload.quantity, 1) ?? 1;
   
   if (caratWeight !== null || gramWeight !== null || quantity > 0 || payload.sku) {
-    gemstoneData.inventory = {
-      create: {
-        caratWeight: caratWeight ? caratWeight : null,
-        gramWeight: gramWeight ? gramWeight : null,
-        quantity: quantity,
-        sku: toStringOrNull(payload.sku),
-        condition: (payload.condition as string) || 'CUT',
-      },
-    };
+    if (isUpdate) {
+      // For updates, use upsert with gemstoneId as unique constraint
+      gemstoneData.inventory = {
+        upsert: {
+          where: {
+            gemstoneId: payload.id as string,
+          },
+          create: {
+            caratWeight: caratWeight ? caratWeight : null,
+            gramWeight: gramWeight ? gramWeight : null,
+            quantity: quantity,
+            sku: toStringOrNull(payload.sku),
+            condition: (payload.condition as string) || 'CUT',
+          },
+          update: {
+            caratWeight: caratWeight !== undefined ? (caratWeight ? caratWeight : null) : undefined,
+            gramWeight: gramWeight !== undefined ? (gramWeight ? gramWeight : null) : undefined,
+            quantity: quantity,
+            sku: payload.sku !== undefined ? toStringOrNull(payload.sku) : undefined,
+            condition: payload.condition ? (payload.condition as string) : undefined,
+          },
+        },
+      };
+    } else {
+      gemstoneData.inventory = {
+        create: {
+          caratWeight: caratWeight ? caratWeight : null,
+          gramWeight: gramWeight ? gramWeight : null,
+          quantity: quantity,
+          sku: toStringOrNull(payload.sku),
+          condition: (payload.condition as string) || 'CUT',
+        },
+      };
+    }
   }
 
   // Price relation data
   const priceNet = toNumber(payload.price ?? payload.priceNet, 0) ?? 0;
-  if (priceNet > 0) {
+  if (priceNet > 0 || isUpdate) {
     const taxRate = toNumber(payload.taxRate, 19) ?? 19;
-    const priceGross = priceNet * (1 + taxRate / 100);
+    const priceGross = priceNet > 0 ? priceNet * (1 + taxRate / 100) : 0;
     
-    gemstoneData.priceBooks = {
-      create: {
-        currency: String(payload.currency ?? 'EUR'),
-        priceNet: priceNet,
-        priceGross: priceGross,
-        taxRate: taxRate,
-      },
-    };
+    if (isUpdate) {
+      // For updates, create a new price entry (historical pricing)
+      if (priceNet > 0) {
+        gemstoneData.priceBooks = {
+          create: {
+            currency: String(payload.currency ?? 'EUR'),
+            priceNet: priceNet,
+            priceGross: priceGross,
+            taxRate: taxRate,
+          },
+        };
+      }
+    } else {
+      // For creates, always create price entry
+      if (priceNet > 0) {
+        gemstoneData.priceBooks = {
+          create: {
+            currency: String(payload.currency ?? 'EUR'),
+            priceNet: priceNet,
+            priceGross: priceGross,
+            taxRate: taxRate,
+          },
+        };
+      }
+    }
   }
 
   // Media relation data (images and videos)
@@ -229,8 +312,21 @@ export const normaliseGemstonePayload = (
   });
 
   if (mediaCreate.length > 0) {
+    if (isUpdate) {
+      // For updates, delete existing media and create new ones
+      gemstoneData.media = {
+        deleteMany: {},
+        create: mediaCreate,
+      };
+    } else {
+      gemstoneData.media = {
+        create: mediaCreate,
+      };
+    }
+  } else if (isUpdate && payload.images !== undefined && payload.videos !== undefined) {
+    // If explicitly setting empty arrays, delete all media
     gemstoneData.media = {
-      create: mediaCreate,
+      deleteMany: {},
     };
   }
 

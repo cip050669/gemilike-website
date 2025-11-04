@@ -84,7 +84,7 @@ export const toShopGemstone = (gem: GemstoneWithRelations): ShopGemstone => {
     description: gem.longDescription ?? gem.shortDescription ?? null,
     shortDescription: gem.shortDescription ?? null,
     certification: attributes?.certification ?? null,
-    rarity: extractRarity(attributes?.metadata),
+    rarity: gem.rarity ?? extractRarity(attributes?.metadata),
     dimensions: {
       length: decimalToNumber(attributes?.lengthMm),
       width: decimalToNumber(attributes?.widthMm),

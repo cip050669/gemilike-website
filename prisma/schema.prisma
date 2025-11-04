@@ -7,137 +7,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  CUSTOMER
-  ADMIN
-  EDITOR
-  VIEWER
-}
-
-enum GemstoneStatus {
-  DRAFT
-  REVIEW
-  PUBLISHED
-  ARCHIVED
-}
-
-enum GemstoneCondition {
-  CUT
-  ROUGH
-}
-
-enum MediaType {
-  IMAGE
-  VIDEO
-}
-
-enum PriceDiscountType {
-  PERCENTAGE
-  AMOUNT
-}
-
-enum CartStatus {
-  ACTIVE
-  CHECKED_OUT
-  ABANDONED
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  FULFILLED
-  CANCELLED
-  REFUNDED
-}
-
-enum PaymentStatus {
-  UNPAID
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
-}
-
-enum PaymentMethod {
-  BANK_TRANSFER
-  CREDIT_CARD
-  PAYPAL
-  SEPA
-  OTHER
-}
-
-enum DownloadResourceType {
-  CERTIFICATE
-  INVOICE
-  MEDIA
-  DOCUMENT
-  OTHER
-}
-
-enum InvoiceStatus {
-  DRAFT
-  ISSUED
-  SENT
-  OVERDUE
-  PAID
-  CANCELLED
-}
-
-enum AddressType {
-  BILLING
-  SHIPPING
-  OTHER
-}
-
-enum KycStatus {
-  NOT_REQUIRED
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 model Account {
-  id                String   @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  id                   String    @id @default(cuid())
+  userId               String
+  type                 String
+  provider             String
+  providerAccountId    String
+  refresh_token        String?
+  access_token         String?
+  expires_at           Int?
+  token_type           String?
+  scope                String?
+  id_token             String?
+  session_state        String?
   access_token_expires DateTime?
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
 model Address {
-  id         String      @id @default(cuid())
-  customerId String
-  type       AddressType?
-  company    String?
-  salutation String?
-  firstName  String?
-  lastName   String?
-  street     String?
-  street2    String?
-  postalCode String?
-  city       String?
-  state      String?
-  country    String      @default("DE")
-  phone      String?
-  isDefault  Boolean     @default(false)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  billingCustomer  Customer? @relation("CustomerBillingAddress")
-  shippingCustomer Customer? @relation("CustomerShippingAddress")
-  billingOrders    Order[]   @relation("OrderBillingAddress")
-  shippingOrders   Order[]   @relation("OrderShippingAddress")
+  id               String       @id @default(cuid())
+  customerId       String
+  type             AddressType?
+  company          String?
+  salutation       String?
+  firstName        String?
+  lastName         String?
+  street           String?
+  street2          String?
+  postalCode       String?
+  city             String?
+  state            String?
+  country          String       @default("DE")
+  phone            String?
+  isDefault        Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  customer         Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  billingCustomer  Customer?    @relation("CustomerBillingAddress")
+  shippingCustomer Customer?    @relation("CustomerShippingAddress")
+  billingOrders    Order[]      @relation("OrderBillingAddress")
+  shippingOrders   Order[]      @relation("OrderShippingAddress")
 }
 
 model AuditLog {
@@ -150,7 +61,7 @@ model AuditLog {
   userAgent String?
   metadata  Json?
   createdAt DateTime @default(now())
-  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actor     User?    @relation(fields: [actorId], references: [id])
 }
 
 model BankAccount {
@@ -168,49 +79,49 @@ model BankAccount {
 }
 
 model Blog {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  slug        String   @unique
+  slug        String    @unique
   content     String
   excerpt     String?
   author      String
   category    String
   tags        String?
   image       String?
-  published   Boolean  @default(false)
+  published   Boolean   @default(false)
   publishedAt DateTime?
-  views       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Cart {
-  id          String      @id @default(cuid())
-  customerId  String?
-  sessionId   String?
-  status      CartStatus  @default(ACTIVE)
-  currency    String      @default("EUR")
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  items       CartItem[]
-  orders      Order[]     @relation("CartOrders")
+  id             String          @id @default(cuid())
+  customerId     String?
+  sessionId      String?
+  status         CartStatus      @default(ACTIVE)
+  currency       String          @default("EUR")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  customer       Customer?       @relation(fields: [customerId], references: [id])
+  items          CartItem[]
   checkoutEvents CheckoutEvent[]
+  orders         Order[]         @relation("CartOrders")
 
   @@index([sessionId])
 }
 
 model CartItem {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   cartId        String
   gemstoneId    String
-  quantity      Int       @default(1)
-  priceSnapshot Decimal   @db.Decimal(12, 2)
+  quantity      Int      @default(1)
+  priceSnapshot Decimal  @db.Decimal(12, 2)
   metadata      Json?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  cart          Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  gemstone      Gemstone  @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  cart          Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  gemstone      Gemstone @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
 
   @@unique([cartId, gemstoneId])
 }
@@ -265,100 +176,101 @@ model Coupon {
 }
 
 model Customer {
-  id                String        @id @default(cuid())
-  userId            String        @unique
-  customerNumber    String        @unique
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  customerNumber    String          @unique
   firstName         String?
   lastName          String?
   company           String?
   email             String?
   phone             String?
-  preferredLanguage String        @default("de")
-  marketingOptIn    Boolean       @default(false)
-  kycStatus         KycStatus     @default(NOT_REQUIRED)
-  billingAddressId  String? @unique
-  shippingAddressId String? @unique
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingAddress    Address?      @relation("CustomerBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
-  shippingAddress   Address?      @relation("CustomerShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  preferredLanguage String          @default("de")
+  marketingOptIn    Boolean         @default(false)
+  kycStatus         KycStatus       @default(NOT_REQUIRED)
+  billingAddressId  String?         @unique
+  shippingAddressId String?         @unique
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
   addresses         Address[]
-  wishlists         Wishlist[]
   carts             Cart[]
-  orders            Order[]
-  downloadGrants     DownloadGrant[]
-  invoices          Invoice[]
-  reviews           Review[]
   checkoutEvents    CheckoutEvent[]
+  billingAddress    Address?        @relation("CustomerBillingAddress", fields: [billingAddressId], references: [id])
+  shippingAddress   Address?        @relation("CustomerShippingAddress", fields: [shippingAddressId], references: [id])
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  downloadGrants    DownloadGrant[]
+  invoices          Invoice[]
+  orders            Order[]
+  reviews           Review[]
+  wishlists         Wishlist[]
 }
 
 model Gemstone {
-  id               String             @id @default(cuid())
-  slug             String             @unique
-  status           GemstoneStatus     @default(DRAFT)
+  id               String              @id @default(cuid())
+  slug             String              @unique
+  status           GemstoneStatus      @default(DRAFT)
   category         String
   name             String
   shortDescription String?
   longDescription  String?
   origin           String?
-  condition        GemstoneCondition  @default(CUT)
-  isNew            Boolean            @default(false)
-  isSold           Boolean            @default(false)
-  featured         Boolean            @default(false)
+  condition        GemstoneCondition   @default(CUT)
+  isNew            Boolean             @default(false)
+  isSold           Boolean             @default(false)
+  featured         Boolean             @default(false)
   cut              String?
   cutForm          String?
+  rarity           String?
   publishedAt      DateTime?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  inventory        GemstoneInventory?
-  attributes       GemstoneAttributes?
-  media            GemstoneMedia[]
-  tags             GemstoneTag[]
-  priceBooks       GemstonePrice[]
-  wishlistItems    WishlistItem[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
   cartItems        CartItem[]
-  orderItems       OrderItem[]
   downloadGrants   DownloadGrant[]
+  attributes       GemstoneAttributes?
+  inventory        GemstoneInventory?
+  media            GemstoneMedia[]
+  priceBooks       GemstonePrice[]
+  tags             GemstoneTag[]
+  orderItems       OrderItem[]
   reviews          Review[]
+  wishlistItems    WishlistItem[]
 }
 
 model GemstoneAttributes {
-  id             String            @id @default(cuid())
-  gemstoneId     String            @unique
-  lengthMm       Decimal?          @db.Decimal(10, 2)
-  widthMm        Decimal?          @db.Decimal(10, 2)
-  heightMm       Decimal?          @db.Decimal(10, 2)
-  color          String?
+  id              String   @id @default(cuid())
+  gemstoneId      String   @unique
+  lengthMm        Decimal? @db.Decimal(10, 2)
+  widthMm         Decimal? @db.Decimal(10, 2)
+  heightMm        Decimal? @db.Decimal(10, 2)
+  color           String?
   colorSaturation String?
-  colorHue       String?
-  colorBrightness Int?             // 0-10 (Weiß bis Schwarz)
-  clarity        String?
-  cutGrade       String?
-  treatment      String?
-  certification  String?
-  certificateId  String?
-  certificateUrl String?
-  metadata       Json?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  gemstone       Gemstone          @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+  colorHue        String?
+  clarity         String?
+  cutGrade        String?
+  treatment       String?
+  certification   String?
+  certificateId   String?
+  certificateUrl  String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  colorBrightness Int?
+  gemstone        Gemstone @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
 }
 
 model GemstoneInventory {
-  id               String            @id @default(cuid())
-  gemstoneId       String            @unique
-  sku              String?           @unique
-  condition        GemstoneCondition @default(CUT)
-  caratWeight      Decimal?          @db.Decimal(10, 3)
-  gramWeight       Decimal?          @db.Decimal(10, 3)
-  quantity         Int               @default(1)
+  id                String            @id @default(cuid())
+  gemstoneId        String            @unique
+  sku               String?           @unique
+  condition         GemstoneCondition @default(CUT)
+  caratWeight       Decimal?          @db.Decimal(10, 3)
+  gramWeight        Decimal?          @db.Decimal(10, 3)
+  quantity          Int               @default(1)
   warehouseLocation String?
-  availableFrom    DateTime?
-  availableTo      DateTime?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  gemstone         Gemstone          @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+  availableFrom     DateTime?
+  availableTo       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  gemstone          Gemstone          @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
 }
 
 model GemstoneMedia {
@@ -378,19 +290,19 @@ model GemstoneMedia {
 }
 
 model GemstonePrice {
-  id             String            @id @default(cuid())
-  gemstoneId     String
-  currency       String            @default("EUR")
-  priceNet       Decimal           @db.Decimal(12, 2)
-  priceGross     Decimal           @db.Decimal(12, 2)
-  taxRate        Decimal           @db.Decimal(5, 2)
-  discountType   PriceDiscountType?
-  discountValue  Decimal?          @db.Decimal(12, 2)
-  validFrom      DateTime?
-  validTo        DateTime?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  gemstone       Gemstone          @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+  id            String             @id @default(cuid())
+  gemstoneId    String
+  currency      String             @default("EUR")
+  priceNet      Decimal            @db.Decimal(12, 2)
+  priceGross    Decimal            @db.Decimal(12, 2)
+  taxRate       Decimal            @db.Decimal(5, 2)
+  discountType  PriceDiscountType?
+  discountValue Decimal?           @db.Decimal(12, 2)
+  validFrom     DateTime?
+  validTo       DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  gemstone      Gemstone           @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
 
   @@index([gemstoneId, validFrom, validTo])
 }
@@ -479,9 +391,9 @@ model Invoice {
   bankAccountId    String?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  bankAccount      BankAccount?  @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
-  order            Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  bankAccount      BankAccount?  @relation(fields: [bankAccountId], references: [id])
   customer         Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  order            Order?        @relation(fields: [orderId], references: [id])
   items            InvoiceItem[]
 }
 
@@ -513,7 +425,7 @@ model FooterLink {
   id        String   @id @default(cuid())
   text      String
   url       String
-  section   String   // 'about' | 'legal'
+  section   String
   order     Int      @default(0)
   locale    String   @default("de")
   isActive  Boolean  @default(true)
@@ -526,7 +438,7 @@ model FooterLink {
 
 model FooterSection {
   id        String   @id @default(cuid())
-  section   String   // 'about' | 'legal'
+  section   String
   title     String
   locale    String   @default("de")
   createdAt DateTime @default(now())
@@ -537,14 +449,14 @@ model FooterSection {
 }
 
 model LegalPage {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  content     String
-  locale      String   @default("de")
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  content   String
+  locale    String   @default("de")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([slug, locale])
   @@index([slug, locale])
@@ -566,7 +478,7 @@ model KnowledgeBase {
   locale          String    @default("de")
   metaDescription String?
   readingTime     Int?
-  difficulty      String?   // 'beginner' | 'intermediate' | 'advanced'
+  difficulty      String?
   publishedAt     DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -578,16 +490,16 @@ model KnowledgeBase {
 }
 
 model AboutContent {
-  id          String   @id @default(cuid())
-  section     String   // 'title', 'subtitle', 'intro1', 'intro2', 'mission', 'missionDesc', 'values', 'valuesDesc', 'expertise', 'expertiseDesc', 'quality', 'qualityDesc'
-  title       String?
-  content     String
-  image       String?
-  order       Int      @default(0)
-  locale      String   @default("de")
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  section   String
+  title     String?
+  content   String
+  image     String?
+  order     Int      @default(0)
+  locale    String   @default("de")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([section, locale])
   @@index([section, locale])
@@ -599,8 +511,8 @@ model Service {
   slug        String   @unique
   title       String
   description String
-  icon        String?  // Icon name from lucide-react
-  features    String[] @default([]) // Array of feature strings
+  icon        String?
+  features    String[] @default([])
   order       Int      @default(0)
   locale      String   @default("de")
   isActive    Boolean  @default(true)
@@ -625,18 +537,18 @@ model Location {
   updatedAt   DateTime @updatedAt
   countryId   String
   gemTypeId   String
-  gemType     GemType  @relation(fields: [gemTypeId], references: [id], onDelete: Cascade)
   country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  gemType     GemType  @relation(fields: [gemTypeId], references: [id], onDelete: Cascade)
 }
 
 model GemType {
-  id          String    @id @default(cuid())
-  name        String    @unique
+  id          String     @id @default(cuid())
+  name        String     @unique
   color       String?
   description String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   locations   Location[]
 }
 
@@ -662,50 +574,49 @@ model NavigationItem {
 }
 
 model NewsletterSubscriber {
-  id             String   @id @default(cuid())
-  email          String   @unique
+  id             String    @id @default(cuid())
+  email          String    @unique
   name           String?
-  status         String   @default("PENDING")
-  locale         String   @default("de")
+  status         String    @default("PENDING")
+  locale         String    @default("de")
   source         String?
   tags           String?
-  subscribedAt   DateTime @default(now())
+  subscribedAt   DateTime  @default(now())
   confirmedAt    DateTime?
   unsubscribedAt DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model NewstickerItem {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   message   String
-  type      String   @default("info")
+  type      String    @default("info")
   link      String?
   linkText  String?
-  isActive  Boolean  @default(true)
+  isActive  Boolean   @default(true)
   startDate DateTime?
   endDate   DateTime?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model CheckoutEvent {
-  id          String   @id @default(cuid())
-  cartId      String?
-  customerId  String?
-  sessionId   String?
-  step        String   // 'start', 'address', 'payment', 'shipping', 'coupon', 'review', 'submit', 'success', 'abandon'
-  stepOrder   Int      // Reihenfolge des Schritts (1, 2, 3, etc.)
-  duration    Int?     // Verweilzeit in Millisekunden
-  metadata    Json?    // Zusätzliche Daten (z.B. Felder ausgefüllt, Fehler)
-  error       String?  // Fehlermeldung, falls vorhanden
-  completed   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  
-  cart        Cart?    @relation(fields: [cartId], references: [id], onDelete: SetNull)
-  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  
+  id         String    @id @default(cuid())
+  cartId     String?
+  customerId String?
+  sessionId  String?
+  step       String
+  stepOrder  Int
+  duration   Int?
+  metadata   Json?
+  error      String?
+  completed  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  cart       Cart?     @relation(fields: [cartId], references: [id])
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
   @@index([cartId])
   @@index([customerId])
   @@index([sessionId])
@@ -715,18 +626,18 @@ model CheckoutEvent {
 }
 
 model Order {
-  id                String        @id @default(cuid())
-  orderNumber       String        @unique
+  id                String          @id @default(cuid())
+  orderNumber       String          @unique
   customerId        String?
   cartId            String?
-  status            OrderStatus   @default(PENDING)
-  paymentStatus     PaymentStatus @default(UNPAID)
+  status            OrderStatus     @default(PENDING)
+  paymentStatus     PaymentStatus   @default(UNPAID)
   paymentMethod     PaymentMethod?
-  subtotal          Decimal       @db.Decimal(12, 2)
-  taxAmount         Decimal       @db.Decimal(12, 2)
-  shippingAmount    Decimal       @db.Decimal(12, 2)
-  total             Decimal       @db.Decimal(12, 2)
-  currency          String        @default("EUR")
+  subtotal          Decimal         @db.Decimal(12, 2)
+  taxAmount         Decimal         @db.Decimal(12, 2)
+  shippingAmount    Decimal         @db.Decimal(12, 2)
+  total             Decimal         @db.Decimal(12, 2)
+  currency          String          @default("EUR")
   notes             String?
   placedAt          DateTime?
   paidAt            DateTime?
@@ -734,15 +645,15 @@ model Order {
   fulfillmentData   Json?
   billingAddressId  String?
   shippingAddressId String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  customer          Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  cart              Cart?         @relation("CartOrders", fields: [cartId], references: [id], onDelete: SetNull)
-  billingAddress    Address?      @relation("OrderBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
-  shippingAddress   Address?      @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
-  invoice           Invoice?
-  items             OrderItem[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
   downloadGrants    DownloadGrant[]
+  invoice           Invoice?
+  billingAddress    Address?        @relation("OrderBillingAddress", fields: [billingAddressId], references: [id])
+  cart              Cart?           @relation("CartOrders", fields: [cartId], references: [id])
+  customer          Customer?       @relation(fields: [customerId], references: [id])
+  shippingAddress   Address?        @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id])
+  items             OrderItem[]
 }
 
 model OrderItem {
@@ -758,8 +669,8 @@ model OrderItem {
   description        String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+  gemstone           Gemstone? @relation(fields: [gemstoneId], references: [id])
   order              Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  gemstone           Gemstone? @relation(fields: [gemstoneId], references: [id], onDelete: SetNull)
   reviews            Review[]
 }
 
@@ -776,19 +687,19 @@ model PictogramDescription {
 }
 
 model Review {
-  id          String    @id @default(cuid())
+  id          String     @id @default(cuid())
   customerId  String?
   orderItemId String?
   gemstoneId  String?
   rating      Int
   title       String?
   comment     String?
-  verified    Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
-  gemstone    Gemstone? @relation(fields: [gemstoneId], references: [id], onDelete: SetNull)
+  verified    Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  customer    Customer?  @relation(fields: [customerId], references: [id])
+  gemstone    Gemstone?  @relation(fields: [gemstoneId], references: [id])
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id])
 }
 
 model SelectOption {
@@ -813,18 +724,18 @@ model Session {
 }
 
 model Story {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   subtitle    String?
   content     String
   image       String?
   author      String?
   category    String?
-  published   Boolean  @default(false)
+  published   Boolean   @default(false)
   publishedAt DateTime?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Tag {
@@ -850,9 +761,9 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   accounts      Account[]
-  sessions      Session[]
   auditLogs     AuditLog[]
   customer      Customer?
+  sessions      Session[]
 }
 
 model VerificationToken {
@@ -864,27 +775,27 @@ model VerificationToken {
 }
 
 model Wishlist {
-  id         String       @id @default(cuid())
+  id         String         @id @default(cuid())
   customerId String?
   sessionId  String?
   name       String?
-  isPrimary  Boolean      @default(false)
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  customer   Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  isPrimary  Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  customer   Customer?      @relation(fields: [customerId], references: [id])
   items      WishlistItem[]
 
   @@index([sessionId])
 }
 
 model WishlistItem {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   wishlistId String
   gemstoneId String
   notes      String?
-  createdAt  DateTime  @default(now())
-  wishlist   Wishlist  @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
-  gemstone   Gemstone  @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  gemstone   Gemstone @relation(fields: [gemstoneId], references: [id], onDelete: Cascade)
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
 
   @@unique([wishlistId, gemstoneId])
 }
@@ -903,6 +814,95 @@ model DownloadGrant {
   lastDownloadedAt DateTime?
   metadata         Json?
   customer         Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  order            Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  gemstone         Gemstone?            @relation(fields: [gemstoneId], references: [id], onDelete: SetNull)
+  gemstone         Gemstone?            @relation(fields: [gemstoneId], references: [id])
+  order            Order?               @relation(fields: [orderId], references: [id])
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum GemstoneStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum GemstoneCondition {
+  CUT
+  ROUGH
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum PriceDiscountType {
+  PERCENTAGE
+  AMOUNT
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+  ABANDONED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  FULFILLED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CREDIT_CARD
+  PAYPAL
+  SEPA
+  OTHER
+}
+
+enum DownloadResourceType {
+  CERTIFICATE
+  INVOICE
+  MEDIA
+  DOCUMENT
+  OTHER
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  SENT
+  OVERDUE
+  PAID
+  CANCELLED
+}
+
+enum AddressType {
+  BILLING
+  SHIPPING
+  OTHER
+}
+
+enum KycStatus {
+  NOT_REQUIRED
+  PENDING
+  APPROVED
+  REJECTED
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { DragDropUpload } from './DragDropUpload';
 
 export type GemstoneFormValues = {
   id?: string;
@@ -9,6 +10,7 @@ export type GemstoneFormValues = {
   type: 'cut' | 'rough';
   cut: string;
   cutForm: string;
+  rarity: string;
   origin: string;
   price: string;
   weight: string;
@@ -185,12 +187,23 @@ const CERTIFICATION_OPTIONS: OptionItem[] = [
   'Keine Zertifizierung',
 ].map((value) => ({ value }));
 
+const RARITY_OPTIONS: OptionItem[] = [
+  'Gewöhnlich',
+  'Häufig',
+  'Selten',
+  'Sehr selten',
+  'Außergewöhnlich',
+  'Einzigartig',
+  'Museumsqualität',
+].map((value) => ({ value }));
+
 const EMPTY_FORM: GemstoneFormValues = {
   name: '',
   gemstoneType: '',
   type: 'cut',
   cut: '',
   cutForm: '',
+  rarity: '',
   origin: '',
   price: '',
   weight: '',
@@ -222,6 +235,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
         ...initialValues,
         cut: initialValues.cut ?? '',
         cutForm: initialValues.cutForm ?? '',
+        rarity: initialValues.rarity ?? '',
         colorBrightness: initialValues.colorBrightness ?? 5,
         images: initialValues.images.length ? initialValues.images.slice(0, 10) : [''],
         videos: initialValues.videos.length ? initialValues.videos.slice(0, 2) : [''],
@@ -273,6 +287,18 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Validate required fields manually
+    if (!formValues.name || !formValues.name.trim()) {
+      alert('Bitte geben Sie einen Namen ein.');
+      return;
+    }
+    if (!formValues.gemstoneType || !formValues.gemstoneType.trim()) {
+      alert('Bitte wählen Sie einen Edelstein-Typ.');
+      return;
+    }
+    
     onSubmit(formValues);
   };
 
@@ -316,7 +342,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
 
         {/* Form */}
         <div className="border-white/10 bg-gray-800/50/50 rounded-lg shadow-sm border p-6">
-          <form id="gemstone-editor-form" onSubmit={handleSubmit} className="space-y-6">
+          <form id="gemstone-editor-form" onSubmit={handleSubmit} className="space-y-6" noValidate>
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
@@ -329,7 +355,6 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   id="gem-name"
                   value={formValues.name}
                   onChange={(event) => handleChange('name', event.target.value)}
-                  required
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                   placeholder="z.B. Smaragd, Rubin, Diamant"
                 />
@@ -365,7 +390,6 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   id="gem-type"
                   value={formValues.type}
                   onChange={(e) => handleChange('type', e.target.value as 'cut' | 'rough')}
-                  required
                   className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                 >
                   <option value="cut">Geschliffen</option>
@@ -382,7 +406,6 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   id="gemstoneType"
                   value={formValues.gemstoneType}
                   onChange={(e) => handleChange('gemstoneType', e.target.value)}
-                  required
                   className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                 >
                   <option value="">Edelsteinart wählen</option>
@@ -464,43 +487,58 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               </div>
 
               {/* Schliff */}
-              {formValues.type === 'cut' && (
-                <>
-                  <div className="flex flex-col">
-                    <label htmlFor="cut" className="block text-sm font-medium text-gray-200 mb-2">
-                      Schliff
-                    </label>
-                    <select
-                      id="cut"
-                      value={formValues.cut}
-                      onChange={(e) => handleChange('cut', e.target.value)}
-                      className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
-                    >
-                      <option value="">Schliff wählen</option>
-                      {CUT_STYLE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.value}</option>
-                      ))}
-                    </select>
-                  </div>
+              <div className="flex flex-col">
+                <label htmlFor="cut" className="block text-sm font-medium text-gray-200 mb-2">
+                  Schliff
+                </label>
+                <select
+                  id="cut"
+                  value={formValues.cut}
+                  onChange={(e) => handleChange('cut', e.target.value)}
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                >
+                  <option value="">Schliff wählen</option>
+                  {CUT_STYLE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.value}</option>
+                  ))}
+                </select>
+              </div>
 
-                  <div className="flex flex-col">
-                    <label htmlFor="cutForm" className="block text-sm font-medium text-gray-200 mb-2">
-                      Schliffform
-                    </label>
-                    <select
-                      id="cutForm"
-                      value={formValues.cutForm}
-                      onChange={(e) => handleChange('cutForm', e.target.value)}
-                      className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
-                    >
-                      <option value="">Schliffform wählen</option>
-                      {CUT_FORM_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.value}</option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
+              {/* Schliffform */}
+              <div className="flex flex-col">
+                <label htmlFor="cutForm" className="block text-sm font-medium text-gray-200 mb-2">
+                  Schliffform
+                </label>
+                <select
+                  id="cutForm"
+                  value={formValues.cutForm}
+                  onChange={(e) => handleChange('cutForm', e.target.value)}
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                >
+                  <option value="">Schliffform wählen</option>
+                  {CUT_FORM_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.value}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Rarität */}
+              <div className="flex flex-col">
+                <label htmlFor="rarity" className="block text-sm font-medium text-gray-200 mb-2">
+                  Rarität
+                </label>
+                <select
+                  id="rarity"
+                  value={formValues.rarity}
+                  onChange={(e) => handleChange('rarity', e.target.value)}
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                >
+                  <option value="">Rarität wählen</option>
+                  {RARITY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.value}</option>
+                  ))}
+                </select>
+              </div>
 
               {/* Reinheit */}
               <div className="flex flex-col">
@@ -644,40 +682,59 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               <label htmlFor="images" className="block text-sm font-medium text-gray-200 mb-2">
                 Bilder
               </label>
-              <div className="space-y-2">
-                {formValues.images.map((image, index) => (
-                  <div key={index} className="flex gap-2">
-                    <input
-                      type="url"
-                      value={image}
-                      onChange={(e) => updateArrayValue('images', index, e.target.value)}
-                      placeholder="https://..."
-                      className="flex-1 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
-                    />
-                    {formValues.images.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeArrayField('images', index)}
-                        className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {formValues.images.length < 10 && (
-                  <button
-                    type="button"
-                    onClick={() => addArrayField('images', 10)}
-                    className="text-sm text-blue-400 hover:text-blue-300"
-                  >
-                    + Bild hinzufügen
-                  </button>
-                )}
+              
+              {/* Drag & Drop Upload */}
+              <div className="mb-4">
+                <DragDropUpload
+                  accept="image"
+                  multiple={true}
+                  maxFiles={10}
+                  existingUrls={formValues.images.filter(Boolean)}
+                  onUploadComplete={(urls) => {
+                    // Ensure we have at least one empty field if no images
+                    const newImages = urls.length > 0 ? urls : [''];
+                    handleChange('images', newImages);
+                  }}
+                />
               </div>
-              <p className="text-sm text-gray-500 mt-1">
-                Sie können bis zu 10 Bilder als URLs eingeben
-              </p>
+
+              {/* URL Input Fallback */}
+              <details className="mt-4">
+                <summary className="text-sm text-gray-400 cursor-pointer hover:text-gray-300 mb-2">
+                  Oder URLs manuell eingeben
+                </summary>
+                <div className="space-y-2 mt-2">
+                  {formValues.images.map((image, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="url"
+                        value={image}
+                        onChange={(e) => updateArrayValue('images', index, e.target.value)}
+                        placeholder="https://..."
+                        className="flex-1 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                      />
+                      {formValues.images.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeArrayField('images', index)}
+                          className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {formValues.images.length < 10 && (
+                    <button
+                      type="button"
+                      onClick={() => addArrayField('images', 10)}
+                      className="text-sm text-blue-400 hover:text-blue-300"
+                    >
+                      + Bild hinzufügen
+                    </button>
+                  )}
+                </div>
+              </details>
             </div>
 
             {/* Videos Upload */}
@@ -685,37 +742,59 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               <label htmlFor="videos" className="block text-sm font-medium text-gray-200 mb-2">
                 Videos
               </label>
-              <div className="space-y-2">
-                {formValues.videos.map((video, index) => (
-                  <div key={index} className="flex gap-2">
-                    <input
-                      type="url"
-                      value={video}
-                      onChange={(e) => updateArrayValue('videos', index, e.target.value)}
-                      placeholder="https://..."
-                      className="flex-1 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
-                    />
-                    {formValues.videos.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeArrayField('videos', index)}
-                        className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {formValues.videos.length < 2 && (
-                  <button
-                    type="button"
-                    onClick={() => addArrayField('videos', 2)}
-                    className="text-sm text-blue-400 hover:text-blue-300"
-                  >
-                    + Video hinzufügen
-                  </button>
-                )}
+              
+              {/* Drag & Drop Upload */}
+              <div className="mb-4">
+                <DragDropUpload
+                  accept="video"
+                  multiple={true}
+                  maxFiles={2}
+                  existingUrls={formValues.videos.filter(Boolean)}
+                  onUploadComplete={(urls) => {
+                    // Ensure we have at least one empty field if no videos
+                    const newVideos = urls.length > 0 ? urls : [''];
+                    handleChange('videos', newVideos);
+                  }}
+                />
               </div>
+
+              {/* URL Input Fallback */}
+              <details className="mt-4">
+                <summary className="text-sm text-gray-400 cursor-pointer hover:text-gray-300 mb-2">
+                  Oder URLs manuell eingeben
+                </summary>
+                <div className="space-y-2 mt-2">
+                  {formValues.videos.map((video, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="url"
+                        value={video}
+                        onChange={(e) => updateArrayValue('videos', index, e.target.value)}
+                        placeholder="https://..."
+                        className="flex-1 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                      />
+                      {formValues.videos.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeArrayField('videos', index)}
+                          className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {formValues.videos.length < 2 && (
+                    <button
+                      type="button"
+                      onClick={() => addArrayField('videos', 2)}
+                      className="text-sm text-blue-400 hover:text-blue-300"
+                    >
+                      + Video hinzufügen
+                    </button>
+                  )}
+                </div>
+              </details>
             </div>
 
             {/* Status Checkboxes */}

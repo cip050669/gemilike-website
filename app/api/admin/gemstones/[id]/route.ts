@@ -69,13 +69,14 @@ export async function PUT(
 
     const basePayload = {
       ...payload,
+      id: id, // Add id for upsert operations
       name: payload.name ?? existing.name,
       category: payload.category ?? existing.category,
       condition: payload.condition ?? existing.condition,
       status: payload.status ?? existing.status, // Preserve status if not explicitly changed
     };
 
-    const data = normaliseGemstonePayload(basePayload, uploadedImage, fallbackImages);
+    const data = normaliseGemstonePayload(basePayload, uploadedImage, fallbackImages, true);
     
     // Check if gemstone is becoming available (was sold, now not sold, or inventory updated)
     const wasSold = existing.isSold;
@@ -111,8 +112,19 @@ export async function PUT(
     });
   } catch (error) {
     console.error('Error updating gemstone:', error);
+    let errorMessage = 'Failed to update gemstone';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      // Log stack trace for debugging
+      console.error('Error stack:', error.stack);
+    }
+    // Check for Prisma-specific errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      console.error('Prisma error code:', (error as any).code);
+      console.error('Prisma error meta:', (error as any).meta);
+    }
     return NextResponse.json(
-      { success: false, error: 'Failed to update gemstone' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

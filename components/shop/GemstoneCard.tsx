@@ -247,8 +247,8 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
             </div>
           )}
 
-          {/* Schliff - nur für geschliffene Edelsteine */}
-          {isCutGemstone(gemstone) && (
+          {/* Schliff */}
+          {gemstone.cut && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Gem" />
               <span className="text-muted-foreground">{t('cut')}:</span>
@@ -256,12 +256,26 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
             </div>
           )}
 
-          {/* Form - nur für geschliffene Edelsteine */}
-          {isCutGemstone(gemstone) && (
+          {/* Schliffform */}
+          {gemstone.cutForm && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Shapes" />
-              <span className="text-gem-text2">{t('form')}:</span>
-              <span className="font-medium">{gemstone.cutForm || 'Nicht angegeben'}</span>
+              <span className="text-gem-text2">Schliffform:</span>
+              <span className="font-medium">{gemstone.cutForm}</span>
+            </div>
+          )}
+
+          {/* Rarität */}
+          {gemstone.rarity && (
+            <div className="flex items-center gap-2" role="listitem">
+              <PictogramWithTooltip iconName="Sparkles" />
+              <span className="text-muted-foreground">Rarität:</span>
+              <Badge 
+                className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-800 border-purple-200 border"
+                aria-label={`Rarität: ${gemstone.rarity}`}
+              >
+                {gemstone.rarity}
+              </Badge>
             </div>
           )}
 

@@ -2,43 +2,71 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { DragDropUpload } from '@/components/admin/DragDropUpload';
 
 export default function NewGemstonePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [brightnessValue, setBrightnessValue] = useState(5);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     setIsSubmitting(true);
     setMessage('');
 
     try {
-      const formData = new FormData(e.currentTarget);
+      const form = e.currentTarget;
+      const formData = new FormData(form);
+      const gemstoneType = formData.get('type') || 'cut';
+      const caratValue = formData.get('carat');
+      const weightValue = caratValue && caratValue !== '' ? Number(caratValue) : null;
+      
+      // Validate name is required
+      const name = formData.get('name');
+      if (!name || String(name).trim() === '') {
+        setMessage('❌ Der Name des Edelsteins ist erforderlich.');
+        setIsSubmitting(false);
+        const nameInput = form.querySelector('#name') as HTMLInputElement;
+        if (nameInput) {
+          nameInput.focus();
+        }
+        return;
+      }
+      
       const data = {
         name: formData.get('name'),
         category: formData.get('category') || 'Edelstein',
-        type: formData.get('type') || 'cut',
-        price: formData.get('price'),
-        weight: formData.get('weight'),
-        dimensions: formData.get('dimensions'),
+        type: gemstoneType,
+        condition: gemstoneType === 'cut' ? 'CUT' : 'ROUGH',
+        price: formData.get('price') ? Number(formData.get('price')) : 0,
+        caratWeight: gemstoneType === 'cut' ? weightValue : null,
+        gramWeight: gemstoneType === 'rough' ? weightValue : null,
         color: formData.get('color'),
         colorIntensity: formData.get('colorIntensity'),
-        colorBrightness: formData.get('colorBrightness'),
+        colorBrightness: formData.get('colorBrightness') ? Number(formData.get('colorBrightness')) : null,
         clarity: formData.get('clarity'),
         cut: formData.get('cut'),
         cutForm: formData.get('cutForm'),
+        rarity: formData.get('rarity'),
         treatment: formData.get('treatment'),
         certification: formData.get('certification'),
-        rarity: formData.get('rarity'),
         origin: formData.get('origin'),
         description: formData.get('description'),
-        inStock: formData.get('inStock') === 'on',
-        stock: formData.get('stock'),
-        sku: formData.get('sku'),
-        isNew: formData.get('isNew') === 'on'
+        shortDescription: formData.get('description'),
+        inStock: formData.get('inStock') !== 'off',
+        isNew: formData.get('isNew') === 'on',
+        isSold: false,
+        images: uploadedImages.filter(Boolean),
+        videos: uploadedVideos.filter(Boolean),
+        status: 'PUBLISHED',
       };
+
+      console.log('Sending gemstone data:', data);
 
       const response = await fetch('/api/admin/gemstones', {
         method: 'POST',
@@ -48,18 +76,37 @@ export default function NewGemstonePage() {
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
+      console.log('Response status:', response.status);
+      
+      let result;
+      try {
+        const text = await response.text();
+        console.log('Response text:', text);
+        result = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        throw new Error('Ungültige Antwort vom Server');
+      }
+      
+      console.log('Response:', result);
+      
+      if (!response.ok) {
+        throw new Error(result.error || `Server-Fehler: ${response.status}`);
+      }
       
       if (result.success) {
-        setMessage('✅ ' + result.message);
+        setMessage('✅ ' + (result.message || 'Edelstein erfolgreich erstellt'));
         setTimeout(() => {
           router.push('/de/admin/gemstones');
-        }, 1000);
+          router.refresh();
+        }, 1500);
       } else {
-        setMessage('❌ ' + result.error);
+        throw new Error(result.error || 'Fehler beim Speichern');
       }
-    } catch {
-      setMessage('❌ Fehler beim Speichern');
+    } catch (error) {
+      console.error('Error saving gemstone:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
+      setMessage('❌ Fehler beim Speichern: ' + errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -99,7 +146,10 @@ export default function NewGemstonePage() {
 
         {/* Form */}
         <div className="border-white/10 bg-gray-800/50/50 rounded-lg shadow-sm border p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+            {/* Hidden field for type - default to cut */}
+            <input type="hidden" name="type" value="cut" />
+            
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
@@ -111,7 +161,7 @@ export default function NewGemstonePage() {
                   type="text"
                   id="name"
                   name="name"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                   placeholder="z.B. Smaragd, Rubin, Diamant"
                 />
               </div>
@@ -126,7 +176,8 @@ export default function NewGemstonePage() {
                   id="carat"
                   name="carat"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  min="0"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                   placeholder="z.B. 2.5"
                 />
               </div>
@@ -143,7 +194,7 @@ export default function NewGemstonePage() {
                 <select
                   id="color"
                   name="color"
-                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                 >
                   <option value="">Farbe wählen</option>
                   <option value="rot">Rot</option>
@@ -201,6 +252,7 @@ export default function NewGemstonePage() {
                       borderRadius: '6px',
                       outline: 'none'
                     }}
+                    formNoValidate
                   />
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Weiß (0)</span>
@@ -221,17 +273,68 @@ export default function NewGemstonePage() {
                 <select
                   id="cut"
                   name="cut"
-                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                 >
                   <option value="">Schliff wählen</option>
-                  <option value="brillant">Brillant</option>
-                  <option value="princess">Princess</option>
-                  <option value="emerald">Emerald</option>
-                  <option value="oval">Oval</option>
-                  <option value="marquise">Marquise</option>
-                  <option value="pear">Pear</option>
-                  <option value="cushion">Cushion</option>
-                  <option value="asscher">Asscher</option>
+                  <option value="Brillant">Brillant</option>
+                  <option value="Princess">Princess</option>
+                  <option value="Emerald">Emerald</option>
+                  <option value="Oval">Oval</option>
+                  <option value="Radiant">Radiant</option>
+                  <option value="Asscher">Asscher</option>
+                  <option value="Marquise">Marquise</option>
+                  <option value="Herz">Herz</option>
+                  <option value="Tropfen">Tropfen</option>
+                  <option value="Baguette">Baguette</option>
+                  <option value="Cushion">Cushion</option>
+                  <option value="Trillion">Trillion</option>
+                </select>
+              </div>
+
+              {/* Schliffform */}
+              <div className="flex flex-col">
+                <label htmlFor="cutForm" className="block text-sm font-medium text-gray-200 mb-2">
+                  Schliffform
+                </label>
+                <select
+                  id="cutForm"
+                  name="cutForm"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                >
+                  <option value="">Schliffform wählen</option>
+                  <option value="Rund">Rund</option>
+                  <option value="Oval">Oval</option>
+                  <option value="Kissen">Kissen</option>
+                  <option value="Herz">Herz</option>
+                  <option value="Tropfen">Tropfen</option>
+                  <option value="Marquise">Marquise</option>
+                  <option value="Princess">Princess</option>
+                  <option value="Brillant">Brillant</option>
+                  <option value="Smaragd">Smaragd</option>
+                  <option value="Baguette">Baguette</option>
+                  <option value="Asscher">Asscher</option>
+                  <option value="Trillion">Trillion</option>
+                </select>
+              </div>
+
+              {/* Rarität */}
+              <div className="flex flex-col">
+                <label htmlFor="rarity" className="block text-sm font-medium text-gray-200 mb-2">
+                  Rarität
+                </label>
+                <select
+                  id="rarity"
+                  name="rarity"
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                >
+                  <option value="">Rarität wählen</option>
+                  <option value="Gewöhnlich">Gewöhnlich</option>
+                  <option value="Häufig">Häufig</option>
+                  <option value="Selten">Selten</option>
+                  <option value="Sehr selten">Sehr selten</option>
+                  <option value="Außergewöhnlich">Außergewöhnlich</option>
+                  <option value="Einzigartig">Einzigartig</option>
+                  <option value="Museumsqualität">Museumsqualität</option>
                 </select>
               </div>
 
@@ -349,7 +452,8 @@ export default function NewGemstonePage() {
                   id="price"
                   name="price"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  min="0"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                   placeholder="z.B. 1500.00"
                 />
               </div>
@@ -364,60 +468,53 @@ export default function NewGemstonePage() {
                 id="description"
                 name="description"
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                 placeholder="Beschreiben Sie den Edelstein..."
               ></textarea>
             </div>
 
             {/* Bilder Upload */}
             <div>
-              <label htmlFor="images" className="block text-sm font-medium text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Bilder
               </label>
-              <input
-                type="file"
-                id="images"
-                name="images"
-                multiple
-                accept="image/*"
-                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <DragDropUpload
+                accept="image"
+                multiple={true}
+                maxFiles={10}
+                existingUrls={uploadedImages}
+                onUploadComplete={setUploadedImages}
               />
-              <p className="text-sm text-gray-500 mt-1">
-                Sie können mehrere Bilder gleichzeitig auswählen
-              </p>
             </div>
 
-            {/* Buttons */}
-            <div className="flex gap-4 pt-6">
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
-              >
-                Edelstein speichern
-              </button>
-              <form action="/de/admin/gemstones" method="get">
-                <button
-                  type="submit"
-                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
-                >
-                  Abbrechen
-                </button>
-              </form>
+            {/* Videos Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-200 mb-2 mt-6">
+                Videos
+              </label>
+              <DragDropUpload
+                accept="video"
+                multiple={true}
+                maxFiles={2}
+                existingUrls={uploadedVideos}
+                onUploadComplete={setUploadedVideos}
+              />
             </div>
 
             {/* Message */}
             {message && (
-              <div className={`p-4 rounded-lg ${message.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              <div className={`p-4 rounded-lg mt-4 ${message.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                 {message}
               </div>
             )}
 
-            {/* Submit Button */}
-            <div className="flex justify-end space-x-4">
+            {/* Buttons */}
+            <div className="flex justify-end gap-4 pt-6 border-t border-gray-700">
               <button
                 type="button"
                 onClick={() => router.push('/de/admin/gemstones')}
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
+                disabled={isSubmitting}
+                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Abbrechen
               </button>

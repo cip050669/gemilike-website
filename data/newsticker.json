@@ -11,15 +11,6 @@
     "subheadingColor": "#d1d5db"
   },
   {
-    "id": "newsticker-1761064969318-gktyd0stq",
-    "text": "dast ist ein testfall",
-    "type": "warning",
-    "priority": "medium",
-    "isActive": true,
-    "createdAt": "2025-10-21T16:42:49.318Z",
-    "updatedAt": "2025-10-21T16:42:49.318Z"
-  },
-  {
     "id": "newsticker-1762108268104-678ox7dzm",
     "text": "WIR SIND NEU! WIR SIND ANDERS! UND DOCH VERKAUFEN WIR AUCH ESELSTEINE",
     "type": "warning",

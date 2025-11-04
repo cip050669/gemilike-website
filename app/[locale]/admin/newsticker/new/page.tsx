@@ -1,6 +1,39 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function NewNewstickerPage() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const response = await fetch('/api/admin/newsticker', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        router.push('/de/admin/newsticker');
+        router.refresh();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Fehler beim Erstellen der Nachricht');
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Fehler beim Erstellen der Nachricht');
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
@@ -22,7 +55,7 @@ export default function NewNewstickerPage() {
 
         {/* Form */}
         <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
-          <form action="/api/admin/newsticker" method="POST" className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Nachricht */}
               <div className="md:col-span-2">
@@ -125,9 +158,10 @@ export default function NewNewstickerPage() {
               </Link>
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={isSubmitting}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Nachricht erstellen
+                {isSubmitting ? 'Wird erstellt...' : 'Nachricht erstellen'}
               </button>
             </div>
           </form>

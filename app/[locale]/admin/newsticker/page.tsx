@@ -1,8 +1,72 @@
-import { loadNewstickerData } from '@/lib/newsticker/data';
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { NewstickerItem } from '@/lib/types/newsticker';
 
 export default function NewstickerAdminPage() {
-  const items = loadNewstickerData();
+  const router = useRouter();
+  const [items, setItems] = useState<NewstickerItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadItems = async () => {
+      try {
+        const response = await fetch('/api/admin/newsticker');
+        const data = await response.json();
+        if (data.success) {
+          setItems(data.items || []);
+        }
+      } catch (error) {
+        console.error('Error loading newsticker items:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadItems();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Möchten Sie diese Nachricht wirklich löschen?')) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('_method', 'DELETE');
+      
+      const response = await fetch(`/api/admin/newsticker/${id}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        router.refresh();
+        // Reload items
+        const itemsResponse = await fetch('/api/admin/newsticker');
+        const itemsData = await itemsResponse.json();
+        if (itemsData.success) {
+          setItems(itemsData.items || []);
+        }
+      } else {
+        alert('Fehler beim Löschen der Nachricht');
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      alert('Fehler beim Löschen der Nachricht');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-800/50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-white">Laden...</div>
+        </div>
+      </div>
+    );
+  }
 
   // Helper functions
   const getPriorityColor = (priority: string) => {
@@ -147,15 +211,13 @@ export default function NewstickerAdminPage() {
                         >
                           Bearbeiten
                         </Link>
-                        <form action={`/api/admin/newsticker/${item.id}`} method="POST" className="inline">
-                          <input type="hidden" name="_method" value="DELETE" />
-                          <button
-                            type="submit"
-                            className="text-red-600 hover:text-red-900 text-sm font-medium"
-                          >
-                            Löschen
-                          </button>
-                        </form>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.id)}
+                          className="text-red-600 hover:text-red-900 text-sm font-medium"
+                        >
+                          Löschen
+                        </button>
                       </div>
                     </div>
                   </div>

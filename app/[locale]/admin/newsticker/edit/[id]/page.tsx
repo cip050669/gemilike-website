@@ -1,24 +1,102 @@
+'use client';
+
 import Link from 'next/link';
-import { loadNewstickerData } from '@/lib/newsticker/data';
-import { notFound } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import type { NewstickerItem } from '@/lib/types/newsticker';
 
-export default async function EditNewstickerPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const items = loadNewstickerData();
-  const item = items.find(item => item.id === id);
+export default function EditNewstickerPage() {
+  const router = useRouter();
+  const params = useParams();
+  const id = params?.id as string;
+  const [item, setItem] = useState<NewstickerItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (!item) {
-    notFound();
-  }
+  useEffect(() => {
+    const loadItem = async () => {
+      try {
+        const response = await fetch('/api/admin/newsticker');
+        const data = await response.json();
+        if (data.success) {
+          const foundItem = data.items?.find((it: NewstickerItem) => it.id === id);
+          if (foundItem) {
+            setItem(foundItem);
+          } else {
+            setItem(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading newsticker item:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) {
+      loadItem();
+    }
+  }, [id]);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
     return new Date(dateString).toISOString().slice(0, 16);
   };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      formData.append('_method', 'PUT');
+      
+      const response = await fetch(`/api/admin/newsticker/${id}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        router.push('/de/admin/newsticker');
+        router.refresh();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Fehler beim Speichern der Nachricht');
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Fehler beim Speichern der Nachricht');
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-800/50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-white">Laden...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!item) {
+    return (
+      <div className="min-h-screen bg-gray-800/50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-white text-center">
+            <h1 className="text-2xl font-bold mb-4">Nachricht nicht gefunden</h1>
+            <Link
+              href="/de/admin/newsticker"
+              className="text-blue-500 hover:underline"
+            >
+              ← Zurück zur Übersicht
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-800/50">
@@ -43,8 +121,7 @@ export default async function EditNewstickerPage({
 
         {/* Form */}
         <div className="bg-gray-800/30 rounded-lg shadow-sm border p-6">
-          <form action={`/api/admin/newsticker/${item.id}`} method="POST" className="space-y-6">
-            <input type="hidden" name="_method" value="PUT" />
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Nachricht */}
               <div className="md:col-span-2">
@@ -150,9 +227,10 @@ export default async function EditNewstickerPage({
               </Link>
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={isSubmitting}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Änderungen speichern
+                {isSubmitting ? 'Wird gespeichert...' : 'Änderungen speichern'}
               </button>
             </div>
           </form>

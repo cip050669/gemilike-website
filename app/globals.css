@@ -157,7 +157,7 @@ header[class*="fixed"] {
 }
 
 .gem-card {
-  background: linear-gradient(135deg, rgba(255, 148, 71, 0.28), rgba(0, 188, 212, 0.28), rgba(138, 92, 246, 0.2)) !important;
+  background: linear-gradient(135deg, rgba(255, 148, 71, 0.70), rgba(0, 188, 212, 0.70), rgba(138, 92, 246, 0.50)) !important;
   border-radius: 1rem;
   border: 1px solid rgba(0, 229, 255, 0.6);
   box-shadow: 

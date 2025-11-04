@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const data = normaliseGemstonePayload(payload, uploadedImage);
+    const data = normaliseGemstonePayload(payload, uploadedImage, [], false);
     console.log('POST /api/admin/gemstones - Normalized data:', JSON.stringify(data, null, 2));
     
     const gemstone = await prisma.gemstone.create({
@@ -186,7 +186,17 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating gemstone:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to create gemstone';
+    let errorMessage = 'Failed to create gemstone';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      // Log stack trace for debugging
+      console.error('Error stack:', error.stack);
+    }
+    // Check for Prisma-specific errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      console.error('Prisma error code:', (error as any).code);
+      console.error('Prisma error meta:', (error as any).meta);
+    }
     return NextResponse.json(
       { success: false, error: errorMessage },
       { status: 500 }

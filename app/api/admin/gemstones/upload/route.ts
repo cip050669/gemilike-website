@@ -25,8 +25,14 @@ const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.webm', '.avi', '.m4v']);
 
 const ensureUploadDirectory = () => {
-  if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(UPLOAD_DIR)) {
+      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    }
+    return true;
+  } catch (error) {
+    console.error('Error creating upload directory:', error);
+    return false;
   }
 };
 
@@ -45,19 +51,77 @@ const buildFilename = (originalName: string, fallbackExtension: string) => {
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
+    console.log('[Gemstone Upload] Starting upload request...');
+    
+    let formData;
+    try {
+      formData = await request.formData();
+    } catch (formDataError) {
+      console.error('[Gemstone Upload] Error parsing formData:', formDataError);
+      return NextResponse.json(
+        { success: false, error: 'Fehler beim Empfangen der Datei.' },
+        { status: 400 }
+      );
+    }
+    
     const file = formData.get('file');
     const kind = String(formData.get('type') || 'image');
-
-    if (!(file instanceof File) || file.size === 0) {
+    
+    if (!file) {
       return NextResponse.json(
         { success: false, error: 'Keine Datei übermittelt.' },
         { status: 400 }
       );
     }
 
-    const mimeType = file.type || '';
-    const ext = path.extname(file.name || '').toLowerCase();
+    // Check if file has the necessary methods (arrayBuffer, size, etc.)
+    // Don't use instanceof File/Blob as they may not be available in Node.js runtime
+    const hasArrayBuffer = typeof (file as any).arrayBuffer === 'function';
+    const hasSize = typeof (file as any).size === 'number';
+    const hasName = typeof (file as any).name === 'string';
+    const hasType = typeof (file as any).type === 'string';
+    
+    console.log('[Gemstone Upload] File received:', {
+      hasArrayBuffer,
+      hasSize,
+      hasName,
+      hasType,
+      size: hasSize ? (file as any).size : 'unknown',
+      name: hasName ? (file as any).name : 'unknown',
+      type: hasType ? (file as any).type : 'unknown'
+    });
+
+    if (!hasArrayBuffer || !hasSize) {
+      console.error('[Gemstone Upload] File does not have required methods:', file);
+      return NextResponse.json(
+        { success: false, error: 'Ungültiges Dateiformat übermittelt.' },
+        { status: 400 }
+      );
+    }
+
+    const fileSize = (file as any).size;
+    if (fileSize === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Datei ist leer.' },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size (max 50MB for videos, 10MB for images)
+    const maxSize = kind === 'video' ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (fileSize > maxSize) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Datei zu groß. Maximale Größe: ${kind === 'video' ? '50MB' : '10MB'}` 
+        },
+        { status: 400 }
+      );
+    }
+
+    const mimeType = (file as any).type || '';
+    const fileName = (file as any).name || 'upload';
+    const ext = path.extname(fileName).toLowerCase();
     const isVideo = kind === 'video';
 
     const allowedMime = isVideo ? VIDEO_MIME_TYPES : IMAGE_MIME_TYPES;
@@ -76,24 +140,44 @@ export async function POST(request: Request) {
       );
     }
 
-    ensureUploadDirectory();
+    if (!ensureUploadDirectory()) {
+      return NextResponse.json(
+        { success: false, error: 'Upload-Verzeichnis konnte nicht erstellt werden.' },
+        { status: 500 }
+      );
+    }
 
+    console.log('[Gemstone Upload] Processing file...');
     const arrayBuffer = await file.arrayBuffer();
+    console.log('[Gemstone Upload] ArrayBuffer size:', arrayBuffer.byteLength);
     const buffer = Buffer.from(arrayBuffer);
-    const filename = buildFilename(file.name || (isVideo ? 'video' : 'image'), fallbackExtension);
+    const filename = buildFilename(fileName || (isVideo ? 'video' : 'image'), fallbackExtension);
     const filepath = path.join(UPLOAD_DIR, filename);
+    console.log('[Gemstone Upload] Saving to:', filepath);
 
-    fs.writeFileSync(filepath, buffer);
+    try {
+      fs.writeFileSync(filepath, buffer);
+      console.log('[Gemstone Upload] File saved successfully:', filename);
+    } catch (writeError) {
+      console.error('[Gemstone Upload] Error writing file:', writeError);
+      return NextResponse.json(
+        { success: false, error: `Datei konnte nicht gespeichert werden: ${writeError instanceof Error ? writeError.message : 'Unbekannter Fehler'}` },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({
+    const response = {
       success: true,
       url: `/uploads/gemstones/${filename}`,
       type: isVideo ? 'video' : 'image',
-    });
+    };
+    console.log('[Gemstone Upload] Upload successful:', response);
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error uploading gemstone media:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
     return NextResponse.json(
-      { success: false, error: 'Upload fehlgeschlagen.' },
+      { success: false, error: `Upload fehlgeschlagen: ${errorMessage}` },
       { status: 500 }
     );
   }

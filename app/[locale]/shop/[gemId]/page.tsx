@@ -194,7 +194,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
   return (
     <div className="min-h-screen public-page-bg/80 px-4 py-12 text-white backdrop-blur-md flex items-center justify-center overflow-y-auto">
       <div className="relative w-full sm:w-auto max-w-4xl">
-        <div className="main-container !m-0 !rounded-3xl !border-white/10 !bg-[#2D2D2DDF] relative shadow-2xl">
+        <div className="gem-card !m-0 !rounded-3xl relative shadow-2xl">
           <Button
             size="icon"
             variant="secondary"
@@ -295,9 +295,11 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
 
 function DetailBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-white/10 public-page-bg/40 p-4">
-      <p className="text-xs uppercase tracking-wide text-white/45">{title}</p>
-      <p className="mt-2 text-sm text-white/90 leading-relaxed">{children}</p>
+    <div className="rounded-lg bg-gray-800/60 border border-white/20 p-4 backdrop-blur">
+      <div className="flex items-center gap-2">
+        <span className="text-xs uppercase tracking-wide text-white/70">{title}:</span>
+        <span className="text-sm text-white font-medium">{children}</span>
+      </div>
     </div>
   );
 }

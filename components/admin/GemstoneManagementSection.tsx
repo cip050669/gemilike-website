@@ -352,20 +352,31 @@ export function GemstoneManagementSection() {
       body: JSON.stringify(payload),
     })
       .then(async (response) => {
-        const result = await response.json();
+        console.log('API Response status:', response.status);
+        let result;
+        try {
+          const text = await response.text();
+          result = text ? JSON.parse(text) : {};
+        } catch (parseError) {
+          console.error('Error parsing response:', parseError);
+          throw new Error('Ungültige Antwort vom Server');
+        }
         console.log('API Response:', result);
         if (!response.ok || !result.success) {
-          throw new Error(result.error || 'Speichern fehlgeschlagen');
+          throw new Error(result.error || `Speichern fehlgeschlagen: ${response.status}`);
         }
         return result;
       })
       .then(() => {
         setEditorState({ open: false, initial: null });
+        setError(null);
         loadGemstones();
       })
       .catch((err: Error) => {
         console.error('Error saving gemstone:', err);
-        setError(err.message);
+        const errorMessage = err.message || 'Fehler beim Speichern';
+        setError(errorMessage);
+        alert(`Fehler beim Speichern: ${errorMessage}`);
       });
   };
 
