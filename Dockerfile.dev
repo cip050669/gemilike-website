@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.5
+# syntax=docker/dockerfile:1.7
 
 # Development Dockerfile
 FROM node:20-alpine
@@ -10,12 +10,14 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install all dependencies (including devDependencies)
-RUN npm ci --legacy-peer-deps
+# Install all dependencies (including devDependencies) with cache mount
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --legacy-peer-deps
 
 # Copy Prisma schema
 COPY prisma ./prisma
-RUN npx prisma generate
+RUN --mount=type=cache,target=/root/.cache/prisma \
+    npx prisma generate
 
 # Copy source code (will be overridden by volume in docker-compose)
 # This is just to ensure the container has the basic structure

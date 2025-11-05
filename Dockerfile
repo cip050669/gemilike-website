@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.5
+# syntax=docker/dockerfile:1.7
 
 # ============================================
 # Dependencies Stage
@@ -10,8 +10,9 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps --only=production
+# Install dependencies with cache mount for faster builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --legacy-peer-deps --only=production
 
 # ============================================
 # Builder Stage
@@ -22,11 +23,13 @@ WORKDIR /app
 
 # Copy package files and install ALL dependencies (including devDependencies)
 COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --legacy-peer-deps
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
-RUN npx prisma generate
+RUN --mount=type=cache,target=/root/.cache/prisma \
+    npx prisma generate
 
 # Copy source code
 COPY . .
@@ -42,16 +45,18 @@ RUN npm run build
 # Runner Stage (Production)
 # ============================================
 FROM node:20-alpine AS runner
-RUN apk add --no-cache wget
+RUN apk add --no-cache wget curl
 WORKDIR /app
 
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    PORT=3000
+    PORT=3000 \
+    HOSTNAME="0.0.0.0"
 
-# Create non-root user
+# Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001 -G nodejs
+    adduser -S nextjs -u 1001 -G nodejs && \
+    chown -R nextjs:nodejs /app
 
 # Copy necessary files from builder
 # With standalone output, Next.js creates a self-contained server
@@ -62,18 +67,22 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy Prisma schema and migrations (needed for migrations at runtime)
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
+# Copy Prisma Client from builder (needed for runtime)
+# The standalone build may not include all Prisma Client files
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+
 # Copy i18n configuration (needed for next-intl)
 COPY --from=builder --chown=nextjs:nodejs /app/i18n ./i18n
 COPY --from=builder --chown=nextjs:nodejs /app/messages ./messages
 
-# Note: Prisma Client is already included in the standalone output
-# The standalone build includes all necessary node_modules dependencies
+# Note: Prisma Client is included both in standalone output and explicitly copied above
 
+# Switch to non-root user
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
+# Health check is handled by docker-compose
+# Use node directly instead of npm for better performance
 CMD ["node", "server.js"]

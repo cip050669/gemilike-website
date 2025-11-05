@@ -1,9 +1,9 @@
-version: '3.8'
-
+# Docker Compose v2 syntax (version field is optional and deprecated)
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
+    # Use specific version tag for stability (update as needed)
     container_name: gemilike-postgres
     restart: unless-stopped
     environment:
@@ -13,7 +13,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      # Use different port if 5432 is already in use
+      - "${POSTGRES_PORT:-5433}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gemilike}"]
       interval: 10s
@@ -21,6 +22,15 @@ services:
       retries: 5
     networks:
       - gemilike-network
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
   # Next.js Application
   app:
@@ -60,7 +70,9 @@ services:
       # App URL
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
     ports:
-      - "${APP_PORT:-3000}:3000"
+      # Use different port if 3000 is already in use (e.g., by dev server)
+      # Change APP_PORT in .env if needed
+      - "${APP_PORT:-3002}:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -81,11 +93,22 @@ services:
         node server.js
       "
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      # Check if the application is responding
+      # Fallback to curl if wget is not available
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health 2>/dev/null || curl -f http://localhost:3000/api/health 2>/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
 
 volumes:
   postgres_data:

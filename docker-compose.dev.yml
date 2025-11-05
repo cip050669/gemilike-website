@@ -1,9 +1,9 @@
-version: '3.8'
-
+# Docker Compose v2 syntax (version field is optional and deprecated)
 services:
   # PostgreSQL Database (Development)
   postgres:
     image: postgres:16-alpine
+    # Use specific version tag for stability (update as needed)
     container_name: gemilike-postgres-dev
     restart: unless-stopped
     environment:

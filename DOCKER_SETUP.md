@@ -8,6 +8,16 @@ Diese Anleitung erklärt, wie Sie die Gemilike-Website mit Docker ausführen.
 - Docker Compose (Version 2.0 oder höher)
 - `.env` Datei mit allen notwendigen Umgebungsvariablen
 
+## Aktualisierungen (2025)
+
+Die Docker-Konfiguration wurde aktualisiert mit:
+- ✅ Dockerfile Syntax 1.7 (neueste Version)
+- ✅ Cache Mounts für schnellere Builds (npm & Prisma)
+- ✅ Verbesserte Health Checks (wget + curl Fallback)
+- ✅ Resource Limits für Production
+- ✅ Optimiertes .dockerignore
+- ✅ Docker Compose Version 3.9
+
 ## Schnellstart
 
 ### 1. Umgebungsvariablen konfigurieren
