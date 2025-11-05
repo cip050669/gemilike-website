@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
         id: gem.id,
         name: gem.name,
         category: gem.category,
-        condition: (isCutGemstone(gem) ? 'CUT' : 'ROUGH') as any,
+        condition: (isCutGemstone(gem) ? 'CUT' : 'ROUGH') as 'CUT' | 'ROUGH',
         // Price is managed via priceBooks relation, not a direct field
         weight,
         dimensions,
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
     console.log('POST /api/admin/gemstones - Normalized data:', JSON.stringify(data, null, 2));
     
     const gemstone = await prisma.gemstone.create({
-      data,
+      data: data as Parameters<typeof prisma.gemstone.create>[0]['data'],
     });
 
     console.log('POST /api/admin/gemstones - Created gemstone:', gemstone.id);
@@ -194,8 +194,9 @@ export async function POST(request: NextRequest) {
     }
     // Check for Prisma-specific errors
     if (error && typeof error === 'object' && 'code' in error) {
-      console.error('Prisma error code:', (error as any).code);
-      console.error('Prisma error meta:', (error as any).meta);
+      const prismaError = error as { code?: string; meta?: unknown };
+      console.error('Prisma error code:', prismaError.code);
+      console.error('Prisma error meta:', prismaError.meta);
     }
     return NextResponse.json(
       { success: false, error: errorMessage },

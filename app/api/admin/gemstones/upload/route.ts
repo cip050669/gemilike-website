@@ -76,19 +76,26 @@ export async function POST(request: Request) {
 
     // Check if file has the necessary methods (arrayBuffer, size, etc.)
     // Don't use instanceof File/Blob as they may not be available in Node.js runtime
-    const hasArrayBuffer = typeof (file as any).arrayBuffer === 'function';
-    const hasSize = typeof (file as any).size === 'number';
-    const hasName = typeof (file as any).name === 'string';
-    const hasType = typeof (file as any).type === 'string';
+    interface FileLike {
+      arrayBuffer?: () => Promise<ArrayBuffer>;
+      size?: number;
+      name?: string;
+      type?: string;
+    }
+    const fileLike = file as FileLike;
+    const hasArrayBuffer = typeof fileLike.arrayBuffer === 'function';
+    const hasSize = typeof fileLike.size === 'number';
+    const hasName = typeof fileLike.name === 'string';
+    const hasType = typeof fileLike.type === 'string';
     
     console.log('[Gemstone Upload] File received:', {
       hasArrayBuffer,
       hasSize,
       hasName,
       hasType,
-      size: hasSize ? (file as any).size : 'unknown',
-      name: hasName ? (file as any).name : 'unknown',
-      type: hasType ? (file as any).type : 'unknown'
+      size: hasSize ? fileLike.size : 'unknown',
+      name: hasName ? fileLike.name : 'unknown',
+      type: hasType ? fileLike.type : 'unknown'
     });
 
     if (!hasArrayBuffer || !hasSize) {
@@ -99,7 +106,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const fileSize = (file as any).size;
+    const fileSize = fileLike.size ?? 0;
     if (fileSize === 0) {
       return NextResponse.json(
         { success: false, error: 'Datei ist leer.' },
@@ -119,8 +126,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const mimeType = (file as any).type || '';
-    const fileName = (file as any).name || 'upload';
+    const mimeType = fileLike.type || '';
+    const fileName = fileLike.name || 'upload';
     const ext = path.extname(fileName).toLowerCase();
     const isVideo = kind === 'video';
 

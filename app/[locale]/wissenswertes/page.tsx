@@ -1,11 +1,22 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { getKnowledgeArticles } from '@/lib/services/knowledge.service';
+import NextImage from 'next/image';
+import { Button } from '@/components/ui/button';
 import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
+import { getBlogs } from '@/lib/services/blog.service';
 import { ArrowLeftIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { PublicLayout } from '@/components/layout/PublicLayout';
+
+const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
+
+const stripMarkdown = (markdown: string) =>
+  markdown
+    .replace(/!\[[^\]]*]\([^)]*\)/g, '')
+    .replace(/\[(.*?)\]\([^)]*\)/g, (_, text) => text || '')
+    .replace(/[#>*_`~-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 export default async function KnowledgeListPage({
   params,
@@ -13,15 +24,37 @@ export default async function KnowledgeListPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [articles, settings] = await Promise.all([
-    getKnowledgeArticles(locale, true), // publishedOnly = true
+  const [settings, blogs] = await Promise.all([
     loadKnowledgeSectionSettings(),
+    getBlogs(locale, true), // Get only published blogs for this locale
   ]);
-  const sorted = articles.sort((a, b) => {
-    const dateA = new Date(a.publishedAt ?? a.updatedAt ?? a.createdAt).getTime();
-    const dateB = new Date(b.publishedAt ?? b.updatedAt ?? b.createdAt).getTime();
-    return dateB - dateA;
-  });
+
+  const stories = blogs
+    .sort((a, b) => {
+      const aTime = new Date(a.publishedAt ?? a.updatedAt ?? a.createdAt).getTime();
+      const bTime = new Date(b.publishedAt ?? b.updatedAt ?? b.createdAt).getTime();
+      return bTime - aTime;
+    })
+    .map((blog) => {
+      const baseText = blog.excerpt?.trim() || stripMarkdown(blog.content);
+      const excerpt =
+        baseText.length > 220
+          ? `${baseText.slice(0, 220).trimEnd()} …`
+          : baseText;
+
+      const image =
+        blog.image && blog.image.trim() && blog.image !== '/blog/default-blog.jpg'
+          ? blog.image
+          : STORY_PLACEHOLDER_IMAGE;
+
+      return {
+        id: blog.id,
+        title: blog.title,
+        href: `/${locale}/blog/${blog.slug}`,
+        image,
+        excerpt,
+      };
+    });
 
   return (
     <PublicLayout>
@@ -52,56 +85,87 @@ export default async function KnowledgeListPage({
           </p>
         </header>
 
-        {sorted.length === 0 ? (
-          <div className="text-center text-white/60">
-            Noch keine Wissensartikel veröffentlicht.
-          </div>
-        ) : (
-          <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-3">
-            {sorted.map((article) => (
-              <article
-                key={article.id}
-                className="flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 public-page-bg/80 shadow-lg ring-1 ring-black/30 transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={article.image || '/images/stories/placeholder-gem.svg'}
-                    alt={article.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col gap-4 p-6">
-                  <div className="space-y-2">
-                    <p className="text-xs uppercase tracking-wide text-white/50">
-                      {new Date(article.publishedAt ?? article.updatedAt ?? article.createdAt).toLocaleDateString('de-DE')}
-                    </p>
-                    <h2 className="text-2xl font-semibold text-white line-clamp-2">
-                      {article.title}
-                    </h2>
-                    <p className="text-sm text-white/70 line-clamp-3">
-                      {article.excerpt}
-                    </p>
-                  </div>
-                  <div className="mt-auto flex flex-wrap gap-2">
-                    {article.tags.slice(0, 4).map((tag) => (
-                      <span key={tag} className="rounded-full border border-white/20 px-2 py-0.5 text-xs text-white/70">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                  <Link
-                    href={`/${locale}/wissenswertes/${article.slug}`}
-                    className="inline-flex items-center justify-center rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800/30/10"
+        {/* Container: Geschichten um Edelsteine */}
+        <div className="main-container">
+          {stories.length > 0 ? (
+            <div className="max-h-[620px] overflow-y-auto pr-3 scrollbar-thin">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[75px]">
+                {stories.map((story) => (
+                  <div
+                    key={story.id}
+                    className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
                   >
-                    Artikel lesen
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+                    <div className="flex gap-[50px] items-center">
+                      <div className="relative overflow-hidden rounded-lg border border-white/10 public-page-bg/20 h-[180px] w-[204px] flex-shrink-0">
+                        <NextImage
+                          src={story.image}
+                          alt={story.title}
+                          fill
+                          sizes="(max-width: 768px) 50vw, 204px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          priority={false}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-6 justify-center flex-1">
+                        <div className="flex items-center gap-6 w-full">
+                          <div className="flex flex-col gap-3 text-left flex-1">
+                            <h3 className="text-xl font-bold gemilike-text-gradient">
+                              {story.title}
+                            </h3>
+                            <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">
+                              {story.excerpt}
+                            </p>
+                          </div>
+                          <Link
+                            href={story.href}
+                            className={cn(
+                              navStyles.navButton,
+                              navStyles.navButtonTight,
+                              'ml-auto inline-flex items-center gap-3'
+                            )}
+                          >
+                            <span className={navStyles.navLabel}>Mehr lesen</span>
+                            <svg
+                              className="relative z-[1] h-3.5 w-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                              />
+                            </svg>
+                            <span className={navStyles.navGlow} />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="story-card text-center">
+              <h3 className="text-2xl font-bold mb-4 gemilike-text-gradient">
+                Noch keine Geschichten veröffentlicht
+              </h3>
+              <p className="text-gray-300 text-base leading-relaxed">
+                Sobald Blog-Beiträge veröffentlicht sind, erscheinen sie hier als
+                Inspiration rund um Edelsteine.
+              </p>
+              <Button
+                variant="outline"
+                className="mt-6 border-white/40 text-white hover:bg-gray-800/30/10"
+                asChild
+              >
+                <Link href={`/${locale}/blog`}>Zum Blog</Link>
+              </Button>
+            </div>
+          )}
+        </div>
         </div>
       </div>
     </PublicLayout>

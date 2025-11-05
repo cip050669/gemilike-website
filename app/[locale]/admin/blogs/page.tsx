@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { loadBlogs } from '@/lib/data/blogs';
+import { getBlogs } from '@/lib/services/blog.service';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 import type { BlogPost } from '@/lib/types/blog';
 import { BlogTable } from '@/components/admin/BlogTable';
@@ -48,9 +48,20 @@ export default async function BlogsAdminPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const blogs = await loadBlogs();
+  const blogs = await getBlogs(locale, false); // Get all blogs for this locale
   const blogSettings = await loadBlogSectionSettings();
-  const sorted = [...blogs].sort((a, b) => {
+  
+  // Convert Prisma Blog objects to BlogPost type
+  const blogsAsBlogPost: BlogPost[] = blogs.map((blog) => ({
+    ...blog,
+    difficulty: blog.difficulty && ['beginner', 'intermediate', 'advanced'].includes(blog.difficulty)
+      ? blog.difficulty as 'beginner' | 'intermediate' | 'advanced'
+      : undefined,
+    image: blog.image || '',
+    excerpt: blog.excerpt || '',
+  }));
+  
+  const sorted = [...blogsAsBlogPost].sort((a, b) => {
     const aTime = new Date(a.updatedAt ?? a.createdAt).getTime();
     const bTime = new Date(b.updatedAt ?? b.createdAt).getTime();
     return bTime - aTime;
@@ -119,7 +130,7 @@ export default async function BlogsAdminPage({
         </div>
 
         {/* Blog Posts List */}
-        <BlogTable blogs={sorted.map(toListItem)} locale={locale} />
+        <BlogTable blogs={blogsAsBlogPost.map(toListItem)} locale={locale} />
       </div>
     </div>
   );

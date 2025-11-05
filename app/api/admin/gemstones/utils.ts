@@ -130,7 +130,8 @@ export const normaliseGemstonePayload = (
     .replace(/^-+|-+$/g, '') || `gemstone-${Date.now()}`;
 
   // Base gemstone data (matches Prisma schema)
-  const gemstoneData: any = {
+  // Using Record<string, unknown> for Prisma create/update objects which have dynamic structure
+  const gemstoneData: Record<string, unknown> = {
     name,
     slug,
     category: String(payload.category ?? 'Edelstein').trim() || 'Edelstein',
@@ -289,7 +290,13 @@ export const normaliseGemstonePayload = (
   }
 
   // Media relation data (images and videos)
-  const mediaCreate: any[] = [];
+  interface MediaCreateItem {
+    type: 'IMAGE' | 'VIDEO';
+    url: string;
+    position: number;
+    isPrimary: boolean;
+  }
+  const mediaCreate: MediaCreateItem[] = [];
   
   // Add images
   dedupedImages.slice(0, 10).forEach((url, index) => {

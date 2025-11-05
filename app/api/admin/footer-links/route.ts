@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSessionWithUser } from '@/lib/session';
 
+interface SessionUser {
+  role?: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { session } = await getSessionWithUser();
-    if (!session || !session.user || (session.user as any).role !== 'ADMIN') {
+    const user = session?.user as SessionUser | undefined;
+    if (!session || !user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -13,7 +18,7 @@ export async function GET(request: NextRequest) {
     const locale = searchParams.get('locale') || 'de';
     const section = searchParams.get('section');
 
-    const where: any = {
+    const where: { locale: string; isActive: boolean; section?: string } = {
       locale,
       isActive: true,
     };
@@ -43,7 +48,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { session } = await getSessionWithUser();
-    if (!session || !session.user || (session.user as any).role !== 'ADMIN') {
+    const user = session?.user as SessionUser | undefined;
+    if (!session || !user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

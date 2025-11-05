@@ -28,6 +28,7 @@ export default async function KnowledgeEditPage({
     contentImages: article.contentImages || [],
     published: article.published,
     featured: article.featured,
+    locale: article.locale,
     metaDescription: article.metaDescription || '',
     readingTime: article.readingTime || undefined,
     difficulty: (article.difficulty === 'beginner' || article.difficulty === 'intermediate' || article.difficulty === 'advanced') 

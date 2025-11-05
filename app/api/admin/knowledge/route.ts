@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     // }
 
     const body = await request.json();
-    const { title, excerpt, content, author, category, tags, image, contentImages, published, featured, className, metaDescription, readingTime, difficulty } = body;
+    const { title, excerpt, content, author, category, tags, image, contentImages, published, featured, className, metaDescription, readingTime, difficulty, locale } = body;
 
     if (!title || !content) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
       contentImages: contentImages || [],
       published: published ?? false,
       featured: featured ?? false,
+      locale: locale || 'de',
       createdAt: new Date(),
       updatedAt: new Date(),
       publishedAt: published ? new Date() : undefined,
@@ -111,6 +112,7 @@ export async function PUT(request: NextRequest) {
       contentImages: contentImages ?? current.contentImages,
       published: published ?? current.published,
       featured: featured ?? current.featured,
+      locale: current.locale, // Preserve existing locale
       updatedAt: new Date(),
       publishedAt: published && !current.published ? new Date() : current.publishedAt,
     };

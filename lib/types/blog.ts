@@ -13,12 +13,15 @@ export interface BlogPost {
   contentImages: string[]; // Bilder für den Blog-Inhalt
   published: boolean;
   featured: boolean;
+  locale: string; // Multi-Language Support
+  metaDescription?: string; // SEO Meta-Description
+  readingTime?: number; // Geschätzte Lesezeit in Minuten
+  difficulty?: 'beginner' | 'intermediate' | 'advanced'; // Schwierigkeitsgrad
   createdAt: Date;
   updatedAt: Date;
   publishedAt?: Date;
+  views?: number; // Zugriffszähler
   className?: string; // CSS-Klasse für Styling
-  metaDescription?: string; // SEO Meta-Description
-  readingTime?: number; // Geschätzte Lesezeit in Minuten
 }
 
 export interface BlogCategory {

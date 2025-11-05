@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { unlink } from 'fs/promises';
-import { join } from 'path';
-
-const prisma = new PrismaClient();
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ fileId: string }> }
 ) {
   try {
-    const { fileId } = await params;
+    await params; // fileId, unlink, join, prisma reserved for future use
 
     // Note: Download file management is not implemented in the current schema
     // This endpoint returns a 501 Not Implemented response

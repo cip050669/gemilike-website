@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { useCartStore } from '@/lib/store/cart';
@@ -52,12 +52,12 @@ export default function CheckoutPage() {
   const [cartId, setCartId] = useState<string | null>(null);
 
   // Tracking-Funktion
-  const trackCheckoutEvent = async (
+  const trackCheckoutEvent = useCallback(async (
     step: string,
     stepOrder: number,
     completed: boolean = false,
     error?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ) => {
     try {
       const duration = Date.now() - stepStartTime;
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
       console.error('Error tracking checkout event:', error);
       // Fail silently - tracking sollte nicht den Checkout blockieren
     }
-  };
+  }, [cartId, stepStartTime]);
 
   useEffect(() => {
     // Hole Cart-ID
@@ -106,7 +106,7 @@ export default function CheckoutPage() {
     const startTime = Date.now();
     setCheckoutStartTime(startTime);
     void trackCheckoutEvent('start', 1);
-  }, []);
+  }, [trackCheckoutEvent]);
 
   // Track Schritt-Wechsel
   useEffect(() => {
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
         { formFieldsFilled: Object.values(formData).filter(v => v).length }
       );
     }
-  }, [currentStep]);
+  }, [currentStep, formData, trackCheckoutEvent]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,7 +172,6 @@ export default function CheckoutPage() {
 
       // Berechne Preise
       const subtotal = getSubtotal();
-      const discount = getDiscount();
       const finalTotal = getFinalTotal();
       const shipping = 0; // Kostenlos ab €50, sonst €4,95 - könnte später berechnet werden
       const tax = finalTotal * 0.19; // 19% MwSt (könnte später konfigurierbar sein)

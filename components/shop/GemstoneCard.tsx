@@ -248,7 +248,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           )}
 
           {/* Schliff */}
-          {gemstone.cut && (
+          {isCutGemstone(gemstone) && gemstone.cut && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Gem" />
               <span className="text-muted-foreground">{t('cut')}:</span>
@@ -257,7 +257,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           )}
 
           {/* Schliffform */}
-          {gemstone.cutForm && (
+          {isCutGemstone(gemstone) && gemstone.cutForm && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Shapes" />
               <span className="text-gem-text2">Schliffform:</span>

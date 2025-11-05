@@ -33,8 +33,11 @@ async function importAboutContent() {
     // Import German (de) content
     console.log('\n🇩🇪 Importing German content...');
     for (const section of sections) {
-      const content = (deMessages.about as any)[section];
-      if (!content) {
+      const deAbout = (deMessages as Record<string, unknown>).about;
+      const content = deAbout && typeof deAbout === 'object' 
+        ? (deAbout as Record<string, unknown>)[section]
+        : undefined;
+      if (!content || typeof content !== 'string') {
         console.log(`⚠️  Warning: Missing section '${section}' in German messages`);
         continue;
       }
@@ -47,12 +50,12 @@ async function importAboutContent() {
           },
         },
         update: {
-          content,
+          content: content as string,
           isActive: true,
         },
         create: {
           section,
-          content,
+          content: content as string,
           locale: 'de',
           order: sections.indexOf(section),
           isActive: true,
@@ -64,11 +67,12 @@ async function importAboutContent() {
     }
 
     // Import English (en) content if available
-    if (enMessages.about) {
+    const enAbout = (enMessages as Record<string, unknown>).about;
+    if (enAbout && typeof enAbout === 'object') {
       console.log('\n🇬🇧 Importing English content...');
       for (const section of sections) {
-        const content = (enMessages.about as any)[section];
-        if (!content) {
+        const content = (enAbout as Record<string, unknown>)[section];
+        if (!content || typeof content !== 'string') {
           console.log(`⚠️  Warning: Missing section '${section}' in English messages`);
           continue;
         }
@@ -81,12 +85,12 @@ async function importAboutContent() {
             },
           },
           update: {
-            content,
+            content: content as string,
             isActive: true,
           },
           create: {
             section,
-            content,
+            content: content as string,
             locale: 'en',
             order: sections.indexOf(section),
             isActive: true,

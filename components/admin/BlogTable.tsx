@@ -203,6 +203,16 @@ export function BlogTable({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-3">
+                      {blog.published && (
+                        <Link
+                          href={`/${locale}/blog/${blog.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-600 hover:text-green-900"
+                        >
+                          Anzeigen
+                        </Link>
+                      )}
                       <Link
                         href={`/${locale}/admin/blogs/edit/${blog.id}`}
                         className="text-blue-600 hover:text-blue-900"

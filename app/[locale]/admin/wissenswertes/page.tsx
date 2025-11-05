@@ -4,9 +4,11 @@ import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
 import { KnowledgeTable } from '@/components/admin/KnowledgeTable';
 import { KnowledgeSettingsForm } from '@/components/admin/KnowledgeSettingsForm';
 
+import type { KnowledgeArticle } from '@/lib/types/knowledge';
+
 const PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
-const toListItem = (article: any) => ({
+const toListItem = (article: KnowledgeArticle) => ({
   id: article.id,
   title: article.title,
   excerpt: article.excerpt,
@@ -22,7 +24,7 @@ const toListItem = (article: any) => ({
   image: article.image?.trim() ? article.image : PLACEHOLDER_IMAGE,
 });
 
-const countByStatus = (articles: any[]) => ({
+const countByStatus = (articles: KnowledgeArticle[]) => ({
   total: articles.length,
   published: articles.filter((article) => article.published).length,
   draft: articles.filter((article) => !article.published).length,
@@ -37,7 +39,18 @@ export default async function KnowledgeAdminPage({
   const { locale } = await params;
   const articles = await getKnowledgeArticles(locale, false);
   const settings = await loadKnowledgeSectionSettings();
-  const sorted = [...articles].sort((a, b) => {
+  
+  // Convert Prisma KnowledgeBase objects to KnowledgeArticle type
+  const articlesAsKnowledgeArticle: KnowledgeArticle[] = articles.map((article) => ({
+    ...article,
+    difficulty: article.difficulty && ['beginner', 'intermediate', 'advanced'].includes(article.difficulty)
+      ? article.difficulty as 'beginner' | 'intermediate' | 'advanced'
+      : undefined,
+    image: article.image || '',
+    excerpt: article.excerpt || '',
+  }));
+  
+  const sorted = [...articlesAsKnowledgeArticle].sort((a, b) => {
     const aTime = new Date(a.updatedAt ?? a.createdAt).getTime();
     const bTime = new Date(b.updatedAt ?? b.createdAt).getTime();
     return bTime - aTime;
@@ -92,7 +105,7 @@ export default async function KnowledgeAdminPage({
           />
         </div>
 
-        <KnowledgeTable articles={sorted.map(toListItem)} locale={locale} />
+        <KnowledgeTable articles={articlesAsKnowledgeArticle.map(toListItem)} locale={locale} />
       </div>
     </div>
   );

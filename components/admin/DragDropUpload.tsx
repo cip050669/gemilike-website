@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { ImageIcon, Video, Upload, X, Loader2 } from 'lucide-react';
+import { ImageIcon, Video, X, Loader2 } from 'lucide-react';
 
 interface DragDropUploadProps {
   accept?: 'image' | 'video' | 'both';
@@ -40,13 +40,13 @@ export function DragDropUpload({
     return file.type.startsWith('video/');
   };
 
-  const validateFile = (file: File): boolean => {
+  const validateFile = useCallback((file: File): boolean => {
     if (accept === 'image' && !isImageFile(file)) return false;
     if (accept === 'video' && !isVideoFile(file)) return false;
     return true;
-  };
+  }, [accept]);
 
-  const uploadFile = async (file: File): Promise<string> => {
+  const uploadFile = useCallback(async (file: File): Promise<string> => {
     const fileType = isVideoFile(file) ? 'video' : 'image';
     const formData = new FormData();
     formData.append('file', file);
@@ -122,7 +122,7 @@ export function DragDropUpload({
         reject(new Error('Fehler beim Senden der Datei'));
       }
     });
-  };
+  }, []);
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
@@ -158,7 +158,7 @@ export function DragDropUpload({
       setUploading(false);
       setUploadProgress({});
     }
-  }, [multiple, maxFiles, uploadedUrls, onUploadComplete]);
+  }, [multiple, maxFiles, uploadedUrls, onUploadComplete, validateFile, uploadFile]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -320,6 +320,7 @@ export function DragDropUpload({
                       muted
                     />
                   ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={url}
                       alt={`Upload ${index + 1}`}

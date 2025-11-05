@@ -120,8 +120,9 @@ export async function PUT(
     }
     // Check for Prisma-specific errors
     if (error && typeof error === 'object' && 'code' in error) {
-      console.error('Prisma error code:', (error as any).code);
-      console.error('Prisma error meta:', (error as any).meta);
+      const prismaError = error as { code?: string; meta?: unknown };
+      console.error('Prisma error code:', prismaError.code);
+      console.error('Prisma error meta:', prismaError.meta);
     }
     return NextResponse.json(
       { success: false, error: errorMessage },

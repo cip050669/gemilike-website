@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Eye, PenSquare, Trash2, Star, Play, ImageIcon, Video } from 'lucide-react';
 import { AdminButton } from './AdminButton';
@@ -18,6 +18,7 @@ type DisplayGemstone = {
   type: 'cut' | 'rough';
   cut?: string;
   cutForm?: string;
+  rarity?: string;
   origin: string;
   mainImage: string;
   price: number;
@@ -54,6 +55,8 @@ const parseList = (value: unknown): string[] => {
   return [];
 };
 
+// Reserved for future use
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const convertLibraryGemstone = (gem: Gemstone): DisplayGemstone => {
   const weight = isCutGemstone(gem)
     ? `${gem.caratWeight} ct`
@@ -194,8 +197,9 @@ export function GemstoneManagementSection() {
       colorSaturation: (typeof (gem as { colorIntensity?: unknown }).colorIntensity === 'string' ? (gem as { colorIntensity: string }).colorIntensity : (typeof (gem as { attributes?: { colorSaturation?: unknown } }).attributes?.colorSaturation === 'string' ? (gem as { attributes: { colorSaturation: string } }).attributes.colorSaturation : undefined)),
       colorBrightness: (typeof (gem as { attributes?: { colorBrightness?: unknown } }).attributes?.colorBrightness === 'number' ? (gem as { attributes: { colorBrightness: number } }).attributes.colorBrightness : undefined),
       clarity: (typeof (gem as { clarity?: unknown }).clarity === 'string' ? (gem as { clarity: string }).clarity : (typeof (gem as { attributes?: { clarity?: unknown } }).attributes?.clarity === 'string' ? (gem as { attributes: { clarity: string } }).attributes.clarity : undefined)),
-      treatment: (typeof gem.treatment === 'string' ? gem.treatment : (typeof gem.attributes?.treatment === 'string' ? gem.attributes.treatment : '–')),
-      certification: (typeof gem.certification === 'string' ? gem.certification : (typeof gem.attributes?.certification === 'string' ? gem.attributes.certification : '–')),
+      treatment: (typeof (gem as { treatment?: unknown }).treatment === 'string' ? (gem as { treatment: string }).treatment : (typeof (gem as { attributes?: { treatment?: unknown } }).attributes?.treatment === 'string' ? (gem as { attributes: { treatment: string } }).attributes.treatment : '–')),
+      certification: (typeof (gem as { certification?: unknown }).certification === 'string' ? (gem as { certification: string }).certification : (typeof (gem as { attributes?: { certification?: unknown } }).attributes?.certification === 'string' ? (gem as { attributes: { certification: string } }).attributes.certification : '–')),
+      rarity: (typeof (gem as { rarity?: unknown }).rarity === 'string' ? (gem as { rarity: string }).rarity : undefined),
       description: (typeof gem.description === 'string' ? gem.description : (typeof gem.longDescription === 'string' ? gem.longDescription : (typeof gem.shortDescription === 'string' ? gem.shortDescription : ''))),
       isNew: Boolean(gem.isNew),
       isSold: gem.inStock === false,
@@ -266,6 +270,7 @@ export function GemstoneManagementSection() {
           type: gemstone.type,
           cut: gemstone.cut ?? '',
           cutForm: gemstone.cutForm ?? '',
+          rarity: gemstone.rarity ?? '',
           origin: gemstone.origin === '–' ? '' : gemstone.origin,
           price: gemstone.price ? String(gemstone.price) : '',
           weight: gemstone.weight ? gemstone.weight.replace(/[^0-9.,]/g, '') : '',
@@ -322,6 +327,7 @@ export function GemstoneManagementSection() {
       clarity: values.clarity,
       treatment: values.treatment,
       certification: values.certification,
+      rarity: values.rarity,
       images: values.images.filter((url) => url.trim()).slice(0, 10),
       videos: values.videos.filter((url) => url.trim()).slice(0, 2),
       isNew: values.isNew,

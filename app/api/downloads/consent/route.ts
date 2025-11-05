@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers';
-
-const prisma = new PrismaClient();
 
 export async function GET() {
   try {
@@ -13,7 +10,6 @@ export async function GET() {
       return NextResponse.json({ hasConsented: false, version: '1.0', terms: '' });
     }
 
-    const authData = JSON.parse(authCookie.value);
     // Note: Download consent management is not implemented in the current schema
     const consent = null;
 
@@ -56,7 +52,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { email, consent, version } = await request.json();
+    const { email, consent } = await request.json();
     
     if (!email || !consent) {
       return NextResponse.json(
@@ -67,6 +63,7 @@ export async function POST(request: Request) {
 
     // Note: Download consent management is not implemented in the current schema
     // Consent is stored in cookies only
+    // version parameter reserved for future use
 
     return NextResponse.json({ success: true });
   } catch (error) {

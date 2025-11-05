@@ -20,7 +20,7 @@ export interface KnowledgeBaseInput {
 }
 
 export async function getKnowledgeArticles(locale: string = 'de', publishedOnly: boolean = false) {
-  const where: any = { locale };
+  const where: { locale: string; published?: boolean } = { locale };
   if (publishedOnly) {
     where.published = true;
   }
@@ -75,7 +75,7 @@ export async function createKnowledgeArticle(data: KnowledgeBaseInput) {
 }
 
 export async function updateKnowledgeArticle(id: string, data: Partial<KnowledgeBaseInput>) {
-  const updateData: any = { ...data };
+  const updateData: Partial<KnowledgeBaseInput> & { publishedAt?: Date } = { ...data };
   
   if (data.published && !data.publishedAt) {
     const existing = await prisma.knowledgeBase.findUnique({ where: { id } });

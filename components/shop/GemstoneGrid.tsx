@@ -486,7 +486,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   const getIconAndStyle = (label: string) => {
     // Jedes Icon bekommt eine eindeutige, kontrastreiche Farbe
-    // Komplementärfarben und hoher Kontrast für dunklen Hintergrund
+    // Optimiert für maximale visuelle Unterscheidbarkeit
     const iconMap: Record<string, { 
       icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>, 
       style: React.CSSProperties 
@@ -494,99 +494,99 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
       'Edelsteinart': { 
         icon: Gem, 
         style: { 
-          color: '#FF9447', // Orange (gem-fire) - sehr hell
-          filter: 'brightness(1.2) saturate(1.3)',
+          color: '#FF6B35', // Kräftiges Rot-Orange
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Preis': { 
         icon: Euro, 
         style: { 
-          color: '#00E5FF', // Hell-Cyan (gem-iceLight) - Komplementär zu Orange
-          filter: 'brightness(1.3) saturate(1.4)',
+          color: '#00E5FF', // Helles Cyan
+          filter: 'brightness(1.5) saturate(1.6)',
         } 
       },
       'Bestand': { 
         icon: Package, 
         style: { 
-          color: '#8A5CF6', // Purple - sehr gesättigt
-          filter: 'brightness(1.2) saturate(1.3)',
+          color: '#9C27B0', // Kräftiges Violett
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Gewicht': { 
         icon: Weight, 
         style: { 
-          color: '#FFD85E', // Gold (gem-fireLight) - Komplementär zu Purple
-          filter: 'brightness(1.3) saturate(1.4)',
+          color: '#FFC107', // Kräftiges Gelb
+          filter: 'brightness(1.5) saturate(1.6)',
         } 
       },
       'Herkunft': { 
         icon: MapPin, 
         style: { 
-          color: '#00B8A9', // Grün-Cyan (gem-green)
-          filter: 'brightness(1.3) saturate(1.4)',
+          color: '#4CAF50', // Kräftiges Grün
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Abmessungen': { 
         icon: Ruler, 
         style: { 
-          color: '#FF6B35', // Orange-Rot - Komplementär zu Cyan
-          filter: 'brightness(1.2) saturate(1.3)',
+          color: '#FF1493', // Kräftiges Deep Pink/Magenta (deutlich anders als Rot-Orange)
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Farbe': { 
         icon: Palette, 
         style: { 
-          color: '#FF7B7B', // Logo-Rot - Pink-Ton
-          filter: 'brightness(1.3) saturate(1.4)',
+          color: '#F44336', // Kräftiges Rot (deutlich anders als Violett)
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Farbsättigung': { 
         icon: Droplets, 
         style: { 
-          color: '#00BCD4', // Cyan (gem-ice)
-          filter: 'brightness(1.3) saturate(1.4)',
+          color: '#00FF7F', // Kräftiges Grün (deutlich anders als Cyan/Blau)
+          filter: 'brightness(1.5) saturate(1.6)',
         } 
       },
       'Klarheit': { 
         icon: Star, 
         style: { 
-          color: '#FFC107', // Gold-Gelb - sehr hell
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#FF9800', // Kräftiges Orange (deutlich anders als Gelb)
+          filter: 'brightness(1.5) saturate(1.6)',
         } 
       },
       'Schliff': { 
         icon: Gem, 
         style: { 
-          color: '#E53935', // Rot (gem-fireDark) - Komplementär zu Cyan
-          filter: 'brightness(1.2) saturate(1.3)',
+          color: '#E91E63', // Pink/Magenta
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Schliffform': { 
         icon: Shapes, 
         style: { 
-          color: '#6A1B9A', // Dunkles Purple
-          filter: 'brightness(1.3) saturate(1.4)',
+          color: '#7B1FA2', // Dunkles Violett
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Behandlung': { 
         icon: FlaskConical, 
         style: { 
-          color: '#478EFF', // Blau (compOrange) - Komplementär zu Orange
-          filter: 'brightness(1.3) saturate(1.4)',
+          color: '#673AB7', // Dunkles Violett/Indigo (deutlich anders als Cyan und Grün)
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Zertifizierung': { 
         icon: Award, 
         style: { 
-          color: '#5E8EFF', // Azure-Blau (compYellow) - Komplementär zu Gold
-          filter: 'brightness(1.3) saturate(1.4)',
+          color: '#3F51B5', // Indigo
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Seltenheit': { 
         icon: Sparkles, 
         style: { 
-          color: '#D45E00', // Amber (compCyan) - Komplementär zu Cyan
-          filter: 'brightness(1.2) saturate(1.3)',
+          color: '#2196F3', // Kräftiges Blau
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
     };
@@ -595,7 +595,7 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
       icon: Tag, 
       style: { 
         color: '#00BCD4',
-        filter: 'brightness(1.3) saturate(1.4)',
+        filter: 'brightness(1.5) saturate(1.6)',
       }
     };
   };

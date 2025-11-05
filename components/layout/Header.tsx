@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: '/wissenswertes', label: 'Wissenswertes' },
   { href: '/worldmap', label: 'Fundorte' },
   { href: '/contact', label: 'Kontakt' },
+  { href: '/downloads', label: 'Download' },
 ];
 
 export function Header() {

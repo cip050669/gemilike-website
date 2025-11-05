@@ -2,10 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSessionWithUser } from '@/lib/session';
 
+interface CheckoutEventBody {
+  cartId?: string | null;
+  step: string;
+  stepOrder?: number;
+  duration?: number | null;
+  metadata?: Record<string, unknown> | null;
+  error?: string | null;
+  completed?: boolean;
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Parse body - kann als JSON oder als String (von sendBeacon) kommen
-    let body: any;
+    let body: CheckoutEventBody;
     const contentType = request.headers.get('content-type');
     
     if (contentType?.includes('application/json')) {
@@ -14,7 +24,7 @@ export async function POST(request: NextRequest) {
       // sendBeacon sendet als Text
       const text = await request.text();
       try {
-        body = JSON.parse(text);
+        body = JSON.parse(text) as CheckoutEventBody;
       } catch (parseError) {
         console.error('Error parsing body:', parseError);
         return NextResponse.json(
@@ -50,7 +60,7 @@ export async function POST(request: NextRequest) {
         });
         customerId = customer?.id || null;
       }
-    } catch (sessionError) {
+    } catch {
       // Nicht eingeloggt - kein Problem, weiter mit sessionId
       // Tracking sollte auch für Gäste funktionieren
     }
@@ -63,7 +73,7 @@ export async function POST(request: NextRequest) {
         step,
         stepOrder: stepOrder || 0,
         duration: duration || null,
-        metadata: metadata || null,
+        metadata: (metadata || null) as Parameters<typeof prisma.checkoutEvent.create>[0]['data']['metadata'],
         error: error || null,
         completed: completed || false,
       },

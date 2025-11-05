@@ -1,0 +1,557 @@
+import React, { useMemo, useRef, useState } from "react";
+
+// GemILike Signature UI — single-file React page/component
+// Ready for Next.js (app or pages). Tailwind required.
+// No external deps. Includes: GemColorCard, PleochroismViewer, ColorStandardizationBadge, LightCalibrationHint, ΔE2000.
+
+/*
+======================== GemILike – Setup Add-ons ========================
+1) Tailwind Theme (tailwind.config.js)
+--------------------------------------------------------------------------
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        gemi: {
+          ink: "#0f1021",
+          night: "#17162e",
+          violet: "#6F73D4",
+          blue: "#2E4EA6",
+          magenta: "#9A1A63",
+        }
+      },
+      boxShadow: { gem: "0 10px 30px rgba(111,115,212,0.15)" }
+    }
+  }
+}
+
+2) Next.js Server Export Route (app/api/export/route.ts)
+--------------------------------------------------------------------------
+// import { NextResponse } from 'next/server'
+// export async function POST(req: Request) {
+//   const body = await req.json();
+//   const payload = JSON.stringify(body, null, 2);
+//   const headers = new Headers({
+//     'Content-Type': 'application/json',
+//     'Content-Disposition': 'attachment; filename="gemilike.json"'
+//   });
+//   return new Response(payload, { headers });
+// }
+
+3) (Optional) Server Action (app/actions/exportJson.ts)
+--------------------------------------------------------------------------
+// 'use server'
+// export async function exportJsonAction(data: unknown) {
+//   return JSON.stringify(data, null, 2);
+// }
+=========================================================================
+*/
+
+// --- Data -------------------------------------------------------------
+const GEM_DATA = [
+  {
+    id: "mahenge-spinel",
+    name: "Mahenge Spinell",
+    origin: "Mahenge, Tansania",
+    gia: { hue: "pkR–R (pinkish Red → Red)", tone: "3–5 (Medium-Light → Medium)", sat: "4–6 (Strong → Vivid)" },
+    note: "Primär Rosa–Magenta; fluoreszenz-empfänglich.",
+    gradient: ["#FBB7D0", "#F78AB8", "#E6579C", "#C63480", "#9A1A63"],
+    pleochro: ["#F78AB8", "#E6579C", "#9A1A63"],
+    light: "D55, CRI ≥95",
+  },
+  {
+    id: "luc-yen-spinel",
+    name: "Spinell Luc Yen",
+    origin: "Lục Yên, Vietnam",
+    gia: { hue: "vB–B–vV (violetish Blue ↔ violet)", tone: "3–5", sat: "3–5" },
+    note: "Kühles Violett–Blau, selten sehr gesättigt.",
+    gradient: ["#B7C4F9", "#8EA0F6", "#6C79DD", "#564EC4", "#3C2B9F"],
+    pleochro: ["#8EA0F6", "#6C79DD", "#3C2B9F"],
+    light: "D55, CRI ≥95",
+  },
+  {
+    id: "tanzanite",
+    name: "Tansanit",
+    origin: "Merelani, Tansania",
+    gia: { hue: "vB–B (violetish Blue ↔ Blue)", tone: "4–6 (Medium → Medium-Dark)", sat: "4–5 (Strong → Vivid)" },
+    note: "Pleochroismus stark; Blau/Violett abhängig von Achse.",
+    gradient: ["#C9C2EB", "#9A97D9", "#6F73D4", "#4A5EC6", "#2E4EA6"],
+    pleochro: ["#9A97D9", "#6F73D4", "#2E4EA6"],
+    light: "D55, CRI ≥95",
+  },
+  {
+    id: "kornerupine",
+    name: "Kornerupin",
+    origin: "verschiedene (u.a. Sri Lanka, Madagaskar)",
+    gia: { hue: "ygG–gY (yellowish Green ↔ greenish Yellow)", tone: "4–6", sat: "2–4" },
+    note: "Gelbgrün → Oliv; tonwert beeinflusst Wert stark.",
+    gradient: ["#D8E6B2", "#BCD88B", "#9FCA66", "#7E9C4B", "#5A7037"],
+    pleochro: ["#BCD88B", "#9FCA66", "#5A7037"],
+    light: "D55, CRI ≥95",
+  },
+];
+
+// --- Utility: Color conversions & ΔE2000
+function hexToRgb(hex) {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return m ? { r: parseInt(m[1], 16) / 255, g: parseInt(m[2], 16) / 255, b: parseInt(m[3], 16) / 255 } : null;
+}
+function invGamma(u) {
+  return u <= 0.04045 ? u / 12.92 : Math.pow((u + 0.055) / 1.055, 2.4);
+}
+function rgbToXyz({ r, g, b }) {
+  const R = invGamma(r), G = invGamma(g), B = invGamma(b);
+  const x = R * 0.4124564 + G * 0.3575761 + B * 0.1804375;
+  const y = R * 0.2126729 + G * 0.7151522 + B * 0.0721750;
+  const z = R * 0.0193339 + G * 0.1191920 + B * 0.9503041;
+  return { x, y, z };
+}
+function fLab(t) { return t > 216 / 24389 ? Math.cbrt(t) : (24389 / 27) * t + 16 / 116; }
+function xyzToLab({ x, y, z }) {
+  // D65 reference white
+  const Xn = 0.95047, Yn = 1.00000, Zn = 1.08883;
+  const fx = fLab(x / Xn), fy = fLab(y / Yn), fz = fLab(z / Zn);
+  const L = 116 * fy - 16;
+  const a = 500 * (fx - fy);
+  const b = 200 * (fy - fz);
+  return { L, a, b };
+}
+function hexToLab(hex) { return xyzToLab(rgbToXyz(hexToRgb(hex))); }
+function deg2rad(d) { return (d * Math.PI) / 180; }
+function rad2deg(r) { return (r * 180) / Math.PI; }
+// CIEDE2000 implementation
+function deltaE2000(lab1, lab2) {
+  const { L: L1, a: a1, b: b1 } = lab1;
+  const { L: L2, a: a2, b: b2 } = lab2;
+  const kL = 1, kC = 1, kH = 1;
+  const C1 = Math.hypot(a1, b1);
+  const C2 = Math.hypot(a2, b2);
+  const Cbar = (C1 + C2) / 2;
+  const G = 0.5 * (1 - Math.sqrt(Math.pow(Cbar, 7) / (Math.pow(Cbar, 7) + Math.pow(25, 7))));
+  const a1p = (1 + G) * a1;
+  const a2p = (1 + G) * a2;
+  const C1p = Math.hypot(a1p, b1);
+  const C2p = Math.hypot(a2p, b2);
+  const h1p = (Math.atan2(b1, a1p) + 2 * Math.PI) % (2 * Math.PI);
+  const h2p = (Math.atan2(b2, a2p) + 2 * Math.PI) % (2 * Math.PI);
+  const dLp = L2 - L1;
+  const dCp = C2p - C1p;
+  let dhp = h2p - h1p;
+  if (dhp > Math.PI) dhp -= 2 * Math.PI;
+  if (dhp < -Math.PI) dhp += 2 * Math.PI;
+  const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin(dhp / 2);
+  const Lbarp = (L1 + L2) / 2;
+  const Cbarp = (C1p + C2p) / 2;
+  let hbarp = h1p + h2p;
+  if (Math.abs(h1p - h2p) > Math.PI) hbarp += 2 * Math.PI;
+  hbarp /= 2;
+  const T = 1 - 0.17 * Math.cos(hbarp - deg2rad(30)) + 0.24 * Math.cos(2 * hbarp) + 0.32 * Math.cos(3 * hbarp + deg2rad(6)) - 0.20 * Math.cos(4 * hbarp - deg2rad(63));
+  let dRo = deg2rad(30) * Math.exp(-Math.pow((rad2deg(hbarp) - 275) / 25, 2));
+  const Rc = 2 * Math.sqrt(Math.pow(Cbarp, 7) / (Math.pow(Cbarp, 7) + Math.pow(25, 7)));
+  const Sl = 1 + (0.015 * Math.pow(Lbarp - 50, 2)) / Math.sqrt(20 + Math.pow(Lbarp - 50, 2));
+  const Sc = 1 + 0.045 * Cbarp;
+  const Sh = 1 + 0.015 * Cbarp * T;
+  const Rt = -Math.sin(2 * dRo) * Rc;
+  return Math.sqrt(
+    Math.pow(dLp / (kL * Sl), 2) +
+    Math.pow(dCp / (kC * Sc), 2) +
+    Math.pow(dHp / (kH * Sh), 2) +
+    Rt * (dCp / (kC * Sc)) * (dHp / (kH * Sh))
+  );
+}
+
+// --- Components -------------------------------------------------------
+function Section({ title, children, subtitle }) {
+  const exportPNG = async () => {
+    try {
+      setExporting(true);
+      const node = captureRef.current;
+      if (!node) return;
+      const canvas = await html2canvas(node, { backgroundColor: null, scale: 2 });
+      const url = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = url; a.download = `GemILike_${Date.now()}.png`; a.click();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const exportJSONServer = async (data) => {
+    try {
+      const res = await fetch('/api/export', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `${data.id || 'gemilike'}.json`; a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  return (
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#2E2A47] dark:text-violet-100">{title}</h2>
+        {subtitle && <p className="text-sm text-slate-600/80 mt-1">{subtitle}</p>}
+      </div>
+      {children}
+    </section>
+  );
+}
+function ColorStandardizationBadge({ light = "D55", cri = "≥95", std = "GIA-aligned" }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-2xl border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-900 shadow-sm">
+      <span className="h-2 w-2 rounded-full bg-gradient-to-r from-[#6F73D4] via-[#2E4EA6] to-[#9A1A63]" />
+      {std} • {light} • CRI {cri}
+    </div>
+  );
+}
+
+function LightCalibrationHint() {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white/70 backdrop-blur p-4 shadow-sm">
+      <h4 className="font-semibold text-slate-800">Licht & Weißabgleich</h4>
+      <ul className="mt-2 text-sm text-slate-600 list-disc list-inside space-y-1">
+        <li>Nutze 5000–5500K Normlicht (D55), CRI ≥95.</li>
+        <li>Graukarte im gleichen Lichtfeld platzieren.</li>
+        <li>RAW + Pipette auf die Graureferenz in GIMP/Darktable.</li>
+      </ul>
+    </div>
+  );
+}
+
+function GradientBar({ colors }) {
+  const canvasRef = useRef(null);
+  React.useEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const ctx = c.getContext("2d");
+    const g = ctx.createLinearGradient(0, 0, c.width, 0);
+    const n = colors.length;
+    colors.forEach((col, i) => g.addColorStop(i / (n - 1), col));
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, c.width, c.height);
+  }, [colors]);
+  return <canvas ref={canvasRef} className="w-full h-6 rounded-xl" width={800} height={40} />;
+}
+
+function downloadText(filename, text) {
+  const blob = new Blob([text], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function GemColorCard({ item, onPickColor }) {
+  const json = useMemo(() => JSON.stringify({ id: item.id, name: item.name, gia: item.gia, gradient: item.gradient, pleochro: item.pleochro, light: item.light }, null, 2), [item]);
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900">{item.name}</h3>
+          <p className="text-xs text-slate-500">{item.origin}</p>
+        </div>
+        <ColorStandardizationBadge />
+            <button onClick={() => exportJSONServer(active)} className="rounded-2xl border border-white/20 text-white px-3 py-2 text-xs hover:bg-white/10 ml-2">JSON (Server)</button>
+            <button onClick={exportPNG} className="rounded-2xl bg-white/10 text-white px-3 py-2 text-xs hover:bg-white/20 disabled:opacity-60 ml-2" disabled={exporting}>{exporting ? 'Export…' : 'PNG Export'}</button>
+      </div>
+      <div className="mt-4">
+        <GradientBar colors={item.gradient} />
+        <div className="flex gap-2 mt-3">
+          {item.gradient.map((c) => (
+            <button
+              key={c}
+              title={c}
+              onClick={() => onPickColor?.(c)}
+              className="h-9 min-w-9 px-2 rounded-xl border border-slate-200"
+              style={{ background: c }}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-3 gap-3 mt-4 text-sm">
+        <div className="rounded-2xl bg-slate-50 p-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-500">GIA Hue</div>
+          <div className="font-medium text-slate-800">{item.gia.hue}</div>
+        </div>
+        <div className="rounded-2xl bg-slate-50 p-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-500">Tone</div>
+          <div className="font-medium text-slate-800">{item.gia.tone}</div>
+        </div>
+        <div className="rounded-2xl bg-slate-50 p-3">
+          <div className="text-[11px] uppercase tracking-wide text-slate-500">Saturation</div>
+          <div className="font-medium text-slate-800">{item.gia.sat}</div>
+        </div>
+      </div>
+      <p className="mt-3 text-sm text-slate-600">{item.note}</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          onClick={() => navigator.clipboard.writeText(json)}
+          className="rounded-2xl bg-[#2E2A47] text-white px-4 py-2 text-sm hover:opacity-90"
+        >JSON kopieren</button>
+        <button
+          onClick={() => downloadText(`${item.id}.json`, json)}
+          className="rounded-2xl border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
+        >JSON herunterladen</button>
+      </div>
+    </div>
+  );
+}
+function PleochroismViewer({ swatches }) {
+  const [rotation, setRotation] = useState(0);
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between">
+        <h4 className="font-semibold text-slate-900">Pleochroismus-Viewer</h4>
+        <ColorStandardizationBadge />
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        {swatches.map((c, i) => (
+          <div key={i} className="rounded-2xl p-3 border border-slate-200">
+            <div className="h-16 rounded-xl" style={{ background: c, transform: `rotate(${rotation}deg)` }} />
+            <div className="mt-2 text-xs text-slate-600">Achse {i + 1}: <span className="font-mono">{c}</span></div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4">
+        <label className="text-xs text-slate-600">Rotation</label>
+        <input type="range" min={-45} max={45} value={rotation} onChange={(e) => setRotation(parseInt(e.target.value))} className="w-full" />
+      </div>
+    </div>
+  );
+}
+
+function DeltaEPanel({ a, b }) {
+  const val = useMemo(() => (a && b ? deltaE2000(hexToLab(a), hexToLab(b)) : 0), [a, b]);
+  const rating = val < 1 ? "Unterscheidbar nur instrumentell" : val < 2 ? "Sehr gering" : val < 5 ? "Gering" : val < 10 ? "Mittel" : "Deutlich";
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h4 className="font-semibold text-slate-900">ΔE2000 Vergleich</h4>
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-slate-200 p-3">
+          <div className="h-12 rounded-xl" style={{ background: a || "#eee" }} />
+          <div className="mt-2 text-xs font-mono">{a || "#------"}</div>
+        </div>
+        <div className="rounded-2xl border border-slate-200 p-3">
+          <div className="h-12 rounded-xl" style={{ background: b || "#eee" }} />
+          <div className="mt-2 text-xs font-mono">{b || "#------"}</div>
+        </div>
+      </div>
+      <div className="mt-3 text-sm text-slate-700">ΔE2000: <span className="font-semibold">{val.toFixed(2)}</span> – {rating}</div>
+      <p className="mt-1 text-xs text-slate-500">Hinweis: basiert auf sRGB → D65 → Lab; Praxisabhängig von Licht & Kalibrierung.</p>
+    </div>
+  );
+}
+
+export default function GemILikeSignatureUI() {
+  const captureRef = useRef(null);
+  const [exporting, setExporting] = useState(false);
+  const [gems, setGems] = useState(GEM_DATA);
+
+  const [active, setActive] = useState(GEM_DATA[0]);
+  const [pickA, setPickA] = useState(null);
+  const [pickB, setPickB] = useState(null);
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-[#0f1021] via-[#17162e] to-[#0f1021] text-slate-100 pb-24">
+      {/* Header */}
+      <header className="sticky top-0 z-10 backdrop-blur border-b border-white/10 bg-black/30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-2xl bg-gradient-to-br from-[#6F73D4] via-[#2E4EA6] to-[#9A1A63] shadow" />
+            <div>
+              <div className="text-sm tracking-wider uppercase text-violet-200/90">GemILike</div>
+              <div className="font-semibold text-white">Color Reference</div>
+            </div>
+          </div>
+          <ColorStandardizationBadge />
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+          <h1 className="text-2xl sm:text-4xl font-semibold text-white">GemILike Signature UI</h1>
+          <p className="mt-2 text-slate-300 max-w-3xl">Interaktive Farbkarten mit GIA-konformer Benennung, Pleochroismus-Viewer und ΔE2000-Vergleich. Entwickelt für Edelsteinhandel & gemmologische Dokumentation.</p>
+        </div>
+      </section>
+
+      {/* Upload (JSON) */}
+      <Section title="Eigene Daten importieren" subtitle="JSON mit Steindaten laden und zur Kollektion hinzufügen (lokal, clientseitig)">
+        <UploadPanel onImport={(list) => {
+          if (!Array.isArray(list)) return alert('JSON muss ein Array sein.');
+          // rudimentäre Validierung
+          const valid = list.filter(x => x && x.id && x.name && x.gradient && x.pleochro && x.gia);
+          if (valid.length === 0) return alert('Keine gültigen Einträge gefunden.');
+          setGems(prev => {
+            const map = new Map(prev.map(p => [p.id, p]));
+            valid.forEach(v => map.set(v.id, v));
+            return Array.from(map.values());
+          });
+        }} />
+      </Section>
+
+      {/* Selector */}
+      <Section title="Kollektion" subtitle="Wähle eine Referenz – Daten & UI aktualisieren sich live.">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {gems.map((g) => (
+            <button key={g.id} onClick={() => { setActive(g); setPickA(null); setPickB(null); }} className={`rounded-2xl p-3 text-left border transition ${active.id === g.id ? "border-violet-400 bg-white/10" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+              <div className="text-sm font-medium text-white">{g.name}</div>
+              <div className="text-xs text-slate-300">{g.origin}</div>
+              <div className="mt-2 h-2 rounded-full overflow-hidden">
+                <div className="w-full h-full" style={{ background: `linear-gradient(90deg, ${g.gradient.join(", ")})` }} />
+              </div>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      {/* Content */}
+      <Section title={active.name} subtitle={`${active.origin} • ${active.light}`}>
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <GemColorCard item={active} onPickColor={(c) => (pickA ? setPickB(c) : setPickA(c))} />
+            <PleochroismViewer swatches={active.pleochro} />
+            <LightCalibrationHint />
+          </div>
+          <div className="space-y-6">
+            <DeltaEPanel a={pickA} b={pickB} />
+            <div className="rounded-3xl border border-slate-200 bg-white p-5 text-slate-800 shadow-sm">
+              <h4 className="font-semibold">Vergleichsworkflow</h4>
+              <ol className="mt-2 text-sm list-decimal list-inside space-y-1 text-slate-700">
+                <li>In <span className="font-medium">GemColorCard</span> zwei Farbfelder anklicken (A, dann B).</li>
+                <li>ΔE2000 bewerten: &lt;2 sehr klein, 2–5 gering, 5–10 mittel, &gt;10 deutlich.</li>
+                <li>Bei Zertifikaten: Licht, Kamera, WB-Methode dokumentieren.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Footer */}
+      <footer className="mt-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-xs text-slate-400">
+          GemILike Signature • GIA-aligned • D55 • CRI ≥95 • sRGB workflow
+        </div>
+      </footer>
+    </main>
+  );
+}
+// ========================= Upload Panel ===============================
+function UploadPanel({ onImport }) {
+  const inputRef = useRef(null);
+  const handleFile = (f) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(String(reader.result));
+        onImport?.(data);
+      } catch (e) { alert('Ungültiges JSON.'); }
+    };
+    reader.readAsText(f);
+  };
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm">
+      <p className="text-slate-300">Format: Array von Objekten {`{ id, name, gia, gradient[], pleochro[], light }`}</p>
+      <div className="mt-3 flex gap-3 items-center">
+        <button onClick={() => inputRef.current?.click()} className="rounded-2xl bg-white/10 px-4 py-2 hover:bg-white/20">JSON auswählen…</button>
+        <input ref={inputRef} type="file" accept="application/json" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+        <button onClick={() => {
+          const sample = [
+            { id: 'demo-stone', name: 'Demo Stone', origin: 'N/A', gia: { hue: 'B', tone: '5', sat: '3' }, note: 'Demo', gradient: ['#dde4ff','#9fb2ff','#6f85f0','#4c63cc','#3146a1'], pleochro: ['#9fb2ff','#6f85f0','#3146a1'], light: 'D55' }
+          ];
+          onImport?.(sample);
+        }} className="rounded-2xl border border-white/20 px-4 py-2 hover:bg-white/10">Demo laden</button>
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
+   SSR PNG Export (Satori + Resvg) — create file: app/api/export-png/route.ts
+-----------------------------------------------------------------------
+import { NextRequest } from 'next/server'
+import satori from 'satori'
+import { Resvg } from '@resvg/resvg-js'
+
+export const runtime = 'edge'
+
+export async function POST(req: NextRequest) {
+  const data = await req.json()
+  const svg = await satori(
+    { type: 'div', props: { style: { width: 1200, height: 630, display: 'flex', flexDirection:'column', padding: 40, background: '#0f1021', color: 'white' }, children: [
+      { type:'div', props:{ style:{ fontSize: 36, marginBottom: 16 }, children: data.name || 'GemILike' }},
+      { type:'div', props:{ style:{ display:'flex', gap: 8 }, children: (data.gradient||[]).map((c:string)=>({ type:'div', props:{ style:{ width: 200, height: 40, background: c }}})) }},
+    ] } },
+    { width: 1200, height: 630, fonts: [] }
+  )
+  const png = new Resvg(svg).render().asPng()
+  return new Response(png, { headers: { 'Content-Type': 'image/png', 'Content-Disposition': `attachment; filename="${(data.id||'gemilike')}.png"` } })
+}
+
+Usage (client):
+// await fetch('/api/export-png', { method: 'POST', body: JSON.stringify(active), headers: { 'Content-Type':'application/json' } })
+//   .then(r=>r.blob()).then(b=>downloadBlob(b, `${active.id}.png`))
+
+Helper client-side:
+// function downloadBlob(b:Blob, name:string){ const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
+
+======================================================================*/
+
+/* =====================================================================
+   PDF Export (react-pdf) — API route: app/api/export-pdf/route.ts
+-----------------------------------------------------------------------
+import { NextRequest } from 'next/server'
+import React from 'react'
+import { renderToStream } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+
+export async function POST(req: NextRequest) {
+  const data = await req.json()
+  const styles = StyleSheet.create({ page:{ padding:32 }, h1:{ fontSize:20, marginBottom:8 }, row:{ flexDirection:'row', gap:4, marginTop:8 } })
+  const Doc = (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.h1}>{data.name || 'GemILike'}</Text>
+        <View style={styles.row}>
+          {(data.gradient||[]).map((c:string,i:number)=> (
+            <View key={i} style={{ width:60, height:20, backgroundColor:c }} />
+          ))}
+        </View>
+        <Text>GIA Hue: {data.gia?.hue||''}</Text>
+        <Text>Tone: {data.gia?.tone||''}</Text>
+        <Text>Sat: {data.gia?.sat||''}</Text>
+      </Page>
+    </Document>
+  )
+  const stream = await renderToStream(Doc)
+  return new Response(stream as any, { headers: { 'Content-Type':'application/pdf', 'Content-Disposition': `attachment; filename="${(data.id||'gemilike')}.pdf"` } })
+}
+======================================================================*/
+
+/* =====================================================================
+   Drucklayout (A4/A5) – Seite: app/print/gemilike/page.tsx
+-----------------------------------------------------------------------
+export default function PrintGemILike(){
+  return (
+    <div className="print:bg-white print:text-black p-8 max-w-[210mm] mx-auto">
+      <h1 className="text-2xl font-semibold mb-4">GemILike – Farbkarte</h1>
+      <div className="grid grid-cols-1 gap-4">
+        {/* Ersetze hier mit deinen Daten/Komponenten */}
+        <div className="border p-4 rounded-xl">
+          <div className="font-medium">Tansanit</div>
+          <div className="h-6 rounded mt-2" style={{background:'linear-gradient(90deg,#C9C2EB,#9A97D9,#6F73D4,#4A5EC6,#2E4EA6)'}} />
+        </div>
+      </div>
+      <style jsx global>{`
+        @page { size: A4; margin: 12mm; }
+        @media print { .no-print { display: none !important; } }
+      `}</style>
+    </div>
+  )
+}
+======================================================================*/

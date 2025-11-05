@@ -98,8 +98,7 @@ export function Footer() {
                   alt="Gemilike Logo" 
                   width={120} 
                   height={53} 
-                  className="object-contain"
-                  style={{ width: 'auto', height: 'auto' }}
+                  className="object-contain max-w-[150px] h-auto"
                 />
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-gem-ice/40 px-3 py-1 text-[11px] uppercase tracking-[0.3em] text-gem-iceLight">
                   Heroes in Gems

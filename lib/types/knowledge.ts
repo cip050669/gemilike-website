@@ -11,6 +11,7 @@ export interface KnowledgeArticle {
   contentImages: string[];
   published: boolean;
   featured: boolean;
+  locale: string; // Multi-Language Support
   createdAt: Date;
   updatedAt: Date;
   publishedAt?: Date;

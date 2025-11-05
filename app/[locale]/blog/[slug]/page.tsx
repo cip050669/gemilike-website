@@ -4,45 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, User, Tag } from 'lucide-react';
-import { BlogPost } from '@/lib/types/blog';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 import Image from 'next/image';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
-
-// Lade Blog-Posts direkt aus der JSON-Datei
-async function getBlogPosts(): Promise<BlogPost[]> {
-  try {
-    const blogFile = join(process.cwd(), 'data', 'blogs.json');
-    const data = await readFile(blogFile, 'utf-8');
-    const blogs = JSON.parse(data);
-    
-    return blogs.map((blog: {
-      id: string;
-      title: string;
-      slug: string;
-      excerpt?: string;
-      content: string;
-      author?: string;
-      category?: string;
-      tags?: string[];
-      image?: string;
-      published?: boolean;
-      createdAt: string | Date;
-      updatedAt: string | Date;
-      publishedAt?: string | Date;
-      [key: string]: unknown;
-    }) => ({
-      ...blog,
-      createdAt: new Date(blog.createdAt),
-      updatedAt: new Date(blog.updatedAt),
-      publishedAt: blog.publishedAt ? new Date(blog.publishedAt) : undefined,
-    }));
-  } catch (error) {
-    console.error('Error loading blog posts:', error);
-    return [];
-  }
-}
+import { getBlogBySlug } from '@/lib/services/blog.service';
 
 export default async function BlogPostPage({ 
   params 
@@ -50,10 +14,7 @@ export default async function BlogPostPage({
   params: Promise<{ locale: string; slug: string }> 
 }) {
   const { locale, slug } = await params;
-  const blogPosts = await getBlogPosts();
-  
-  // Finde den Blog-Post anhand des Slugs
-  const post = blogPosts.find(p => p.slug === slug && p.published);
+  const post = await getBlogBySlug(slug, locale);
   
   if (!post) {
     notFound();

@@ -9,11 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, X, Plus, Edit, Eye, EyeOff, Upload, Image as ImageIcon } from 'lucide-react';
-import { KnowledgeArticle, defaultKnowledgeCategories, defaultKnowledgeTags } from '@/lib/types/knowledge';
+import { Save, X, Plus, Trash2, Edit, Eye, EyeOff, Upload } from 'lucide-react';
+import Image from 'next/image';
+import { KnowledgeArticle, defaultKnowledgeCategories } from '@/lib/types/knowledge';
 import { MarkdownPreview } from './MarkdownPreview';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 
 interface KnowledgeEditorProps {
   article?: KnowledgeArticle;
@@ -32,13 +32,19 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
     author: article?.author || 'Gemilike Redaktion',
     category: article?.category || 'Grundlagen',
     tags: article?.tags || [],
-    image: !article?.image || article.image === '/blog/default-blog.jpg' ? PLACEHOLDER_IMAGE : article.image,
+    image: !article?.image || article.image === '/blog/default-blog.jpg'
+      ? PLACEHOLDER_IMAGE
+      : article.image,
     contentImages: article?.contentImages || [],
     published: article?.published || false,
     featured: article?.featured || false,
+    locale: article?.locale || 'de',
+    metaDescription: article?.metaDescription || '',
+    readingTime: article?.readingTime || undefined,
+    difficulty: article?.difficulty || undefined,
   });
+
   const [newTag, setNewTag] = useState('');
-  const [previewOpen, setPreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const inputStyles =
@@ -46,40 +52,18 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
   const cardStyles =
     'bg-gray-800/50/50 border-white/15 text-white shadow-lg shadow-black/40';
 
-  const handleInputChange = (field: string, value: unknown) => {
+  const handleInputChange = <K extends keyof typeof formData>(field: K, value: (typeof formData)[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleAddTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData((prev) => ({ ...prev, tags: [...prev.tags, newTag.trim()] }));
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
       setNewTag('');
     }
-  };
-
-  const handleRemoveTag = (tag: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((entry) => entry !== tag),
-    }));
-  };
-
-  const uploadImage = async (file: File) => {
-    const formDataPayload = new FormData();
-    formDataPayload.append('file', file);
-
-    const response = await fetch('/api/admin/story-images', {
-      method: 'POST',
-      body: formDataPayload,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => null);
-      throw new Error(error?.error || 'Upload fehlgeschlagen');
-    }
-
-    const result = await response.json();
-    return result.imageUrl as string;
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,18 +73,33 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
     setIsLoading(true);
     try {
       if (!file.type.startsWith('image/')) {
-        throw new Error('Bitte wählen Sie eine Bilddatei aus.');
+        alert('Bitte wählen Sie eine Bilddatei aus.');
+        return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        throw new Error('Die Datei ist zu groß. Maximum 5MB.');
+        alert('Die Datei ist zu groß. Maximale Größe: 5MB');
+        return;
       }
 
-      const imageUrl = await uploadImage(file);
-      setFormData((prev) => ({ ...prev, image: imageUrl }));
+      const formDataPayload = new FormData();
+      formDataPayload.append('file', file);
+
+      const response = await fetch('/api/admin/story-images', {
+        method: 'POST',
+        body: formDataPayload,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Upload fehlgeschlagen');
+      }
+
+      const result = await response.json();
+      setFormData(prev => ({ ...prev, image: result.imageUrl }));
       alert('Bild erfolgreich hochgeladen!');
     } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : 'Upload fehlgeschlagen');
+      console.error('Upload error:', error);
+      alert(`Fehler beim Hochladen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
     } finally {
       setIsLoading(false);
     }
@@ -112,34 +111,56 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
 
     setIsLoading(true);
     try {
-      const uploads = await Promise.all(
-        Array.from(files).map(async (file) => {
-          if (!file.type.startsWith('image/')) {
-            throw new Error(`${file.name} ist keine Bilddatei.`);
-          }
-          if (file.size > 5 * 1024 * 1024) {
-            throw new Error(`${file.name} überschreitet 5MB.`);
-          }
-          return uploadImage(file);
-        })
-      );
-      setFormData((prev) => ({
-        ...prev,
-        contentImages: [...prev.contentImages, ...uploads],
+      const uploadPromises = Array.from(files).map(async (file) => {
+        if (!file.type.startsWith('image/')) {
+          throw new Error(`${file.name} ist keine Bilddatei.`);
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error(`${file.name} ist zu groß. Maximale Größe: 5MB`);
+        }
+
+        const formDataPayload = new FormData();
+        formDataPayload.append('file', file);
+
+        const response = await fetch('/api/admin/story-images', {
+          method: 'POST',
+          body: formDataPayload,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Upload fehlgeschlagen');
+        }
+
+        const result = await response.json();
+        return result.imageUrl;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setFormData(prev => ({ 
+        ...prev, 
+        contentImages: [...prev.contentImages, ...uploadedUrls] 
       }));
-      alert(`${uploads.length} Bilder erfolgreich hochgeladen!`);
+      alert(`${uploadedUrls.length} Bilder erfolgreich hochgeladen!`);
     } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : 'Upload fehlgeschlagen');
+      console.error('Upload error:', error);
+      alert(`Fehler beim Hochladen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRemoveContentImage = (index: number) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      contentImages: prev.contentImages.filter((_, idx) => idx !== index),
+      contentImages: prev.contentImages.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
     }));
   };
 
@@ -151,9 +172,15 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
 
     setIsLoading(true);
     try {
-      await onSave(formData);
+      // Generate slug from title
+      const slug = formData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      
+      await onSave({ ...formData, slug });
     } catch (error) {
-      console.error(error);
+      console.error('Error saving article:', error);
       alert('Fehler beim Speichern des Artikels');
     } finally {
       setIsLoading(false);
@@ -165,10 +192,11 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Edit className="h-5 w-5" />
-          {isCreating ? 'Neuer Wissenswert-Artikel' : 'Artikel bearbeiten'}
+          {isCreating ? 'Neuer Wissenswert-Artikel' : 'Wissenswert-Artikel bearbeiten'}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Titel */}
         <div className="space-y-2">
           <Label htmlFor="title">Titel *</Label>
           <Input
@@ -180,7 +208,8 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
           />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        {/* Autor und Kategorie */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="author">Autor</Label>
             <Input
@@ -193,16 +222,17 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Kategorie</Label>
-            <Select
-              value={formData.category}
-              onValueChange={(value) => handleInputChange('category', value)}
-            >
-              <SelectTrigger className={inputStyles}>
-                <SelectValue placeholder="Kategorie wählen" />
+            <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+              <SelectTrigger className={cn(inputStyles, 'font-medium')}>
+                <SelectValue placeholder="Kategorie auswählen" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-gray-900 border border-white/30 shadow-xl">
                 {defaultKnowledgeCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.name}>
+                  <SelectItem 
+                    key={category.id} 
+                    value={category.name}
+                    className="text-white cursor-pointer hover:bg-gray-800 focus:bg-gray-800 focus:text-white"
+                  >
                     {category.name}
                   </SelectItem>
                 ))}
@@ -211,177 +241,303 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
           </div>
         </div>
 
+        {/* Bild */}
         <div className="space-y-2">
-          <Label htmlFor="excerpt">Auszug *</Label>
+          <Label htmlFor="image">Bild-URL</Label>
+          <div className="flex items-center gap-2">
+            <Input
+              id="image"
+              value={formData.image}
+              onChange={(e) => handleInputChange('image', e.target.value)}
+              placeholder="/images/stories/beispiel-bild.jpg"
+              className={cn('flex-1', inputStyles)}
+            />
+            <AdminButton 
+              type="button" 
+              variant="outline" 
+              onClick={() => document.getElementById('imageUploadInput')?.click()} 
+              disabled={isLoading}
+              className="border-white/40 text-white hover:bg-gray-800/30/10"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Upload
+            </AdminButton>
+            <input
+              id="imageUploadInput"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+              disabled={isLoading}
+            />
+          </div>
+          {formData.image && (
+            <div className="relative w-full h-48 border rounded-lg overflow-hidden mt-2">
+              <Image
+                src={formData.image}
+                alt="Bild-Vorschau"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Content-Bilder */}
+        <div className="space-y-2">
+          <Label>Content-Bilder</Label>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <AdminButton 
+                type="button" 
+                variant="outline" 
+                onClick={() => document.getElementById('contentImagesUploadInput')?.click()} 
+                disabled={isLoading}
+                className="border-white/40 text-white hover:bg-gray-800/30/10"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Bilder hochladen
+              </AdminButton>
+              <input
+                id="contentImagesUploadInput"
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleContentImagesUpload}
+                disabled={isLoading}
+              />
+              <span className="text-sm text-white/70">
+                Mehrere Bilder gleichzeitig auswählen möglich
+              </span>
+            </div>
+            
+            {formData.contentImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {formData.contentImages.map((imageUrl, index) => (
+                  <div key={index} className="relative group">
+                    <div className="relative w-full h-32 border rounded-lg overflow-hidden">
+                      <Image
+                        src={imageUrl}
+                        alt={`Content Bild ${index + 1}`}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover"
+                      />
+                      <AdminButton
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleRemoveContentImage(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </AdminButton>
+                    </div>
+                    <div className="text-xs text-white/70 mt-1 truncate">
+                      {imageUrl.split('/').pop()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="text-xs text-white/70 space-y-1">
+            <p className="font-semibold text-amber-300">
+              ⚠️ Wichtig: Bilder müssen mit Markdown-Syntax eingefügt werden!
+            </p>
+            <p>
+              Diese Bilder können im Artikel-Inhalt verwendet werden.
+              Kopieren Sie die URLs und fügen Sie sie in den Markdown-Inhalt ein:
+            </p>
+            <code className="bg-gray-800/30/10 px-2 py-1 rounded block text-white">![Bildbeschreibung](URL)</code>
+            <p className="text-amber-300">
+              ✗ Falsch: <code className="bg-gray-800/30/10 px-1 rounded text-white">/uploads/bild.jpg</code> (wird als Link angezeigt)<br />
+              ✓ Richtig: <code className="bg-gray-800/30/10 px-1 rounded text-white">![Mein Bild](/uploads/bild.jpg)</code> (wird als Bild angezeigt)
+            </p>
+          </div>
+        </div>
+
+        {/* Kurzbeschreibung */}
+        <div className="space-y-2">
+          <Label htmlFor="excerpt">Kurzbeschreibung</Label>
           <Textarea
             id="excerpt"
-            rows={3}
             value={formData.excerpt}
             onChange={(e) => handleInputChange('excerpt', e.target.value)}
-            placeholder="Kurzer Teasertext"
-            className={cn('resize-none', inputStyles)}
+            placeholder="Kurze Beschreibung des Artikels"
+            rows={3}
+            className={inputStyles}
           />
         </div>
 
+        {/* Inhalt */}
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            Titelbild
-            {isLoading && <span className="text-xs text-white/60">Lade...</span>}
-          </Label>
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative h-40 w-full md:w-64 overflow-hidden rounded-lg border border-dashed border-white/20 bg-gray-800/50/40" style={{ minHeight: '160px' }}>
-              <Image
-                src={formData.image || PLACEHOLDER_IMAGE}
-                alt="Titelbild"
-                fill
-                sizes="(max-width: 768px) 100vw, 256px"
-                className="object-cover"
-                priority={false}
-              />
-            </div>
-            <label className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/50/40 border border-white/25 rounded-md cursor-pointer hover:bg-gray-800/50/60 transition">
-              <Upload className="h-4 w-4" />
-              Titelbild hochladen
-              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-            </label>
+          <Label htmlFor="content">Inhalt * (Markdown unterstützt)</Label>
+          <Textarea
+            id="content"
+            value={formData.content}
+            onChange={(e) => handleInputChange('content', e.target.value)}
+            placeholder="Vollständiger Inhalt des Artikels (Markdown-Formatierung möglich)"
+            rows={12}
+            className={cn('font-mono text-sm', inputStyles)}
+          />
+          <div className="text-xs text-white/70">
+            <strong>Markdown-Unterstützung:</strong> Überschriften (# ## ###), 
+            <strong>Fett</strong>, <em>Kursiv</em>, Listen (- *), Links [Text](URL), 
+            Code `inline` und ```Blöcke```, Tabellen, Bilder ![Alt](URL)
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Inhaltsbilder</Label>
-          <div className="flex flex-wrap gap-3">
-            {formData.contentImages.map((img, index) => (
-              <div key={img} className="relative h-24 w-24 overflow-hidden rounded-lg border border-white/20">
-                <Image src={img} alt={`content-${index}`} fill sizes="96px" className="object-cover" />
-                <button
-                  type="button"
-                  className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-800/50/70 text-white"
-                  onClick={() => handleRemoveContentImage(index)}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-            <label className="inline-flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-white/30 text-white/70 hover:border-white/50">
-              <ImageIcon className="h-6 w-6" />
-              <span className="text-xs">Bilder hinzufügen</span>
-              <input type="file" accept="image/*" multiple onChange={handleContentImagesUpload} className="hidden" />
-            </label>
-          </div>
-        </div>
+        {/* Markdown-Vorschau */}
+        <MarkdownPreview content={formData.content} />
 
+        {/* Tags */}
         <div className="space-y-2">
           <Label>Tags</Label>
+          <div className="flex gap-2">
+            <Input
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              placeholder="Neues Tag hinzufügen"
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+              className={inputStyles}
+            />
+            <AdminButton type="button" onClick={handleAddTag} size="sm">
+              <Plus className="h-4 w-4" />
+            </AdminButton>
+          </div>
           <div className="flex flex-wrap gap-2">
-            {formData.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                #{tag}
-                <button type="button" onClick={() => handleRemoveTag(tag)} className="text-xs">
-                  ×
+            {formData.tags.map((tag, index) => (
+              <Badge
+                key={index}
+                variant="secondary"
+                className="flex items-center gap-1 bg-gray-800/30/10 text-white border border-white/20"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(tag)}
+                  className="ml-1 hover:text-red-500"
+                >
+                  <X className="h-3 w-3" />
                 </button>
               </Badge>
             ))}
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+        </div>
+
+        {/* Locale und SEO */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="locale">Sprache (Locale)</Label>
+            <Select value={formData.locale} onValueChange={(value) => handleInputChange('locale', value)}>
+              <SelectTrigger className={cn(inputStyles, 'font-medium')}>
+                <SelectValue placeholder="Sprache auswählen" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border border-white/30 shadow-xl">
+                <SelectItem value="de" className="text-white cursor-pointer hover:bg-gray-800 focus:bg-gray-800 focus:text-white">
+                  Deutsch
+                </SelectItem>
+                <SelectItem value="en" className="text-white cursor-pointer hover:bg-gray-800 focus:bg-gray-800 focus:text-white">
+                  English
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="readingTime">Lesezeit (Minuten)</Label>
             <Input
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              placeholder="Neuen Tag hinzufügen"
+              id="readingTime"
+              type="number"
+              min="1"
+              value={formData.readingTime || ''}
+              onChange={(e) => handleInputChange('readingTime', e.target.value ? parseInt(e.target.value) : undefined)}
+              placeholder="Wird automatisch berechnet"
               className={inputStyles}
             />
-            <AdminButton type="button" onClick={handleAddTag} variant="outline" className="sm:w-40">
-              <Plus className="h-4 w-4 mr-2" />
-              Tag hinzufügen
-            </AdminButton>
-          </div>
-          <div className="flex flex-wrap gap-2 text-xs text-white/60">
-            {defaultKnowledgeTags.map((tag) => (
-              <button
-                key={tag.id}
-                type="button"
-                className="rounded-full border border-white/20 px-3 py-1 hover:bg-gray-800/30/10"
-                onClick={() => handleInputChange('tags', Array.from(new Set([...formData.tags, tag.name])))}
-              >
-                #{tag.name}
-              </button>
-            ))}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="content">Inhalt *</Label>
+          <Label htmlFor="metaDescription">Meta-Description (SEO)</Label>
           <Textarea
-            id="content"
-            rows={12}
-            value={formData.content}
-            onChange={(e) => handleInputChange('content', e.target.value)}
-            placeholder="Artikelinhalt als Markdown"
-            className={cn('font-mono', inputStyles)}
+            id="metaDescription"
+            value={formData.metaDescription}
+            onChange={(e) => handleInputChange('metaDescription', e.target.value)}
+            placeholder="Kurze Beschreibung für Suchmaschinen (max. 160 Zeichen)"
+            rows={3}
+            maxLength={160}
+            className={inputStyles}
           />
-          <div className="flex items-center gap-3">
-            <AdminButton type="button" onClick={() => setPreviewOpen((prev) => !prev)} variant="secondary">
-              {previewOpen ? (
-                <>
-                  <EyeOff className="h-4 w-4 mr-2" />
-                  Vorschau ausblenden
-                </>
-              ) : (
-                <>
-                  <Eye className="h-4 w-4 mr-2" />
-                  Vorschau anzeigen
-                </>
-              )}
-            </AdminButton>
+          <div className="text-xs text-white/70">
+            {formData.metaDescription.length}/160 Zeichen
           </div>
-          {previewOpen && (
-            <MarkdownPreview content={formData.content} />
-          )}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="flex items-center justify-between rounded-lg border border-white/20 px-4 py-3">
-            <div>
-              <p className="font-medium">Veröffentlicht</p>
-              <p className="text-sm text-white/60">
-                Sichtbar auf der Wissenswert-Seite
-              </p>
-            </div>
+        <div className="space-y-2">
+          <Label htmlFor="difficulty">Schwierigkeitsgrad</Label>
+          <Select 
+            value={formData.difficulty || 'beginner'} 
+            onValueChange={(value) => handleInputChange('difficulty', value as 'beginner' | 'intermediate' | 'advanced')}
+          >
+            <SelectTrigger className={cn(inputStyles, 'font-medium')}>
+              <SelectValue placeholder="Schwierigkeitsgrad auswählen" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-900 border border-white/30 shadow-xl">
+              <SelectItem value="beginner" className="text-white cursor-pointer hover:bg-gray-800 focus:bg-gray-800 focus:text-white">
+                Anfänger
+              </SelectItem>
+              <SelectItem value="intermediate" className="text-white cursor-pointer hover:bg-gray-800 focus:bg-gray-800 focus:text-white">
+                Fortgeschritten
+              </SelectItem>
+              <SelectItem value="advanced" className="text-white cursor-pointer hover:bg-gray-800 focus:bg-gray-800 focus:text-white">
+                Experte
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Einstellungen */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
             <Switch
+              id="published"
               checked={formData.published}
               onCheckedChange={(checked) => handleInputChange('published', checked)}
+              className="data-[state=checked]:bg-gray-800/30 data-[state=unchecked]:bg-gray-800/30/30"
             />
+            <Label htmlFor="published" className="flex items-center gap-2">
+              {formData.published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              Veröffentlicht
+            </Label>
           </div>
-          <div className="flex items-center justify-between rounded-lg border border-white/20 px-4 py-3">
-            <div>
-              <p className="font-medium">Hervorgehoben</p>
-              <p className="text-sm text-white/60">
-                In Listen bevorzugt anzeigen
-              </p>
-            </div>
+          <div className="flex items-center space-x-2">
             <Switch
+              id="featured"
               checked={formData.featured}
               onCheckedChange={(checked) => handleInputChange('featured', checked)}
+              className="data-[state=checked]:bg-gray-800/30 data-[state=unchecked]:bg-gray-800/30/30"
             />
+            <Label htmlFor="featured">Hervorgehoben</Label>
           </div>
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
-          <AdminButton type="button" variant="outline" onClick={onCancel} className="sm:w-40">
+        {/* Buttons */}
+        <div className="flex gap-2 pt-4">
+          <AdminButton onClick={handleSave} disabled={isLoading} className="flex-1">
+            <Save className="h-4 w-4 mr-2" />
+            {isLoading ? 'Speichern...' : 'Speichern'}
+          </AdminButton>
+          <AdminButton
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="flex-1 border-white/40 text-white hover:bg-gray-800/30/10"
+          >
             <X className="h-4 w-4 mr-2" />
             Abbrechen
-          </AdminButton>
-          <AdminButton type="button" onClick={handleSave} disabled={isLoading} className="sm:w-48">
-            {isLoading ? (
-              <>
-                <Save className="h-4 w-4 animate-spin mr-2" />
-                Speichert…
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Artikel speichern
-              </>
-            )}
           </AdminButton>
         </div>
       </CardContent>

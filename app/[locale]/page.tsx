@@ -3,7 +3,7 @@ import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
-import { loadBlogs } from '@/lib/data/blogs';
+import { getBlogs } from '@/lib/services/blog.service';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 import { loadNewstickerData } from '@/lib/newsticker/data';
 import { Newsticker } from '@/components/ui/Newsticker';
@@ -29,7 +29,7 @@ export default async function HomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const blogs = await loadBlogs();
+  const blogs = await getBlogs(locale, true); // Get only published blogs for this locale
   const blogSettings = await loadBlogSectionSettings();
   const newstickerItems = loadNewstickerData();
   const activeNewstickerItems = newstickerItems.filter((item) => item.isActive);
@@ -37,7 +37,6 @@ export default async function HomePage({
   const newGemstones = shopGemstones.filter((gem) => gem.isNew).slice(0, 12);
   const heroSettings = await loadHeroSettings();
   const stories = blogs
-    .filter((blog) => blog.published)
     .sort((a, b) => {
       const aTime = new Date(a.publishedAt ?? a.updatedAt ?? a.createdAt).getTime();
       const bTime = new Date(b.publishedAt ?? b.updatedAt ?? b.createdAt).getTime();

@@ -38,6 +38,10 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
     contentImages: blog?.contentImages || [],
     published: blog?.published || false,
     featured: blog?.featured || false,
+    locale: blog?.locale || 'de',
+    metaDescription: blog?.metaDescription || '',
+    readingTime: blog?.readingTime || undefined,
+    difficulty: blog?.difficulty || undefined,
   });
 
   const [newTag, setNewTag] = useState('');
@@ -418,6 +422,67 @@ export function BlogEditor({ blog, onSave, onCancel, isCreating = false }: BlogE
               </Badge>
             ))}
           </div>
+        </div>
+
+        {/* Locale und SEO */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="locale">Sprache (Locale)</Label>
+            <Select value={formData.locale} onValueChange={(value) => handleInputChange('locale', value)}>
+              <SelectTrigger className={cn(inputStyles, 'font-medium')}>
+                <SelectValue placeholder="Sprache auswählen" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800/50 text-white border border-white/20">
+                <SelectItem value="de">Deutsch</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="readingTime">Lesezeit (Minuten)</Label>
+            <Input
+              id="readingTime"
+              type="number"
+              min="1"
+              value={formData.readingTime || ''}
+              onChange={(e) => handleInputChange('readingTime', e.target.value ? parseInt(e.target.value) : undefined)}
+              placeholder="Wird automatisch berechnet"
+              className={inputStyles}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="metaDescription">Meta-Description (SEO)</Label>
+          <Textarea
+            id="metaDescription"
+            value={formData.metaDescription}
+            onChange={(e) => handleInputChange('metaDescription', e.target.value)}
+            placeholder="Kurze Beschreibung für Suchmaschinen (max. 160 Zeichen)"
+            rows={3}
+            maxLength={160}
+            className={inputStyles}
+          />
+          <div className="text-xs text-white/70">
+            {formData.metaDescription.length}/160 Zeichen
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="difficulty">Schwierigkeitsgrad</Label>
+          <Select 
+            value={formData.difficulty || 'beginner'} 
+            onValueChange={(value) => handleInputChange('difficulty', value as 'beginner' | 'intermediate' | 'advanced')}
+          >
+            <SelectTrigger className={cn(inputStyles, 'font-medium')}>
+              <SelectValue placeholder="Schwierigkeitsgrad auswählen" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800/50 text-white border border-white/20">
+              <SelectItem value="beginner">Anfänger</SelectItem>
+              <SelectItem value="intermediate">Fortgeschritten</SelectItem>
+              <SelectItem value="advanced">Experte</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Einstellungen */}

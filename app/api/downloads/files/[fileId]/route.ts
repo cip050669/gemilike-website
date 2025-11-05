@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
 import { cookies } from 'next/headers';
-
-const prisma = new PrismaClient();
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ fileId: string }> }
 ) {
   try {
-    const { fileId } = await params;
-    const { userEmail, userName } = await request.json();
+    await params; // fileId reserved for future use
+    await request.json(); // userEmail, userName reserved for future use
     
     // Check authentication
     const cookieStore = await cookies();
@@ -26,7 +21,6 @@ export async function POST(
     }
 
     // Check consent
-    const authData = JSON.parse(authCookie.value);
     // Note: Download consent management is not implemented in the current schema
     // For now, we assume consent is given if authenticated
     const hasConsent = true;

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BlogEditorContainer } from '@/components/admin/BlogEditorContainer';
-import { loadBlogs } from '@/lib/data/blogs';
+import { getBlogById } from '@/lib/services/blog.service';
 
 export default async function BlogEditPage({
   params,
@@ -9,15 +9,31 @@ export default async function BlogEditPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale, id } = await params;
-  const blogs = await loadBlogs();
-  const blog = blogs.find((item) => item.id === id);
+  const blog = await getBlogById(id);
 
   if (!blog) {
     notFound();
   }
 
   const serializable = {
-    ...blog,
+    id: blog.id,
+    title: blog.title,
+    slug: blog.slug,
+    excerpt: blog.excerpt || '',
+    content: blog.content,
+    author: blog.author,
+    category: blog.category,
+    tags: blog.tags || [],
+    image: blog.image || '',
+    contentImages: blog.contentImages || [],
+    published: blog.published,
+    featured: blog.featured,
+    locale: blog.locale,
+    metaDescription: blog.metaDescription || '',
+    readingTime: blog.readingTime || undefined,
+    difficulty: (blog.difficulty === 'beginner' || blog.difficulty === 'intermediate' || blog.difficulty === 'advanced') 
+      ? blog.difficulty 
+      : 'beginner' as 'beginner' | 'intermediate' | 'advanced',
     createdAt: blog.createdAt.toISOString(),
     updatedAt: blog.updatedAt.toISOString(),
     publishedAt: blog.publishedAt?.toISOString(),

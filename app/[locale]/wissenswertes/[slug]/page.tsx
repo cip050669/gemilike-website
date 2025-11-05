@@ -25,7 +25,7 @@ export default function KnowledgeArticlePage() {
   const t = useTranslations('knowledge');
   const params = useParams();
   const router = useRouter();
-  const articleId = params.id as string;
+  const slug = params.slug as string;
   const locale = params.locale as string;
   const [article, setArticle] = useState<KnowledgeArticle | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ export default function KnowledgeArticlePage() {
     const loadArticle = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/knowledge-base/${articleId}?locale=${locale}`);
+        const response = await fetch(`/api/knowledge-base/${slug}?locale=${locale}`);
         if (!response.ok) {
           router.push(`/${locale}/wissenswertes`);
           return;
@@ -63,10 +63,10 @@ export default function KnowledgeArticlePage() {
       }
     };
 
-    if (articleId) {
+    if (slug) {
       loadArticle();
     }
-  }, [articleId, locale, router]);
+  }, [slug, locale, router]);
 
   if (loading) {
     return (

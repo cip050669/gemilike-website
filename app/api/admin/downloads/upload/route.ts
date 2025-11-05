@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const projectId = formData.get('projectId') as string;
     const file = formData.get('file') as File;
-    const description = formData.get('description') as string;
+    // description, writeFile, mkdir, join, uuidv4, prisma reserved for future use
 
     if (!projectId || !file) {
       return NextResponse.json(

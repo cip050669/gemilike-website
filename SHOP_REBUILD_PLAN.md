@@ -1,4 +1,4 @@
-# Shop Relaunch – Architektur- & Implementierungsplan
+GESCHICHTEN UM EDELSTEINE# Shop Relaunch – Architektur- & Implementierungsplan
 
 ## 1. Hosting & Infrastruktur (Strato-fokussiert)
 - **Server-Basis:** Virtueller oder dedizierter Strato-Server (Ubuntu 22.04 LTS) mit Docker + Docker Compose.
@@ -10,7 +10,6 @@
   - `minio` oder S3-kompatibler Storage (Strato HiDrive S3 Endpoint) für Medien.
 - **Reverse Proxy:** Caddy oder NGINX mit Let's Encrypt, HTTP/2, HTTP/3 optional.
 - **Monitoring:** Uptime Kuma/Prometheus + Grafana, zentralisierte Logs via Loki oder Strato Log-Streams.
-- **Referenz-Stack:** `deploy/strato-compose.yml` (Next.js-App, PostgreSQL, Redis, MinIO, Caddy, Loki/Promtail, Grafana) + `Dockerfile` für mehrstufigen Build; `.dockerignore` reduziert Build-Kontext für Rootless Docker, Promtail-Host-Mount optional.
 
 ## 2. Datenmodell (Prisma, Ziel-PostgreSQL)
 
@@ -24,7 +23,7 @@ datasource db {
 ### Kern-Tabellen
 | Tabelle | Zweck | Schlüssel-Felder |
 | --- | --- | --- |
-| `Gemstone` | Stammdaten je Stein | `id`, `slug`, `status (draft/review/published/archived)`, `category`, `name`, `shortDescription`, `longDescription`, `origin`, `isNew`, `isSold`, `featured`, `cut`, `cutForm`, `createdAt`, `updatedAt` |
+| `Gemstone` | Stammdaten je Stein | `id`, `slug`, `status (draft/review/published/archived)`, `category`, `name`, `shortDescription`, `longDescription`, `origin`, `isNew`, `isSold`, `featured`, `createdAt`, `updatedAt` |
 | `GemstoneInventory` | Lager-/Gewichtsdaten | `gemstoneId (1:1)`, `condition (cut/rough)`, `caratWeight`, `gramWeight`, `quantity`, `sku`, `warehouseLocation`, `availableFrom`, `availableTo` |
 | `GemstoneAttributes` | Technische Attribute | `gemstoneId (1:1)`, `lengthMm`, `widthMm`, `heightMm`, `color`, `colorSaturation`, `colorHue`, `clarity`, `cutGrade`, `treatment`, `certification`, `certificateId`, `certificateUrl` |
 | `GemstoneMedia` | Mediengalerie | `id`, `gemstoneId`, `type (image/video)`, `url`, `thumbnailUrl`, `alt`, `position`, `isPrimary` |
@@ -112,9 +111,9 @@ datasource db {
 6. **Deployment:** CI/CD (GitHub Actions) → Build → Docker push → Compose up auf Strato.
 
 ## 9. Nächste operative Schritte
-   1. **ERD & Contracts finalisieren:** Tabellen, Relationen, Server-Action-Signaturen.
-   2. **Prisma-Schema refactor:** SQLite → PostgreSQL, neue Models umsetzen, Migration erzeugen.
-3. **Service Layer:** Repositorys/Server Actions für Gemstones, Wishlist, Cart, Orders (Gemstones/Wishlist/Orders umgesetzt, Cart folgt).
+1. **ERD & Contracts finalisieren:** Tabellen, Relationen, Server-Action-Signaturen.
+2. **Prisma-Schema refactor:** SQLite → PostgreSQL, neue Models umsetzen, Migration erzeugen.
+3. **Service Layer:** Repositorys/Server Actions für Gemstones, Wishlist, Cart, Orders.
 4. **Admin UI Redesign:** Komponentenstruktur, Bulk-Upload, Status-Workflow implementieren.
 5. **Shop-Frontend Neuentwicklung:** Grid, Detail-Gallery, CTA-Integration, Scroll-Verhalten.
 6. **Auth-Aufrüstung:** Passkey/TOTP, Rollen, Schutz der Actions.
@@ -123,16 +122,3 @@ datasource db {
 
 > Reset ist akzeptabel – bestehende SQLite-Daten können bei Bedarf migriert oder verworfen werden, sobald PostgreSQL produktiv bereitsteht.
 
-## 10. Aktueller Fortschritt (UI-Anpassungen Shop)
-- Intro-Story-Card „Unsere Auswahl an Edelsteinen“ auf der Shop-Seite implementiert (`components/shop/ShopShowcase.tsx`), Design und Typografie spiegeln die Startseiten-Sektion „Neue Edelsteine“.
-- Navigations-Button „Zurück zur Startseite“ rechtsbündig in die Shop-Intro-Card integriert, gleiche Nav-Styles wie Header/Footer (Locale-aware Link).
-- Shop-Kachelraster mit 5 Spalten × 240 px Breite, homogener Glow-Hover und Badges analog Startseite aktualisiert (`components/shop/GemstoneGrid.tsx`); Sichtfenster auf 6 Reihen mit vertikaler Scrollleiste begrenzt.
-- Gemstone-Service-Layer eingeführt (`lib/services/shop/*`); Cart/Wishlist-Server-Actions nutzen neue Konvertierung, Shop lädt ausschließlich Prisma-Daten.
-- Statische Fallback-Gemstones (Wishlist/Profile/Admin) entfernt; Seed-Daten bilden einzige Quelle.
-- Weitere Arbeiten offen: Gemstone-Detailansicht (Modal/Seite) finalisieren, Infinite-Scroll/Load-More und Filter-Interaktionen verifizieren, serverseitige Checkout-Logs & Tests ergänzen, restliche Fallback-Verwendungen (Reports etc.) abschalten sowie dedizierten Cart-Service + zusätzliche Order-Tests nachziehen.
-- Cart- & Wishlist-Flows auf Server Actions umgestellt (`lib/actions/cart.ts`, `lib/actions/wishlist.ts`) inklusive Zustands- und UI-Stores mit optimistischen Updates (`lib/store/cart.ts`, `lib/store/wishlist.ts`), Buttons/Seiten auf neue Stores gehoben.
-- Wishlist- und Order-Domain-Services ergänzt (`lib/services/shop/wishlist.service.ts`, `lib/services/shop/order.service.ts`); Admin-/Customer-Order-APIs sowie Shop-/Admin-Seiten nutzen den Service-Layer, Invoice-Trigger bleibt erhalten. Unit-Test für Order-Serialisierung hinzugefügt (`__tests__/services/order.service.test.ts`).
-   - Schliff- und Schliffform-Auswahllisten im Admin-Editor integriert; neue Prisma-Felder `Gemstone.cut`/`Gemstone.cutForm` werden über Editor, Management-Ansicht und Shop-Frontend konsistent gepflegt (`components/admin/GemstoneEditor.tsx`, `components/admin/GemstoneManagementSection.tsx`, `lib/shop/shopData.ts`).
-   - Migration auf PostgreSQL abgeschlossen (`pnpm prisma migrate dev --name init_postgres`); bestehende SQLite-Historie bereinigt, neue Migration `20251031010241_add_cut_fields` aktiv.
-   - Seed-Skript (`prisma/seed.ts`) + SQL-Fallback (`prisma/seed.sql`) legen HeroSettings, SelectOptions (Schliff/Schliffform) und drei Demo-Gemstones inkl. Inventar/Medien an; Daten wurden via `psql` erfolgreich eingespielt.
-   - Erstfassung des Strato-Deployments bereitgestellt: Mehrstufiges `Dockerfile`, Compose-Stack (`deploy/strato-compose.yml`) inkl. Caddy-Reverse-Proxy, MinIO, Redis, Loki/Promtail/Grafana sowie Beispiel-Konfigurationen (`deploy/Caddyfile`, `deploy/promtail-config.yml`).

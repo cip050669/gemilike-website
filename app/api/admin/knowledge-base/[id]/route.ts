@@ -13,8 +13,13 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ 
+        error: 'Unauthorized - No session. Please log in at /de/admin/login' 
+      }, { status: 401 });
+    }
+    if ((session.user as { role?: string }).role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized - Not ADMIN' }, { status: 401 });
     }
 
     const { id } = await params;
@@ -40,6 +45,15 @@ export async function PUT(
 ) {
   try {
     console.log('🔍 Knowledge Base API - PUT request received');
+    
+    // Check cookies
+    const cookieHeader = request.headers.get('cookie');
+    console.log('🔍 Cookies received:', cookieHeader ? 'Yes' : 'No');
+    if (cookieHeader) {
+      const hasAuthCookie = cookieHeader.includes('next-auth.session-token') || cookieHeader.includes('__Secure-next-auth.session-token');
+      console.log('🔍 Has auth cookie:', hasAuthCookie);
+    }
+    
     const session = await getServerSession(authOptions);
     console.log('🔍 Session check:', {
       hasSession: !!session,
@@ -51,7 +65,10 @@ export async function PUT(
     
     if (!session?.user) {
       console.error('❌ No session or user found');
-      return NextResponse.json({ error: 'Unauthorized - No session' }, { status: 401 });
+      console.error('❌ Please ensure you are logged in at /de/admin/login');
+      return NextResponse.json({ 
+        error: 'Unauthorized - No session. Please log in at /de/admin/login' 
+      }, { status: 401 });
     }
     
     if ((session.user as { role?: string }).role !== 'ADMIN') {
@@ -123,8 +140,13 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ 
+        error: 'Unauthorized - No session. Please log in at /de/admin/login' 
+      }, { status: 401 });
+    }
+    if ((session.user as { role?: string }).role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized - Not ADMIN' }, { status: 401 });
     }
 
     const { id } = await params;
