@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, Image as ImageIcon, Video } from 'lucide-react';
+import { Download, FileText, Image as ImageIcon, Video, Palette } from 'lucide-react';
+import { ColorChartGrid } from '@/components/color-charts/ColorChartGrid';
+import { GemstoneColorAnalyzer } from '@/components/color-charts/GemstoneColorAnalyzer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface DownloadItem {
   id: string;
@@ -73,41 +76,86 @@ export function DownloadArea() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold mb-4">Downloads</h2>
-        <p className="text-muted-foreground">
-          Hier finden Sie nützliche Dokumente und Kataloge zum Herunterladen.
-        </p>
-      </div>
+      <Tabs defaultValue="documents" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="documents" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Dokumente
+          </TabsTrigger>
+          <TabsTrigger value="color-charts" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            Farbtafeln
+          </TabsTrigger>
+          <TabsTrigger value="color-analysis" className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4" />
+            Farbanalyse
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {downloadItems.map((item) => (
-          <Card key={item.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                {getIcon(item.type)}
-                <div>
-                  <CardTitle className="text-lg">{item.title}</CardTitle>
-                  <CardDescription>{item.description}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{item.size}</span>
-                <Button
-                  onClick={() => handleDownload(item)}
-                  disabled={downloading === item.id}
-                  className="flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  {downloading === item.id ? 'Lädt...' : 'Herunterladen'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+        <TabsContent value="documents" className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">Downloads</h2>
+            <p className="text-muted-foreground">
+              Hier finden Sie nützliche Dokumente und Kataloge zum Herunterladen.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {downloadItems.map((item) => (
+              <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    {getIcon(item.type)}
+                    <div>
+                      <CardTitle className="text-lg">{item.title}</CardTitle>
+                      <CardDescription>{item.description}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{item.size}</span>
+                    <Button
+                      onClick={() => handleDownload(item)}
+                      disabled={downloading === item.id}
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      {downloading === item.id ? 'Lädt...' : 'Herunterladen'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="color-charts" className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              <span className="gradient-text animate-glow">GemILike Farbtafeln</span>
+            </h2>
+            <p className="text-muted-foreground">
+              Interaktive Farbkarten mit GIA-konformer Benennung für Edelsteinhandel
+            </p>
+          </div>
+
+          <ColorChartGrid locale="de" />
+        </TabsContent>
+
+        <TabsContent value="color-analysis" className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              <span className="gradient-text animate-glow">Edelstein-Farbanalyse</span>
+            </h2>
+            <p className="text-muted-foreground">
+              Professionelle Farbanalyse von Edelsteinen basierend auf Bildanalyse
+            </p>
+          </div>
+
+          <GemstoneColorAnalyzer />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

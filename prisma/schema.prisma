@@ -759,22 +759,24 @@ model Tag {
 }
 
 model User {
-  id            String     @id @default(cuid())
+  id            String            @id @default(cuid())
   name          String?
-  email         String     @unique
+  email         String            @unique
   emailVerified DateTime?
   image         String?
   password      String?
   phone         String?
-  role          UserRole   @default(CUSTOMER)
-  isActive      Boolean    @default(true)
+  role          UserRole          @default(CUSTOMER)
+  isActive      Boolean           @default(true)
   notes         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
   accounts      Account[]
   auditLogs     AuditLog[]
   customer      Customer?
   sessions      Session[]
+  colorCharts   ColorChart[]
+  gemstoneAnalyses GemstoneAnalysis[]
 }
 
 model VerificationToken {
@@ -827,6 +829,81 @@ model DownloadGrant {
   customer         Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
   gemstone         Gemstone?            @relation(fields: [gemstoneId], references: [id])
   order            Order?               @relation(fields: [orderId], references: [id])
+}
+
+model ColorChart {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  origin      String?
+  locale      String   @default("de")
+  
+  // GIA-Daten (als JSON für Flexibilität)
+  gia         Json     // { hue: "pkR–R", tone: "3–5", sat: "4–6" }
+  
+  // Farbdaten
+  gradient    String[] // Array von Hex-Farben: ["#FBB7D0", "#F78AB8", ...]
+  pleochro    String[] // Array von Pleochroismus-Farben: ["#F78AB8", "#E6579C", ...]
+  
+  // Lichtstandard
+  light       String   @default("D55, CRI ≥95")
+  
+  // Zusätzliche Informationen
+  note        String?
+  description String?
+  
+  // Status & Metadata
+  published   Boolean  @default(false)
+  featured    Boolean  @default(false)
+  order       Int      @default(0) // Sortierreihenfolge
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations (optional)
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+  
+  @@index([published, locale])
+  @@index([featured])
+  @@index([slug, locale])
+}
+
+model GemstoneAnalysis {
+  id          String   @id @default(cuid())
+  imageUrl    String?  // URL zum analysierten Bild (falls gespeichert)
+  imageName   String?  // Original-Dateiname
+  
+  // Analyse-Ergebnisse (als JSON gespeichert)
+  primaryColor        Json     // PrimaryColorAnalysis
+  secondaryColors     Json     // SecondaryColorAnalysis[]
+  luminanceSaturation Json     // LuminanceSaturationAnalysis
+  spectralCharacteristic Json  // SpectralCharacteristic
+  giaColorGrade       Json     // GIAColorGrade
+  overallImpression   Json     // OverallImpression
+  pleochroism         String?
+  
+  // Metadaten
+  locale      String   @default("de")
+  notes       String?  // Zusätzliche Notizen
+  tags        String[] // Tags für Kategorisierung
+  
+  // Status
+  published   Boolean  @default(false)
+  featured    Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+  
+  @@index([createdAt])
+  @@index([published])
+  @@index([createdById])
 }
 
 enum UserRole {

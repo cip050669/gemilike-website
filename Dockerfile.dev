@@ -3,7 +3,26 @@
 # Development Dockerfile
 FROM node:20-alpine
 
-RUN apk add --no-cache libc6-compat openssl
+# Install system dependencies for development (including image processing)
+RUN apk add --no-cache \
+    libc6-compat \
+    openssl \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev \
+    cairo \
+    jpeg \
+    pango \
+    giflib \
+    pixman \
+    fontconfig \
+    ttf-dejavu \
+    ttf-liberation \
+    python3 \
+    make \
+    g++
 
 WORKDIR /app
 

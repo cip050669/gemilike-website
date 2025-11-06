@@ -81,6 +81,8 @@ services:
       - ./public/uploads:/app/public/uploads
       # Persist generated invoices
       - ./public/invoices:/app/public/invoices
+      # Persist gemstone analysis images (if stored locally)
+      - ./public/gemstone-analyses:/app/public/gemstone-analyses
     networks:
       - gemilike-network
     command: >

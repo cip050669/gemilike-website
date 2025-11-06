@@ -67,6 +67,8 @@ services:
       - /app/.next
       - ./public/uploads:/app/public/uploads
       - ./public/invoices:/app/public/invoices
+      # Persist gemstone analysis images (if stored locally)
+      - ./public/gemstone-analyses:/app/public/gemstone-analyses
     networks:
       - gemilike-dev-network
     command: npm run dev

@@ -4,7 +4,13 @@
 # Dependencies Stage
 # ============================================
 FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
+# Install system dependencies for image processing and other features
+RUN apk add --no-cache libc6-compat openssl \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev
 WORKDIR /app
 
 # Copy package files
@@ -18,7 +24,16 @@ RUN --mount=type=cache,target=/root/.npm \
 # Builder Stage
 # ============================================
 FROM node:20-alpine AS builder
-RUN apk add --no-cache libc6-compat openssl
+# Install system dependencies for build (including image processing libraries)
+RUN apk add --no-cache libc6-compat openssl \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev \
+    python3 \
+    make \
+    g++
 WORKDIR /app
 
 # Copy package files and install ALL dependencies (including devDependencies)
@@ -45,7 +60,18 @@ RUN npm run build
 # Runner Stage (Production)
 # ============================================
 FROM node:20-alpine AS runner
-RUN apk add --no-cache wget curl
+# Install runtime dependencies for image processing and utilities
+RUN apk add --no-cache \
+    wget \
+    curl \
+    cairo \
+    jpeg \
+    pango \
+    giflib \
+    pixman \
+    fontconfig \
+    ttf-dejavu \
+    ttf-liberation
 WORKDIR /app
 
 ENV NODE_ENV=production \
