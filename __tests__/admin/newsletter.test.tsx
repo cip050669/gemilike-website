@@ -3,7 +3,7 @@
  * Tests statistics, newsletter list, subscriber management, and actions
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import NewsletterAdminPage from '@/app/[locale]/admin/newsletter/page';
 
 // Mock next/navigation

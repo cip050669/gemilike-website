@@ -232,7 +232,7 @@ export default function LegalPagesAdminPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="slug">Slug (URL-Teil, z.B. "imprint", "privacy")</Label>
+                <Label htmlFor="slug">Slug (URL-Teil, z.B. &quot;imprint&quot;, &quot;privacy&quot;)</Label>
                 <Input
                   id="slug"
                   value={formData.slug}
@@ -314,7 +314,7 @@ export default function LegalPagesAdminPage() {
                     </p>
                     {page.isActive && ['impressum', 'datenschutz', 'agb', 'widerruf', 'versand', 'cookies'].includes(page.slug) && (
                       <p className="text-xs text-green-400 mt-2">
-                        ✓ Diese Seite wird im Footer unter "Rechtliches" angezeigt
+                        ✓ Diese Seite wird im Footer unter &quot;Rechtliches&quot; angezeigt
                       </p>
                     )}
                     {page.isActive && !['impressum', 'datenschutz', 'agb', 'widerruf', 'versand', 'cookies'].includes(page.slug) && (

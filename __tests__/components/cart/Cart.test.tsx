@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { Cart } from '@/components/cart/Cart'
 import { useCartStore } from '@/lib/store/cart'
 import { createMockCartItem } from '../../utils/mock-data.helper'

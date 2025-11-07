@@ -6,7 +6,7 @@ function StaticTermsContent() {
       <div className="bg-card border border-border rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4 text-primary">§ 1 Geltungsbereich</h2>
         <div className="space-y-2 text-muted-foreground">
-          <p>Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge zwischen der Gemilike GmbH (nachfolgend „Verkäufer") und ihren Kunden (nachfolgend „Käufer") über den Verkauf von Edelsteinen und verwandten Produkten über den Online-Shop unter https://gemilike.de.</p>
+          <p>Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge zwischen der Gemilike GmbH (nachfolgend &quot;Verkäufer&quot;) und ihren Kunden (nachfolgend &quot;Käufer&quot;) über den Verkauf von Edelsteinen und verwandten Produkten über den Online-Shop unter https://gemilike.de.</p>
           <p>Abweichende, entgegenstehende oder ergänzende AGB des Käufers werden nicht Vertragsbestandteil, es sei denn, ihrer Geltung wird ausdrücklich schriftlich zugestimmt.</p>
         </div>
       </div>
@@ -33,7 +33,7 @@ function StaticTermsContent() {
         <h2 className="text-xl font-semibold mb-4 text-primary">§ 3 Vertragsschluss</h2>
         <div className="space-y-4 text-muted-foreground">
           <p><strong>Angebot:</strong></p>
-          <p>Die Darstellung der Produkte im Online-Shop stellt kein rechtlich bindendes Angebot, sondern einen unverbindlichen Online-Katalog dar. Durch Anklicken des Buttons „In den Warenkorb" oder „Kaufen" geben Sie ein verbindliches Angebot zum Kauf der im Warenkorb befindlichen Waren ab.</p>
+          <p>Die Darstellung der Produkte im Online-Shop stellt kein rechtlich bindendes Angebot, sondern einen unverbindlichen Online-Katalog dar. Durch Anklicken des Buttons &quot;In den Warenkorb&quot; oder &quot;Kaufen&quot; geben Sie ein verbindliches Angebot zum Kauf der im Warenkorb befindlichen Waren ab.</p>
           
           <p><strong>Annahme:</strong></p>
           <p>Der Verkäufer kann das Angebot des Käufers innerhalb von 5 Tagen annehmen durch:</p>

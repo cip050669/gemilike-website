@@ -3,7 +3,7 @@
  * Tests all CRUD operations, filtering, status updates, and search functionality
  */
 
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import OrdersPage from '@/app/[locale]/admin/orders/page';
 import { listOrders } from '@/lib/services/shop/order.service';
 

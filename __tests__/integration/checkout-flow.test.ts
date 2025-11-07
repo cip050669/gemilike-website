@@ -5,12 +5,10 @@
  * proceeding to checkout, and completing an order.
  */
 
-import { POST as POST_CART } from '@/app/api/cart/route'
 import { GET as GET_ORDERS, POST as POST_ORDER } from '@/app/api/orders/route'
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSessionWithUser } from '@/lib/session'
-import * as cartActions from '@/lib/actions/cart'
 
 // Mock dependencies
 jest.mock('@/lib/prisma', () => ({

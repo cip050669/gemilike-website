@@ -72,13 +72,13 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
             
             if (isImageLink && href) {
               return (
-                <span className="my-6 block mx-auto max-w-full">
+                <span className="my-6 flex items-center justify-center mx-auto h-[240px] w-[240px] bg-gray-900/30 rounded-lg p-2">
                   <Image 
                     src={href}
                     alt={typeof children === 'string' ? children : 'Bild'}
-                    width={1200}
-                    height={675}
-                    className="rounded-lg shadow-md border border-border w-auto h-auto max-w-full"
+                    width={240}
+                    height={240}
+                    className="rounded-lg shadow-md border border-border h-full w-full object-contain"
                   />
                 </span>
               );
@@ -160,17 +160,17 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
             </td>
           ),
           
-          // Bilder
+          // Bilder - auf 240x240px beschränkt
           img: ({ src, alt }) => {
             if (!src || typeof src !== 'string') return null;
             return (
-              <span className="my-6 block mx-auto max-w-full">
+              <span className="my-6 flex items-center justify-center mx-auto h-[240px] w-[240px] bg-gray-900/30 rounded-lg p-2">
                 <Image 
                   src={src}
                   alt={alt || ''}
-                  width={1200}
-                  height={675}
-                  className="rounded-lg shadow-md border border-border w-auto h-auto max-w-full"
+                  width={240}
+                  height={240}
+                  className="rounded-lg shadow-md border border-border h-full w-full object-contain"
                 />
               </span>
             );

@@ -34,7 +34,7 @@ jest.mock('@/components/admin/BlogTable', () => ({
 
 // Mock BlogSettingsForm component
 jest.mock('@/components/admin/BlogSettingsForm', () => ({
-  BlogSettingsForm: ({ settings }: { settings: any }) => (
+  BlogSettingsForm: () => (
     <div data-testid="blog-settings-form">
       <h3>Blog-Einstellungen</h3>
     </div>

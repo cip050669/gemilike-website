@@ -884,6 +884,13 @@ model GemstoneAnalysis {
   overallImpression   Json     // OverallImpression
   pleochroism         String?
   
+  // Erweiterte Analyse-Parameter
+  whitepoint          String?  @default("D65") // D50 oder D65
+  kValue              Int?     // Manueller K-Means Cluster-Wert
+  maskingOptions      Json?    // Maskierungs-Einstellungen (MaskingOptions)
+  customPalette       Json?    // Benutzerdefinierte Palette (string[])
+  paletteComparisons  Json?    // Palette-Vergleiche (PaletteComparison[])
+  
   // Metadaten
   locale      String   @default("de")
   notes       String?  // Zusätzliche Notizen

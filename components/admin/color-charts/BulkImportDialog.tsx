@@ -400,10 +400,10 @@ export function BulkImportDialog({ locale }: BulkImportDialogProps) {
                   <code className="block mb-2">name,origin,gia_hue,gia_tone,gia_sat,gradient,pleochro,light</code>
                   <p className="mb-2">Beispiel Zeilen:</p>
                   <code className="block mb-1">
-                    "Beispiel Farbtafel 1","Beispiel Herkunft","R","5","6","#FF0000,#FF6666","#FF0000","D55, CRI ≥95"
+                    &quot;Beispiel Farbtafel 1&quot;,&quot;Beispiel Herkunft&quot;,&quot;R&quot;,&quot;5&quot;,&quot;6&quot;,&quot;#FF0000,#FF6666&quot;,&quot;#FF0000&quot;,&quot;D55, CRI ≥95&quot;
                   </code>
                   <code className="block">
-                    "Beispiel Farbtafel 2","Beispiel Herkunft 2","B","4","5","#0000FF,#6666FF","#0000FF","D55, CRI ≥95"
+                    &quot;Beispiel Farbtafel 2&quot;,&quot;Beispiel Herkunft 2&quot;,&quot;B&quot;,&quot;4&quot;,&quot;5&quot;,&quot;#0000FF,#6666FF&quot;,&quot;#0000FF&quot;,&quot;D55, CRI ≥95&quot;
                   </code>
                 </div>
               )}

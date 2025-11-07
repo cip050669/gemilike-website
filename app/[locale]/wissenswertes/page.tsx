@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { Button } from '@/components/ui/button';
 import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
-import { getBlogs } from '@/lib/services/blog.service';
+import { getKnowledgeArticles } from '@/lib/services/knowledge.service';
 import { ArrowLeftIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { PublicLayout } from '@/components/layout/PublicLayout';
+
+// Force dynamic rendering to always show latest articles
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -24,33 +27,33 @@ export default async function KnowledgeListPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [settings, blogs] = await Promise.all([
+  const [settings, articles] = await Promise.all([
     loadKnowledgeSectionSettings(),
-    getBlogs(locale, true), // Get only published blogs for this locale
+    getKnowledgeArticles(locale, true), // Get only published knowledge articles for this locale
   ]);
 
-  const stories = blogs
+  const stories = articles
     .sort((a, b) => {
       const aTime = new Date(a.publishedAt ?? a.updatedAt ?? a.createdAt).getTime();
       const bTime = new Date(b.publishedAt ?? b.updatedAt ?? b.createdAt).getTime();
       return bTime - aTime;
     })
-    .map((blog) => {
-      const baseText = blog.excerpt?.trim() || stripMarkdown(blog.content);
+    .map((article) => {
+      const baseText = article.excerpt?.trim() || stripMarkdown(article.content);
       const excerpt =
         baseText.length > 220
           ? `${baseText.slice(0, 220).trimEnd()} …`
           : baseText;
 
       const image =
-        blog.image && blog.image.trim() && blog.image !== '/blog/default-blog.jpg'
-          ? blog.image
+        article.image && article.image.trim() && article.image !== '/blog/default-blog.jpg'
+          ? article.image
           : STORY_PLACEHOLDER_IMAGE;
 
       return {
-        id: blog.id,
-        title: blog.title,
-        href: `/${locale}/blog/${blog.slug}`,
+        id: article.id,
+        title: article.title,
+        href: `/${locale}/wissenswertes/${article.slug}`,
         image,
         excerpt,
       };
@@ -96,13 +99,13 @@ export default async function KnowledgeListPage({
                     className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div className="flex gap-[50px] items-center">
-                      <div className="relative overflow-hidden rounded-lg border border-white/10 public-page-bg/20 h-[180px] w-[204px] flex-shrink-0">
+                      <div className="relative overflow-hidden rounded-lg border border-white/10 public-page-bg/20 h-[240px] w-[240px] flex-shrink-0 bg-gray-900/30 flex items-center justify-center">
                         <NextImage
                           src={story.image}
                           alt={story.title}
-                          fill
-                          sizes="(max-width: 768px) 50vw, 204px"
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          width={240}
+                          height={240}
+                          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                           priority={false}
                         />
                       </div>
@@ -150,19 +153,11 @@ export default async function KnowledgeListPage({
           ) : (
             <div className="story-card text-center">
               <h3 className="text-2xl font-bold mb-4 gemilike-text-gradient">
-                Noch keine Geschichten veröffentlicht
+                Noch keine Artikel veröffentlicht
               </h3>
               <p className="text-gray-300 text-base leading-relaxed">
-                Sobald Blog-Beiträge veröffentlicht sind, erscheinen sie hier als
-                Inspiration rund um Edelsteine.
+                Sobald Wissenswert-Artikel veröffentlicht sind, erscheinen sie hier.
               </p>
-              <Button
-                variant="outline"
-                className="mt-6 border-white/40 text-white hover:bg-gray-800/30/10"
-                asChild
-              >
-                <Link href={`/${locale}/blog`}>Zum Blog</Link>
-              </Button>
             </div>
           )}
         </div>

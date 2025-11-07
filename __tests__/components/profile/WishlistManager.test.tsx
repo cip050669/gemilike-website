@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event'
 import WishlistManager from '@/components/profile/WishlistManager'
 import { useWishlistStore } from '@/lib/store/wishlist'
 import { useCartStore } from '@/lib/store/cart'
-import { allGemstones } from '@/lib/data/gemstones'
 
 // Mock dependencies
 jest.mock('@/lib/store/wishlist')

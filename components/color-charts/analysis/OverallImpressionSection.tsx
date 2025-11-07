@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { OverallImpression } from '../utils/gemstoneAnalysis';
 
 interface OverallImpressionSectionProps {
@@ -12,6 +11,7 @@ interface OverallImpressionSectionProps {
   onVarietyCorrection?: (correctedVariety: string[]) => void;
   onPleochroismCorrection?: (correctedPleochroism: string) => void;
   canEdit?: boolean;
+  isLoggedIn?: boolean; // For showing learning system info
 }
 
 function KeyValueTable({ rows }: { rows: Array<{ label: string; value: string | React.ReactNode }> }) {
@@ -41,7 +41,8 @@ export function OverallImpressionSection({
   analysis, 
   onVarietyCorrection,
   onPleochroismCorrection,
-  canEdit = false 
+  canEdit = false,
+  isLoggedIn = false
 }: OverallImpressionSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [correctedVariety, setCorrectedVariety] = useState<string>(
@@ -50,8 +51,11 @@ export function OverallImpressionSection({
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingPleochroism, setIsEditingPleochroism] = useState(false);
   const getPleochroismType = (text: string): 'isotrop' | 'anisotrop' => {
+    if (!text) return 'anisotrop';
     const lower = text.toLowerCase();
-    if (lower.includes('isotrop')) return 'isotrop';
+    // Check for isotrop first (more specific)
+    if (lower.includes('isotrop') && !lower.includes('anisotrop')) return 'isotrop';
+    // Default to anisotrop
     return 'anisotrop';
   };
   const displayPleochroism = analysis.correctedPleochroism || analysis.pleochroism;
@@ -60,6 +64,26 @@ export function OverallImpressionSection({
     currentPleochroismType
   );
   const [isSavingPleochroism, setIsSavingPleochroism] = useState(false);
+  
+  // Update correctedPleochroism when analysis changes, but only when NOT editing
+  // This ensures the state is synced with the analysis, but doesn't interfere with user edits
+  useEffect(() => {
+    // Only update when not in edit mode to avoid conflicts with user input
+    if (!isEditingPleochroism) {
+      const newType = getPleochroismType(displayPleochroism);
+      setCorrectedPleochroism(newType);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayPleochroism]);
+  
+  // Reset state when entering edit mode to ensure correct initial value
+  useEffect(() => {
+    if (isEditingPleochroism) {
+      const typeToSet = getPleochroismType(displayPleochroism);
+      setCorrectedPleochroism(typeToSet);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditingPleochroism]);
 
   const handleSaveCorrection = async () => {
     if (!onVarietyCorrection) return;
@@ -70,6 +94,36 @@ export function OverallImpressionSection({
         .split(',')
         .map(v => v.trim())
         .filter(v => v.length > 0);
+      
+      // Check consistency: filter varieties based on current pleochroism
+      const { filterVarietiesByPleochroism, suggestPleochroismFromVarieties } = await import('../utils/gemstoneAnalysis');
+      const suggestedPleochroism = suggestPleochroismFromVarieties(varieties);
+      
+      // Get current pleochroism type (use corrected if available, otherwise original)
+      const currentPleochroismType = getPleochroismType(displayPleochroism);
+      
+      // Ensure consistency: if varieties suggest a different pleochroism type, filter them
+      if (suggestedPleochroism !== currentPleochroismType) {
+        // Filter varieties to match current pleochroism
+        const filtered = filterVarietiesByPleochroism(varieties, currentPleochroismType);
+        
+        if (filtered.length === 0 && varieties.length > 0) {
+          // No matching varieties found - warn user
+          const pleochroismText = currentPleochroismType === 'isotrop' 
+            ? 'Isotrop (kein Pleochroismus)' 
+            : 'Anisotrop (Pleochroismus vorhanden)';
+          alert(`Warnung: Die ausgewählten Varietäten passen nicht zum aktuellen Pleochroismus (${pleochroismText}). Bitte korrigieren Sie auch den Pleochroismus oder wählen Sie passende Varietäten.`);
+          setIsEditing(false);
+          setIsSaving(false);
+          return;
+        } else if (filtered.length < varieties.length) {
+          // Some varieties were filtered out - use filtered list
+          await onVarietyCorrection(filtered);
+          setIsEditing(false);
+          setIsSaving(false);
+          return;
+        }
+      }
       
       await onVarietyCorrection(varieties);
       setIsEditing(false);
@@ -89,6 +143,23 @@ export function OverallImpressionSection({
       const pleochroismText = correctedPleochroism === 'isotrop' 
         ? 'Isotrop (kein Pleochroismus)' 
         : 'Anisotrop (Pleochroismus vorhanden)';
+      
+      // Check consistency: filter varieties based on pleochroism
+      const { filterVarietiesByPleochroism, suggestPleochroismFromVarieties } = await import('../utils/gemstoneAnalysis');
+      const currentVarieties = displayVariety;
+      const suggestedPleochroism = suggestPleochroismFromVarieties(currentVarieties);
+      
+      // If varieties don't match pleochroism, warn and auto-filter
+      if (correctedPleochroism !== suggestedPleochroism) {
+        const filtered = filterVarietiesByPleochroism(currentVarieties, correctedPleochroism);
+        if (filtered.length === 0 && currentVarieties.length > 0) {
+          alert('Warnung: Die aktuellen Varietät-Vorschläge passen nicht zum ausgewählten Pleochroismus. Bitte korrigieren Sie auch die Varietät.');
+        } else if (filtered.length < currentVarieties.length && onVarietyCorrection) {
+          // Auto-filter varieties to match pleochroism
+          await onVarietyCorrection(filtered);
+        }
+      }
+      
       await onPleochroismCorrection(pleochroismText);
       setIsEditingPleochroism(false);
     } catch (error) {
@@ -109,7 +180,14 @@ export function OverallImpressionSection({
       label: 'Pleochroismus',
       value: (
         <div className="space-y-2">
-          <div>{displayPleochroism}</div>
+          <div className="flex items-center gap-2">
+            <span>{displayPleochroism}</span>
+            {analysis.correctedPleochroism && (
+              <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded">
+              ✓ Korrigiert
+            </span>
+            )}
+          </div>
           {canEdit && (
             <div className="mt-2 pt-2 border-t border-gray-200">
               {!isEditingPleochroism ? (
@@ -117,7 +195,9 @@ export function OverallImpressionSection({
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setCorrectedPleochroism(currentPleochroismType);
+                    // Ensure we have the correct type before opening edit mode
+                    const typeToSet = getPleochroismType(displayPleochroism);
+                    setCorrectedPleochroism(typeToSet);
                     setIsEditingPleochroism(true);
                   }}
                   className="text-xs"
@@ -126,18 +206,46 @@ export function OverallImpressionSection({
                 </Button>
               ) : (
                 <div className="space-y-2">
-                  <Select
-                    value={correctedPleochroism}
-                    onValueChange={(value) => setCorrectedPleochroism(value as 'isotrop' | 'anisotrop')}
-                  >
-                    <SelectTrigger className="text-sm">
-                      <SelectValue placeholder="Pleochroismus auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="isotrop">Isotrop (kein Pleochroismus)</SelectItem>
-                      <SelectItem value="anisotrop">Anisotrop (Pleochroismus vorhanden)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <label className="text-xs text-gray-500 block mb-2 font-medium">
+                    Pleochroismus-Typ auswählen:
+                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 p-2 rounded-md border border-gray-300 hover:bg-gray-50 cursor-pointer transition-colors">
+                      <input
+                        type="radio"
+                        name="pleochroism-type"
+                        value="isotrop"
+                        checked={correctedPleochroism === 'isotrop'}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setCorrectedPleochroism('isotrop');
+                          }
+                        }}
+                        disabled={isSavingPleochroism}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Isotrop (kein Pleochroismus)</span>
+                    </label>
+                    <label className="flex items-center gap-2 p-2 rounded-md border border-gray-300 hover:bg-gray-50 cursor-pointer transition-colors">
+                      <input
+                        type="radio"
+                        name="pleochroism-type"
+                        value="anisotrop"
+                        checked={correctedPleochroism === 'anisotrop'}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setCorrectedPleochroism('anisotrop');
+                          }
+                        }}
+                        disabled={isSavingPleochroism}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Anisotrop (Pleochroismus vorhanden)</span>
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Aktuell ausgewählt: <strong className="text-blue-600">{correctedPleochroism === 'isotrop' ? 'Isotrop' : 'Anisotrop'}</strong>
+                  </p>
                   <div className="flex gap-2">
                     <Button
                       size="sm"
@@ -158,6 +266,26 @@ export function OverallImpressionSection({
                     >
                       Abbrechen
                     </Button>
+                  </div>
+                  <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                    <p className="font-semibold mb-1">💡 {isLoggedIn ? 'Lernsystem aktiv' : 'Lokale Korrektur'}</p>
+                    <p>
+                      {isLoggedIn ? (
+                        <>
+                          Diese Korrektur wird gespeichert und hilft dem Algorithmus, ähnliche Steine in Zukunft besser zu erkennen.
+                          <br />
+                          <strong>Konsistenz:</strong> Die Varietät-Vorschläge werden automatisch gefiltert, um zum Pleochroismus zu passen.
+                        </>
+                      ) : (
+                        <>
+                          Diese Korrektur wird lokal gespeichert und verbessert die aktuelle Analyse.
+                          <br />
+                          <strong>Hinweis:</strong> Melden Sie sich an, um Korrekturen im Lernsystem zu speichern und zukünftige Analysen zu verbessern.
+                          <br />
+                          <strong>Konsistenz:</strong> Die Varietät-Vorschläge werden automatisch gefiltert, um zum Pleochroismus zu passen.
+                        </>
+                      )}
+                    </p>
                   </div>
                 </div>
               )}
@@ -180,11 +308,18 @@ export function OverallImpressionSection({
       label: 'Mögliche Varietät',
       value: (
         <div className="space-y-2">
-          <ul className="list-disc list-inside">
-            {displayVariety.map((variety, index) => (
-              <li key={index}>{variety}</li>
-            ))}
-          </ul>
+          <div className="flex items-start gap-2">
+            <ul className="list-disc list-inside flex-1">
+              {displayVariety.map((variety, index) => (
+                <li key={index}>{variety}</li>
+              ))}
+            </ul>
+            {analysis.correctedVariety && analysis.correctedVariety.length > 0 && (
+              <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded whitespace-nowrap">
+                ✓ Korrigiert
+              </span>
+            )}
+          </div>
           {canEdit && (
             <div className="mt-2 pt-2 border-t border-gray-200">
               {!isEditing ? (
@@ -228,9 +363,26 @@ export function OverallImpressionSection({
                       Abbrechen
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    Diese Korrektur hilft dem Algorithmus, ähnliche Steine in Zukunft besser zu erkennen.
-                  </p>
+                  <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                    <p className="font-semibold mb-1">💡 {isLoggedIn ? 'Lernsystem aktiv' : 'Lokale Korrektur'}</p>
+                    <p>
+                      {isLoggedIn ? (
+                        <>
+                          Diese Korrektur wird gespeichert und hilft dem Algorithmus, ähnliche Steine in Zukunft besser zu erkennen.
+                          <br />
+                          <strong>Konsistenz:</strong> Die Varietät wird automatisch an den Pleochroismus angepasst, um Widersprüche zu vermeiden.
+                        </>
+                      ) : (
+                        <>
+                          Diese Korrektur wird lokal gespeichert und verbessert die aktuelle Analyse.
+                          <br />
+                          <strong>Hinweis:</strong> Melden Sie sich an, um Korrekturen im Lernsystem zu speichern und zukünftige Analysen zu verbessern.
+                          <br />
+                          <strong>Konsistenz:</strong> Die Varietät wird automatisch an den Pleochroismus angepasst, um Widersprüche zu vermeiden.
+                        </>
+                      )}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

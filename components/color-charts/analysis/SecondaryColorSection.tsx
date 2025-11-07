@@ -54,10 +54,12 @@ export function SecondaryColorSection({ analysis, pleochroism }: SecondaryColorS
               <strong>Pleochroismus:</strong> {pleochroism}
             </p>
             <p className="text-xs text-indigo-700">
-              {pleochroism.toLowerCase().includes('isotrop') ? (
+              {pleochroism.toLowerCase().includes('isotrop') && !pleochroism.toLowerCase().includes('anisotrop') ? (
                 <>Der Edelstein zeigt keine Pleochroismus-Tendenz, was typisch für isotrope Edelsteine (kubisches Kristallsystem) ist.</>
+              ) : pleochroism.toLowerCase().includes('anisotrop') || pleochroism.toLowerCase().includes('pleochroismus') ? (
+                <>Die Analyse zeigt unterschiedliche Farbtöne in verschiedenen Bereichen des Steins. Dies deutet auf Pleochroismus hin, was typisch für anisotrope Edelsteine (nicht-kubisches Kristallsystem) wie Turmalin, Saphir, Rubin, Smaragd und andere ist.</>
               ) : (
-                <>Die Analyse zeigt unterschiedliche Farbtöne in verschiedenen Bereichen des Steins. Dies deutet auf {pleochroism.toLowerCase()} hin, was typisch für anisotrope Edelsteine ist.</>
+                <>Die Analyse zeigt keine eindeutige Pleochroismus-Tendenz. Weitere gemmologische Tests werden zur Bestimmung empfohlen.</>
               )}
             </p>
           </div>

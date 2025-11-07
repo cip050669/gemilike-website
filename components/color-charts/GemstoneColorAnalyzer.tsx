@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, Image as ImageIcon, Loader2, Download, FileText, Save } from 'lucide-react';
+import { Upload, Image as ImageIcon, Loader2, Download, FileText, Save, Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { extractColorsFromImage, analyzeImageRegions } from './utils/imageColorExtraction';
+import { extractColorsFromImage, analyzeImageRegions, MaskingOptions, DEFAULT_MASKING_OPTIONS } from './utils/imageColorExtraction';
+import { Whitepoint } from './utils/colorConversions';
 import {
   analyzePrimaryColor,
   analyzeSecondaryColors,
@@ -30,9 +31,14 @@ import { LuminanceSaturationSection } from './analysis/LuminanceSaturationSectio
 import { SpectralCharacteristicSection } from './analysis/SpectralCharacteristicSection';
 import { GIAColorGradeSection } from './analysis/GIAColorGradeSection';
 import { OverallImpressionSection } from './analysis/OverallImpressionSection';
+import { PaletteComparisonSection } from './analysis/PaletteComparisonSection';
 import { GemstoneImageCrop } from './GemstoneImageCrop';
+import { compareToAllPalettes, PaletteComparison } from './utils/paletteComparison';
+import { loadOpenCV, applyGrabCut, BrushMode, BrushStroke, RectRegion } from './utils/opencvIntegration';
 
 export function GemstoneColorAnalyzer() {
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -52,10 +58,216 @@ export function GemstoneColorAnalyzer() {
   const [showCropTool, setShowCropTool] = useState(false);
   const [cropRegion, setCropRegion] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [isResizing, setIsResizing] = useState(false);
+  const [whitepoint, setWhitepoint] = useState<Whitepoint>('D65');
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const [paletteComparisons, setPaletteComparisons] = useState<PaletteComparison[]>([]);
+  const [kValue, setKValue] = useState<number | null>(null); // null = auto, otherwise manual value
+  const [maskingOptions, setMaskingOptions] = useState<MaskingOptions>(DEFAULT_MASKING_OPTIONS);
+  const [customPalette, setCustomPalette] = useState<string[]>([]);
+  const [customPaletteInput, setCustomPaletteInput] = useState<string>('');
+  
+  // OpenCV GrabCut state
+  const [cvReady, setCvReady] = useState(false);
+  const [cvLoadError, setCvLoadError] = useState<string | null>(null);
+  const [brushMode, setBrushMode] = useState<BrushMode>('RECT');
+  const [brushSize, setBrushSize] = useState(16);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [fgStrokes, setFgStrokes] = useState<BrushStroke[]>([]);
+  const [bgStrokes, setBgStrokes] = useState<BrushStroke[]>([]);
+  const [rectRegion, setRectRegion] = useState<RectRegion | null>(null);
+  const [useGrabCut, setUseGrabCut] = useState(false);
+  
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const overlayRef = useRef<HTMLCanvasElement>(null);
 
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+
+  // Load OpenCV
+  const handleLoadOpenCV = useCallback(async () => {
+    // Reset error state when attempting to load again
+    setCvLoadError(null);
+    try {
+      const loaded = await loadOpenCV();
+      if (loaded) {
+        setCvReady(true);
+        setCvLoadError(null); // Clear any previous errors
+        console.log('OpenCV.js erfolgreich geladen');
+      } else {
+        // OpenCV konnte nicht geladen werden - deaktiviere GrabCut
+        setCvReady(false);
+        setUseGrabCut(false);
+        setCvLoadError('OpenCV.js konnte nicht von den verfügbaren Quellen geladen werden.');
+        console.warn('OpenCV.js konnte nicht geladen werden. Automatische Segmentierung wird verwendet.');
+      }
+    } catch (error) {
+      console.error('Failed to load OpenCV:', error);
+      setCvReady(false);
+      setUseGrabCut(false);
+      setCvLoadError(error instanceof Error ? error.message : 'Unbekannter Fehler beim Laden von OpenCV.js');
+      console.warn('OpenCV konnte nicht geladen werden. Automatische Segmentierung wird verwendet.');
+    }
+  }, []);
+
+  // Clear strokes and rect
+  const clearStrokes = useCallback(() => {
+    setFgStrokes([]);
+    setBgStrokes([]);
+    setRectRegion(null);
+    if (overlayRef.current) {
+      const ctx = overlayRef.current.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, overlayRef.current.width, overlayRef.current.height);
+      }
+    }
+  }, []);
+
+  // Redraw overlay
+  const redrawOverlay = useCallback(() => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    
+    const ctx = overlay.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.clearRect(0, 0, overlay.width, overlay.height);
+    
+    // Draw rect
+    if (rectRegion) {
+      ctx.setLineDash([6, 4]);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(37, 99, 235, 0.9)';
+      ctx.strokeRect(rectRegion.x, rectRegion.y, rectRegion.w, rectRegion.h);
+    }
+    
+    // Draw strokes
+    const drawDots = (strokes: BrushStroke[], color: string) => {
+      ctx.setLineDash([]);
+      ctx.fillStyle = color;
+      for (const stroke of strokes) {
+        ctx.beginPath();
+        ctx.arc(stroke.x, stroke.y, stroke.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+    
+    drawDots(fgStrokes, 'rgba(22, 163, 74, 0.6)'); // Green for foreground
+    drawDots(bgStrokes, 'rgba(239, 68, 68, 0.6)'); // Red for background
+  }, [rectRegion, fgStrokes, bgStrokes]);
+
+  // Get mouse position relative to canvas
+  const getMousePos = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = overlayRef.current;
+    if (!canvas) return null;
+
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  };
+
+  // Handle canvas mouse down
+  const handleCanvasDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!useGrabCut || !cvReady) return;
+    
+    const pos = getMousePos(e);
+    if (!pos) return;
+
+    setIsDrawing(true);
+
+    if (brushMode === 'RECT') {
+      // Start rectangle
+      setRectRegion({ x: pos.x, y: pos.y, w: 0, h: 0 });
+    } else {
+      // Add stroke
+      const stroke: BrushStroke = {
+        x: pos.x,
+        y: pos.y,
+        r: brushSize,
+      };
+      
+      if (brushMode === 'FG') {
+        setFgStrokes(prev => [...prev, stroke]);
+      } else if (brushMode === 'BG') {
+        setBgStrokes(prev => [...prev, stroke]);
+      }
+    }
+  }, [useGrabCut, cvReady, brushMode, brushSize]);
+
+  // Handle canvas mouse move
+  const handleCanvasMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!useGrabCut || !cvReady || !isDrawing) return;
+    
+    const pos = getMousePos(e);
+    if (!pos) return;
+
+    if (brushMode === 'RECT') {
+      // Update rectangle
+      setRectRegion(prev => {
+        if (!prev) return null;
+        return {
+          x: prev.x,
+          y: prev.y,
+          w: pos.x - prev.x,
+          h: pos.y - prev.y,
+        };
+      });
+    } else {
+      // Add stroke while dragging
+      const stroke: BrushStroke = {
+        x: pos.x,
+        y: pos.y,
+        r: brushSize,
+      };
+      
+      if (brushMode === 'FG') {
+        setFgStrokes(prev => [...prev, stroke]);
+      } else if (brushMode === 'BG') {
+        setBgStrokes(prev => [...prev, stroke]);
+      }
+    }
+  }, [useGrabCut, cvReady, isDrawing, brushMode, brushSize]);
+
+  // Handle canvas mouse up
+  const handleCanvasUp = useCallback(() => {
+    setIsDrawing(false);
+  }, []);
+
+  // Update overlay when strokes/rect change
+  useEffect(() => {
+    redrawOverlay();
+  }, [redrawOverlay]);
+
+  // Initialize canvas when image preview changes and GrabCut is enabled
+  useEffect(() => {
+    if (imagePreview && useGrabCut && cvReady && canvasRef.current) {
+      const img = new Image();
+      img.src = imagePreview;
+      img.onload = () => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const maxWidth = 800;
+          const maxHeight = 600;
+          const ratio = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+          canvas.width = Math.round(img.width * ratio);
+          canvas.height = Math.round(img.height * ratio);
+          
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          }
+          
+          if (overlayRef.current) {
+            overlayRef.current.width = canvas.width;
+            overlayRef.current.height = canvas.height;
+          }
+        }
+        clearStrokes();
+      };
+    }
+  }, [imagePreview, useGrabCut, cvReady, clearStrokes]);
 
   const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<File> => {
     return new Promise((resolve, reject) => {
@@ -124,15 +336,21 @@ export function GemstoneColorAnalyzer() {
     });
   };
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = async (file: File, index?: number) => {
     setAnalysisComplete(false);
     setCropRegion(null);
     setIsResizing(true);
+    clearStrokes(); // Clear GrabCut strokes when switching images
+    
+    // Update active index if provided
+    if (index !== undefined) {
+      setActiveImageIndex(index);
+    }
     
     try {
-      // Resize image if it exceeds 1800x1200px
+      // Resize image if it exceeds 1800x1800px
       const MAX_WIDTH = 1800;
-      const MAX_HEIGHT = 1200;
+      const MAX_HEIGHT = 1800;
       
       let processedFile = file;
       let wasResized = false;
@@ -191,7 +409,37 @@ export function GemstoneColorAnalyzer() {
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
+        const previewUrl = e.target?.result as string;
+        setImagePreview(previewUrl);
+        
+        // Initialize canvas for GrabCut if enabled
+        if (useGrabCut && cvReady) {
+          const img = new Image();
+          img.src = previewUrl;
+          img.onload = () => {
+            if (canvasRef.current) {
+              const canvas = canvasRef.current;
+              // Scale to fit container
+              const maxWidth = 800;
+              const maxHeight = 600;
+              const ratio = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+              canvas.width = Math.round(img.width * ratio);
+              canvas.height = Math.round(img.height * ratio);
+              
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              }
+              
+              if (overlayRef.current) {
+                overlayRef.current.width = canvas.width;
+                overlayRef.current.height = canvas.height;
+              }
+            }
+            clearStrokes();
+          };
+        }
+        
         setIsResizing(false);
       };
       reader.readAsDataURL(processedFile);
@@ -203,17 +451,21 @@ export function GemstoneColorAnalyzer() {
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      handleFileSelect(file);
+    const files = Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'));
+    if (files.length > 0) {
+      setImageFiles(files);
+      setActiveImageIndex(0);
+      handleFileSelect(files[0], 0);
     }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      handleFileSelect(file);
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    if (files.length > 0) {
+      setImageFiles(files);
+      setActiveImageIndex(0);
+      handleFileSelect(files[0], 0);
     }
   };
 
@@ -224,11 +476,103 @@ export function GemstoneColorAnalyzer() {
     setAnalysisComplete(false);
 
     try {
+      // Apply GrabCut if enabled and ready
+      let grabCutAlpha: Uint8ClampedArray | undefined = undefined;
+      if (useGrabCut && cvReady && imageFile) {
+        try {
+          // Load original image file (not preview) for accurate GrabCut
+          const img = new Image();
+          const imgUrl = URL.createObjectURL(imageFile);
+          
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => {
+              try {
+                // Use original image dimensions (may be resized, but we work with actual file)
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                  URL.revokeObjectURL(imgUrl);
+                  reject(new Error('Could not get canvas context'));
+                  return;
+                }
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                
+                // Scale strokes/rect from overlay canvas to original image dimensions
+                const overlayCanvas = overlayRef.current;
+                if (overlayCanvas) {
+                  const scaleX = img.width / overlayCanvas.width;
+                  const scaleY = img.height / overlayCanvas.height;
+                  
+                  const scaledFgStrokes = fgStrokes.map(s => ({
+                    x: s.x * scaleX,
+                    y: s.y * scaleY,
+                    r: s.r * scaleX,
+                  }));
+                  const scaledBgStrokes = bgStrokes.map(s => ({
+                    x: s.x * scaleX,
+                    y: s.y * scaleY,
+                    r: s.r * scaleX,
+                  }));
+                  const scaledRect = rectRegion ? {
+                    x: rectRegion.x * scaleX,
+                    y: rectRegion.y * scaleY,
+                    w: rectRegion.w * scaleX,
+                    h: rectRegion.h * scaleY,
+                  } : null;
+                  
+                  console.log('GrabCut parameters:', {
+                    hasFgStrokes: scaledFgStrokes.length > 0,
+                    hasBgStrokes: scaledBgStrokes.length > 0,
+                    hasRect: !!scaledRect,
+                    rect: scaledRect,
+                  });
+                  
+                  grabCutAlpha = applyGrabCut(imageData, scaledFgStrokes, scaledBgStrokes, scaledRect);
+                  
+                  if (grabCutAlpha) {
+                    console.log('GrabCut erfolgreich, Alpha-Maske erstellt:', grabCutAlpha.length, 'Pixel');
+                  } else {
+                    console.warn('GrabCut zurückgegeben null - verwende automatische Segmentierung');
+                  }
+                } else {
+                  console.warn('Overlay canvas nicht gefunden - verwende automatische Segmentierung');
+                }
+                URL.revokeObjectURL(imgUrl);
+                resolve();
+              } catch (error) {
+                console.error('GrabCut Fehler:', error);
+                URL.revokeObjectURL(imgUrl);
+                reject(error);
+              }
+            };
+            img.onerror = () => {
+              URL.revokeObjectURL(imgUrl);
+              reject(new Error('Failed to load image'));
+            };
+            img.src = imgUrl;
+          });
+        } catch (error) {
+          console.error('GrabCut Fehler beim Laden des Bildes:', error);
+          // Continue with automatic segmentation
+        }
+      }
+
       // Extract colors from image (only gemstone pixels, background is automatically filtered)
-      const imageAnalysis = await extractColorsFromImage(imageFile, 10000, cropRegion || undefined);
+      const imageAnalysis = await extractColorsFromImage(
+        imageFile,
+        10000,
+        cropRegion || undefined,
+        whitepoint,
+        kValue,
+        maskingOptions,
+        grabCutAlpha
+      );
       
       // Analyze regions (only gemstone pixels)
-      const regions = await analyzeImageRegions(imageFile, cropRegion || undefined);
+      const regions = await analyzeImageRegions(imageFile, cropRegion || undefined, whitepoint, kValue, maskingOptions);
       
       // 1. Primary Color Analysis
       const primary = analyzePrimaryColor(imageAnalysis.primaryColor);
@@ -274,6 +618,10 @@ export function GemstoneColorAnalyzer() {
       );
       setOverallImpression(overall);
       
+      // 7. Palette Comparison (ΔE)
+      const comparisons = compareToAllPalettes(imageAnalysis.primaryColor.hex, whitepoint, customPalette.length > 0 ? customPalette : undefined);
+      setPaletteComparisons(comparisons);
+      
       setAnalysisComplete(true);
     } catch (error) {
       console.error('Analysis error:', error);
@@ -304,6 +652,34 @@ export function GemstoneColorAnalyzer() {
     } catch (error) {
       console.error('Export error:', error);
       alert('Fehler beim Exportieren des Berichts');
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (!analysisComplete || !primaryColor) {
+      alert('Bitte führen Sie zuerst eine Analyse durch.');
+      return;
+    }
+
+    try {
+      const { exportAnalysisToPDF } = await import('./utils/pdfExport');
+      
+      await exportAnalysisToPDF({
+        imageUrl: imagePreview,
+        imageName: imageFile?.name || null,
+        timestamp: new Date(),
+        whitepoint,
+        primaryColor,
+        secondaryColors,
+        luminanceSaturation,
+        spectralCharacteristic,
+        giaColorGrade,
+        overallImpression,
+        paletteComparisons,
+      });
+    } catch (error) {
+      console.error('PDF Export error:', error);
+      alert('Fehler beim Exportieren des PDFs: ' + (error instanceof Error ? error.message : 'Unbekannter Fehler'));
     }
   };
 
@@ -364,8 +740,24 @@ export function GemstoneColorAnalyzer() {
           luminanceSaturation,
           spectralCharacteristic,
           giaColorGrade,
-          overallImpression,
+          // Ensure corrected values are included in overallImpression
+          overallImpression: {
+            ...overallImpression,
+            // Preserve corrections if they exist
+            correctedVariety: overallImpression?.correctedVariety || undefined,
+            correctedPleochroism: overallImpression?.correctedPleochroism || undefined,
+          },
           pleochroism: overallImpression?.correctedPleochroism || pleochroism,
+          whitepoint,
+          kValue: kValue !== null ? kValue : undefined,
+          maskingOptions: (() => {
+            // Only save if maskingOptions differ from defaults
+            const keys: (keyof typeof DEFAULT_MASKING_OPTIONS)[] = ['white', 'black', 'lowSat', 'smart', 'wThr', 'bThr', 'sThr'];
+            const hasChanges = keys.some(key => maskingOptions[key] !== DEFAULT_MASKING_OPTIONS[key]);
+            return hasChanges ? maskingOptions : undefined;
+          })(),
+          customPalette: customPalette.length > 0 ? customPalette : undefined,
+          paletteComparisons: paletteComparisons.length > 0 ? paletteComparisons : undefined,
           locale: 'de',
           published: false,
           featured: false,
@@ -412,27 +804,51 @@ export function GemstoneColorAnalyzer() {
             {isResizing ? (
               <div className="space-y-4">
                 <Loader2 className="h-12 w-12 mx-auto animate-spin text-[#9A1A63]" />
-                <p className="text-gray-400">Bild wird verarbeitet (max. 1800×1200px)...</p>
+                <p className="text-gray-400">Bild wird verarbeitet (max. 1800×1800px)...</p>
               </div>
             ) : imagePreview ? (
               <div className="space-y-4">
-                <div className="relative w-full max-w-md mx-auto aspect-video">
-                  <NextImage
-                    src={imagePreview}
-                    alt="Preview"
-                    fill
-                    className="object-contain rounded-lg"
-                  />
-                </div>
+                {/* Canvas Preview with Overlay (for GrabCut) or Next.js Image */}
+                {useGrabCut && cvReady ? (
+                  <div className="relative w-full max-w-md mx-auto">
+                    <canvas
+                      ref={canvasRef}
+                      className="block w-full h-auto rounded-lg"
+                      style={{ display: 'block' }}
+                    />
+                    <canvas
+                      ref={overlayRef}
+                      className="absolute inset-0 w-full h-full cursor-crosshair"
+                      onMouseDown={handleCanvasDown}
+                      onMouseMove={handleCanvasMove}
+                      onMouseUp={handleCanvasUp}
+                      onMouseLeave={handleCanvasUp}
+                    />
+                    <div className="mt-2 text-xs text-gray-400 text-center">
+                      {brushMode === 'RECT' ? 'Rechteck ziehen' : brushMode === 'FG' ? 'FG pinseln (grün)' : 'BG pinseln (rot)'}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative w-full max-w-md mx-auto aspect-video">
+                    <NextImage
+                      src={imagePreview}
+                      alt="Preview"
+                      fill
+                      className="object-contain rounded-lg"
+                    />
+                  </div>
+                )}
                 <div className="flex gap-2 justify-center flex-wrap">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
+                      setImageFiles([]);
                       setImageFile(null);
                       setImagePreview(null);
                       setAnalysisComplete(false);
                       setCropRegion(null);
+                      setActiveImageIndex(0);
                     }}
                   >
                     Anderes Bild wählen
@@ -465,12 +881,38 @@ export function GemstoneColorAnalyzer() {
                     Analyse-Bereich: {Math.round(cropRegion.width)} × {Math.round(cropRegion.height)} px
                   </p>
                 )}
+                
+                {/* Multiple images navigation */}
+                {imageFiles.length > 1 && (
+                  <div className="mt-4">
+                    <p className="text-xs text-gray-400 mb-2 text-center">
+                      {imageFiles.length} Bild(er) geladen
+                    </p>
+                    <div className="flex gap-2 overflow-x-auto pb-2 justify-center flex-wrap">
+                      {imageFiles.map((file, i) => (
+                        <Button
+                          key={i}
+                          variant={i === activeImageIndex ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            setActiveImageIndex(i);
+                            handleFileSelect(file, i);
+                          }}
+                          disabled={isAnalyzing}
+                          className={`text-xs ${i === activeImageIndex ? 'bg-[#9A1A63] hover:bg-[#7a1450]' : ''}`}
+                        >
+                          {file.name.length > 20 ? `${file.name.substring(0, 20)}...` : file.name}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <>
                 <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                 <p className="text-gray-400 mb-2">
-                  Ziehen Sie ein Bild hierher oder klicken Sie zum Auswählen
+                  Ziehen Sie ein oder mehrere Bilder hierher oder klicken Sie zum Auswählen
                 </p>
                 <Button
                   variant="outline"
@@ -482,10 +924,411 @@ export function GemstoneColorAnalyzer() {
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={handleFileInput}
                   className="hidden"
                 />
               </>
+            )}
+          </div>
+
+          {/* Advanced Settings */}
+          <div className="mt-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+              className="text-gray-400 hover:text-white"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Erweiterte Einstellungen
+              {showAdvancedSettings ? (
+                <ChevronUp className="h-4 w-4 ml-2" />
+              ) : (
+                <ChevronDown className="h-4 w-4 ml-2" />
+              )}
+            </Button>
+            
+            {showAdvancedSettings && (
+              <div className="mt-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300 flex items-center justify-between">
+                    <span>Referenz-Weißpunkt (Lab):</span>
+                    <select
+                      value={whitepoint}
+                      onChange={(e) => setWhitepoint(e.target.value as Whitepoint)}
+                      className="ml-4 px-3 py-1.5 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#9A1A63]"
+                      disabled={isAnalyzing}
+                    >
+                      <option value="D65">D65 (Standard sRGB)</option>
+                      <option value="D50">D50 (ICC/Bradford)</option>
+                    </select>
+                  </label>
+                  <p className="text-xs text-gray-500">
+                    D65 ist der Standard für sRGB-Displays. D50 wird für professionelle Druck- und ICC-Profil-Anwendungen verwendet.
+                  </p>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-gray-300">
+                      Cluster-Anzahl (K):
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className="flex items-center gap-2 text-xs text-gray-400">
+                        <input
+                          type="checkbox"
+                          checked={kValue !== null}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setKValue(5); // Default to 5 when enabling
+                            } else {
+                              setKValue(null); // Auto when disabling
+                            }
+                          }}
+                          disabled={isAnalyzing}
+                          className="rounded"
+                        />
+                        Manuell
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {kValue !== null ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min={3}
+                          max={20}
+                          value={kValue}
+                          onChange={(e) => setKValue(parseInt(e.target.value))}
+                          disabled={isAnalyzing}
+                          className="flex-1"
+                        />
+                        <span className="text-sm text-gray-300 font-mono w-8 text-right">
+                          {kValue}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Anzahl der Farb-Cluster für K-Means-Algorithmus. Höhere Werte = mehr Farbnuancen, aber längere Berechnung.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500">
+                      Automatisch (adaptiv basierend auf Bildgröße, 3-20 Cluster)
+                    </p>
+                  )}
+                </div>
+
+                {/* Maskierungs-Optionen */}
+                <div className="space-y-2 pt-2 border-t border-gray-700">
+                  <h4 className="text-sm font-medium text-gray-300">Maskierung</h4>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="flex items-center gap-2 text-xs text-gray-400">
+                      <input
+                        type="checkbox"
+                        checked={maskingOptions.white}
+                        onChange={(e) => setMaskingOptions({ ...maskingOptions, white: e.target.checked })}
+                        disabled={isAnalyzing}
+                        className="rounded"
+                      />
+                      hell/neutral
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-gray-400">
+                      <input
+                        type="checkbox"
+                        checked={maskingOptions.black}
+                        onChange={(e) => setMaskingOptions({ ...maskingOptions, black: e.target.checked })}
+                        disabled={isAnalyzing}
+                        className="rounded"
+                      />
+                      sehr dunkel
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-gray-400">
+                      <input
+                        type="checkbox"
+                        checked={maskingOptions.lowSat}
+                        onChange={(e) => setMaskingOptions({ ...maskingOptions, lowSat: e.target.checked })}
+                        disabled={isAnalyzing}
+                        className="rounded"
+                      />
+                      niedrige Sätt.
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-gray-400">
+                      <input
+                        type="checkbox"
+                        checked={maskingOptions.smart}
+                        onChange={(e) => setMaskingOptions({ ...maskingOptions, smart: e.target.checked })}
+                        disabled={isAnalyzing}
+                        className="rounded"
+                      />
+                      Smart Mask
+                    </label>
+                  </div>
+
+                  {maskingOptions.white && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs text-gray-400 w-32">Weiß-Schwelle</span>
+                      <input
+                        type="range"
+                        min={180}
+                        max={250}
+                        value={maskingOptions.wThr}
+                        onChange={(e) => setMaskingOptions({ ...maskingOptions, wThr: parseInt(e.target.value) })}
+                        disabled={isAnalyzing}
+                        className="flex-1"
+                      />
+                      <span className="text-xs text-gray-300 font-mono w-10 text-right">
+                        {maskingOptions.wThr}
+                      </span>
+                    </div>
+                  )}
+
+                  {maskingOptions.black && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs text-gray-400 w-32">Schwarz-Schwelle</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={60}
+                        value={maskingOptions.bThr}
+                        onChange={(e) => setMaskingOptions({ ...maskingOptions, bThr: parseInt(e.target.value) })}
+                        disabled={isAnalyzing}
+                        className="flex-1"
+                      />
+                      <span className="text-xs text-gray-300 font-mono w-10 text-right">
+                        {maskingOptions.bThr}
+                      </span>
+                    </div>
+                  )}
+
+                  {maskingOptions.lowSat && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs text-gray-400 w-32">Sättigungs-Schwelle</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={30}
+                        value={maskingOptions.sThr}
+                        onChange={(e) => setMaskingOptions({ ...maskingOptions, sThr: parseInt(e.target.value) })}
+                        disabled={isAnalyzing}
+                        className="flex-1"
+                      />
+                      <span className="text-xs text-gray-300 font-mono w-10 text-right">
+                        {maskingOptions.sThr}
+                      </span>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-gray-500 mt-2">
+                    Kontrolliere, welche Pixel für die Analyse verwendet werden. Anpassung bei schwierigen Bildern.
+                  </p>
+                </div>
+
+                {/* Benutzerdefinierte Palette */}
+                <div className="space-y-2 pt-2 border-t border-gray-700">
+                  <h4 className="text-sm font-medium text-gray-300">Benutzerdefinierte Palette</h4>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {customPalette.map((hex, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded border bg-gray-800 border-gray-600"
+                      >
+                        <span
+                          className="h-4 w-4 rounded border border-gray-500"
+                          style={{ backgroundColor: hex }}
+                        />
+                        <span className="text-xs text-gray-300 font-mono">{hex}</span>
+                        <button
+                          onClick={() => setCustomPalette(customPalette.filter((_, j) => j !== i))}
+                          className="text-xs text-red-400 hover:text-red-300 ml-1"
+                          disabled={isAnalyzing}
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="#RRGGBB"
+                      value={customPaletteInput}
+                      onChange={(e) => setCustomPaletteInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const v = customPaletteInput.trim();
+                          if (/^#?[0-9a-fA-F]{6}$/i.test(v)) {
+                            const hex = v.startsWith('#') ? v.toUpperCase() : `#${v.toUpperCase()}`;
+                            if (!customPalette.includes(hex)) {
+                              setCustomPalette([...customPalette, hex]);
+                              setCustomPaletteInput('');
+                            }
+                          }
+                        }
+                      }}
+                      disabled={isAnalyzing}
+                      className="flex-1 px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#9A1A63] font-mono"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const v = customPaletteInput.trim();
+                        if (/^#?[0-9a-fA-F]{6}$/i.test(v)) {
+                          const hex = v.startsWith('#') ? v.toUpperCase() : `#${v.toUpperCase()}`;
+                          if (!customPalette.includes(hex)) {
+                            setCustomPalette([...customPalette, hex]);
+                            setCustomPaletteInput('');
+                          }
+                        }
+                      }}
+                      disabled={isAnalyzing || !/^#?[0-9a-fA-F]{6}$/i.test(customPaletteInput.trim())}
+                      className="text-xs"
+                    >
+                      + Hinzufügen
+                    </Button>
+                  </div>
+
+                  {customPalette.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCustomPalette([])}
+                      disabled={isAnalyzing}
+                      className="text-xs text-gray-400 hover:text-gray-300"
+                    >
+                      Palette leeren
+                    </Button>
+                  )}
+
+                  <p className="text-xs text-gray-500">
+                    Füge eigene HEX-Farben hinzu, um sie in der Palette-Vergleichs-Analyse zu verwenden.
+                  </p>
+                </div>
+
+                {/* OpenCV GrabCut Segmentierung */}
+                <div className="space-y-2 pt-2 border-t border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-gray-300">Segmentierung (GrabCut)</h4>
+                    <label className="flex items-center gap-2 text-xs text-gray-400">
+                      <input
+                        type="checkbox"
+                        checked={useGrabCut}
+                        onChange={(e) => {
+                          setUseGrabCut(e.target.checked);
+                          if (e.target.checked && !cvReady) {
+                            handleLoadOpenCV();
+                          }
+                        }}
+                        disabled={isAnalyzing}
+                        className="rounded"
+                      />
+                      GrabCut verwenden
+                    </label>
+                  </div>
+
+                  {useGrabCut && (
+                    <>
+                      {!cvReady && (
+                        <div className="space-y-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleLoadOpenCV}
+                            disabled={isAnalyzing}
+                            className="w-full text-xs"
+                          >
+                            OpenCV.js laden (~8MB)
+                          </Button>
+                          {cvLoadError ? (
+                            <div className="p-2 bg-yellow-900/30 border border-yellow-700 rounded text-xs text-yellow-300">
+                              <p className="font-semibold mb-1">⚠️ OpenCV.js konnte nicht geladen werden</p>
+                              <p className="text-yellow-400">{cvLoadError}</p>
+                              <p className="mt-2 text-yellow-200">
+                                Die Analyse verwendet automatisch die Standard-Segmentierung, die für die meisten Fälle ausreichend ist.
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-500">
+                              OpenCV.js wird dynamisch geladen für präzise Segmentierung.
+                              <br />
+                              <span className="text-yellow-400">Hinweis:</span> Falls OpenCV.js nicht geladen werden kann, wird automatisch die Standard-Segmentierung verwendet.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      {cvReady && (
+                        <p className="text-xs text-green-400">
+                          ✓ OpenCV.js erfolgreich geladen
+                        </p>
+                      )}
+
+                      {cvReady && (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <label className="text-xs text-gray-400">Werkzeug:</label>
+                            <select
+                              value={brushMode}
+                              onChange={(e) => setBrushMode(e.target.value as BrushMode)}
+                              disabled={isAnalyzing}
+                              className="flex-1 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-[#9A1A63]"
+                            >
+                              <option value="RECT">Rechteck (Init)</option>
+                              <option value="FG">Pinsel: Vordergrund</option>
+                              <option value="BG">Pinsel: Hintergrund</option>
+                            </select>
+                          </div>
+
+                          {brushMode !== 'RECT' && (
+                            <div className="flex items-center gap-2">
+                              <label className="text-xs text-gray-400">Pinselgröße:</label>
+                              <input
+                                type="range"
+                                min={6}
+                                max={64}
+                                value={brushSize}
+                                onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                                disabled={isAnalyzing}
+                                className="flex-1"
+                              />
+                              <span className="text-xs text-gray-300 font-mono w-10 text-right">
+                                {brushSize}px
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={clearStrokes}
+                              disabled={isAnalyzing}
+                              className="text-xs"
+                            >
+                              Zurücksetzen
+                            </Button>
+                            <div className="flex-1 text-xs text-gray-500 flex items-center gap-2">
+                              <span className="inline-block w-3 h-3 rounded-full bg-green-500/60"></span>
+                              FG: {fgStrokes.length}
+                              <span className="inline-block w-3 h-3 rounded-full bg-red-500/60 ml-2"></span>
+                              BG: {bgStrokes.length}
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-gray-500">
+                            Markiere Vordergrund (grün) und Hintergrund (rot) für präzise Segmentierung.
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </CardContent>
@@ -541,6 +1384,14 @@ export function GemstoneColorAnalyzer() {
             )}
             <Button
               variant="outline"
+              onClick={handleExportPDF}
+              className="flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              Als PDF exportieren
+            </Button>
+            <Button
+              variant="outline"
               onClick={handleExportReport}
               className="flex items-center gap-2"
             >
@@ -571,6 +1422,11 @@ export function GemstoneColorAnalyzer() {
             <PrimaryColorSection analysis={primaryColor} />
           )}
 
+          {/* 1.5. Palette Comparison */}
+          {paletteComparisons.length > 0 && (
+            <PaletteComparisonSection comparisons={paletteComparisons} />
+          )}
+
           {/* 2. Secondary Color Analysis */}
           {secondaryColors.length > 0 && (
             <SecondaryColorSection
@@ -598,17 +1454,58 @@ export function GemstoneColorAnalyzer() {
           {overallImpression && (
             <OverallImpressionSection 
               analysis={overallImpression}
-              canEdit={!!session?.user}
+              canEdit={true} // Always allow editing for all users
+              isLoggedIn={!!session?.user} // Show learning system info only for logged-in users
               onVarietyCorrection={async (correctedVariety: string[]) => {
                 // Update local state
-                setOverallImpression({
+                const updatedImpression = {
                   ...overallImpression,
                   correctedVariety,
-                });
+                };
+                setOverallImpression(updatedImpression);
                 
-                // Save correction to API for learning
+                // Check consistency and auto-update pleochroism if needed
+                const { suggestPleochroismFromVarieties } = await import('./utils/gemstoneAnalysis');
+                const suggestedPleochroism = suggestPleochroismFromVarieties(correctedVariety);
+                const currentPleochroismType = (overallImpression.correctedPleochroism || overallImpression.pleochroism || '').toLowerCase().includes('isotrop') ? 'isotrop' : 'anisotrop';
+                
+                // If pleochroism doesn't match, update it automatically
+                if (suggestedPleochroism !== currentPleochroismType) {
+                  const newPleochroism = suggestedPleochroism === 'isotrop' 
+                    ? 'Isotrop (kein Pleochroismus)' 
+                    : 'Anisotrop (Pleochroismus vorhanden)';
+                  setPleochroism(newPleochroism);
+                  
+                  const newOverallImpression = generateOverallImpression(
+                    overallImpression.dominantColorTone,
+                    overallImpression.saturation,
+                    newPleochroism,
+                    overallImpression.opticalQuality
+                  );
+                  const newEvaluation = generateFinalEvaluation(
+                    overallImpression.dominantColorTone,
+                    overallImpression.saturation,
+                    newPleochroism,
+                    correctedVariety,
+                    overallImpression.opticalQuality
+                  );
+                  
+                  setOverallImpression({
+                    ...updatedImpression,
+                    correctedPleochroism: newPleochroism,
+                    pleochroism: newPleochroism,
+                    overallImpression: newOverallImpression,
+                    evaluation: newEvaluation,
+                  });
+                }
+                
+                // Save correction to API for learning (with both variety and pleochroism)
                 if (primaryColorLab && session?.user) {
                   try {
+                    const finalPleochroism = suggestedPleochroism === 'isotrop' 
+                      ? 'Isotrop (kein Pleochroismus)' 
+                      : 'Anisotrop (Pleochroismus vorhanden)';
+                    
                     await fetch('/api/gemstone-analyses/corrections', {
                       method: 'POST',
                       headers: {
@@ -619,6 +1516,8 @@ export function GemstoneColorAnalyzer() {
                         hex: primaryColor?.hex,
                         originalVariety: overallImpression.possibleVariety,
                         correctedVariety,
+                        originalPleochroism: overallImpression.pleochroism,
+                        correctedPleochroism: finalPleochroism,
                       }),
                     });
                   } catch (error) {
@@ -630,10 +1529,19 @@ export function GemstoneColorAnalyzer() {
                 // Update pleochroism state
                 setPleochroism(correctedPleochroism);
                 
-                // Regenerate overallImpression and evaluation with corrected pleochroism
+                // Check consistency and auto-filter varieties if needed
+                const { filterVarietiesByPleochroism, suggestPleochroismFromVarieties } = await import('./utils/gemstoneAnalysis');
                 const displayVariety = overallImpression.correctedVariety && overallImpression.correctedVariety.length > 0
                   ? overallImpression.correctedVariety
                   : overallImpression.possibleVariety;
+                
+                const pleochroismType = correctedPleochroism.toLowerCase().includes('isotrop') ? 'isotrop' : 'anisotrop';
+                const filteredVarieties = filterVarietiesByPleochroism(displayVariety, pleochroismType);
+                
+                // Auto-filter varieties to match pleochroism
+                const finalVarieties = filteredVarieties.length > 0 ? filteredVarieties : displayVariety;
+                
+                // Regenerate overallImpression and evaluation with corrected pleochroism
                 const newOverallImpression = generateOverallImpression(
                   overallImpression.dominantColorTone,
                   overallImpression.saturation,
@@ -644,18 +1552,41 @@ export function GemstoneColorAnalyzer() {
                   overallImpression.dominantColorTone,
                   overallImpression.saturation,
                   correctedPleochroism,
-                  displayVariety,
+                  finalVarieties,
                   overallImpression.opticalQuality
                 );
                 
-                // Update local state with corrected pleochroism and regenerated texts
+                // Update local state with corrected pleochroism and filtered varieties
                 setOverallImpression({
                   ...overallImpression,
                   correctedPleochroism,
+                  correctedVariety: finalVarieties.length !== displayVariety.length ? finalVarieties : overallImpression.correctedVariety,
                   pleochroism: correctedPleochroism,
                   overallImpression: newOverallImpression,
                   evaluation: newEvaluation,
                 });
+                
+                // Save correction to API for learning (with both variety and pleochroism)
+                if (primaryColorLab && session?.user) {
+                  try {
+                    await fetch('/api/gemstone-analyses/corrections', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        lab: primaryColorLab,
+                        hex: primaryColor?.hex,
+                        originalVariety: overallImpression.possibleVariety,
+                        correctedVariety: finalVarieties,
+                        originalPleochroism: overallImpression.pleochroism,
+                        correctedPleochroism,
+                      }),
+                    });
+                  } catch (error) {
+                    console.error('Error saving correction:', error);
+                  }
+                }
               }}
             />
           )}

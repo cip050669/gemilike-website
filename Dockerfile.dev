@@ -2,6 +2,8 @@
 
 # Development Dockerfile
 FROM node:20-alpine
+# Use specific Node.js version for reproducibility
+ARG NODE_VERSION=20-alpine
 
 # Install system dependencies for development (including image processing for color analysis)
 RUN apk add --no-cache \

@@ -74,9 +74,9 @@ function StaticCookiesContent() {
             <h3 className="font-semibold text-foreground mb-2">Google Chrome</h3>
             <ol className="list-decimal list-inside space-y-1 ml-4">
               <li>Klicken Sie auf das Drei-Punkte-Menü (oben rechts)</li>
-              <li>Wählen Sie „Einstellungen"</li>
-              <li>Klicken Sie auf „Datenschutz und Sicherheit"</li>
-              <li>Wählen Sie „Cookies und andere Websitedaten"</li>
+              <li>Wählen Sie &quot;Einstellungen&quot;</li>
+              <li>Klicken Sie auf &quot;Datenschutz und Sicherheit&quot;</li>
+              <li>Wählen Sie &quot;Cookies und andere Websitedaten&quot;</li>
               <li>Verwalten Sie Ihre Cookie-Einstellungen</li>
             </ol>
           </div>
@@ -85,9 +85,9 @@ function StaticCookiesContent() {
             <h3 className="font-semibold text-foreground mb-2">Mozilla Firefox</h3>
             <ol className="list-decimal list-inside space-y-1 ml-4">
               <li>Klicken Sie auf das Hamburger-Menü (oben rechts)</li>
-              <li>Wählen Sie „Einstellungen"</li>
-              <li>Klicken Sie auf „Datenschutz &amp; Sicherheit"</li>
-              <li>Scrollen Sie zu „Cookies und Website-Daten"</li>
+              <li>Wählen Sie &quot;Einstellungen&quot;</li>
+              <li>Klicken Sie auf &quot;Datenschutz &amp; Sicherheit&quot;</li>
+              <li>Scrollen Sie zu &quot;Cookies und Website-Daten&quot;</li>
               <li>Verwalten Sie Ihre Cookie-Einstellungen</li>
             </ol>
           </div>
@@ -95,9 +95,9 @@ function StaticCookiesContent() {
           <div>
             <h3 className="font-semibold text-foreground mb-2">Safari</h3>
             <ol className="list-decimal list-inside space-y-1 ml-4">
-              <li>Klicken Sie auf „Safari" in der Menüleiste</li>
-              <li>Wählen Sie „Einstellungen"</li>
-              <li>Klicken Sie auf den Tab „Datenschutz"</li>
+              <li>Klicken Sie auf &quot;Safari&quot; in der Menüleiste</li>
+              <li>Wählen Sie &quot;Einstellungen&quot;</li>
+              <li>Klicken Sie auf den Tab &quot;Datenschutz&quot;</li>
               <li>Verwalten Sie Ihre Cookie-Einstellungen</li>
             </ol>
           </div>
@@ -106,8 +106,8 @@ function StaticCookiesContent() {
             <h3 className="font-semibold text-foreground mb-2">Microsoft Edge</h3>
             <ol className="list-decimal list-inside space-y-1 ml-4">
               <li>Klicken Sie auf das Drei-Punkte-Menü (oben rechts)</li>
-              <li>Wählen Sie „Einstellungen"</li>
-              <li>Klicken Sie auf „Cookies und Websiteberechtigungen"</li>
+              <li>Wählen Sie &quot;Einstellungen&quot;</li>
+              <li>Klicken Sie auf &quot;Cookies und Websiteberechtigungen&quot;</li>
               <li>Verwalten Sie Ihre Cookie-Einstellungen</li>
             </ol>
           </div>

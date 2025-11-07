@@ -3,8 +3,7 @@
  * Tests all CRUD operations, search, filtering, and bulk actions for gemstones
  */
 
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import GemstonesManagementPage from '@/app/[locale]/admin/gemstones/page';
 
 // Mock GemstoneManagementSection component

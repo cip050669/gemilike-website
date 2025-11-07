@@ -173,7 +173,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
     <>
       <div
         className="grid gap-[16px]"
-        style={{ gridTemplateColumns: 'repeat(5, 240px)', justifyContent: 'center', maxHeight: 'calc(6 * 340px + 5 * 16px)', overflowY: 'auto', paddingBottom: '16px' }}
+        style={{ gridTemplateColumns: 'repeat(4, 240px)', justifyContent: 'center', maxHeight: 'calc(6 * 340px + 5 * 16px)', overflowY: 'auto', overflowX: 'hidden', paddingBottom: '16px' }}
       >
         {displayGemstones.map((gem) => {
           const previewImage = gem.images[0] ?? PLACEHOLDER_IMAGE;

@@ -226,12 +226,12 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
               <SelectTrigger className={cn(inputStyles, 'font-medium')}>
                 <SelectValue placeholder="Kategorie auswählen" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border border-white/30 shadow-xl">
+              <SelectContent className="bg-white border border-gray-300 shadow-xl">
                 {defaultKnowledgeCategories.map((category) => (
                   <SelectItem 
                     key={category.id} 
                     value={category.name}
-                    className="text-white cursor-pointer hover:bg-gray-800 focus:bg-gray-800 focus:text-white"
+                    className="text-gray-900 cursor-pointer hover:bg-gray-100 focus:bg-gray-100 focus:text-gray-900"
                   >
                     {category.name}
                   </SelectItem>

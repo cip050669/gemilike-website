@@ -3,8 +3,7 @@
  * Tests all CRUD operations, filtering, and verification for reviews
  */
 
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '@testing-library/react';
 import AdminReviewsPage from '@/app/[locale]/admin/reviews/page';
 
 // Mock fetch

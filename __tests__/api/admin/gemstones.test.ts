@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server'
 import { GET, POST } from '@/app/api/admin/gemstones/route'
 import { prisma } from '@/lib/prisma'
-import { createMockGemstone } from '../../utils/mock-data.helper'
 
 // Mock dependencies
 jest.mock('@/lib/prisma', () => ({

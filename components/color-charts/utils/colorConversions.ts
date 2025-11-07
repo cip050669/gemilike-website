@@ -1,7 +1,10 @@
 /**
  * Color conversion utilities for color charts
  * Converts between Hex, RGB, XYZ, and Lab color spaces
+ * Supports D65 and D50 whitepoints with Bradford chromatic adaptation
  */
+
+export type Whitepoint = 'D65' | 'D50';
 
 export interface RGB {
   r: number;
@@ -79,17 +82,94 @@ function fLab(t: number): number {
 }
 
 /**
- * Convert XYZ to Lab (D65 reference white)
+ * Bradford chromatic adaptation matrices
+ * Used for converting between D65 and D50 whitepoints
  */
-export function xyzToLab(xyz: XYZ): Lab {
-  // D65 reference white
-  const Xn = 0.95047;
-  const Yn = 1.00000;
-  const Zn = 1.08883;
+const BRADFORD_M = [
+  [0.8951, 0.2664, -0.1614],
+  [-0.7502, 1.7135, 0.0367],
+  [0.0389, -0.0685, 1.0296],
+];
+
+const BRADFORD_M_INV = [
+  [0.9869929, -0.1470543, 0.1599627],
+  [0.4323053, 0.5183603, 0.0492912],
+  [-0.0085287, 0.0400428, 0.9684867],
+];
+
+const D65_WHITE = [0.95047, 1.00000, 1.08883];
+const D50_WHITE = [0.96422, 1.00000, 0.82521];
+
+/**
+ * Apply Bradford chromatic adaptation to convert XYZ from one whitepoint to another
+ */
+function adaptBradford(
+  xyz: [number, number, number],
+  from: [number, number, number],
+  to: [number, number, number]
+): [number, number, number] {
+  const [x, y, z] = xyz;
   
-  const fx = fLab(xyz.x / Xn);
-  const fy = fLab(xyz.y / Yn);
-  const fz = fLab(xyz.z / Zn);
+  // Convert to cone response domain
+  const cone = [
+    BRADFORD_M[0][0] * x + BRADFORD_M[0][1] * y + BRADFORD_M[0][2] * z,
+    BRADFORD_M[1][0] * x + BRADFORD_M[1][1] * y + BRADFORD_M[1][2] * z,
+    BRADFORD_M[2][0] * x + BRADFORD_M[2][1] * y + BRADFORD_M[2][2] * z,
+  ];
+  
+  // Scale by whitepoint ratio
+  const scale = [
+    (cone[0] * to[0]) / from[0],
+    (cone[1] * to[1]) / from[1],
+    (cone[2] * to[2]) / from[2],
+  ];
+  
+  // Convert back to XYZ
+  const xo =
+    BRADFORD_M_INV[0][0] * scale[0] +
+    BRADFORD_M_INV[0][1] * scale[1] +
+    BRADFORD_M_INV[0][2] * scale[2];
+  const yo =
+    BRADFORD_M_INV[1][0] * scale[0] +
+    BRADFORD_M_INV[1][1] * scale[1] +
+    BRADFORD_M_INV[1][2] * scale[2];
+  const zo =
+    BRADFORD_M_INV[2][0] * scale[0] +
+    BRADFORD_M_INV[2][1] * scale[1] +
+    BRADFORD_M_INV[2][2] * scale[2];
+  
+  return [xo, yo, zo];
+}
+
+/**
+ * Convert XYZ to Lab with specified whitepoint
+ */
+export function xyzToLab(xyz: XYZ, whitepoint: Whitepoint = 'D65'): Lab {
+  let [x, y, z] = [xyz.x, xyz.y, xyz.z];
+  
+  // Get reference white for target whitepoint
+  let Xn: number, Yn: number, Zn: number;
+  
+  if (whitepoint === 'D50') {
+    // If converting to D50, we need to adapt from D65 (since RGB is D65-based)
+    [x, y, z] = adaptBradford(
+      [x, y, z],
+      D65_WHITE as [number, number, number],
+      D50_WHITE as [number, number, number]
+    );
+    Xn = D50_WHITE[0];
+    Yn = D50_WHITE[1];
+    Zn = D50_WHITE[2];
+  } else {
+    // D65 (default)
+    Xn = D65_WHITE[0];
+    Yn = D65_WHITE[1];
+    Zn = D65_WHITE[2];
+  }
+  
+  const fx = fLab(x / Xn);
+  const fy = fLab(y / Yn);
+  const fz = fLab(z / Zn);
   
   return {
     L: 116 * fy - 16,
@@ -99,14 +179,14 @@ export function xyzToLab(xyz: XYZ): Lab {
 }
 
 /**
- * Convert hex color directly to Lab
+ * Convert hex color directly to Lab with specified whitepoint
  */
-export function hexToLab(hex: string): Lab | null {
+export function hexToLab(hex: string, whitepoint: Whitepoint = 'D65'): Lab | null {
   const rgb = hexToRgb(hex);
   if (!rgb) return null;
   
   const xyz = rgbToXyz(rgb);
-  return xyzToLab(xyz);
+  return xyzToLab(xyz, whitepoint);
 }
 
 /**

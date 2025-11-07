@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AdvancedSearch } from '@/components/shop/AdvancedSearch';
 import { Gemstone } from '@/lib/types/gemstone';
@@ -160,7 +160,6 @@ describe('AdvancedSearch', () => {
   // Issue: React 19 + @testing-library/react compatibility problem
   // TODO: Re-enable when @testing-library/react is updated for React 19
   it.skip('displays filter options correctly', async () => {
-    const user = userEvent.setup({ delay: null })
     
     render(
       <AdvancedSearch
@@ -392,8 +391,6 @@ describe('AdvancedSearch', () => {
   // Issue: React 19 + @testing-library/react compatibility problem
   // TODO: Re-enable when @testing-library/react is updated for React 19
   it.skip('handles tab switching correctly', async () => {
-    const user = userEvent.setup({ delay: null })
-    
     render(
       <AdvancedSearch
         gemstones={mockGemstones}

@@ -5,6 +5,7 @@
  */
 
 import { deltaE2000 } from './deltaE2000';
+import { rgbToXyz, xyzToLab, Whitepoint } from './colorConversions';
 
 export interface ColorSample {
   hex: string;
@@ -27,13 +28,73 @@ export interface ImageAnalysis {
 }
 
 /**
+ * Masking options for background detection
+ */
+export interface MaskingOptions {
+  white: boolean;        // Filter bright/neutral pixels
+  black: boolean;        // Filter very dark pixels
+  lowSat: boolean;       // Filter low saturation pixels
+  smart: boolean;        // Smart mask (border detection)
+  wThr: number;          // White threshold (180-250)
+  bThr: number;          // Black threshold (0-60)
+  sThr: number;          // Saturation threshold (0-30)
+}
+
+/**
+ * Default masking options
+ */
+export const DEFAULT_MASKING_OPTIONS: MaskingOptions = {
+  white: true,
+  black: true,
+  lowSat: true,
+  smart: true,
+  wThr: 220,
+  bThr: 25,
+  sThr: 8,
+};
+
+/**
+ * Convert RGB to HSV
+ */
+function rgbToHsv(r: number, g: number, b: number): [number, number, number] {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  if (d === 0) {
+    h = 0;
+  } else if (max === r) {
+    h = 60 * (((g - b) / d) % 6);
+  } else if (max === g) {
+    h = 60 * (((b - r) / d) + 2);
+  } else {
+    h = 60 * (((r - g) / d) + 4);
+  }
+  if (h < 0) h += 360;
+  const s = max === 0 ? 0 : (d / max);
+  const v = max;
+  return [h, s * 100, v * 100];
+}
+
+/**
+ * Calculate luminance (relative brightness)
+ */
+function luma(r: number, g: number, b: number): number {
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/**
  * Detect and remove background from image
  * Returns a mask indicating which pixels belong to the gemstone
  */
 function detectGemstoneMask(
   ctx: CanvasRenderingContext2D,
   width: number,
-  height: number
+  height: number,
+  options: MaskingOptions = DEFAULT_MASKING_OPTIONS
 ): boolean[][] {
   const mask: boolean[][] = [];
   const backgroundTolerance = 40; // Tolerance for background color detection
@@ -76,6 +137,54 @@ function detectGemstoneMask(
     avgBg.b /= backgroundColors.length;
   }
 
+  // Sample borders for smart detection
+  const borders: [number, number, number][] = [];
+  if (options.smart) {
+    const step = Math.max(1, Math.floor(Math.min(width, height) / 64));
+    const sample = (x: number, y: number) => {
+      const imageData = ctx.getImageData(x, y, 1, 1);
+      borders.push([imageData.data[0], imageData.data[1], imageData.data[2]]);
+    };
+    for (let x = 0; x < width; x += step) {
+      sample(x, 0);
+      sample(x, height - 1);
+    }
+    for (let y = 0; y < height; y += step) {
+      sample(0, y);
+      sample(width - 1, y);
+    }
+  }
+
+  // Function to check if pixel should be ignored
+  const ignorePx = (r: number, g: number, b: number): boolean => {
+    const [hue, sat, val] = rgbToHsv(r, g, b);
+    const L = luma(r, g, b);
+
+    // White/neutral filter
+    if (options.white && L > options.wThr && sat < 30) return true;
+
+    // Black filter
+    if (options.black && L < options.bThr) return true;
+
+    // Low saturation filter
+    if (options.lowSat && sat < options.sThr) return true;
+
+    // Smart mask (border detection)
+    if (options.smart) {
+      for (const [br, bg, bb] of borders) {
+        const [bh, bs, bv] = rgbToHsv(br, bg, bb);
+        const dH = Math.min(Math.abs(hue - bh), 360 - Math.abs(hue - bh));
+        const dS = Math.abs(sat - bs);
+        const dV = Math.abs(val - bv);
+        const dL = Math.abs(L - luma(br, bg, bb));
+        if (dH < 18 && dS < 28 && dV < 28) return true;
+        if (dL < 22 && sat < 10) return true;
+      }
+    }
+
+    return false;
+  };
+
   // Initialize mask
   for (let y = 0; y < height; y++) {
     mask[y] = [];
@@ -96,6 +205,12 @@ function detectGemstoneMask(
         continue;
       }
 
+      // Check if pixel should be ignored based on masking options
+      if (ignorePx(r, g, b)) {
+        mask[y][x] = false;
+        continue;
+      }
+
       // Check if pixel is similar to background
       const distToBg = Math.sqrt(
         Math.pow(r - avgBg.r, 2) +
@@ -103,36 +218,8 @@ function detectGemstoneMask(
         Math.pow(b - avgBg.b, 2)
       );
 
-      // Check if pixel is very bright (likely background)
-      const brightness = (r + g + b) / 3;
-      const isVeryBright = brightness > 240;
-
-      // Check if pixel is very dark (likely shadow/background)
-      const isVeryDark = brightness < 20;
-
-      // Check color saturation (backgrounds are usually desaturated)
-      const max = Math.max(r, g, b);
-      const min = Math.min(r, g, b);
-      const saturation = max === 0 ? 0 : (max - min) / max;
-      const isDesaturated = saturation < 0.1 && brightness > 200;
-
-      // Pixel is part of gemstone if:
-      // - Not too close to background color
-      // - Not very bright (unless saturated)
-      // - Not very dark (unless in center region)
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const distFromCenter = Math.sqrt(
-        Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
-      );
-      const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
-      const isNearCenter = distFromCenter < maxDist * 0.6;
-
-      if (
-        distToBg > backgroundTolerance &&
-        !(isVeryBright && !isDesaturated) &&
-        !(isVeryDark && !isNearCenter)
-      ) {
+      // Pixel is part of gemstone if not too close to background
+      if (distToBg > backgroundTolerance) {
         mask[y][x] = true;
       }
     }
@@ -186,7 +273,11 @@ function detectGemstoneMask(
 export async function extractColorsFromImage(
   imageFile: File,
   sampleSize: number = 10000,
-  cropRegion?: { x: number; y: number; width: number; height: number }
+  cropRegion?: { x: number; y: number; width: number; height: number },
+  whitepoint: Whitepoint = 'D65',
+  kValue?: number | null,
+  maskingOptions?: MaskingOptions,
+  externalAlpha?: Uint8ClampedArray
 ): Promise<ImageAnalysis> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -206,7 +297,22 @@ export async function extractColorsFromImage(
         ctx.drawImage(img, 0, 0);
 
         // Detect gemstone mask (which pixels belong to the gemstone)
-        const mask = detectGemstoneMask(ctx, img.width, img.height);
+        // If external alpha is provided (from GrabCut), use it; otherwise use automatic detection
+        let mask: boolean[][];
+        if (externalAlpha) {
+          // Use external alpha mask from GrabCut
+          mask = [];
+          for (let y = 0; y < img.height; y++) {
+            mask[y] = [];
+            for (let x = 0; x < img.width; x++) {
+              const idx = y * img.width + x;
+              mask[y][x] = externalAlpha[idx] > 128;
+            }
+          }
+        } else {
+          // Use automatic mask detection
+          mask = detectGemstoneMask(ctx, img.width, img.height, maskingOptions || DEFAULT_MASKING_OPTIONS);
+        }
 
         // Determine analysis region
         let startX = 0;
@@ -238,7 +344,7 @@ export async function extractColorsFromImage(
             const hex = rgbToHex(r, g, b);
             const rgb = { r: r / 255, g: g / 255, b: b / 255 };
             const xyz = rgbToXyz(rgb);
-            const lab = xyzToLab(xyz);
+            const lab = xyzToLab(xyz, whitepoint);
 
             // Calculate weight based on color saturation (more saturated = more important)
             const chroma = Math.sqrt(lab.a ** 2 + lab.b ** 2);
@@ -278,7 +384,7 @@ export async function extractColorsFromImage(
             const hex = rgbToHex(r, g, b);
             const rgb = { r: r / 255, g: g / 255, b: b / 255 };
             const xyz = rgbToXyz(rgb);
-            const lab = xyzToLab(xyz);
+            const lab = xyzToLab(xyz, whitepoint);
 
             const chroma = Math.sqrt(lab.a ** 2 + lab.b ** 2);
             const weight = 1.5 + (chroma / 50); // Higher weight for edge samples
@@ -298,7 +404,7 @@ export async function extractColorsFromImage(
         }
 
         // Cluster similar colors
-        const clustered = clusterColors(pixels);
+        const clustered = clusterColors(pixels, whitepoint, kValue);
         
         // Calculate primary and secondary colors
         const sorted = clustered.sort((a, b) => b.percentage - a.percentage);
@@ -356,7 +462,7 @@ export async function extractColorsFromImage(
  * Cluster similar colors together using improved K-Means with CIEDE2000
  * Uses CIEDE2000 for perceptually uniform color distance
  */
-function clusterColors(colors: ColorSample[]): ColorSample[] {
+function clusterColors(colors: ColorSample[], whitepoint: Whitepoint = 'D65', kValue?: number | null): ColorSample[] {
   if (colors.length === 0) return [];
   if (colors.length === 1) {
     colors[0].percentage = 100;
@@ -364,8 +470,11 @@ function clusterColors(colors: ColorSample[]): ColorSample[] {
   }
 
   // Use K-Means clustering with CIEDE2000
-  const k = Math.min(Math.max(3, Math.floor(colors.length / 100)), 20); // Adaptive k
-  const clusters = kMeansClustering(colors, k);
+  // If kValue is provided, use it; otherwise use adaptive calculation
+  const k = kValue !== null && kValue !== undefined 
+    ? Math.max(3, Math.min(20, kValue)) // Clamp between 3 and 20
+    : Math.min(Math.max(3, Math.floor(colors.length / 100)), 20); // Adaptive k
+  const clusters = kMeansClustering(colors, k, 20, whitepoint);
   
   // Normalize percentages
   const total = clusters.reduce((sum, c) => sum + c.percentage, 0);
@@ -381,7 +490,7 @@ function clusterColors(colors: ColorSample[]): ColorSample[] {
 /**
  * K-Means clustering using CIEDE2000 distance metric
  */
-function kMeansClustering(colors: ColorSample[], k: number, maxIterations: number = 20): ColorSample[] {
+function kMeansClustering(colors: ColorSample[], k: number, maxIterations: number = 20, whitepoint: Whitepoint = 'D65'): ColorSample[] {
   if (colors.length === 0) return [];
   if (k >= colors.length) {
     // Each color is its own cluster
@@ -663,50 +772,17 @@ function rgbToHex(r: number, g: number, b: number): string {
   }).join('')}`;
 }
 
-/**
- * Convert RGB to XYZ
- */
-function rgbToXyz(rgb: { r: number; g: number; b: number }): { x: number; y: number; z: number } {
-  const invGamma = (u: number) => u <= 0.04045 ? u / 12.92 : Math.pow((u + 0.055) / 1.055, 2.4);
-  
-  const R = invGamma(rgb.r);
-  const G = invGamma(rgb.g);
-  const B = invGamma(rgb.b);
-
-  return {
-    x: R * 0.4124564 + G * 0.3575761 + B * 0.1804375,
-    y: R * 0.2126729 + G * 0.7151522 + B * 0.0721750,
-    z: R * 0.0193339 + G * 0.1191920 + B * 0.9503041,
-  };
-}
-
-/**
- * Convert XYZ to Lab
- */
-function xyzToLab(xyz: { x: number; y: number; z: number }): { L: number; a: number; b: number } {
-  const Xn = 0.95047;
-  const Yn = 1.00000;
-  const Zn = 1.08883;
-
-  const f = (t: number) => t > 216 / 24389 ? Math.cbrt(t) : (24389 / 27) * t + 16 / 116;
-
-  const fx = f(xyz.x / Xn);
-  const fy = f(xyz.y / Yn);
-  const fz = f(xyz.z / Zn);
-
-  return {
-    L: 116 * fy - 16,
-    a: 500 * (fx - fy),
-    b: 200 * (fy - fz),
-  };
-}
+// Note: rgbToXyz and xyzToLab are now imported from colorConversions.ts
 
 /**
  * Analyze image regions (center, facets, shadows) - only gemstone pixels
  */
 export async function analyzeImageRegions(
   imageFile: File,
-  cropRegion?: { x: number; y: number; width: number; height: number }
+  cropRegion?: { x: number; y: number; width: number; height: number },
+  whitepoint: Whitepoint = 'D65',
+  kValue?: number | null,
+  maskingOptions?: MaskingOptions
 ): Promise<{
   center: ColorSample[];
   facets: ColorSample[];
@@ -730,7 +806,7 @@ export async function analyzeImageRegions(
         ctx.drawImage(img, 0, 0);
 
         // Detect gemstone mask
-        const mask = detectGemstoneMask(ctx, img.width, img.height);
+        const mask = detectGemstoneMask(ctx, img.width, img.height, maskingOptions || DEFAULT_MASKING_OPTIONS);
 
         // Determine analysis region
         let startX = 0;
@@ -769,7 +845,7 @@ export async function analyzeImageRegions(
             const hex = rgbToHex(r, g, b);
             const rgb = { r: r / 255, g: g / 255, b: b / 255 };
             const xyz = rgbToXyz(rgb);
-            const lab = xyzToLab(xyz);
+            const lab = xyzToLab(xyz, whitepoint);
 
             // Detect if this is an edge (facet boundary)
             const isEdge = detectEdge(ctx, x, y, mask, img.width, img.height);
@@ -804,9 +880,9 @@ export async function analyzeImageRegions(
 
         URL.revokeObjectURL(url);
         resolve({
-          center: clusterColors(center),
-          facets: clusterColors(facets),
-          shadows: clusterColors(shadows),
+          center: clusterColors(center, whitepoint, kValue),
+          facets: clusterColors(facets, whitepoint, kValue),
+          shadows: clusterColors(shadows, whitepoint, kValue),
         });
       } catch (error) {
         URL.revokeObjectURL(url);

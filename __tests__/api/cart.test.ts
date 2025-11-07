@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server'
 import { GET, POST, PATCH, DELETE } from '@/app/api/cart/route'
 import * as cartActions from '@/lib/actions/cart'
-import { createMockApiResponse, createMockErrorResponse } from '../utils/mock-data.helper'
 
 // Mock cart actions and dependencies
 jest.mock('@/lib/actions/cart')

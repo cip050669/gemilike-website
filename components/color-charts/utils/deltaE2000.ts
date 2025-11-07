@@ -3,7 +3,7 @@
  * Implementation of the CIEDE2000 color difference formula
  */
 
-import { Lab, hexToLab } from './colorConversions';
+import { Lab, hexToLab, Whitepoint } from './colorConversions';
 
 /**
  * Convert degrees to radians
@@ -110,11 +110,15 @@ export function deltaE2000(lab1: Lab, lab2: Lab): number {
 }
 
 /**
- * Calculate delta E2000 between two hex colors
+ * Calculate delta E2000 between two hex colors with specified whitepoint
  */
-export function deltaE2000Hex(hex1: string, hex2: string): number | null {
-  const lab1 = hexToLab(hex1);
-  const lab2 = hexToLab(hex2);
+export function deltaE2000Hex(
+  hex1: string,
+  hex2: string,
+  whitepoint: Whitepoint = 'D65'
+): number | null {
+  const lab1 = hexToLab(hex1, whitepoint);
+  const lab2 = hexToLab(hex2, whitepoint);
   
   if (!lab1 || !lab2) return null;
   

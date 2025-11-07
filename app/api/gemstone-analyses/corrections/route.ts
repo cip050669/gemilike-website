@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { lab, hex, originalVariety, correctedVariety } = body;
+    const { lab, hex, originalVariety, correctedVariety, originalPleochroism, correctedPleochroism } = body;
 
     if (!lab || !correctedVariety || !Array.isArray(correctedVariety)) {
       return NextResponse.json(
@@ -33,14 +33,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Speichere Korrektur in der Datenbank
-    // Wir nutzen eine einfache JSON-Struktur in einem separaten Model oder in den Notes
-    // Für jetzt speichern wir es als JSON in einem einfachen Format
+    // Speichere Korrektur in der Datenbank (inkl. Pleochroismus für Konsistenz)
     const correction = {
       lab,
       hex,
       originalVariety,
       correctedVariety,
+      originalPleochroism: originalPleochroism || null,
+      correctedPleochroism: correctedPleochroism || null,
       createdAt: new Date().toISOString(),
       userId: session.user.id,
     };
@@ -102,10 +102,11 @@ export async function GET(request: NextRequest) {
       take: 100, // Limit für Performance
     });
     
-    // Filtere Analysen mit Korrekturen manuell
+    // Filtere Analysen mit Korrekturen manuell (Varietät oder Pleochroismus)
     const analysesWithCorrections = analyses.filter((analysis) => {
       const overallImpression = analysis.overallImpression as any;
-      return overallImpression?.correctedVariety && Array.isArray(overallImpression.correctedVariety) && overallImpression.correctedVariety.length > 0;
+      return (overallImpression?.correctedVariety && Array.isArray(overallImpression.correctedVariety) && overallImpression.correctedVariety.length > 0) ||
+             overallImpression?.correctedPleochroism;
     });
 
     // Finde ähnliche Farben basierend auf DeltaE2000
@@ -117,10 +118,12 @@ export async function GET(request: NextRequest) {
         const deltaE = deltaE2000(targetLab, primaryColor.lab);
         const overallImpression = analysis.overallImpression as any;
         
-        if (deltaE < 15 && overallImpression?.correctedVariety) {
+        // Include if has variety correction OR pleochroism correction
+        if (deltaE < 15 && (overallImpression?.correctedVariety || overallImpression?.correctedPleochroism)) {
           return {
             deltaE,
-            correctedVariety: overallImpression.correctedVariety,
+            correctedVariety: overallImpression.correctedVariety || overallImpression.possibleVariety || [],
+            correctedPleochroism: overallImpression.correctedPleochroism || overallImpression.pleochroism || null,
             lab: primaryColor.lab,
           };
         }

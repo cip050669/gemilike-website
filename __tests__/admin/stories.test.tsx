@@ -3,7 +3,7 @@
  * Tests CRUD operations for stories
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import StoriesAdminPage from '@/app/[locale]/admin/stories/page';
 import { loadStoriesData } from '@/lib/data/stories';
 

@@ -8,6 +8,7 @@ import { LuminanceSaturationSection } from '@/components/color-charts/analysis/L
 import { SpectralCharacteristicSection } from '@/components/color-charts/analysis/SpectralCharacteristicSection';
 import { GIAColorGradeSection } from '@/components/color-charts/analysis/GIAColorGradeSection';
 import { OverallImpressionSection } from '@/components/color-charts/analysis/OverallImpressionSection';
+import { PaletteComparisonSection } from '@/components/color-charts/analysis/PaletteComparisonSection';
 import {
   PrimaryColorAnalysis,
   SecondaryColorAnalysis,
@@ -16,6 +17,8 @@ import {
   GIAColorGrade,
   OverallImpression,
 } from '@/components/color-charts/utils/gemstoneAnalysis';
+import { PaletteComparison } from '@/components/color-charts/utils/paletteComparison';
+import { MaskingOptions } from '@/components/color-charts/utils/imageColorExtraction';
 
 export default async function GemstoneAnalysisDetailPage({
   params,
@@ -59,6 +62,9 @@ export default async function GemstoneAnalysisDetailPage({
   const spectralCharacteristic = analysis.spectralCharacteristic as unknown as SpectralCharacteristic;
   const giaColorGrade = analysis.giaColorGrade as unknown as GIAColorGrade;
   const overallImpression = analysis.overallImpression as unknown as OverallImpression;
+  const paletteComparisons = analysis.paletteComparisons as unknown as PaletteComparison[] | null;
+  const maskingOptions = analysis.maskingOptions as unknown as MaskingOptions | null;
+  const customPalette = analysis.customPalette as unknown as string[] | null;
 
   return (
     <div className="min-h-screen bg-gray-800/50">
@@ -107,6 +113,58 @@ export default async function GemstoneAnalysisDetailPage({
           <SpectralCharacteristicSection analysis={spectralCharacteristic} />
           <GIAColorGradeSection analysis={giaColorGrade} />
           <OverallImpressionSection analysis={overallImpression} />
+
+          {/* Palette Comparisons */}
+          {paletteComparisons && paletteComparisons.length > 0 && (
+            <PaletteComparisonSection comparisons={paletteComparisons} />
+          )}
+
+          {/* Advanced Analysis Parameters */}
+          {(analysis.whitepoint || analysis.kValue !== null || maskingOptions || customPalette) && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-sm font-semibold text-gray-700 mb-3">Erweiterte Analyse-Parameter</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                {analysis.whitepoint && (
+                  <div>
+                    <span className="font-medium text-gray-600">Whitepoint:</span>{' '}
+                    <span className="text-gray-800">{analysis.whitepoint}</span>
+                  </div>
+                )}
+                {analysis.kValue !== null && (
+                  <div>
+                    <span className="font-medium text-gray-600">K-Means Cluster:</span>{' '}
+                    <span className="text-gray-800">{analysis.kValue}</span>
+                  </div>
+                )}
+                {maskingOptions && (
+                  <div className="md:col-span-2">
+                    <span className="font-medium text-gray-600">Maskierungs-Optionen:</span>
+                    <div className="mt-1 text-xs text-gray-600 space-y-1">
+                      <div>Weiß: {maskingOptions.white ? '✓' : '✗'} (Schwelle: {maskingOptions.wThr})</div>
+                      <div>Schwarz: {maskingOptions.black ? '✓' : '✗'} (Schwelle: {maskingOptions.bThr})</div>
+                      <div>Niedrige Sättigung: {maskingOptions.lowSat ? '✓' : '✗'} (Schwelle: {maskingOptions.sThr})</div>
+                      <div>Smart Mask: {maskingOptions.smart ? '✓' : '✗'}</div>
+                    </div>
+                  </div>
+                )}
+                {customPalette && customPalette.length > 0 && (
+                  <div className="md:col-span-2">
+                    <span className="font-medium text-gray-600">Benutzerdefinierte Palette:</span>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {customPalette.map((color, index) => (
+                        <div
+                          key={index}
+                          className="w-8 h-8 rounded border border-gray-300"
+                          style={{ backgroundColor: color }}
+                          title={color}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Notes */}
           {analysis.notes && (

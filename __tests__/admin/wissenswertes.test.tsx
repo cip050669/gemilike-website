@@ -34,7 +34,7 @@ jest.mock('@/components/admin/KnowledgeTable', () => ({
 
 // Mock KnowledgeSettingsForm component
 jest.mock('@/components/admin/KnowledgeSettingsForm', () => ({
-  KnowledgeSettingsForm: ({ settings }: { settings: any }) => (
+  KnowledgeSettingsForm: () => (
     <div data-testid="knowledge-settings-form">
       <h3>Wissenswertes-Einstellungen</h3>
     </div>

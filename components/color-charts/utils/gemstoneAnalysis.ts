@@ -259,6 +259,20 @@ export async function getOverallImpressionAsync(
     finalPleochroism = analyzePleochroism(center, facets, shadows, possibleVariety);
   }
   
+  // Ensure consistency: filter varieties to match pleochroism
+  const pleochroismType = finalPleochroism.toLowerCase().includes('isotrop') && !finalPleochroism.toLowerCase().includes('anisotrop') 
+    ? 'isotrop' 
+    : 'anisotrop';
+  
+  // Filter varieties to match pleochroism type for consistency
+  const filteredVarieties = filterVarietiesByPleochroism(possibleVariety, pleochroismType);
+  
+  // Use filtered varieties if they exist and match pleochroism
+  // If filtered is empty but original has varieties, it means there's a mismatch
+  // In this case, prefer the filtered (empty) to force user correction, OR keep original if analysis might be wrong
+  // For now, we keep original if filtered is empty to avoid losing all suggestions
+  const finalVarieties = filteredVarieties.length > 0 ? filteredVarieties : possibleVariety;
+  
   const opticalQuality = assessOpticalQuality(colorPurity, saturation);
   const overallImpression = generateOverallImpression(
     dominantColorTone,
@@ -271,7 +285,7 @@ export async function getOverallImpressionAsync(
     dominantColorTone,
     satDescription,
     finalPleochroism,
-    possibleVariety,
+    finalVarieties,
     opticalQuality
   );
 
@@ -280,7 +294,7 @@ export async function getOverallImpressionAsync(
     saturation: satDescription,
     pleochroism: finalPleochroism,
     possibleColorCause,
-    possibleVariety,
+    possibleVariety: finalVarieties, // Use filtered varieties for consistency
     opticalQuality,
     overallImpression,
     evaluation,
@@ -1668,10 +1682,29 @@ async function suggestVarietyWithLearning(
           const bestCorrection = data.similarCorrections[0];
           if (bestCorrection && bestCorrection.deltaE < 10) {
             // Very similar color - use correction as primary suggestion
-            return Array.isArray(bestCorrection.correctedVariety) ? bestCorrection.correctedVariety : varieties;
+            const correctedVarieties = Array.isArray(bestCorrection.correctedVariety) ? bestCorrection.correctedVariety : varieties;
+            
+            // If pleochroism correction exists, filter varieties to match
+            if (bestCorrection.correctedPleochroism) {
+              const pleochroismType = bestCorrection.correctedPleochroism.toLowerCase().includes('isotrop') ? 'isotrop' : 'anisotrop';
+              const filtered = filterVarietiesByPleochroism(correctedVarieties, pleochroismType);
+              return filtered.length > 0 ? filtered : correctedVarieties;
+            }
+            
+            return correctedVarieties;
           } else if (bestCorrection && bestCorrection.deltaE < 15) {
             // Similar color - merge with base suggestions
             const corrected = Array.isArray(bestCorrection.correctedVariety) ? bestCorrection.correctedVariety : [];
+            
+            // If pleochroism correction exists, filter to match
+            if (bestCorrection.correctedPleochroism) {
+              const pleochroismType = bestCorrection.correctedPleochroism.toLowerCase().includes('isotrop') ? 'isotrop' : 'anisotrop';
+              const filteredCorrected = filterVarietiesByPleochroism(corrected, pleochroismType);
+              const filteredVarieties = filterVarietiesByPleochroism(varieties, pleochroismType);
+              const merged = [...new Set([...filteredCorrected, ...filteredVarieties])];
+              return merged;
+            }
+            
             const merged = [...new Set([...corrected, ...varieties])];
             return merged;
           }
@@ -1820,22 +1853,56 @@ function isIsotropicVariety(variety: string): boolean {
 }
 
 /**
+ * Filter varieties based on pleochroism type
+ * Returns only varieties that match the pleochroism type
+ */
+export function filterVarietiesByPleochroism(
+  varieties: string[],
+  pleochroismType: 'isotrop' | 'anisotrop'
+): string[] {
+  if (pleochroismType === 'isotrop') {
+    return varieties.filter(v => isIsotropicVariety(v));
+  } else {
+    return varieties.filter(v => !isIsotropicVariety(v));
+  }
+}
+
+/**
+ * Suggest pleochroism based on varieties
+ * Returns the pleochroism type that matches the varieties
+ */
+export function suggestPleochroismFromVarieties(varieties: string[]): 'isotrop' | 'anisotrop' {
+  if (varieties.length === 0) {
+    return 'anisotrop'; // Default to anisotropic
+  }
+  
+  // If all varieties are isotropic, return isotrop
+  // If any variety is anisotropic, return anisotrop
+  const allIsotropic = varieties.every(v => isIsotropicVariety(v));
+  return allIsotropic ? 'isotrop' : 'anisotrop';
+}
+
+/**
  * Determine pleochroism type based on variety
- * Returns 'isotrop' if variety is isotropic, 'anisotrop' otherwise
+ * Returns 'isotrop' only if ALL varieties are isotropic, 'anisotrop' otherwise
+ * This ensures consistency: if any variety is anisotropic, the gemstone is anisotropic
  */
 export function determinePleochroismType(possibleVariety: string[]): 'isotrop' | 'anisotrop' {
-  // Check if any of the suggested varieties is isotropic
-  for (const variety of possibleVariety) {
-    if (isIsotropicVariety(variety)) {
-      return 'isotrop';
-    }
+  if (possibleVariety.length === 0) {
+    // No variety info - default to anisotropic (most gemstones are anisotropic)
+    return 'anisotrop';
   }
-  // Default to anisotropic (most gemstones are anisotropic)
-  return 'anisotrop';
+  
+  // Check if ALL varieties are isotropic
+  // If ANY variety is anisotropic, the gemstone is anisotropic
+  const allIsotropic = possibleVariety.every(variety => isIsotropicVariety(variety));
+  
+  return allIsotropic ? 'isotrop' : 'anisotrop';
 }
 
 /**
  * Analyze pleochroism tendency
+ * Always considers actual color differences for consistency
  */
 export function analyzePleochroism(
   center: ColorSample[],
@@ -1843,27 +1910,48 @@ export function analyzePleochroism(
   shadows: ColorSample[],
   possibleVariety?: string[]
 ): string {
-  // First check if variety suggests isotropic (no pleochroism)
+  const colors = [...center, ...facets, ...shadows];
+  
+  // Calculate color differences first (always do this for consistency)
+  let avgDeltaE = 0;
+  if (colors.length >= 2) {
+    const differences: number[] = [];
+    for (let i = 0; i < Math.min(colors.length, 3); i++) {
+      for (let j = i + 1; j < Math.min(colors.length, 3); j++) {
+        const deltaE = calculateDeltaE(colors[i].lab, colors[j].lab);
+        differences.push(deltaE);
+      }
+    }
+    avgDeltaE = differences.reduce((sum, d) => sum + d, 0) / differences.length;
+  }
+  
+  // Check variety information
   if (possibleVariety && possibleVariety.length > 0) {
     const pleochroismType = determinePleochroismType(possibleVariety);
+    
+    // If variety is isotropic, check if color differences support this
     if (pleochroismType === 'isotrop') {
-      return 'Isotrop (kein Pleochroismus)';
+      // Only return isotropic if color differences are very small (consistent color)
+      // This ensures consistency: if there are significant color differences, it's likely anisotropic
+      if (colors.length < 2 || avgDeltaE < 3) {
+        return 'Isotrop (kein Pleochroismus)';
+      } else {
+        // Significant color differences detected despite isotropic variety suggestion
+        // This could be due to mixed variety suggestions (e.g., "Roter Spinell" + "Roter Turmalin")
+        // Prefer the actual color analysis over variety suggestion
+        if (avgDeltaE < 5) return 'Schwacher Pleochroismus (anisotrop)';
+        if (avgDeltaE < 15) return 'Mäßiger Pleochroismus (anisotrop)';
+        if (avgDeltaE < 30) return 'Starker Pleochroismus (anisotrop)';
+        return 'Sehr starker Pleochroismus (anisotrop)';
+      }
     }
+    // Variety is anisotropic - use color difference analysis
   }
   
-  const colors = [...center, ...facets, ...shadows];
-  if (colors.length < 2) return 'Kein Pleochroismus erkennbar';
-  
-  // Calculate color differences
-  const differences: number[] = [];
-  for (let i = 0; i < Math.min(colors.length, 3); i++) {
-    for (let j = i + 1; j < Math.min(colors.length, 3); j++) {
-      const deltaE = calculateDeltaE(colors[i].lab, colors[j].lab);
-      differences.push(deltaE);
-    }
+  // No variety info or anisotropic variety - base on color differences
+  if (colors.length < 2) {
+    return 'Kein Pleochroismus erkennbar';
   }
-  
-  const avgDeltaE = differences.reduce((sum, d) => sum + d, 0) / differences.length;
   
   if (avgDeltaE < 5) return 'Schwacher Pleochroismus (anisotrop)';
   if (avgDeltaE < 15) return 'Mäßiger Pleochroismus (anisotrop)';

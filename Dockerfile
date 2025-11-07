@@ -4,6 +4,8 @@
 # Dependencies Stage
 # ============================================
 FROM node:20-alpine AS deps
+# Use specific Node.js version for reproducibility
+ARG NODE_VERSION=20-alpine
 # Install system dependencies for image processing, color analysis, and other features
 RUN apk add --no-cache libc6-compat openssl \
     cairo-dev \
@@ -25,6 +27,8 @@ RUN --mount=type=cache,target=/root/.npm \
 # Builder Stage
 # ============================================
 FROM node:20-alpine AS builder
+# Use specific Node.js version for reproducibility
+ARG NODE_VERSION=20-alpine
 # Install system dependencies for build (including image processing libraries for color analysis)
 RUN apk add --no-cache libc6-compat openssl \
     cairo-dev \
@@ -62,10 +66,13 @@ RUN npm run build
 # Runner Stage (Production)
 # ============================================
 FROM node:20-alpine AS runner
+# Use specific Node.js version for reproducibility
+ARG NODE_VERSION=20-alpine
 # Install runtime dependencies for image processing, color analysis, and utilities
 RUN apk add --no-cache \
     wget \
     curl \
+    netcat-openbsd \
     cairo \
     jpeg \
     pango \
@@ -104,6 +111,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modul
 # Copy i18n configuration (needed for next-intl)
 COPY --from=builder --chown=nextjs:nodejs /app/i18n ./i18n
 COPY --from=builder --chown=nextjs:nodejs /app/messages ./messages
+
+# Copy package.json for potential runtime scripts
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
 # Note: Data files for color charts are mounted as volumes in docker-compose
 # They are not copied into the image to keep it smaller and allow updates without rebuild

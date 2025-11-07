@@ -3,7 +3,8 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    # Use specific version tag for stability (update as needed)
+    # Use specific version tag for stability
+    # Update to postgres:17-alpine when available and tested
     container_name: gemilike-postgres
     restart: unless-stopped
     environment:
@@ -89,8 +90,13 @@ services:
       - gemilike-network
     command: >
       sh -c "
-        echo 'Waiting for database...' &&
-        sleep 5 &&
+        echo 'Waiting for database to be ready...' &&
+        until nc -z postgres 5432 2>/dev/null || timeout 1 bash -c 'cat < /dev/null > /dev/tcp/postgres/5432' 2>/dev/null; do
+          echo 'Database is unavailable - waiting...'
+          sleep 2
+        done &&
+        echo 'Database is ready!' &&
+        echo 'Running migrations...' &&
         npx prisma migrate deploy &&
         npx prisma generate &&
         echo 'Starting application...' &&
