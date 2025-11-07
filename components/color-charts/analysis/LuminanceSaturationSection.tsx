@@ -7,45 +7,61 @@ interface LuminanceSaturationSectionProps {
   analysis: LuminanceSaturationAnalysis;
 }
 
+function KeyValueTable({ rows }: { rows: Array<{ label: string; value: string; note?: string }> }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border bg-white/50 shadow-sm">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-4 py-2 text-left font-semibold text-gray-700">Parameter</th>
+            <th className="px-4 py-2 text-left font-semibold text-gray-700">Einschätzung</th>
+            <th className="px-4 py-2 text-left font-semibold text-gray-700">Bemerkung</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i} className="odd:bg-white even:bg-gray-50/60">
+              <td className="px-4 py-2 text-gray-800 font-medium">{r.label}</td>
+              <td className="px-4 py-2 text-gray-900 font-medium">{r.value}</td>
+              <td className="px-4 py-2 text-gray-600">{r.note ?? "–"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function LuminanceSaturationSection({ analysis }: LuminanceSaturationSectionProps) {
+  const rows = [
+    {
+      label: 'Luminanz (L*)',
+      value: analysis.luminance.assessment,
+      note: analysis.luminance.remark,
+    },
+    {
+      label: 'Sättigung (C*)',
+      value: analysis.saturation.assessment,
+      note: analysis.saturation.remark,
+    },
+    {
+      label: 'Farbreinheit',
+      value: analysis.colorPurity.assessment,
+      note: analysis.colorPurity.remark,
+    },
+  ];
+
   return (
     <Card className="bg-white border-gray-300">
       <CardHeader>
-        <CardTitle className="text-2xl">3. Helligkeits- und Sättigungsanalyse</CardTitle>
+        <CardTitle className="text-xl font-semibold text-gray-900">3️⃣ Helligkeits- & Sättigungsanalyse</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b-2 border-gray-800">
-                <th className="text-left p-3 font-semibold">Parameter</th>
-                <th className="text-left p-3 font-semibold">Einschätzung</th>
-                <th className="text-left p-3 font-semibold">Bemerkung</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-gray-200">
-                <td className="p-3 font-medium">Luminanz</td>
-                <td className="p-3">{analysis.luminance.assessment}</td>
-                <td className="p-3 text-sm text-gray-600">{analysis.luminance.remark}</td>
-              </tr>
-              <tr className="border-b border-gray-200">
-                <td className="p-3 font-medium">Sättigung</td>
-                <td className="p-3">{analysis.saturation.assessment}</td>
-                <td className="p-3 text-sm text-gray-600">{analysis.saturation.remark}</td>
-              </tr>
-              <tr className="border-b border-gray-200">
-                <td className="p-3 font-medium">Farbreinheit</td>
-                <td className="p-3">{analysis.colorPurity.assessment}</td>
-                <td className="p-3 text-sm text-gray-600">{analysis.colorPurity.remark}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <KeyValueTable rows={rows} />
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <div className="text-sm font-semibold text-gray-700 mb-2">Schlussfolgerung</div>
-          <div className="text-base text-gray-700">
+        <div className="mt-6 rounded-2xl border bg-indigo-50/60 p-4">
+          <div className="text-sm font-semibold text-indigo-900 mb-2">Schlussfolgerung</div>
+          <div className="text-sm text-indigo-900">
             <p>
               Die Helligkeitsanalyse zeigt eine {analysis.luminance.assessment.toLowerCase()} Luminanz
               ({analysis.luminance.value.toFixed(1)}), was auf eine{' '}

@@ -7,59 +7,52 @@ interface PrimaryColorSectionProps {
   analysis: PrimaryColorAnalysis;
 }
 
+function Swatch({ hex, label, rgb }: { hex: string; label: string; rgb: string }) {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-2xl border bg-white/50 shadow-sm">
+      <div className="h-10 w-10 rounded-xl border" style={{ backgroundColor: hex }} />
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium text-gray-900">{label}</div>
+        <div className="text-xs text-gray-600">HEX {hex} • RGB {rgb}</div>
+      </div>
+    </div>
+  );
+}
+
 export function PrimaryColorSection({ analysis }: PrimaryColorSectionProps) {
+  const rgbString = `(${Math.round(analysis.rgb.r)}, ${Math.round(analysis.rgb.g)}, ${Math.round(analysis.rgb.b)})`;
+  
   return (
     <Card className="bg-white border-gray-300">
       <CardHeader>
-        <CardTitle className="text-2xl">1. Primärfarbe</CardTitle>
+        <CardTitle className="text-xl font-semibold text-gray-900">1️⃣ Hauptfarbton (dominant)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Color Display */}
-          <div className="space-y-4">
-            <div>
-              <div className="text-sm font-semibold text-gray-600 mb-2">Farbe</div>
-              <div
-                className="w-full h-32 rounded-lg border-2 border-gray-300 shadow-lg"
-                style={{ backgroundColor: analysis.hex }}
-              />
-              <div className="mt-2 text-sm font-mono text-gray-700">{analysis.hex}</div>
-            </div>
-            
-            <div>
-              <div className="text-sm font-semibold text-gray-600 mb-2">RGB</div>
-              <div className="text-base">
-                R: {Math.round(analysis.rgb.r)}, G: {Math.round(analysis.rgb.g)}, B: {Math.round(analysis.rgb.b)}
-              </div>
-            </div>
+        <Swatch 
+          hex={analysis.hex}
+          label={analysis.description}
+          rgb={rgbString}
+        />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div>
+            <div className="text-sm font-semibold text-gray-600 mb-1">Ton</div>
+            <div className="text-base text-gray-900">{analysis.tone}</div>
           </div>
 
-          {/* Analysis Data */}
-          <div className="space-y-4">
-            <div>
-              <div className="text-sm font-semibold text-gray-600 mb-1">Ton</div>
-              <div className="text-base">{analysis.tone}</div>
-            </div>
-
-            <div>
-              <div className="text-sm font-semibold text-gray-600 mb-1">CIE-Hue</div>
-              <div className="text-base">{analysis.cieHue}</div>
-            </div>
-
-            <div>
-              <div className="text-sm font-semibold text-gray-600 mb-1">Beschreibung</div>
-              <div className="text-base">{analysis.description}</div>
-            </div>
-
-            <div>
-              <div className="text-sm font-semibold text-gray-600 mb-1">Herkunftsvermutung</div>
-              <ul className="list-disc list-inside text-base">
-                {analysis.originSuggestion.map((origin, index) => (
-                  <li key={index}>{origin}</li>
-                ))}
-              </ul>
-            </div>
+          <div>
+            <div className="text-sm font-semibold text-gray-600 mb-1">CIE-Hue</div>
+            <div className="text-base text-gray-900">{analysis.cieHue}</div>
           </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="text-sm font-semibold text-gray-600 mb-2">Herkunftsvermutung</div>
+          <ul className="list-disc pl-5 text-sm text-gray-800 space-y-1">
+            {analysis.originSuggestion.map((origin, index) => (
+              <li key={index}>{origin}</li>
+            ))}
+          </ul>
         </div>
       </CardContent>
     </Card>

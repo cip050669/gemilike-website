@@ -1,7 +1,10 @@
 /**
  * Image color extraction utilities
  * Extracts colors from gemstone images for analysis
+ * Enhanced with improved accuracy algorithms
  */
+
+import { deltaE2000 } from './deltaE2000';
 
 export interface ColorSample {
   hex: string;
@@ -11,6 +14,7 @@ export interface ColorSample {
   percentage: number;
   x: number;
   y: number;
+  weight?: number; // Weight for statistical calculations
 }
 
 export interface ImageAnalysis {
@@ -217,25 +221,28 @@ export async function extractColorsFromImage(
           endY = Math.min(img.height, cropRegion.y + cropRegion.height);
         }
 
-        // Sample pixels only from gemstone area
+        // Adaptive sampling: more samples in important areas
         const pixels: ColorSample[] = [];
-        const step = Math.max(1, Math.floor(((endX - startX) * (endY - startY)) / sampleSize));
-
-        for (let y = startY; y < endY; y += step) {
-          for (let x = startX; x < endX; x += step) {
-            // Only process pixels that are part of the gemstone
+        const baseStep = Math.max(1, Math.floor(((endX - startX) * (endY - startY)) / sampleSize));
+        
+        // First pass: uniform sampling
+        for (let y = startY; y < endY; y += baseStep) {
+          for (let x = startX; x < endX; x += baseStep) {
             if (!mask[y] || !mask[y][x]) continue;
 
             const imageData = ctx.getImageData(x, y, 1, 1);
             const [r, g, b] = imageData.data;
             
-            // Skip transparent pixels
             if (imageData.data[3] < 128) continue;
 
             const hex = rgbToHex(r, g, b);
             const rgb = { r: r / 255, g: g / 255, b: b / 255 };
             const xyz = rgbToXyz(rgb);
             const lab = xyzToLab(xyz);
+
+            // Calculate weight based on color saturation (more saturated = more important)
+            const chroma = Math.sqrt(lab.a ** 2 + lab.b ** 2);
+            const weight = 1 + (chroma / 50); // Weight by chroma
 
             pixels.push({
               hex,
@@ -245,7 +252,48 @@ export async function extractColorsFromImage(
               percentage: 0,
               x,
               y,
+              weight,
             });
+          }
+        }
+
+        // Second pass: additional samples in high-contrast areas (edges, facets)
+        const additionalSamples = Math.floor(sampleSize * 0.3); // 30% more samples
+        const fineStep = Math.max(1, baseStep / 2);
+        let added = 0;
+        
+        for (let y = startY; y < endY && added < additionalSamples; y += fineStep) {
+          for (let x = startX; x < endX && added < additionalSamples; x += fineStep) {
+            if (!mask[y] || !mask[y][x]) continue;
+            
+            // Check if this is an edge/high-contrast area
+            const isEdge = detectEdge(ctx, x, y, mask, img.width, img.height);
+            if (!isEdge && Math.random() > 0.3) continue; // Only sample edges with higher probability
+
+            const imageData = ctx.getImageData(x, y, 1, 1);
+            const [r, g, b] = imageData.data;
+            
+            if (imageData.data[3] < 128) continue;
+
+            const hex = rgbToHex(r, g, b);
+            const rgb = { r: r / 255, g: g / 255, b: b / 255 };
+            const xyz = rgbToXyz(rgb);
+            const lab = xyzToLab(xyz);
+
+            const chroma = Math.sqrt(lab.a ** 2 + lab.b ** 2);
+            const weight = 1.5 + (chroma / 50); // Higher weight for edge samples
+
+            pixels.push({
+              hex,
+              rgb: { r, g, b },
+              lab,
+              xyz,
+              percentage: 0,
+              x,
+              y,
+              weight,
+            });
+            added++;
           }
         }
 
@@ -257,14 +305,26 @@ export async function extractColorsFromImage(
         const primaryColor = sorted[0];
         const secondaryColors = sorted.slice(1, 5); // Top 4 secondary colors
 
-        // Calculate overall metrics
-        const avgL = clustered.reduce((sum, c) => sum + c.lab.L, 0) / clustered.length;
-        const avgS = clustered.reduce((sum, c) => {
-          const chroma = Math.sqrt(c.lab.a ** 2 + c.lab.b ** 2);
-          return sum + chroma;
-        }, 0) / clustered.length;
+        // Calculate overall metrics with weighted statistics
+        const totalWeight = clustered.reduce((sum, c) => sum + (c.weight || c.percentage), 0);
         
-        // Color purity (how close colors are to primary)
+        // Weighted average luminance
+        const avgL = totalWeight > 0
+          ? clustered.reduce((sum, c) => sum + c.lab.L * (c.weight || c.percentage), 0) / totalWeight
+          : clustered.reduce((sum, c) => sum + c.lab.L, 0) / clustered.length;
+        
+        // Weighted average saturation
+        const avgS = totalWeight > 0
+          ? clustered.reduce((sum, c) => {
+              const chroma = Math.sqrt(c.lab.a ** 2 + c.lab.b ** 2);
+              return sum + chroma * (c.weight || c.percentage);
+            }, 0) / totalWeight
+          : clustered.reduce((sum, c) => {
+              const chroma = Math.sqrt(c.lab.a ** 2 + c.lab.b ** 2);
+              return sum + chroma;
+            }, 0) / clustered.length;
+        
+        // Color purity (how close colors are to primary) using CIEDE2000
         const colorPurity = calculateColorPurity(clustered, primaryColor);
 
         resolve({
@@ -293,62 +353,304 @@ export async function extractColorsFromImage(
 }
 
 /**
- * Cluster similar colors together
+ * Cluster similar colors together using improved K-Means with CIEDE2000
+ * Uses CIEDE2000 for perceptually uniform color distance
  */
 function clusterColors(colors: ColorSample[]): ColorSample[] {
-  const clusters: ColorSample[] = [];
-  const threshold = 15; // Delta E threshold for clustering
-
-  for (const color of colors) {
-    let found = false;
-    for (const cluster of clusters) {
-      const deltaE = calculateDeltaE(color.lab, cluster.lab);
-      if (deltaE < threshold) {
-        // Merge into existing cluster
-        cluster.percentage += 1;
-        // Weighted average of colors
-        const total = cluster.percentage;
-        cluster.lab.L = (cluster.lab.L * (total - 1) + color.lab.L) / total;
-        cluster.lab.a = (cluster.lab.a * (total - 1) + color.lab.a) / total;
-        cluster.lab.b = (cluster.lab.b * (total - 1) + color.lab.b) / total;
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      clusters.push({ ...color, percentage: 1 });
-    }
+  if (colors.length === 0) return [];
+  if (colors.length === 1) {
+    colors[0].percentage = 100;
+    return colors;
   }
 
+  // Use K-Means clustering with CIEDE2000
+  const k = Math.min(Math.max(3, Math.floor(colors.length / 100)), 20); // Adaptive k
+  const clusters = kMeansClustering(colors, k);
+  
   // Normalize percentages
   const total = clusters.reduce((sum, c) => sum + c.percentage, 0);
-  clusters.forEach(c => {
-    c.percentage = (c.percentage / total) * 100;
-  });
+  if (total > 0) {
+    clusters.forEach(c => {
+      c.percentage = (c.percentage / total) * 100;
+    });
+  }
 
   return clusters;
 }
 
 /**
- * Calculate Delta E between two Lab colors
+ * K-Means clustering using CIEDE2000 distance metric
  */
-function calculateDeltaE(lab1: { L: number; a: number; b: number }, lab2: { L: number; a: number; b: number }): number {
-  const dL = lab1.L - lab2.L;
-  const da = lab1.a - lab2.a;
-  const db = lab1.b - lab2.b;
-  return Math.sqrt(dL ** 2 + da ** 2 + db ** 2);
+function kMeansClustering(colors: ColorSample[], k: number, maxIterations: number = 20): ColorSample[] {
+  if (colors.length === 0) return [];
+  if (k >= colors.length) {
+    // Each color is its own cluster
+    return colors.map(c => ({ ...c, percentage: 1 }));
+  }
+
+  // Initialize centroids using k-means++ (better initialization)
+  const centroids: ColorSample[] = [];
+  
+  // First centroid: random or most representative
+  const firstIdx = Math.floor(Math.random() * colors.length);
+  centroids.push({ ...colors[firstIdx] });
+
+  // Select remaining centroids using k-means++
+  for (let i = 1; i < k; i++) {
+    const distances: number[] = [];
+    for (const color of colors) {
+      let minDist = Infinity;
+      for (const centroid of centroids) {
+        const dist = deltaE2000(color.lab, centroid.lab);
+        if (dist < minDist) minDist = dist;
+      }
+      distances.push(minDist * minDist); // Square for probability weighting
+    }
+    
+    // Select color with highest distance (farthest from existing centroids)
+    const sum = distances.reduce((a, b) => a + b, 0);
+    let random = Math.random() * sum;
+    let selectedIdx = 0;
+    for (let j = 0; j < distances.length; j++) {
+      random -= distances[j];
+      if (random <= 0) {
+        selectedIdx = j;
+        break;
+      }
+    }
+    centroids.push({ ...colors[selectedIdx] });
+  }
+
+  // K-Means iterations
+  let clusters: ColorSample[] = [];
+  for (let iter = 0; iter < maxIterations; iter++) {
+    // Assign colors to nearest centroid
+    const assignments: number[] = new Array(colors.length).fill(-1);
+    const clusterColors: ColorSample[][] = new Array(k).fill(null).map(() => []);
+    const clusterWeights: number[] = new Array(k).fill(0);
+
+    for (let i = 0; i < colors.length; i++) {
+      let minDist = Infinity;
+      let nearestCluster = 0;
+      
+      for (let j = 0; j < k; j++) {
+        const dist = deltaE2000(colors[i].lab, centroids[j].lab);
+        if (dist < minDist) {
+          minDist = dist;
+          nearestCluster = j;
+        }
+      }
+      
+      assignments[i] = nearestCluster;
+      clusterColors[nearestCluster].push(colors[i]);
+      clusterWeights[nearestCluster] += colors[i].weight || 1;
+    }
+
+    // Update centroids (weighted average)
+    let converged = true;
+    for (let j = 0; j < k; j++) {
+      if (clusterColors[j].length === 0) continue;
+      
+      const totalWeight = clusterWeights[j];
+      if (totalWeight === 0) continue;
+
+      let newL = 0, newA = 0, newB = 0;
+      let newR = 0, newG = 0, newBl = 0;
+      
+      for (const color of clusterColors[j]) {
+        const weight = color.weight || 1;
+        newL += color.lab.L * weight;
+        newA += color.lab.a * weight;
+        newB += color.lab.b * weight;
+        newR += color.rgb.r * weight;
+        newG += color.rgb.g * weight;
+        newBl += color.rgb.b * weight;
+      }
+      
+      const newCentroid: ColorSample = {
+        hex: '', // Will be recalculated
+        rgb: { r: newR / totalWeight, g: newG / totalWeight, b: newBl / totalWeight },
+        lab: { L: newL / totalWeight, a: newA / totalWeight, b: newB / totalWeight },
+        xyz: { x: 0, y: 0, z: 0 }, // Will be recalculated if needed
+        percentage: clusterColors[j].length,
+        x: 0,
+        y: 0,
+      };
+      
+      // Recalculate hex and xyz from averaged Lab
+      newCentroid.hex = labToHex(newCentroid.lab);
+      newCentroid.xyz = labToXyz(newCentroid.lab);
+      
+      // Check convergence
+      const dist = deltaE2000(newCentroid.lab, centroids[j].lab);
+      if (dist > 0.5) converged = false;
+      
+      centroids[j] = newCentroid;
+    }
+
+    if (converged && iter > 2) break;
+  }
+
+  // Create final clusters with percentages
+  clusters = centroids.map((centroid, idx) => {
+    // Count colors assigned to this cluster
+    let count = 0;
+    for (let i = 0; i < colors.length; i++) {
+      const dist = deltaE2000(colors[i].lab, centroid.lab);
+      // Find which centroid is nearest
+      let minDist = dist;
+      let nearestIdx = idx;
+      for (let j = 0; j < k; j++) {
+        const d = deltaE2000(colors[i].lab, centroids[j].lab);
+        if (d < minDist) {
+          minDist = d;
+          nearestIdx = j;
+        }
+      }
+      if (nearestIdx === idx) {
+        count++;
+      }
+    }
+    
+    return {
+      ...centroid,
+      percentage: count,
+    };
+  });
+
+  // Filter out empty clusters and sort by percentage
+  return clusters
+    .filter(c => c.percentage > 0)
+    .sort((a, b) => b.percentage - a.percentage);
 }
 
 /**
- * Calculate color purity (how uniform the colors are)
+ * Convert Lab to Hex (approximate, via XYZ and RGB)
+ */
+function labToHex(lab: { L: number; a: number; b: number }): string {
+  const xyz = labToXyz(lab);
+  const rgb = xyzToRgb(xyz);
+  return rgbToHex(
+    Math.round(Math.max(0, Math.min(255, rgb.r * 255))),
+    Math.round(Math.max(0, Math.min(255, rgb.g * 255))),
+    Math.round(Math.max(0, Math.min(255, rgb.b * 255)))
+  );
+}
+
+/**
+ * Convert Lab to XYZ
+ */
+function labToXyz(lab: { L: number; a: number; b: number }): { x: number; y: number; z: number } {
+  const Xn = 0.95047;
+  const Yn = 1.00000;
+  const Zn = 1.08883;
+
+  const fy = (lab.L + 16) / 116;
+  const fx = lab.a / 500 + fy;
+  const fz = fy - lab.b / 200;
+
+  const xr = fx > 0.206897 ? fx * fx * fx : (fx - 16 / 116) / 7.787;
+  const yr = fy > 0.206897 ? fy * fy * fy : (fy - 16 / 116) / 7.787;
+  const zr = fz > 0.206897 ? fz * fz * fz : (fz - 16 / 116) / 7.787;
+
+  return {
+    x: xr * Xn,
+    y: yr * Yn,
+    z: zr * Zn,
+  };
+}
+
+/**
+ * Convert XYZ to RGB
+ */
+function xyzToRgb(xyz: { x: number; y: number; z: number }): { r: number; g: number; b: number } {
+  const gamma = (u: number) => u <= 0.0031308 ? 12.92 * u : 1.055 * Math.pow(u, 1 / 2.4) - 0.055;
+  
+  const r = gamma(xyz.x * 3.2404542 + xyz.y * -1.5371385 + xyz.z * -0.4985314);
+  const g = gamma(xyz.x * -0.9692660 + xyz.y * 1.8760108 + xyz.z * 0.0415560);
+  const b = gamma(xyz.x * 0.0556434 + xyz.y * -0.2040259 + xyz.z * 1.0572252);
+
+  return {
+    r: Math.max(0, Math.min(1, r)),
+    g: Math.max(0, Math.min(1, g)),
+    b: Math.max(0, Math.min(1, b)),
+  };
+}
+
+/**
+ * Calculate Delta E between two Lab colors (legacy, now uses CIEDE2000)
+ * Kept for backward compatibility, but CIEDE2000 is used in clustering
+ * Note: This function is not currently used but kept for potential future use
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function calculateDeltaE(lab1: { L: number; a: number; b: number }, lab2: { L: number; a: number; b: number }): number {
+  // Use CIEDE2000 for better perceptual accuracy
+  return deltaE2000(lab1, lab2);
+}
+
+/**
+ * Calculate color purity (how uniform the colors are) using CIEDE2000
  */
 function calculateColorPurity(colors: ColorSample[], primary: ColorSample): number {
-  const avgDeltaE = colors.reduce((sum, c) => {
-    return sum + calculateDeltaE(c.lab, primary.lab);
-  }, 0) / colors.length;
+  if (colors.length === 0) return 0;
+  
+  const totalWeight = colors.reduce((sum, c) => sum + (c.weight || c.percentage), 0);
+  
+  // Weighted average Delta E using CIEDE2000
+  const avgDeltaE = totalWeight > 0
+    ? colors.reduce((sum, c) => {
+        const deltaE = deltaE2000(c.lab, primary.lab);
+        return sum + deltaE * (c.weight || c.percentage);
+      }, 0) / totalWeight
+    : colors.reduce((sum, c) => {
+        return sum + deltaE2000(c.lab, primary.lab);
+      }, 0) / colors.length;
   
   // Normalize to 0-100 (lower delta E = higher purity)
-  return Math.max(0, 100 - (avgDeltaE / 2));
+  // CIEDE2000 values: < 1 = not perceptible, < 3 = slight difference, < 10 = noticeable
+  return Math.max(0, Math.min(100, 100 - (avgDeltaE * 3)));
+}
+
+/**
+ * Detect if a pixel is on an edge (high contrast area)
+ */
+function detectEdge(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  mask: boolean[][],
+  width: number,
+  height: number
+): boolean {
+  const neighbors = [
+    { x: x - 1, y },
+    { x: x + 1, y },
+    { x, y: y - 1 },
+    { x, y: y + 1 },
+  ];
+
+  let validNeighbors = 0;
+  let contrastSum = 0;
+
+  const centerData = ctx.getImageData(x, y, 1, 1);
+  const centerLum = (centerData.data[0] + centerData.data[1] + centerData.data[2]) / 3;
+
+  for (const neighbor of neighbors) {
+    if (neighbor.x < 0 || neighbor.x >= width || neighbor.y < 0 || neighbor.y >= height) continue;
+    if (!mask[neighbor.y] || !mask[neighbor.y][neighbor.x]) continue;
+
+    const neighborData = ctx.getImageData(neighbor.x, neighbor.y, 1, 1);
+    const neighborLum = (neighborData.data[0] + neighborData.data[1] + neighborData.data[2]) / 3;
+    
+    const contrast = Math.abs(centerLum - neighborLum);
+    contrastSum += contrast;
+    validNeighbors++;
+  }
+
+  if (validNeighbors === 0) return false;
+  
+  const avgContrast = contrastSum / validNeighbors;
+  return avgContrast > 15; // Threshold for edge detection
 }
 
 /**
@@ -451,8 +753,11 @@ export async function analyzeImageRegions(
         const centerY = (startY + endY) / 2;
         const centerRadius = Math.min(endX - startX, endY - startY) * 0.2;
 
-        for (let y = startY; y < endY; y += 5) {
-          for (let x = startX; x < endX; x += 5) {
+        // Improved region detection with edge-aware sampling
+        const step = 3; // Smaller step for better region detection
+        
+        for (let y = startY; y < endY; y += step) {
+          for (let x = startX; x < endX; x += step) {
             // Only process gemstone pixels
             if (!mask[y] || !mask[y][x]) continue;
 
@@ -466,6 +771,9 @@ export async function analyzeImageRegions(
             const xyz = rgbToXyz(rgb);
             const lab = xyzToLab(xyz);
 
+            // Detect if this is an edge (facet boundary)
+            const isEdge = detectEdge(ctx, x, y, mask, img.width, img.height);
+            
             const sample: ColorSample = {
               hex,
               rgb: { r, g, b },
@@ -474,16 +782,21 @@ export async function analyzeImageRegions(
               percentage: 0,
               x,
               y,
+              weight: isEdge ? 1.5 : 1.0, // Higher weight for edges (facets)
             };
 
             const distFromCenter = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
             const luminance = lab.L;
+            const chroma = Math.sqrt(lab.a ** 2 + lab.b ** 2);
 
+            // Improved region classification
             if (distFromCenter < centerRadius) {
               center.push(sample);
-            } else if (luminance > 60) {
+            } else if (isEdge || (luminance > 55 && chroma > 10)) {
+              // Facets: high luminance OR edges (facet boundaries) with good color
               facets.push(sample);
-            } else if (luminance < 40) {
+            } else if (luminance < 45 || chroma < 5) {
+              // Shadows: low luminance OR very desaturated
               shadows.push(sample);
             }
           }

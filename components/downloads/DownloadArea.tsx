@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, FileText, Image as ImageIcon, Video, Palette } from 'lucide-react';
@@ -59,6 +59,13 @@ const getIcon = (type: string) => {
 
 export function DownloadArea() {
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure component only renders on client to avoid hydration mismatch
+  // This prevents Radix UI from generating different IDs on server vs client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleDownload = async (item: DownloadItem) => {
     setDownloading(item.id);
@@ -73,6 +80,17 @@ export function DownloadArea() {
       setDownloading(null);
     }
   };
+
+  // Prevent hydration mismatch by not rendering tabs until mounted
+  if (!mounted) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-muted-foreground">Lade...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

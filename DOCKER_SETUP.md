@@ -17,6 +17,9 @@ Die Docker-Konfiguration wurde aktualisiert mit:
 - ✅ Resource Limits für Production
 - ✅ Optimiertes .dockerignore
 - ✅ Docker Compose Version 3.9
+- ✅ Unterstützung für Farbanalyse (Image Processing Libraries: cairo, libpng, etc.)
+- ✅ Unterstützung für Farbtafeln (Data Directory Mounting)
+- ✅ Node.js 20 Alpine (neueste LTS)
 
 ## Schnellstart
 
@@ -124,6 +127,8 @@ Docker speichert Daten in folgenden Volumes:
 - **PostgreSQL Daten**: `postgres_data` (Production) / `postgres_dev_data` (Development)
 - **Uploaded Files**: `./public/uploads` (gemountet als Volume)
 - **Invoices**: `./public/invoices` (gemountet als Volume)
+- **Gemstone Analysis Images**: `./public/gemstone-analyses` (gemountet als Volume)
+- **Color Chart Data**: `./data` (gemountet als Volume, read-only in Production)
 
 ## Wartung
 

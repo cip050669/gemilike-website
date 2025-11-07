@@ -37,6 +37,7 @@ export function ColorChartGrid({ locale = 'de', initialCharts = [] }: ColorChart
     if (initialCharts.length === 0) {
       fetchCharts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
   const fetchCharts = async () => {

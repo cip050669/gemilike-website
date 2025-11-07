@@ -13,8 +13,10 @@ import {
   analyzeLuminanceSaturation,
   analyzeSpectralCharacteristic,
   getGIAColorGrade,
-  getOverallImpression,
+  getOverallImpressionAsync,
   analyzePleochroism,
+  generateOverallImpression,
+  generateFinalEvaluation,
   PrimaryColorAnalysis,
   SecondaryColorAnalysis,
   LuminanceSaturationAnalysis,
@@ -46,6 +48,7 @@ export function GemstoneColorAnalyzer() {
   const [pleochroism, setPleochroism] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const [savedAnalysisId, setSavedAnalysisId] = useState<string | null>(null);
+  const [primaryColorLab, setPrimaryColorLab] = useState<{ L: number; a: number; b: number } | null>(null);
   const [showCropTool, setShowCropTool] = useState(false);
   const [cropRegion, setCropRegion] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [isResizing, setIsResizing] = useState(false);
@@ -230,6 +233,7 @@ export function GemstoneColorAnalyzer() {
       // 1. Primary Color Analysis
       const primary = analyzePrimaryColor(imageAnalysis.primaryColor);
       setPrimaryColor(primary);
+      setPrimaryColorLab(imageAnalysis.primaryColor.lab);
       
       // 2. Secondary Color Analysis
       const secondary = analyzeSecondaryColors(regions.center, regions.facets, regions.shadows);
@@ -258,12 +262,15 @@ export function GemstoneColorAnalyzer() {
       const gia = getGIAColorGrade(imageAnalysis.primaryColor, imageAnalysis.saturation);
       setGIAColorGrade(gia);
       
-      // 6. Overall Impression
-      const overall = getOverallImpression(
+      // 6. Overall Impression (with learning from corrections)
+      const overall = await getOverallImpressionAsync(
         imageAnalysis.primaryColor,
         imageAnalysis.saturation,
         pleochroismResult,
-        imageAnalysis.colorPurity
+        imageAnalysis.colorPurity,
+        regions.center,
+        regions.facets,
+        regions.shadows
       );
       setOverallImpression(overall);
       
@@ -310,7 +317,7 @@ export function GemstoneColorAnalyzer() {
       spectralCharacteristic,
       giaColorGrade,
       overallImpression,
-      pleochroism,
+      pleochroism: overallImpression?.correctedPleochroism || pleochroism,
     };
 
     const dataStr = JSON.stringify(report, null, 2);
@@ -358,7 +365,7 @@ export function GemstoneColorAnalyzer() {
           spectralCharacteristic,
           giaColorGrade,
           overallImpression,
-          pleochroism,
+          pleochroism: overallImpression?.correctedPleochroism || pleochroism,
           locale: 'de',
           published: false,
           featured: false,
@@ -568,7 +575,7 @@ export function GemstoneColorAnalyzer() {
           {secondaryColors.length > 0 && (
             <SecondaryColorSection
               analysis={secondaryColors}
-              pleochroism={pleochroism}
+              pleochroism={overallImpression?.correctedPleochroism || pleochroism}
             />
           )}
 
@@ -589,7 +596,68 @@ export function GemstoneColorAnalyzer() {
 
           {/* 6. Overall Impression */}
           {overallImpression && (
-            <OverallImpressionSection analysis={overallImpression} />
+            <OverallImpressionSection 
+              analysis={overallImpression}
+              canEdit={!!session?.user}
+              onVarietyCorrection={async (correctedVariety: string[]) => {
+                // Update local state
+                setOverallImpression({
+                  ...overallImpression,
+                  correctedVariety,
+                });
+                
+                // Save correction to API for learning
+                if (primaryColorLab && session?.user) {
+                  try {
+                    await fetch('/api/gemstone-analyses/corrections', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        lab: primaryColorLab,
+                        hex: primaryColor?.hex,
+                        originalVariety: overallImpression.possibleVariety,
+                        correctedVariety,
+                      }),
+                    });
+                  } catch (error) {
+                    console.error('Error saving correction:', error);
+                  }
+                }
+              }}
+              onPleochroismCorrection={async (correctedPleochroism: string) => {
+                // Update pleochroism state
+                setPleochroism(correctedPleochroism);
+                
+                // Regenerate overallImpression and evaluation with corrected pleochroism
+                const displayVariety = overallImpression.correctedVariety && overallImpression.correctedVariety.length > 0
+                  ? overallImpression.correctedVariety
+                  : overallImpression.possibleVariety;
+                const newOverallImpression = generateOverallImpression(
+                  overallImpression.dominantColorTone,
+                  overallImpression.saturation,
+                  correctedPleochroism,
+                  overallImpression.opticalQuality
+                );
+                const newEvaluation = generateFinalEvaluation(
+                  overallImpression.dominantColorTone,
+                  overallImpression.saturation,
+                  correctedPleochroism,
+                  displayVariety,
+                  overallImpression.opticalQuality
+                );
+                
+                // Update local state with corrected pleochroism and regenerated texts
+                setOverallImpression({
+                  ...overallImpression,
+                  correctedPleochroism,
+                  pleochroism: correctedPleochroism,
+                  overallImpression: newOverallImpression,
+                  evaluation: newEvaluation,
+                });
+              }}
+            />
           )}
         </div>
       )}

@@ -3,7 +3,7 @@
 # Development Dockerfile
 FROM node:20-alpine
 
-# Install system dependencies for development (including image processing)
+# Install system dependencies for development (including image processing for color analysis)
 RUN apk add --no-cache \
     libc6-compat \
     openssl \
@@ -12,11 +12,13 @@ RUN apk add --no-cache \
     pango-dev \
     giflib-dev \
     pixman-dev \
+    libpng-dev \
     cairo \
     jpeg \
     pango \
     giflib \
     pixman \
+    libpng \
     fontconfig \
     ttf-dejavu \
     ttf-liberation \

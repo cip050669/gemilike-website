@@ -4,13 +4,14 @@
 # Dependencies Stage
 # ============================================
 FROM node:20-alpine AS deps
-# Install system dependencies for image processing and other features
+# Install system dependencies for image processing, color analysis, and other features
 RUN apk add --no-cache libc6-compat openssl \
     cairo-dev \
     jpeg-dev \
     pango-dev \
     giflib-dev \
-    pixman-dev
+    pixman-dev \
+    libpng-dev
 WORKDIR /app
 
 # Copy package files
@@ -24,13 +25,14 @@ RUN --mount=type=cache,target=/root/.npm \
 # Builder Stage
 # ============================================
 FROM node:20-alpine AS builder
-# Install system dependencies for build (including image processing libraries)
+# Install system dependencies for build (including image processing libraries for color analysis)
 RUN apk add --no-cache libc6-compat openssl \
     cairo-dev \
     jpeg-dev \
     pango-dev \
     giflib-dev \
     pixman-dev \
+    libpng-dev \
     python3 \
     make \
     g++
@@ -60,7 +62,7 @@ RUN npm run build
 # Runner Stage (Production)
 # ============================================
 FROM node:20-alpine AS runner
-# Install runtime dependencies for image processing and utilities
+# Install runtime dependencies for image processing, color analysis, and utilities
 RUN apk add --no-cache \
     wget \
     curl \
@@ -69,6 +71,7 @@ RUN apk add --no-cache \
     pango \
     giflib \
     pixman \
+    libpng \
     fontconfig \
     ttf-dejavu \
     ttf-liberation
@@ -101,6 +104,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modul
 # Copy i18n configuration (needed for next-intl)
 COPY --from=builder --chown=nextjs:nodejs /app/i18n ./i18n
 COPY --from=builder --chown=nextjs:nodejs /app/messages ./messages
+
+# Note: Data files for color charts are mounted as volumes in docker-compose
+# They are not copied into the image to keep it smaller and allow updates without rebuild
 
 # Note: Prisma Client is included both in standalone output and explicitly copied above
 

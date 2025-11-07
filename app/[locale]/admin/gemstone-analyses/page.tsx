@@ -1,7 +1,16 @@
 import { prisma } from '@/lib/prisma';
 import { GemstoneAnalysisTable } from '@/components/admin/gemstone-analyses/GemstoneAnalysisTable';
+import { GemstoneAnalysis } from '@prisma/client';
 
-const toListItem = (analysis: any) => ({
+interface GemstoneAnalysisWithUser extends GemstoneAnalysis {
+  createdBy: {
+    id: string;
+    name: string | null;
+    email: string | null;
+  } | null;
+}
+
+const toListItem = (analysis: GemstoneAnalysisWithUser) => ({
   id: analysis.id,
   imageUrl: analysis.imageUrl,
   imageName: analysis.imageName,
@@ -20,7 +29,7 @@ const toListItem = (analysis: any) => ({
   createdBy: analysis.createdBy,
 });
 
-const countByStatus = (analyses: any[]) => ({
+const countByStatus = (analyses: GemstoneAnalysisWithUser[]) => ({
   total: analyses.length,
   published: analyses.filter((a) => a.published).length,
   draft: analyses.filter((a) => !a.published).length,

@@ -8,43 +8,27 @@ interface SpectralCharacteristicSectionProps {
 }
 
 export function SpectralCharacteristicSection({ analysis }: SpectralCharacteristicSectionProps) {
+  const spectralBullets = [
+    analysis.mainAbsorption,
+    analysis.secondaryAbsorption,
+    analysis.transmission,
+    analysis.weakTransmission,
+  ];
+
   return (
     <Card className="bg-white border-gray-300">
       <CardHeader>
-        <CardTitle className="text-2xl">4. Spektrale Charakteristik (visuell angenähert)</CardTitle>
+        <CardTitle className="text-xl font-semibold text-gray-900">4️⃣ Spektrale Charakteristik (visuell angenähert)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <div className="text-sm font-semibold text-gray-600 mb-1">Hauptabsorption</div>
-            <div className="text-base">{analysis.mainAbsorption}</div>
-          </div>
-
-          <div>
-            <div className="text-sm font-semibold text-gray-600 mb-1">Sekundärabsorption</div>
-            <div className="text-base">{analysis.secondaryAbsorption}</div>
-          </div>
-
-          <div>
-            <div className="text-sm font-semibold text-gray-600 mb-1">Transmission</div>
-            <div className="text-base">{analysis.transmission}</div>
-          </div>
-
-          <div>
-            <div className="text-sm font-semibold text-gray-600 mb-1">Schwache Transmission</div>
-            <div className="text-base">{analysis.weakTransmission}</div>
-          </div>
-        </div>
-
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <div className="text-sm font-semibold text-gray-700 mb-2">Interpretation des Ergebnisses</div>
-          <div className="text-base text-gray-700">
-            <p>{analysis.interpretation}</p>
-            <p className="mt-2 text-sm text-gray-600">
-              <strong>Hinweis:</strong> Diese Analyse basiert auf visueller Farbapproximation.
-              Für präzise spektroskopische Daten wird eine professionelle Spektroskopie empfohlen.
-            </p>
-          </div>
+        <ul className="list-disc pl-5 text-sm text-gray-800 space-y-1">
+          {spectralBullets.map((bullet, i) => (
+            <li key={i}>{bullet}</li>
+          ))}
+        </ul>
+        
+        <div className="rounded-2xl border bg-indigo-50/60 p-4 text-sm text-indigo-900">
+          <span className="font-medium">Interpretation:</span> {analysis.interpretation}
         </div>
       </CardContent>
     </Card>

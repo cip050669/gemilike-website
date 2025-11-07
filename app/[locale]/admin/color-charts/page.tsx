@@ -3,8 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { ColorChartTable } from '@/components/admin/color-charts/ColorChartTable';
 import { BulkImportDialog } from '@/components/admin/color-charts/BulkImportDialog';
 import { Button } from '@/components/ui/button';
+import { ColorChart } from '@prisma/client';
 
-const toListItem = (chart: any) => ({
+const toListItem = (chart: ColorChart) => ({
   id: chart.id,
   name: chart.name,
   origin: chart.origin,
@@ -22,7 +23,7 @@ const toListItem = (chart: any) => ({
       : String(chart.createdAt),
 });
 
-const countByStatus = (charts: any[]) => ({
+const countByStatus = (charts: ColorChart[]) => ({
   total: charts.length,
   published: charts.filter((chart) => chart.published).length,
   draft: charts.filter((chart) => !chart.published).length,

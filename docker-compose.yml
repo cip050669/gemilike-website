@@ -83,6 +83,8 @@ services:
       - ./public/invoices:/app/public/invoices
       # Persist gemstone analysis images (if stored locally)
       - ./public/gemstone-analyses:/app/public/gemstone-analyses
+      # Persist color chart data (if needed)
+      - ./data:/app/data:ro
     networks:
       - gemilike-network
     command: >

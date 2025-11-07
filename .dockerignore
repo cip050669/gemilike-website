@@ -64,6 +64,7 @@ scripts/
 # User uploads (handled via volumes)
 public/uploads
 public/invoices
+public/gemstone-analyses
 
 # Config files
 .eslintrc*

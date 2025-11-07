@@ -30,7 +30,11 @@ export async function GET(
 
     if (!analysis) {
       return NextResponse.json(
-        { error: 'Analysis not found' },
+        { 
+          success: false,
+          error: 'Analysis not found',
+          message: 'The requested analysis does not exist'
+        },
         { status: 404 }
       );
     }
@@ -38,7 +42,11 @@ export async function GET(
     // Non-admin users can only see published analyses
     if (!isAdmin && !analysis.published) {
       return NextResponse.json(
-        { error: 'Analysis not found' },
+        { 
+          success: false,
+          error: 'Analysis not found',
+          message: 'The requested analysis is not available'
+        },
         { status: 404 }
       );
     }
@@ -48,7 +56,11 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching gemstone analysis:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch analysis' },
+      { 
+        success: false,
+        error: 'Failed to fetch analysis',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -60,16 +72,33 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please log in' },
+        { 
+          success: false,
+          error: 'Unauthorized',
+          message: 'Please log in to perform this action'
+        },
         { status: 401 }
       );
     }
 
-    const { id } = await params;
-    const body = await request.json();
+    // Handle potential JSON parsing errors
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Invalid JSON in request body',
+          message: parseError instanceof Error ? parseError.message : 'JSON parse error'
+        },
+        { status: 400 }
+      );
+    }
 
     const existing = await prisma.gemstoneAnalysis.findUnique({
       where: { id },
@@ -77,7 +106,11 @@ export async function PUT(
 
     if (!existing) {
       return NextResponse.json(
-        { error: 'Analysis not found' },
+        { 
+          success: false,
+          error: 'Analysis not found',
+          message: 'The analysis you are trying to update does not exist'
+        },
         { status: 404 }
       );
     }
@@ -88,7 +121,11 @@ export async function PUT(
 
     if (!isAdmin && !isCreator) {
       return NextResponse.json(
-        { error: 'Unauthorized - You can only edit your own analyses' },
+        { 
+          success: false,
+          error: 'Unauthorized',
+          message: 'You can only edit your own analyses'
+        },
         { status: 403 }
       );
     }
@@ -113,14 +150,28 @@ export async function PUT(
 
   } catch (error) {
     console.error('Error updating gemstone analysis:', error);
-    if ((error as { code?: string }).code === 'P2025') {
-      return NextResponse.json(
-        { error: 'Analysis not found' },
-        { status: 404 }
-      );
+    
+    // Handle specific Prisma errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      const prismaError = error as { code: string; message?: string };
+      if (prismaError.code === 'P2025') {
+        return NextResponse.json(
+          { 
+            success: false,
+            error: 'Analysis not found',
+            message: 'The analysis you are trying to update does not exist'
+          },
+          { status: 404 }
+        );
+      }
     }
+    
     return NextResponse.json(
-      { error: 'Failed to update analysis' },
+      { 
+        success: false,
+        error: 'Failed to update analysis',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -132,15 +183,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please log in' },
+        { 
+          success: false,
+          error: 'Unauthorized',
+          message: 'Please log in to perform this action'
+        },
         { status: 401 }
       );
     }
-
-    const { id } = await params;
 
     const existing = await prisma.gemstoneAnalysis.findUnique({
       where: { id },
@@ -148,7 +202,11 @@ export async function DELETE(
 
     if (!existing) {
       return NextResponse.json(
-        { error: 'Analysis not found' },
+        { 
+          success: false,
+          error: 'Analysis not found',
+          message: 'The analysis you are trying to delete does not exist'
+        },
         { status: 404 }
       );
     }
@@ -159,7 +217,11 @@ export async function DELETE(
 
     if (!isAdmin && !isCreator) {
       return NextResponse.json(
-        { error: 'Unauthorized - You can only delete your own analyses' },
+        { 
+          success: false,
+          error: 'Unauthorized',
+          message: 'You can only delete your own analyses'
+        },
         { status: 403 }
       );
     }
@@ -175,14 +237,28 @@ export async function DELETE(
 
   } catch (error) {
     console.error('Error deleting gemstone analysis:', error);
-    if ((error as { code?: string }).code === 'P2025') {
-      return NextResponse.json(
-        { error: 'Analysis not found' },
-        { status: 404 }
-      );
+    
+    // Handle specific Prisma errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      const prismaError = error as { code: string; message?: string };
+      if (prismaError.code === 'P2025') {
+        return NextResponse.json(
+          { 
+            success: false,
+            error: 'Analysis not found',
+            message: 'The analysis you are trying to delete does not exist'
+          },
+          { status: 404 }
+        );
+      }
     }
+    
     return NextResponse.json(
-      { error: 'Failed to delete analysis' },
+      { 
+        success: false,
+        error: 'Failed to delete analysis',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

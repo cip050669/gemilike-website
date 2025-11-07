@@ -49,7 +49,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching gemstone analyses:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch analyses' },
+      { 
+        success: false,
+        error: 'Failed to fetch analyses',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -61,12 +65,29 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please log in' },
+        { 
+          success: false,
+          error: 'Unauthorized',
+          message: 'Please log in to create an analysis'
+        },
         { status: 401 }
       );
     }
 
-    const body = await request.json();
+    // Handle potential JSON parsing errors
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Invalid JSON in request body',
+          message: parseError instanceof Error ? parseError.message : 'JSON parse error'
+        },
+        { status: 400 }
+      );
+    }
     const {
       imageUrl,
       imageName,
@@ -84,9 +105,18 @@ export async function POST(request: NextRequest) {
       featured = false,
     } = body;
 
+    // Ensure correctedVariety is preserved in overallImpression if present
+    if (overallImpression && overallImpression.correctedVariety) {
+      // correctedVariety is already in overallImpression, no need to modify
+    }
+
     if (!primaryColor || !overallImpression) {
       return NextResponse.json(
-        { error: 'Primary color and overall impression are required' },
+        { 
+          success: false,
+          error: 'Validation error',
+          message: 'Primary color and overall impression are required'
+        },
         { status: 400 }
       );
     }
@@ -124,8 +154,28 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error creating gemstone analysis:', error);
+    
+    // Handle specific Prisma errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      const prismaError = error as { code: string; message?: string };
+      if (prismaError.code === 'P2002') {
+        return NextResponse.json(
+          { 
+            success: false,
+            error: 'Duplicate entry',
+            message: 'An analysis with this data already exists'
+          },
+          { status: 409 }
+        );
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to create analysis' },
+      { 
+        success: false,
+        error: 'Failed to create analysis',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
