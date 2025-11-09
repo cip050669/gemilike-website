@@ -1,0 +1,56 @@
+=== GIT DIVERGENT BRANCH PROBLEM LÖSEN ===
+
+Ihr Branch und origin/main sind divergiert:
+- Lokaler Branch: 1 Commit voraus
+- Remote Branch: 5 Commits voraus
+
+=== LÖSUNG 1: REBASE (Empfohlen) ===
+
+cd /home/cip050669/CascadeProjects/gemilike-website
+
+# 1. Remote-Änderungen holen
+git fetch origin
+
+# 2. Rebase durchführen (lokale Commits auf Remote-Commits anwenden)
+git pull --rebase origin main
+
+# 3. Pushen
+git push origin main
+
+=== LÖSUNG 2: MERGE ===
+
+cd /home/cip050669/CascadeProjects/gemilike-website
+
+# 1. Remote-Änderungen holen
+git fetch origin
+
+# 2. Merge durchführen
+git pull origin main
+
+# 3. Pushen
+git push origin main
+
+=== LÖSUNG 3: FORCE PUSH (NUR WENN SICHER) ===
+
+⚠️ WARNUNG: Force Push überschreibt Remote-Commits!
+Nur verwenden, wenn Sie sicher sind, dass die Remote-Commits nicht wichtig sind.
+
+cd /home/cip050669/CascadeProjects/gemilike-website
+
+# Lokale Änderungen behalten, Remote überschreiben
+git push --force origin main
+
+=== EMPFOHLENE VORGEWHENSWEISE ===
+
+1. Zuerst prüfen, was die Remote-Commits enthalten:
+   git log --oneline HEAD..origin/main
+
+2. Dann prüfen, was Ihre lokalen Commits enthalten:
+   git log --oneline origin/main..HEAD
+
+3. Dann Rebase durchführen (Lösung 1)
+
+=== EINZEILER (REBASE) ===
+
+cd /home/cip050669/CascadeProjects/gemilike-website && git fetch origin && git pull --rebase origin main && git push origin main
+
