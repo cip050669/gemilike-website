@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSessionWithUser } from '@/lib/session';
 
+interface FooterSectionPayload {
+  section: string;
+  title: string;
+  locale?: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { session } = await getSessionWithUser();
-    if (!session || !session.user || (session.user as any).role !== 'ADMIN') {
+    if (!session || session.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -30,11 +36,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { session } = await getSessionWithUser();
-    if (!session || !session.user || (session.user as any).role !== 'ADMIN') {
+    if (!session || session.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as FooterSectionPayload;
     const { section, title, locale } = body;
 
     if (!section || !title) {
@@ -71,4 +77,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

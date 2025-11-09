@@ -266,6 +266,7 @@ export default function LegalPagesAdminPage() {
                   id="isActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  aria-label="Aktiv"
                 />
                 <Label htmlFor="isActive">Aktiv</Label>
               </div>

@@ -10,12 +10,88 @@ import { useRouter } from 'next/navigation';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import * as yaml from 'yaml';
+import type { ColorChartImportPayload, ColorChartImportResponse } from '@/types/color-charts';
 
 interface BulkImportDialogProps {
   locale: string;
 }
 
 type FileFormat = 'json' | 'csv' | 'excel' | 'yaml';
+
+type SpreadsheetRow = Record<string, string | number | boolean | null | undefined>;
+
+const toStringOrEmpty = (value: unknown): string =>
+  typeof value === 'string' ? value.trim() : '';
+
+const toOptionalString = (value: unknown): string | null => {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.trim();
+  }
+  return null;
+};
+
+const toBoolean = (value: unknown, fallback = false): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true';
+  }
+  return fallback;
+};
+
+const toNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
+};
+
+const parseColorList = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .filter((entry): entry is string => typeof entry === 'string')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
+const normalizeCharts = (data: unknown): ColorChartImportPayload[] => {
+  if (Array.isArray(data)) {
+    return data as ColorChartImportPayload[];
+  }
+  if (typeof data === 'object' && data !== null) {
+    return [data as ColorChartImportPayload];
+  }
+  throw new Error('Ungültiges Datenformat für Farbtafeln');
+};
+
+const mapSpreadsheetRowToChart = (row: SpreadsheetRow): ColorChartImportPayload => ({
+  name: toStringOrEmpty(row.name),
+  origin: toOptionalString(row.origin),
+  gia: {
+    hue: toStringOrEmpty(row.gia_hue ?? row.hue),
+    tone: toStringOrEmpty(row.gia_tone ?? row.tone),
+    sat: toStringOrEmpty(row.gia_sat ?? row.sat),
+  },
+  gradient: parseColorList(row.gradient),
+  pleochro: parseColorList(row.pleochro),
+  light: toStringOrEmpty(row.light) || 'D55, CRI ≥95',
+  note: toOptionalString(row.note),
+  description: toOptionalString(row.description),
+  published: toBoolean(row.published),
+  featured: toBoolean(row.featured),
+  order: toNumber(row.order),
+});
 
 export function BulkImportDialog({ locale }: BulkImportDialogProps) {
   const router = useRouter();
@@ -27,99 +103,43 @@ export function BulkImportDialog({ locale }: BulkImportDialogProps) {
   const [textInput, setTextInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const parseFile = async (file: File): Promise<any[]> => {
+  const parseFile = async (file: File): Promise<ColorChartImportPayload[]> => {
     const extension = file.name.split('.').pop()?.toLowerCase();
 
     if (extension === 'json') {
       const text = await file.text();
       const data = JSON.parse(text);
-      return Array.isArray(data) ? data : [data];
+      return normalizeCharts(data);
     } else if (extension === 'csv') {
       const text = await file.text();
-      const result = Papa.parse(text, { header: true, skipEmptyLines: true });
-      return result.data.map((row: any) => ({
-        name: row.name || '',
-        origin: row.origin || null,
-        gia: {
-          hue: row.gia_hue || row.hue || '',
-          tone: row.gia_tone || row.tone || '',
-          sat: row.gia_sat || row.sat || '',
-        },
-        gradient: row.gradient ? row.gradient.split(',').map((c: string) => c.trim()).filter(Boolean) : [],
-        pleochro: row.pleochro ? row.pleochro.split(',').map((c: string) => c.trim()).filter(Boolean) : [],
-        light: row.light || 'D55, CRI ≥95',
-        note: row.note || null,
-        description: row.description || null,
-        published: row.published === 'true' || row.published === true,
-        featured: row.featured === 'true' || row.featured === true,
-        order: parseInt(row.order) || 0,
-      }));
+      const result = Papa.parse<SpreadsheetRow>(text, { header: true, skipEmptyLines: true });
+      return result.data.map(mapSpreadsheetRowToChart);
     } else if (extension === 'xlsx' || extension === 'xls') {
       const arrayBuffer = await file.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-      return jsonData.map((row: any) => ({
-        name: row.name || '',
-        origin: row.origin || null,
-        gia: {
-          hue: row.gia_hue || row.hue || '',
-          tone: row.gia_tone || row.tone || '',
-          sat: row.gia_sat || row.sat || '',
-        },
-        gradient: row.gradient
-          ? (typeof row.gradient === 'string'
-              ? row.gradient.split(',').map((c: string) => c.trim()).filter(Boolean)
-              : Array.isArray(row.gradient) ? row.gradient : [])
-          : [],
-        pleochro: row.pleochro
-          ? (typeof row.pleochro === 'string'
-              ? row.pleochro.split(',').map((c: string) => c.trim()).filter(Boolean)
-              : Array.isArray(row.pleochro) ? row.pleochro : [])
-          : [],
-        light: row.light || 'D55, CRI ≥95',
-        note: row.note || null,
-        description: row.description || null,
-        published: row.published === true || row.published === 'true',
-        featured: row.featured === true || row.featured === 'true',
-        order: parseInt(row.order) || 0,
-      }));
+      const jsonData = XLSX.utils.sheet_to_json<SpreadsheetRow>(firstSheet);
+      return jsonData.map(mapSpreadsheetRowToChart);
     } else if (extension === 'yaml' || extension === 'yml') {
       const text = await file.text();
       const data = yaml.parse(text);
-      return Array.isArray(data) ? data : [data];
+      return normalizeCharts(data);
     } else {
       throw new Error(`Unsupported file format: .${extension}`);
     }
   };
 
-  const parseText = (text: string): any[] => {
+  const parseText = (text: string): ColorChartImportPayload[] => {
     switch (activeTab) {
       case 'json':
         const data = JSON.parse(text);
-        return Array.isArray(data) ? data : [data];
+        return normalizeCharts(data);
       case 'csv':
-        const result = Papa.parse(text, { header: true, skipEmptyLines: true });
-        return result.data.map((row: any) => ({
-          name: row.name || '',
-          origin: row.origin || null,
-          gia: {
-            hue: row.gia_hue || row.hue || '',
-            tone: row.gia_tone || row.tone || '',
-            sat: row.gia_sat || row.sat || '',
-          },
-          gradient: row.gradient ? row.gradient.split(',').map((c: string) => c.trim()).filter(Boolean) : [],
-          pleochro: row.pleochro ? row.pleochro.split(',').map((c: string) => c.trim()).filter(Boolean) : [],
-          light: row.light || 'D55, CRI ≥95',
-          note: row.note || null,
-          description: row.description || null,
-          published: row.published === 'true' || row.published === true,
-          featured: row.featured === 'true' || row.featured === true,
-          order: parseInt(row.order) || 0,
-        }));
+        const result = Papa.parse<SpreadsheetRow>(text, { header: true, skipEmptyLines: true });
+        return result.data.map(mapSpreadsheetRowToChart);
       case 'yaml':
         const yamlData = yaml.parse(text);
-        return Array.isArray(yamlData) ? yamlData : [yamlData];
+        return normalizeCharts(yamlData);
       default:
         throw new Error('Text input only available for JSON, CSV, and YAML');
     }
@@ -161,7 +181,7 @@ export function BulkImportDialog({ locale }: BulkImportDialogProps) {
     }
   };
 
-  const importCharts = async (charts: any[]) => {
+  const importCharts = async (charts: ColorChartImportPayload[]) => {
     const response = await fetch('/api/color-charts/import', {
       method: 'POST',
       headers: {
@@ -178,7 +198,7 @@ export function BulkImportDialog({ locale }: BulkImportDialogProps) {
       throw new Error(errorData.error || 'Import fehlgeschlagen');
     }
 
-    const result = await response.json();
+    const result = (await response.json()) as ColorChartImportResponse;
     
     if (result.results.errors.length > 0 && result.results.success.length === 0) {
       setError(`Import fehlgeschlagen: ${result.results.errors.join(', ')}`);
@@ -453,4 +473,3 @@ export function BulkImportDialog({ locale }: BulkImportDialogProps) {
     </Dialog>
   );
 }
-

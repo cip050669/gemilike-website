@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 
 // GET - Alle Analysen abrufen (öffentlich für published, admin für alle)
 export async function GET(request: NextRequest) {
@@ -12,10 +13,10 @@ export async function GET(request: NextRequest) {
 
     // Check if user is admin
     const session = await getServerSession(authOptions);
-    const isAdmin = session?.user && (session.user as { role?: string }).role === 'ADMIN';
+    const isAdmin = session?.user?.role === 'ADMIN';
 
     // Build where clause
-    const where: any = {
+    const where: Prisma.GemstoneAnalysisWhereInput = {
       locale,
     };
 
@@ -190,4 +191,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

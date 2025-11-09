@@ -1,0 +1,30 @@
+=== KORRIGIERTE GIT BEFEHLE ===
+
+Das Problem war, dass die Commit-Message nicht richtig in Anführungszeichen gesetzt wurde.
+
+=== RICHTIGE BEFEHLE ===
+
+cd /home/cip050669/CascadeProjects/gemilike-website
+
+# 1. Alle Änderungen stagen
+git add -A
+
+# 2. Commit erstellen (mit einfachen Anführungszeichen)
+git commit -m 'feat: Docker Setup, Markdown Linter Fixes, Accessibility Improvements'
+
+# 3. Zu GitHub pushen
+git push origin main
+
+=== ODER ALS EINZEILER ===
+
+cd /home/cip050669/CascadeProjects/gemilike-website && git add -A && git commit -m 'feat: Docker Setup, Markdown Linter Fixes, Accessibility Improvements' && git push origin main
+
+=== WICHTIG ===
+
+Verwenden Sie EINFACHE Anführungszeichen (') statt doppelte ("), 
+oder escapen Sie die Anführungszeichen richtig.
+
+=== ALTERNATIVE: KURZE MESSAGE ===
+
+git commit -m "feat: Docker Setup and Fixes"
+

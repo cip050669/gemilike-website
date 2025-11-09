@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { updateService, deleteService } from '@/lib/services/about.service';
+import { updateService, deleteService, ServiceInput } from '@/lib/services/about.service';
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -39,15 +39,15 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
-    const body = await request.json();
+    const body = (await request.json()) as Partial<ServiceInput>;
     const { slug, title, description, icon, features, order, locale, isActive } = body;
 
-    const updateData: any = {};
+    const updateData: Partial<ServiceInput> = {};
     if (slug !== undefined) updateData.slug = slug;
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
@@ -83,7 +83,7 @@ export async function DELETE(
       hasSession: !!session,
       hasUser: !!session?.user,
       userId: session?.user?.id,
-      role: (session?.user as { role?: string })?.role,
+      role: session?.user?.role,
       email: session?.user?.email,
     });
     
@@ -92,8 +92,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized - No session' }, { status: 401 });
     }
     
-    if ((session.user as { role?: string }).role !== 'ADMIN') {
-      console.error('❌ User is not ADMIN:', (session.user as { role?: string }).role);
+    if (session.user.role !== 'ADMIN') {
+      console.error('❌ User is not ADMIN:', session.user.role);
       return NextResponse.json({ error: 'Unauthorized - Not ADMIN' }, { status: 401 });
     }
 
@@ -112,4 +112,3 @@ export async function DELETE(
     );
   }
 }
-

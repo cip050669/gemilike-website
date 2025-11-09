@@ -1,11 +1,12 @@
 # syntax=docker/dockerfile:1.7
 
+ARG NODE_VERSION=22-alpine
+
 # ============================================
 # Dependencies Stage
 # ============================================
-FROM node:20-alpine AS deps
-# Use specific Node.js version for reproducibility
-ARG NODE_VERSION=20-alpine
+FROM node:${NODE_VERSION} AS deps
+ARG NODE_VERSION
 # Install system dependencies for image processing, color analysis, and other features
 RUN apk add --no-cache libc6-compat openssl \
     cairo-dev \
@@ -21,14 +22,13 @@ COPY package.json package-lock.json* ./
 
 # Install dependencies with cache mount for faster builds
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --legacy-peer-deps --only=production
+    npm ci --omit=dev --legacy-peer-deps
 
 # ============================================
 # Builder Stage
 # ============================================
-FROM node:20-alpine AS builder
-# Use specific Node.js version for reproducibility
-ARG NODE_VERSION=20-alpine
+FROM node:${NODE_VERSION} AS builder
+ARG NODE_VERSION
 # Install system dependencies for build (including image processing libraries for color analysis)
 RUN apk add --no-cache libc6-compat openssl \
     cairo-dev \
@@ -65,9 +65,8 @@ RUN npm run build
 # ============================================
 # Runner Stage (Production)
 # ============================================
-FROM node:20-alpine AS runner
-# Use specific Node.js version for reproducibility
-ARG NODE_VERSION=20-alpine
+FROM node:${NODE_VERSION} AS runner
+ARG NODE_VERSION
 # Install runtime dependencies for image processing, color analysis, and utilities
 RUN apk add --no-cache \
     wget \

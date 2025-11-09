@@ -18,6 +18,140 @@ interface UploadPanelProps {
 
 type FileFormat = 'json' | 'csv' | 'excel' | 'yaml' | 'text';
 
+type SpreadsheetRow = Record<string, string | number | boolean | null | undefined>;
+
+const toTrimmedString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
+const toOptionalString = (value: unknown): string | null => {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.trim();
+  }
+  return null;
+};
+
+const toBoolean = (value: unknown): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true';
+  }
+  return false;
+};
+
+const toNumber = (value: unknown): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+};
+
+const parseColorList = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .filter((entry): entry is string => typeof entry === 'string')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
+const parseDate = (value: unknown): Date => {
+  if (value instanceof Date) {
+    return value;
+  }
+  if (typeof value === 'string' || typeof value === 'number') {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+  return new Date();
+};
+
+const normalizeChart = (chart: unknown, index: number): ColorChart | null => {
+  if (!chart || typeof chart !== 'object') {
+    return null;
+  }
+
+  const record = chart as Record<string, unknown>;
+  if (typeof record.name !== 'string') {
+    return null;
+  }
+
+  const gradient = parseColorList(record.gradient);
+  if (gradient.length === 0) {
+    return null;
+  }
+
+  const pleochro = parseColorList(record.pleochro);
+  const giaSource = record.gia && typeof record.gia === 'object'
+    ? (record.gia as Record<string, unknown>)
+    : undefined;
+
+  const now = new Date();
+
+  return {
+    id: typeof record.id === 'string' && record.id.trim()
+      ? record.id
+      : `imported-${Date.now()}-${index}`,
+    name: record.name,
+    origin: toOptionalString(record.origin) ?? null,
+    locale: typeof record.locale === 'string' ? record.locale : 'de',
+    gia: {
+      hue: giaSource ? toTrimmedString(giaSource.hue) : '',
+      tone: giaSource ? toTrimmedString(giaSource.tone) : '',
+      sat: giaSource ? toTrimmedString(giaSource.sat) : '',
+    },
+    gradient,
+    pleochro,
+    light: toTrimmedString(record.light) || 'D55, CRI ≥95',
+    note: toOptionalString(record.note),
+    description: toOptionalString(record.description),
+    published: toBoolean(record.published),
+    featured: toBoolean(record.featured),
+    order: toNumber(record.order),
+    createdAt: record.createdAt ? parseDate(record.createdAt) : now,
+    updatedAt: record.updatedAt ? parseDate(record.updatedAt) : now,
+  };
+};
+
+const normalizeCharts = (data: unknown): unknown[] => {
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && typeof data === 'object') {
+    return [data];
+  }
+  throw new Error('Ungültiges Datenformat');
+};
+
+const mapSpreadsheetRowToChart = (row: SpreadsheetRow): Record<string, unknown> => ({
+  name: row.name ?? '',
+  origin: row.origin ?? null,
+  gia: {
+    hue: row.gia_hue ?? row.hue ?? '',
+    tone: row.gia_tone ?? row.tone ?? '',
+    sat: row.gia_sat ?? row.sat ?? '',
+  },
+  gradient: row.gradient ?? '',
+  pleochro: row.pleochro ?? '',
+  light: row.light ?? '',
+  note: row.note ?? null,
+  description: row.description ?? null,
+  published: row.published,
+  featured: row.featured,
+  order: row.order ?? 0,
+});
+
 export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,44 +160,17 @@ export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
   const [textInput, setTextInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateColorChart = (data: any): data is ColorChart => {
-    return (
-      typeof data === 'object' &&
-      typeof data.name === 'string' &&
-      Array.isArray(data.gradient) &&
-      data.gradient.length > 0 &&
-      Array.isArray(data.pleochro) &&
-      typeof data.gia === 'object'
-    );
-  };
-
-  const processCharts = (charts: any[]): { valid: ColorChart[]; errors: string[] } => {
+  const processCharts = (charts: unknown[]): { valid: ColorChart[]; errors: string[] } => {
     const validCharts: ColorChart[] = [];
     const errors: string[] = [];
 
     charts.forEach((chart, index) => {
-      if (validateColorChart(chart)) {
-        const validChart: ColorChart = {
-          id: chart.id || `imported-${Date.now()}-${index}`,
-          name: chart.name,
-          origin: chart.origin || null,
-          locale: chart.locale || 'de',
-          gia: chart.gia || { hue: '', tone: '', sat: '' },
-          gradient: chart.gradient,
-          pleochro: chart.pleochro || [],
-          light: chart.light || 'D55, CRI ≥95',
-          note: chart.note || null,
-          description: chart.description || null,
-          published: chart.published || false,
-          featured: chart.featured || false,
-          order: chart.order || 0,
-          createdAt: chart.createdAt ? new Date(chart.createdAt) : new Date(),
-          updatedAt: chart.updatedAt ? new Date(chart.updatedAt) : new Date(),
-        };
-        validCharts.push(validChart);
-      } else {
-        errors.push(`Chart ${index + 1}: Ungültiges Format`);
+      const normalized = normalizeChart(chart, index);
+      if (normalized) {
+        validCharts.push(normalized);
+        return;
       }
+      errors.push(`Chart ${index + 1}: Ungültiges Format`);
     });
 
     return { valid: validCharts, errors };
@@ -72,8 +179,7 @@ export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
   const handleJSON = (text: string) => {
     try {
       const data = JSON.parse(text);
-      const charts = Array.isArray(data) ? data : [data];
-      return processCharts(charts);
+      return processCharts(normalizeCharts(data));
     } catch (err) {
       throw new Error(`JSON Parse Fehler: ${err instanceof Error ? err.message : 'Unbekannter Fehler'}`);
     }
@@ -81,39 +187,12 @@ export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
 
   const handleCSV = (text: string) => {
     try {
-      const result = Papa.parse(text, {
+      const result = Papa.parse<SpreadsheetRow>(text, {
         header: true,
         skipEmptyLines: true,
       });
 
-      const charts = result.data.map((row: any) => {
-        // Parse gradient and pleochro from comma-separated strings
-        const gradient = row.gradient
-          ? row.gradient.split(',').map((c: string) => c.trim()).filter(Boolean)
-          : [];
-        const pleochro = row.pleochro
-          ? row.pleochro.split(',').map((c: string) => c.trim()).filter(Boolean)
-          : [];
-
-        return {
-          name: row.name || '',
-          origin: row.origin || null,
-          gia: {
-            hue: row.gia_hue || row.hue || '',
-            tone: row.gia_tone || row.tone || '',
-            sat: row.gia_sat || row.sat || '',
-          },
-          gradient,
-          pleochro,
-          light: row.light || 'D55, CRI ≥95',
-          note: row.note || null,
-          description: row.description || null,
-          published: row.published === 'true' || row.published === true,
-          featured: row.featured === 'true' || row.featured === true,
-          order: parseInt(row.order) || 0,
-        };
-      });
-
+      const charts = result.data.map(mapSpreadsheetRowToChart);
       return processCharts(charts);
     } catch (err) {
       throw new Error(`CSV Parse Fehler: ${err instanceof Error ? err.message : 'Unbekannter Fehler'}`);
@@ -125,38 +204,9 @@ export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
       const arrayBuffer = await file.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+      const jsonData = XLSX.utils.sheet_to_json<SpreadsheetRow>(firstSheet);
 
-      const charts = jsonData.map((row: any) => {
-        const gradient = row.gradient
-          ? (typeof row.gradient === 'string' 
-              ? row.gradient.split(',').map((c: string) => c.trim()).filter(Boolean)
-              : Array.isArray(row.gradient) ? row.gradient : [])
-          : [];
-        const pleochro = row.pleochro
-          ? (typeof row.pleochro === 'string'
-              ? row.pleochro.split(',').map((c: string) => c.trim()).filter(Boolean)
-              : Array.isArray(row.pleochro) ? row.pleochro : [])
-          : [];
-
-        return {
-          name: row.name || '',
-          origin: row.origin || null,
-          gia: {
-            hue: row.gia_hue || row.hue || '',
-            tone: row.gia_tone || row.tone || '',
-            sat: row.gia_sat || row.sat || '',
-          },
-          gradient,
-          pleochro,
-          light: row.light || 'D55, CRI ≥95',
-          note: row.note || null,
-          description: row.description || null,
-          published: row.published === true || row.published === 'true',
-          featured: row.featured === true || row.featured === 'true',
-          order: parseInt(row.order) || 0,
-        };
-      });
+      const charts = jsonData.map(mapSpreadsheetRowToChart);
 
       return processCharts(charts);
     } catch (err) {
@@ -167,8 +217,7 @@ export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
   const handleYAML = (text: string) => {
     try {
       const data = yaml.parse(text);
-      const charts = Array.isArray(data) ? data : [data];
-      return processCharts(charts);
+      return processCharts(normalizeCharts(data));
     } catch (err) {
       throw new Error(`YAML Parse Fehler: ${err instanceof Error ? err.message : 'Unbekannter Fehler'}`);
     }
@@ -179,7 +228,7 @@ export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
     setSuccess(null);
 
     const extension = file.name.split('.').pop()?.toLowerCase();
-    let result;
+    let result: { valid: ColorChart[]; errors: string[] };
 
     try {
       if (extension === 'json') {
@@ -492,7 +541,7 @@ export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
                 <code className="block mb-2">name,origin,gia_hue,gia_tone,gia_sat,gradient,pleochro,light</code>
                 <p className="mb-2">Beispiel Zeile:</p>
                 <code className="block">
-                  "Beispiel Farbtafel","Beispiel Herkunft","R","5","6","#FF0000,#FF6666","#FF0000","D55, CRI ≥95"
+                  &quot;Beispiel Farbtafel&quot;,&quot;Beispiel Herkunft&quot;,&quot;R&quot;,&quot;5&quot;,&quot;6&quot;,&quot;#FF0000,#FF6666&quot;,&quot;#FF0000&quot;,&quot;D55, CRI ≥95&quot;
                 </code>
               </div>
             )}

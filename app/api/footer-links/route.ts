@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest) {
     const locale = searchParams.get('locale') || 'de';
     const section = searchParams.get('section');
 
-    const where: any = {
+    const where: Prisma.FooterLinkWhereInput = {
       locale,
       isActive: true,
     };
@@ -33,4 +34,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

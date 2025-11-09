@@ -6,8 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, Image as ImageIcon, Loader2, Download, FileText, Save, Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { extractColorsFromImage, analyzeImageRegions, MaskingOptions, DEFAULT_MASKING_OPTIONS } from './utils/imageColorExtraction';
+import { extractColorsFromImage, analyzeImageRegions, MaskingOptions, DEFAULT_MASKING_OPTIONS, ImageAnalysis } from './utils/imageColorExtraction';
 import { Whitepoint } from './utils/colorConversions';
+import { extractColorsEnhanced, EnhancedMaskingOptions, EnhancedClusteringOptions, EnhancedAnalysisResult } from './utils/enhancedColorExtraction';
+import { parseICCFromFile, ICCProfile } from './utils/iccParser';
+import { exportCSV, exportPDF, AnalysisData } from './utils/exportAnalysis';
 import {
   analyzePrimaryColor,
   analyzeSecondaryColors,
@@ -55,6 +58,7 @@ export function GemstoneColorAnalyzer() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedAnalysisId, setSavedAnalysisId] = useState<string | null>(null);
   const [primaryColorLab, setPrimaryColorLab] = useState<{ L: number; a: number; b: number } | null>(null);
+  const [currentImageAnalysis, setCurrentImageAnalysis] = useState<ImageAnalysis | EnhancedAnalysisResult | null>(null); // Store current analysis for export
   const [showCropTool, setShowCropTool] = useState(false);
   const [cropRegion, setCropRegion] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [isResizing, setIsResizing] = useState(false);
@@ -65,6 +69,16 @@ export function GemstoneColorAnalyzer() {
   const [maskingOptions, setMaskingOptions] = useState<MaskingOptions>(DEFAULT_MASKING_OPTIONS);
   const [customPalette, setCustomPalette] = useState<string[]>([]);
   const [customPaletteInput, setCustomPaletteInput] = useState<string>('');
+  
+  // Borderline v4: Neue Parameter
+  const [autoK, setAutoK] = useState(true); // Auto-K via GMM+BIC
+  const [useSLIC, setUseSLIC] = useState(false); // SLIC Superpixels
+  const [slicStep, setSlicStep] = useState(16); // SLIC Superpixel-Größe
+  const [slicM, setSlicM] = useState(10); // SLIC Kompaktheit
+  const [useGuidedFilter, setUseGuidedFilter] = useState(false); // Guided Filter
+  const [guidedR, setGuidedR] = useState(4); // Guided Filter Radius
+  const [guidedEps] = useState(1e-3); // Guided Filter Regularisierung
+  const [iccInfo, setIccInfo] = useState<ICCProfile | null>(null);
   
   // OpenCV GrabCut state
   const [cvReady, setCvReady] = useState(false);
@@ -107,6 +121,24 @@ export function GemstoneColorAnalyzer() {
       setUseGrabCut(false);
       setCvLoadError(error instanceof Error ? error.message : 'Unbekannter Fehler beim Laden von OpenCV.js');
       console.warn('OpenCV konnte nicht geladen werden. Automatische Segmentierung wird verwendet.');
+    }
+  }, []);
+
+  // Borderline v4: ICC Profile Upload Handler
+  const handleICCUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      const profile = await parseICCFromFile(file);
+      setIccInfo(profile);
+      
+      if (profile.wtpt) {
+        console.log('ICC Weißpunkt geladen:', profile.wtpt);
+      }
+    } catch (error) {
+      console.error('Fehler beim Parsen des ICC-Profils:', error);
+      alert('Fehler beim Laden des ICC-Profils. Bitte überprüfen Sie die Datei.');
     }
   }, []);
 
@@ -560,19 +592,58 @@ export function GemstoneColorAnalyzer() {
         }
       }
 
-      // Extract colors from image (only gemstone pixels, background is automatically filtered)
-      const imageAnalysis = await extractColorsFromImage(
-        imageFile,
-        10000,
-        cropRegion || undefined,
-        whitepoint,
-        kValue,
-        maskingOptions,
-        grabCutAlpha
-      );
+      // Borderline v4: Use enhanced extraction if advanced features are enabled
+      const useEnhanced = useSLIC || useGuidedFilter || autoK;
       
-      // Analyze regions (only gemstone pixels)
-      const regions = await analyzeImageRegions(imageFile, cropRegion || undefined, whitepoint, kValue, maskingOptions);
+      let imageAnalysis;
+      let regions;
+      
+      if (useEnhanced) {
+        // Enhanced extraction with Borderline v4 features
+        const enhancedMasking: EnhancedMaskingOptions = {
+          ...maskingOptions,
+          useSLIC,
+          slicStep,
+          slicM,
+          useGuidedFilter,
+          guidedR,
+          guidedEps,
+        };
+        
+        const enhancedClustering: EnhancedClusteringOptions = {
+          useAutoK: autoK,
+          autoKMin: 3,
+          autoKMax: 8,
+          useKMeansPP: true,
+          kValue: autoK ? null : kValue,
+        };
+        
+        imageAnalysis = await extractColorsEnhanced(
+          imageFile,
+          10000,
+          cropRegion || undefined,
+          whitepoint,
+          iccInfo || null,
+          enhancedMasking,
+          enhancedClustering
+        );
+        
+        // For regions, still use standard extraction (regions analysis doesn't need enhanced features)
+        regions = await analyzeImageRegions(imageFile, cropRegion || undefined, whitepoint, kValue, maskingOptions);
+      } else {
+        // Standard extraction
+        imageAnalysis = await extractColorsFromImage(
+          imageFile,
+          10000,
+          cropRegion || undefined,
+          whitepoint,
+          kValue,
+          maskingOptions,
+          grabCutAlpha
+        );
+        
+        regions = await analyzeImageRegions(imageFile, cropRegion || undefined, whitepoint, kValue, maskingOptions);
+      }
       
       // 1. Primary Color Analysis
       const primary = analyzePrimaryColor(imageAnalysis.primaryColor);
@@ -606,7 +677,7 @@ export function GemstoneColorAnalyzer() {
       const gia = getGIAColorGrade(imageAnalysis.primaryColor, imageAnalysis.saturation);
       setGIAColorGrade(gia);
       
-      // 6. Overall Impression (with learning from corrections)
+      // 6. Overall Impression (with learning from corrections and borderline analysis)
       const overall = await getOverallImpressionAsync(
         imageAnalysis.primaryColor,
         imageAnalysis.saturation,
@@ -614,13 +685,17 @@ export function GemstoneColorAnalyzer() {
         imageAnalysis.colorPurity,
         regions.center,
         regions.facets,
-        regions.shadows
+        regions.shadows,
+        imageAnalysis.allColors // Borderline v4: Pass all colors for hue analysis
       );
       setOverallImpression(overall);
       
       // 7. Palette Comparison (ΔE)
       const comparisons = compareToAllPalettes(imageAnalysis.primaryColor.hex, whitepoint, customPalette.length > 0 ? customPalette : undefined);
       setPaletteComparisons(comparisons);
+      
+      // Store analysis for export
+      setCurrentImageAnalysis(imageAnalysis);
       
       setAnalysisComplete(true);
     } catch (error) {
@@ -1127,6 +1202,123 @@ export function GemstoneColorAnalyzer() {
                   </p>
                 </div>
 
+                {/* Borderline v4: Enhanced Features */}
+                <div className="space-y-2 pt-2 border-t border-gray-700">
+                  <h4 className="text-sm font-medium text-gray-300">Borderline v4: Erweiterte Features</h4>
+                  
+                  {/* Auto-K via GMM+BIC */}
+                  <label className="flex items-center gap-2 text-xs text-gray-400">
+                    <input
+                      type="checkbox"
+                      checked={autoK}
+                      onChange={(e) => setAutoK(e.target.checked)}
+                      disabled={isAnalyzing}
+                      className="rounded"
+                    />
+                    Auto-K via GMM+BIC (automatische Cluster-Anzahl)
+                  </label>
+                  
+                  {/* SLIC Superpixels */}
+                  <label className="flex items-center gap-2 text-xs text-gray-400">
+                    <input
+                      type="checkbox"
+                      checked={useSLIC}
+                      onChange={(e) => setUseSLIC(e.target.checked)}
+                      disabled={isAnalyzing}
+                      className="rounded"
+                    />
+                    SLIC Superpixels (verbesserte Maskierung)
+                  </label>
+                  
+                  {useSLIC && (
+                    <div className="ml-6 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400 w-32">Superpixel-Größe</span>
+                        <input
+                          type="range"
+                          min={8}
+                          max={32}
+                          value={slicStep}
+                          onChange={(e) => setSlicStep(parseInt(e.target.value))}
+                          disabled={isAnalyzing}
+                          className="flex-1"
+                        />
+                        <span className="text-xs text-gray-300 font-mono w-10 text-right">
+                          {slicStep}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400 w-32">Kompaktheit</span>
+                        <input
+                          type="range"
+                          min={5}
+                          max={20}
+                          value={slicM}
+                          onChange={(e) => setSlicM(parseInt(e.target.value))}
+                          disabled={isAnalyzing}
+                          className="flex-1"
+                        />
+                        <span className="text-xs text-gray-300 font-mono w-10 text-right">
+                          {slicM}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Guided Filter */}
+                  <label className="flex items-center gap-2 text-xs text-gray-400">
+                    <input
+                      type="checkbox"
+                      checked={useGuidedFilter}
+                      onChange={(e) => setUseGuidedFilter(e.target.checked)}
+                      disabled={isAnalyzing}
+                      className="rounded"
+                    />
+                    Guided Filter (Masken-Verfeinerung)
+                  </label>
+                  
+                  {useGuidedFilter && (
+                    <div className="ml-6 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400 w-32">Radius</span>
+                        <input
+                          type="range"
+                          min={2}
+                          max={8}
+                          value={guidedR}
+                          onChange={(e) => setGuidedR(parseInt(e.target.value))}
+                          disabled={isAnalyzing}
+                          className="flex-1"
+                        />
+                        <span className="text-xs text-gray-300 font-mono w-10 text-right">
+                          {guidedR}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* ICC Profile Upload */}
+                  <div className="space-y-2">
+                    <label className="text-xs text-gray-400">ICC-Profil (optional):</label>
+                    <input
+                      type="file"
+                      accept=".icc,.icm"
+                      onChange={handleICCUpload}
+                      disabled={isAnalyzing}
+                      className="text-xs text-gray-300 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#9A1A63] file:text-white hover:file:bg-[#7A1550]"
+                    />
+                    {iccInfo?.wtpt && (
+                      <p className="text-xs text-gray-500">
+                        ICC Weißpunkt geladen: X={iccInfo.wtpt[0].toFixed(4)}, Y={iccInfo.wtpt[1].toFixed(4)}, Z={iccInfo.wtpt[2].toFixed(4)}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 mt-2">
+                    Erweiterte Algorithmen für präzisere Farbanalyse, besonders bei Borderline-Farben.
+                  </p>
+                </div>
+
                 {/* Benutzerdefinierte Palette */}
                 <div className="space-y-2 pt-2 border-t border-gray-700">
                   <h4 className="text-sm font-medium text-gray-300">Benutzerdefinierte Palette</h4>
@@ -1406,6 +1598,179 @@ export function GemstoneColorAnalyzer() {
               <FileText className="h-4 w-4" />
               Als JSON exportieren
             </Button>
+            {/* Borderline v4: Enhanced Export Buttons */}
+            {overallImpression && primaryColor && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (!overallImpression || !primaryColor) return;
+                    // Convert to AnalysisData format for export
+                    const analysisData: AnalysisData = {
+                      width: 0,
+                      height: 0,
+                      totalPixels: 0,
+                      usedPixels: 0,
+                      maskRatio: 0,
+                      k: kValue || 5,
+                      clusters: currentImageAnalysis?.allColors?.slice(0, 5).map(c => ({
+                        hex: c.hex,
+                        rgb: [c.rgb.r, c.rgb.g, c.rgb.b] as [number, number, number],
+                        hsv: [0, 0, 0] as [number, number, number],
+                        share: c.percentage / 100,
+                      })) || [],
+                      hsvStats: {
+                        hueMean: 0,
+                        satMean: 0,
+                        valMean: 0,
+                        hueMedian: 0,
+                        satMedian: 0,
+                        valMedian: 0,
+                      },
+                      labStats: primaryColorLab ? {
+                        Lmean: primaryColorLab.L,
+                        aMean: primaryColorLab.a,
+                        bMean: primaryColorLab.b,
+                        Lmedian: primaryColorLab.L,
+                        aMedian: primaryColorLab.a,
+                        bMedian: primaryColorLab.b,
+                      } : {
+                        Lmean: 0,
+                        aMean: 0,
+                        bMean: 0,
+                        Lmedian: 0,
+                        aMedian: 0,
+                        bMedian: 0,
+                      },
+                      refDeltaE: {
+                        hex: '#000000',
+                        dE76: 0,
+                        dE2000: 0,
+                      },
+                      hue: {
+                        mean: overallImpression.borderline?.hueMean || 0,
+                        R: overallImpression.borderline?.hueR || 0,
+                        circVar: 0,
+                        sepDeg: overallImpression.borderline?.peakSeparation || 0,
+                        category: overallImpression.borderline ? {
+                          primary: { name: overallImpression.borderline.primaryCategory, score: overallImpression.borderline.confidence },
+                          secondary: overallImpression.borderline.secondaryCategory ? { name: overallImpression.borderline.secondaryCategory, score: 0 } : null,
+                          conf: overallImpression.borderline.confidence,
+                          borderline: overallImpression.borderline.isBorderline,
+                        } : {
+                          primary: { name: '', score: 0 },
+                          secondary: null,
+                          conf: 0,
+                          borderline: false,
+                        },
+                      },
+                      borderline: overallImpression.borderline ? {
+                        isBorderline: overallImpression.borderline.isBorderline,
+                        primaryCategory: overallImpression.borderline.primaryCategory,
+                        secondaryCategory: overallImpression.borderline.secondaryCategory,
+                        confidence: overallImpression.borderline.confidence,
+                        peakSeparation: overallImpression.borderline.peakSeparation,
+                      } : undefined,
+                    };
+                    exportCSV(analysisData);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  Als CSV exportieren
+                </Button>
+                {reportRef.current && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      if (!overallImpression || !primaryColor || !reportRef.current) return;
+                      const canvas = document.createElement('canvas');
+                      canvas.width = 800;
+                      canvas.height = 600;
+                      const ctx = canvas.getContext('2d');
+                      if (ctx && imagePreview) {
+                        const img = new Image();
+                        img.src = imagePreview;
+                        img.onload = () => {
+                          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                          const analysisData: AnalysisData = {
+                            width: 0,
+                            height: 0,
+                            totalPixels: 0,
+                            usedPixels: 0,
+                            maskRatio: 0,
+                            k: kValue || 5,
+                            clusters: currentImageAnalysis?.allColors?.slice(0, 5).map(c => ({
+                              hex: c.hex,
+                              rgb: [c.rgb.r, c.rgb.g, c.rgb.b] as [number, number, number],
+                              hsv: [0, 0, 0] as [number, number, number],
+                              share: c.percentage / 100,
+                            })) || [],
+                            hsvStats: {
+                              hueMean: 0,
+                              satMean: 0,
+                              valMean: 0,
+                              hueMedian: 0,
+                              satMedian: 0,
+                              valMedian: 0,
+                            },
+                            labStats: primaryColorLab ? {
+                              Lmean: primaryColorLab.L,
+                              aMean: primaryColorLab.a,
+                              bMean: primaryColorLab.b,
+                              Lmedian: primaryColorLab.L,
+                              aMedian: primaryColorLab.a,
+                              bMedian: primaryColorLab.b,
+                            } : {
+                              Lmean: 0,
+                              aMean: 0,
+                              bMean: 0,
+                              Lmedian: 0,
+                              aMedian: 0,
+                              bMedian: 0,
+                            },
+                            refDeltaE: {
+                              hex: '#000000',
+                              dE76: 0,
+                              dE2000: 0,
+                            },
+                            hue: {
+                              mean: overallImpression.borderline?.hueMean || 0,
+                              R: overallImpression.borderline?.hueR || 0,
+                              circVar: 0,
+                              sepDeg: overallImpression.borderline?.peakSeparation || 0,
+                              category: overallImpression.borderline ? {
+                                primary: { name: overallImpression.borderline.primaryCategory, score: overallImpression.borderline.confidence },
+                                secondary: overallImpression.borderline.secondaryCategory ? { name: overallImpression.borderline.secondaryCategory, score: 0 } : null,
+                                conf: overallImpression.borderline.confidence,
+                                borderline: overallImpression.borderline.isBorderline,
+                              } : {
+                                primary: { name: '', score: 0 },
+                                secondary: null,
+                                conf: 0,
+                                borderline: false,
+                              },
+                            },
+                            borderline: overallImpression.borderline ? {
+                              isBorderline: overallImpression.borderline.isBorderline,
+                              primaryCategory: overallImpression.borderline.primaryCategory,
+                              secondaryCategory: overallImpression.borderline.secondaryCategory,
+                              confidence: overallImpression.borderline.confidence,
+                              peakSeparation: overallImpression.borderline.peakSeparation,
+                            } : undefined,
+                          };
+                          exportPDF(analysisData, canvas);
+                        };
+                      }
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Als PDF (v4) exportieren
+                  </Button>
+                )}
+              </>
+            )}
             {savedAnalysisId && session?.user && (
               <Button
                 variant="outline"
@@ -1530,7 +1895,7 @@ export function GemstoneColorAnalyzer() {
                 setPleochroism(correctedPleochroism);
                 
                 // Check consistency and auto-filter varieties if needed
-                const { filterVarietiesByPleochroism, suggestPleochroismFromVarieties } = await import('./utils/gemstoneAnalysis');
+                const { filterVarietiesByPleochroism } = await import('./utils/gemstoneAnalysis');
                 const displayVariety = overallImpression.correctedVariety && overallImpression.correctedVariety.length > 0
                   ? overallImpression.correctedVariety
                   : overallImpression.possibleVariety;
@@ -1607,4 +1972,3 @@ export function GemstoneColorAnalyzer() {
     </div>
   );
 }
-

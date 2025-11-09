@@ -5,7 +5,7 @@ import { getSessionWithUser } from '@/lib/session';
 export async function GET(request: NextRequest) {
   try {
     const { session } = await getSessionWithUser();
-    if (!session || !session.user || (session.user as any).role !== 'ADMIN') {
+    if (!session || session.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -201,4 +201,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

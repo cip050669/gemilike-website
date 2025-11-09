@@ -5,6 +5,7 @@ import {
   getKnowledgeArticleById,
   updateKnowledgeArticle,
   deleteKnowledgeArticle,
+  KnowledgeBaseInput,
 } from '@/lib/services/knowledge.service';
 
 export async function GET(
@@ -18,7 +19,7 @@ export async function GET(
         error: 'Unauthorized - No session. Please log in at /de/admin/login' 
       }, { status: 401 });
     }
-    if ((session.user as { role?: string }).role !== 'ADMIN') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized - Not ADMIN' }, { status: 401 });
     }
 
@@ -59,7 +60,7 @@ export async function PUT(
       hasSession: !!session,
       hasUser: !!session?.user,
       userId: session?.user?.id,
-      role: (session?.user as { role?: string })?.role,
+      role: session?.user?.role,
       email: session?.user?.email,
     });
     
@@ -71,13 +72,13 @@ export async function PUT(
       }, { status: 401 });
     }
     
-    if ((session.user as { role?: string }).role !== 'ADMIN') {
-      console.error('❌ User is not ADMIN:', (session.user as { role?: string }).role);
+    if (session.user.role !== 'ADMIN') {
+      console.error('❌ User is not ADMIN:', session.user.role);
       return NextResponse.json({ error: 'Unauthorized - Not ADMIN' }, { status: 401 });
     }
 
     const { id } = await params;
-    const body = await request.json();
+    const body = (await request.json()) as Partial<KnowledgeBaseInput>;
     const {
       title,
       slug,
@@ -95,7 +96,7 @@ export async function PUT(
       difficulty,
     } = body;
 
-    const updateData: any = {};
+    const updateData: Partial<KnowledgeBaseInput> = {};
     if (title !== undefined) updateData.title = title;
     if (slug !== undefined) updateData.slug = slug;
     if (excerpt !== undefined) updateData.excerpt = excerpt;
@@ -164,4 +165,3 @@ export async function DELETE(
     );
   }
 }
-

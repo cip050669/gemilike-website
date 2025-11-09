@@ -143,14 +143,31 @@ function adaptBradford(
 
 /**
  * Convert XYZ to Lab with specified whitepoint
+ * 
+ * @param xyz XYZ color values
+ * @param whitepoint Whitepoint type ('D65' or 'D50')
+ * @param customWP Optional custom whitepoint from ICC profile [X, Y, Z]
+ * @returns Lab color values
  */
-export function xyzToLab(xyz: XYZ, whitepoint: Whitepoint = 'D65'): Lab {
+export function xyzToLab(xyz: XYZ, whitepoint: Whitepoint = 'D65', customWP?: [number, number, number]): Lab {
   let [x, y, z] = [xyz.x, xyz.y, xyz.z];
   
   // Get reference white for target whitepoint
+  // Priority: customWP > whitepoint
   let Xn: number, Yn: number, Zn: number;
   
-  if (whitepoint === 'D50') {
+  if (customWP) {
+    // Use custom whitepoint (from ICC profile)
+    // Adapt from D65 (since RGB is D65-based) to custom whitepoint
+    [x, y, z] = adaptBradford(
+      [x, y, z],
+      D65_WHITE as [number, number, number],
+      customWP
+    );
+    Xn = customWP[0];
+    Yn = customWP[1];
+    Zn = customWP[2];
+  } else if (whitepoint === 'D50') {
     // If converting to D50, we need to adapt from D65 (since RGB is D65-based)
     [x, y, z] = adaptBradford(
       [x, y, z],
@@ -197,5 +214,45 @@ export function rgbToHex(rgb: RGB): string {
   const g = Math.round(rgb.g * 255).toString(16).padStart(2, '0');
   const b = Math.round(rgb.b * 255).toString(16).padStart(2, '0');
   return `#${r}${g}${b}`;
+}
+
+/**
+ * Bradford chromatic adaptation: Convert XYZ from D65 to D50 or vice versa
+ * 
+ * This is a convenience function that directly converts XYZ values between
+ * D65 and D50 whitepoints using the Bradford transformation.
+ * 
+ * @param X X component of XYZ color
+ * @param Y Y component of XYZ color
+ * @param Z Z component of XYZ color
+ * @param toD50 If true, convert from D65 to D50; if false, convert from D50 to D65
+ * @returns Adapted XYZ values as [X, Y, Z]
+ */
+export function bradfordAdaptXYZ(
+  X: number,
+  Y: number,
+  Z: number,
+  toD50: boolean
+): [number, number, number] {
+  const src = toD50 ? D65_WHITE : D50_WHITE;
+  const dst = toD50 ? D50_WHITE : D65_WHITE;
+  
+  return adaptBradford(
+    [X, Y, Z],
+    src as [number, number, number],
+    dst as [number, number, number]
+  );
+}
+
+/**
+ * Get whitepoint XYZ values
+ * 
+ * @param whitepoint Whitepoint type ('D65' or 'D50')
+ * @returns Whitepoint XYZ values as [X, Y, Z]
+ */
+export function getWhitepointXYZ(whitepoint: Whitepoint): [number, number, number] {
+  return whitepoint === 'D50'
+    ? [D50_WHITE[0], D50_WHITE[1], D50_WHITE[2]]
+    : [D65_WHITE[0], D65_WHITE[1], D65_WHITE[2]];
 }
 

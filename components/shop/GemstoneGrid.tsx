@@ -292,7 +292,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                     e.stopPropagation();
                     return;
                   }
-                  handleMouseDown(e as any);
+                  handleMouseDown(e);
                 }}
               >
                 <h2 className="text-2xl font-semibold text-white flex-1 pr-4 select-none">

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /**
  * WishlistManager Component Tests
  */
@@ -225,4 +226,3 @@ describe('WishlistManager', () => {
     expect(screen.getByText(/lädt merkliste/i)).toBeInTheDocument()
   })
 })
-

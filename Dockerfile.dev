@@ -1,9 +1,10 @@
 # syntax=docker/dockerfile:1.7
 
+ARG NODE_VERSION=22-alpine
+
 # Development Dockerfile
-FROM node:20-alpine
-# Use specific Node.js version for reproducibility
-ARG NODE_VERSION=20-alpine
+FROM node:${NODE_VERSION}
+ARG NODE_VERSION
 
 # Install system dependencies for development (including image processing for color analysis)
 RUN apk add --no-cache \
@@ -55,4 +56,3 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Use dev:lan to allow external connections
 CMD ["npm", "run", "dev:lan"]
-

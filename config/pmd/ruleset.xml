@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Gemilike PMD Ruleset"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+  <description>
+    Lightweight default PMD rules so Codacy Analysis CLI does not fail with "No rules found".
+    Extend this file with additional rule references as your Java coverage grows.
+  </description>
+
+  <rule ref="category/java/bestpractices.xml" />
+  <rule ref="category/java/errorprone.xml" />
+  <rule ref="category/java/performance.xml" />
+  <rule ref="category/java/security.xml/GuardLogStatement" />
+</ruleset>

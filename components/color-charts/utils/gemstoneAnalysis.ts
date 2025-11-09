@@ -3,8 +3,9 @@
  * Provides gemmological analysis based on color data
  */
 
-import { ColorSample } from './imageColorExtraction';
+import { ColorSample, rgbToHsv } from './imageColorExtraction';
 import { deltaE2000 } from './deltaE2000';
+import { circularStatsDeg, softCategory, hueBorderlineFromHist } from './circularStats';
 
 // Re-export deltaE2000 for use in this file
 function calculateDeltaE(lab1: { L: number; a: number; b: number }, lab2: { L: number; a: number; b: number }): number {
@@ -73,6 +74,16 @@ export interface OverallImpression {
   opticalQuality: string;
   overallImpression: string;
   evaluation: string;
+  // Borderline v4: Enhanced analysis
+  borderline?: {
+    isBorderline: boolean;
+    primaryCategory: string;
+    secondaryCategory?: string;
+    confidence: number;
+    hueMean: number;
+    hueR: number;
+    peakSeparation: number;
+  };
 }
 
 /**
@@ -244,7 +255,8 @@ export async function getOverallImpressionAsync(
   colorPurity: number,
   center?: ColorSample[],
   facets?: ColorSample[],
-  shadows?: ColorSample[]
+  shadows?: ColorSample[],
+  allColors?: ColorSample[] // Borderline v4: Optional all colors for hue analysis
 ): Promise<OverallImpression> {
   const { lab, hex } = primaryColor;
   
@@ -289,6 +301,41 @@ export async function getOverallImpressionAsync(
     opticalQuality
   );
 
+  // Borderline v4: Analyze hue distribution for borderline detection
+  let borderlineAnalysis: OverallImpression['borderline'] | undefined;
+  if (allColors && allColors.length > 0) {
+    // Collect hues from all colors
+    const hues: number[] = [];
+    const hueHist = new Array(360).fill(0);
+    
+    for (const color of allColors) {
+      // Convert RGB to HSV to get hue
+      const r = Math.round(color.rgb.r);
+      const g = Math.round(color.rgb.g);
+      const b = Math.round(color.rgb.b);
+      const [h] = rgbToHsv(r, g, b);
+      hues.push(h);
+      hueHist[Math.floor(h) % 360]++;
+    }
+    
+    if (hues.length > 0) {
+      // Circular statistics
+      const circStats = circularStatsDeg(hues);
+      const category = softCategory(circStats.mean);
+      const histAnalysis = hueBorderlineFromHist(hueHist, 3);
+      
+      borderlineAnalysis = {
+        isBorderline: category.borderline,
+        primaryCategory: category.primary.name,
+        secondaryCategory: category.secondary?.name,
+        confidence: category.conf,
+        hueMean: circStats.mean,
+        hueR: circStats.R,
+        peakSeparation: histAnalysis.sepDeg,
+      };
+    }
+  }
+
   return {
     dominantColorTone,
     saturation: satDescription,
@@ -298,6 +345,7 @@ export async function getOverallImpressionAsync(
     opticalQuality,
     overallImpression,
     evaluation,
+    borderline: borderlineAnalysis,
   };
 }
 

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
+import type { ColorChartImportPayload, ColorChartImportResponse } from '@/types/color-charts';
 
 // Helper function to generate slug
 function generateSlug(name: string): string {
@@ -12,6 +14,11 @@ function generateSlug(name: string): string {
 }
 
 // POST - Bulk Import von Farbtafeln (nur Admin)
+interface ColorChartImportRequest {
+  charts: ColorChartImportPayload[];
+  locale?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -21,14 +28,14 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    if ((session.user as { role?: string }).role !== 'ADMIN') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized - Not ADMIN' },
         { status: 401 }
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as ColorChartImportRequest;
     const { charts, locale = 'de' } = body;
 
     if (!Array.isArray(charts) || charts.length === 0) {
@@ -38,9 +45,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const results = {
-      success: [] as any[],
-      errors: [] as string[],
+    const results: ColorChartImportResponse['results'] = {
+      success: [],
+      errors: [],
     };
 
     // Validate hex color regex
@@ -106,7 +113,7 @@ export async function POST(request: NextRequest) {
             slug,
             origin: chartData.origin || null,
             locale: chartData.locale || locale,
-            gia: chartData.gia || {},
+            gia: (chartData.gia || {}) as Prisma.InputJsonValue,
             gradient: chartData.gradient,
             pleochro: chartData.pleochro || [],
             light: chartData.light || 'D55, CRI ≥95',
@@ -140,4 +147,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

@@ -4,6 +4,26 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { deltaE2000 } from '@/components/color-charts/utils/deltaE2000';
 
+interface CorrectionPayload {
+  lab: { L: number; a: number; b: number };
+  hex?: string;
+  originalVariety?: string[];
+  correctedVariety: string[];
+  originalPleochroism?: string | null;
+  correctedPleochroism?: string | null;
+}
+
+interface OverallImpressionJSON {
+  correctedVariety?: string[];
+  correctedPleochroism?: string | null;
+  possibleVariety?: string[];
+  pleochroism?: string | null;
+}
+
+interface PrimaryColorJSON {
+  lab?: { L: number; a: number; b: number };
+}
+
 // POST - Korrektur speichern
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +39,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as CorrectionPayload;
     const { lab, hex, originalVariety, correctedVariety, originalPleochroism, correctedPleochroism } = body;
 
     if (!lab || !correctedVariety || !Array.isArray(correctedVariety)) {
@@ -104,7 +124,7 @@ export async function GET(request: NextRequest) {
     
     // Filtere Analysen mit Korrekturen manuell (Varietät oder Pleochroismus)
     const analysesWithCorrections = analyses.filter((analysis) => {
-      const overallImpression = analysis.overallImpression as any;
+      const overallImpression = analysis.overallImpression as OverallImpressionJSON | null;
       return (overallImpression?.correctedVariety && Array.isArray(overallImpression.correctedVariety) && overallImpression.correctedVariety.length > 0) ||
              overallImpression?.correctedPleochroism;
     });
@@ -112,11 +132,11 @@ export async function GET(request: NextRequest) {
     // Finde ähnliche Farben basierend auf DeltaE2000
     const similarCorrections = analysesWithCorrections
       .map((analysis) => {
-        const primaryColor = analysis.primaryColor as any;
+        const primaryColor = analysis.primaryColor as PrimaryColorJSON | null;
         if (!primaryColor?.lab) return null;
 
         const deltaE = deltaE2000(targetLab, primaryColor.lab);
-        const overallImpression = analysis.overallImpression as any;
+        const overallImpression = analysis.overallImpression as OverallImpressionJSON | null;
         
         // Include if has variety correction OR pleochroism correction
         if (deltaE < 15 && (overallImpression?.correctedVariety || overallImpression?.correctedPleochroism)) {
@@ -150,4 +170,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

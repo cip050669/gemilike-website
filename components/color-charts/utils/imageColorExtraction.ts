@@ -404,7 +404,7 @@ export async function extractColorsFromImage(
         }
 
         // Cluster similar colors
-        const clustered = clusterColors(pixels, whitepoint, kValue);
+        const clustered = clusterColors(pixels, kValue);
         
         // Calculate primary and secondary colors
         const sorted = clustered.sort((a, b) => b.percentage - a.percentage);
@@ -462,7 +462,7 @@ export async function extractColorsFromImage(
  * Cluster similar colors together using improved K-Means with CIEDE2000
  * Uses CIEDE2000 for perceptually uniform color distance
  */
-function clusterColors(colors: ColorSample[], whitepoint: Whitepoint = 'D65', kValue?: number | null): ColorSample[] {
+function clusterColors(colors: ColorSample[], kValue?: number | null): ColorSample[] {
   if (colors.length === 0) return [];
   if (colors.length === 1) {
     colors[0].percentage = 100;
@@ -474,7 +474,7 @@ function clusterColors(colors: ColorSample[], whitepoint: Whitepoint = 'D65', kV
   const k = kValue !== null && kValue !== undefined 
     ? Math.max(3, Math.min(20, kValue)) // Clamp between 3 and 20
     : Math.min(Math.max(3, Math.floor(colors.length / 100)), 20); // Adaptive k
-  const clusters = kMeansClustering(colors, k, 20, whitepoint);
+  const clusters = kMeansClustering(colors, k, 20);
   
   // Normalize percentages
   const total = clusters.reduce((sum, c) => sum + c.percentage, 0);
@@ -490,7 +490,7 @@ function clusterColors(colors: ColorSample[], whitepoint: Whitepoint = 'D65', kV
 /**
  * K-Means clustering using CIEDE2000 distance metric
  */
-function kMeansClustering(colors: ColorSample[], k: number, maxIterations: number = 20, whitepoint: Whitepoint = 'D65'): ColorSample[] {
+function kMeansClustering(colors: ColorSample[], k: number, maxIterations: number = 20): ColorSample[] {
   if (colors.length === 0) return [];
   if (k >= colors.length) {
     // Each color is its own cluster
@@ -880,9 +880,9 @@ export async function analyzeImageRegions(
 
         URL.revokeObjectURL(url);
         resolve({
-          center: clusterColors(center, whitepoint, kValue),
-          facets: clusterColors(facets, whitepoint, kValue),
-          shadows: clusterColors(shadows, whitepoint, kValue),
+          center: clusterColors(center, kValue),
+          facets: clusterColors(facets, kValue),
+          shadows: clusterColors(shadows, kValue),
         });
       } catch (error) {
         URL.revokeObjectURL(url);
@@ -899,3 +899,5 @@ export async function analyzeImageRegions(
   });
 }
 
+// Export helper functions for enhanced color extraction
+export { detectGemstoneMask, calculateColorPurity, rgbToHex, rgbToHsv, luma, detectEdge };

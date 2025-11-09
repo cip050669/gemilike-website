@@ -17,22 +17,40 @@ interface ColorChartEditorProps {
   mode: 'create' | 'edit';
 }
 
+interface ColorChartFormData {
+  name: string;
+  origin: string;
+  gia: {
+    hue: string;
+    tone: string;
+    sat: string;
+  };
+  gradient: string[];
+  pleochro: string[];
+  light: string;
+  note: string;
+  description: string;
+  published: boolean;
+  featured: boolean;
+  order: number;
+}
+
 export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ColorChartFormData>({
     name: chart?.name || '',
-    origin: chart?.origin || '',
+    origin: chart?.origin ?? '',
     gia: {
-      hue: (chart?.gia as any)?.hue || '',
-      tone: (chart?.gia as any)?.tone || '',
-      sat: (chart?.gia as any)?.sat || '',
+      hue: chart?.gia?.hue ?? '',
+      tone: chart?.gia?.tone ?? '',
+      sat: chart?.gia?.sat ?? '',
     },
     gradient: chart?.gradient || ['#FFFFFF'],
     pleochro: chart?.pleochro || [],
     light: chart?.light || 'D55, CRI ≥95',
-    note: chart?.note || '',
-    description: chart?.description || '',
+    note: chart?.note ?? '',
+    description: chart?.description ?? '',
     published: chart?.published || false,
     featured: chart?.featured || false,
     order: chart?.order || 0,
@@ -41,19 +59,29 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
   const [newGradientColor, setNewGradientColor] = useState('#FFFFFF');
   const [newPleochroColor, setNewPleochroColor] = useState('#FFFFFF');
 
-  const handleInputChange = (field: string, value: any) => {
+  type GiaField = keyof ColorChartFormData['gia'];
+  type FormField = Exclude<keyof ColorChartFormData, 'gia'>;
+
+  const handleInputChange = (
+    field: FormField | `gia.${GiaField}`,
+    value: string | number | boolean
+  ) => {
     if (field.startsWith('gia.')) {
-      const giaField = field.split('.')[1];
+      const [, key] = field.split('.');
       setFormData(prev => ({
         ...prev,
         gia: {
           ...prev.gia,
-          [giaField]: value,
+          [key as GiaField]: value as string,
         },
       }));
-    } else {
-      setFormData(prev => ({ ...prev, [field]: value }));
+      return;
     }
+
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const addGradientColor = () => {
@@ -409,4 +437,3 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
     </form>
   );
 }
-

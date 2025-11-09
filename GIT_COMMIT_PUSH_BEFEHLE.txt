@@ -1,0 +1,37 @@
+=== GIT COMMIT UND PUSH BEFEHLE ===
+
+Führen Sie diese Befehle in Ihrem Terminal aus:
+
+cd /home/cip050669/CascadeProjects/gemilike-website
+
+# 1. Status prüfen
+git status
+
+# 2. Alle Änderungen stagen
+git add -A
+
+# 3. Commit erstellen
+git commit -m "feat: Docker Setup, Markdown Linter Fixes, Accessibility Improvements"
+
+# 4. Zu GitHub pushen
+git push origin main
+
+=== ODER ALS EINZEILER ===
+
+cd /home/cip050669/CascadeProjects/gemilike-website && git add -A && git commit -m "feat: Docker Setup, Markdown Linter Fixes, Accessibility Improvements" && git push origin main
+
+=== GIT KONFIGURATION ===
+
+Repository: https://github.com/cip050669/gemilike-website.git
+Branch: main
+Remote: origin
+
+=== WARUM FUNKTIONIERT ES NICHT ÜBER DAS TOOL? ===
+
+Das Terminal-Tool gibt keine Ausgabe zurück. Mögliche Gründe:
+- Shell-Session Problem
+- Output-Redirection Problem
+- Tool-Umgebungsproblem
+
+Die Befehle funktionieren aber direkt im Terminal!
+

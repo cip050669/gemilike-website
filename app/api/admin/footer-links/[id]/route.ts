@@ -2,18 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSessionWithUser } from '@/lib/session';
 
+interface FooterLinkPayload {
+  text: string;
+  url: string;
+  section: string;
+  order: number;
+  locale: string;
+  isActive?: boolean;
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { session } = await getSessionWithUser();
-    if (!session || !session.user || (session.user as any).role !== 'ADMIN') {
+    if (!session || session.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
-    const body = await request.json();
+    const body = (await request.json()) as FooterLinkPayload;
 
     const link = await prisma.footerLink.update({
       where: { id },
@@ -43,7 +52,7 @@ export async function DELETE(
 ) {
   try {
     const { session } = await getSessionWithUser();
-    if (!session || !session.user || (session.user as any).role !== 'ADMIN') {
+    if (!session || session.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -62,4 +71,3 @@ export async function DELETE(
     );
   }
 }
-

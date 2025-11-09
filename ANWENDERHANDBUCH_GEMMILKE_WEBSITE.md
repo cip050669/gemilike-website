@@ -1,7 +1,7 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 1.3.0  
-**Stand:** November 2025  
+**Version:** 2.0.0  
+**Stand:** Dezember 2025  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -15,7 +15,12 @@
 5. [Datenbank-Schema](#5-datenbank-schema)
 6. [API-Dokumentation](#6-api-dokumentation)
 7. [Funktionsbeschreibungen](#7-funktionsbeschreibungen)
-8. [Technische Details](#8-technische-details)
+8. [Mathematische und Physikalische Verfahren](#8-mathematische-und-physikalische-verfahren)
+9. [Technische Details](#9-technische-details)
+10. [Deployment & Wartung](#10-deployment--wartung)
+11. [Support & Kontakt](#11-support--kontakt)
+12. [Zusammenfassung](#12-zusammenfassung)
+13. [Schnellreferenz](#13-schnellreferenz)
 
 ---
 
@@ -31,8 +36,10 @@ Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit f
 
 - **E-Commerce-Shop** für Edelsteine
 - **Content-Management** für Blogs, Stories und Wissenswertes
-- **Farbanalyse-System** für Edelstein-Farbanalysen
-- **Farbtafeln-System** für GIA-konforme Farbdarstellungen
+- **Download-Bereich** (`/downloads`) mit drei Hauptbereichen:
+  - **Dokumente**: Kataloge, Zertifikat-Vorlagen, Guides zum Herunterladen
+  - **Farbtafeln**: Interaktive GIA-konforme Farbtafeln mit Filterung, DeltaE2000-Vergleich und Export-Funktionen
+  - **Farbanalyse**: Professionelles Tool zur automatischen Farbanalyse von Edelstein-Bildern mit erweiterten Algorithmen (Borderline v4)
 - **Kundenverwaltung** mit Bestellungen und Rechnungen
 - **Newsletter-Management**
 - **Weltkarte** mit Fundorten
@@ -250,10 +257,12 @@ gemilike-website/
    **Whitepoint-Auswahl:**
    - **D65** (Standard): Standard für sRGB-Displays
    - **D50**: Standard für Druck/ICC-Profile
+   - **ICC-Profil (Borderline v4)**: Automatische Weißpunkt-Extraktion aus ICC-Profilen
    - Bradford-Chromatic-Adaptation für präzise Farbkonvertierung
    
    **K-Means Cluster-Wert:**
-   - **Automatisch**: Adaptive Cluster-Anzahl (3-20) je nach Bildgröße
+   - **Automatisch (Standard)**: Adaptive Cluster-Anzahl (3-20) je nach Bildgröße
+   - **Auto-K via GMM+BIC (Borderline v4)**: Automatische, datengetriebene Clusterzahl (3-8)
    - **Manuell**: Manuelle Festlegung der Cluster-Anzahl (3-20)
    - Beeinflusst die Farb-Extraktion und Genauigkeit
    
@@ -262,12 +271,22 @@ gemilike-website/
    - **Sehr dunkel filtern**: Filtert sehr dunkle Pixel (Schwelle: 0-60)
    - **Niedrige Sättigung filtern**: Filtert ungesättigte Pixel (Schwelle: 0-30)
    - **Smart Mask**: Intelligente Kanten-Erkennung für bessere Segmentierung
+   - **SLIC Superpixels (Borderline v4)**: Segmentierung in homogene Regionen
+     - Superpixel-Größe: 8-32 Pixel (default: 16)
+     - Kompaktheit: 5-30 (default: 10)
+   - **Guided Filter (Borderline v4)**: Edge-preserving Glättung
+     - Radius: 2-8 Pixel (default: 4)
    - Anpassbare Schwellenwerte für alle Filter
    
    **Benutzerdefinierte Palette:**
    - Manuelles Hinzufügen von HEX-Farben
    - Vergleich der Primärfarbe mit benutzerdefinierten Paletten
    - Integration in Palette-Vergleich
+   
+   **Borderline v4: Erweiterte Features:**
+   - **ICC-Profil-Upload**: Hochladen von ICC-Profilen (.icc, .icm) für präzise Farbanalyse
+   - **Borderline-Erkennung**: Automatische Erkennung von Grenzfarben zwischen Kategorien
+   - **Erweiterte Export-Formate**: CSV und PDF (v4) mit Borderline-Informationen
    
    **OpenCV GrabCut (Erweiterte Segmentierung):**
    - Präzise Hintergrund-Trennung mit OpenCV.js
@@ -301,6 +320,7 @@ gemilike-website/
 6. **Export-Funktionen**
    - **PNG-Export**: Hochauflösendes Bild (2x Skalierung) mit allen Ergebnissen
    - **JSON-Export**: Vollständige Analyse-Daten im JSON-Format
+   - **CSV-Export (Borderline v4)**: Tabellarische Zusammenfassung für weitere Analyse
    - **PDF-Export**: Professioneller PDF-Bericht mit:
      - Primärfarbe und Palette-Vergleich
      - Sekundärfarben
@@ -309,6 +329,7 @@ gemilike-website/
      - GIA-Bewertung
      - Gesamteindruck
      - Erweiterte Parameter (Whitepoint, K-Value, etc.)
+   - **PDF-Export (v4) (Borderline v4)**: Erweiterter PDF-Bericht mit Borderline-Informationen
 
 7. **Speichern in Datenbank**
    - Authentifizierung erforderlich
@@ -1376,7 +1397,38 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 9. **Lernsystem** - Lernen aus manuellen Korrekturen
 10. **Export-Funktionen** - PNG, JSON, PDF
 
-**Erweiterte Features:**
+**Erweiterte Features (Borderline v4):**
+
+#### Borderline v4: Erweiterte Algorithmen
+
+**K-Means++ mit Auto-K via GMM+BIC:**
+- **K-Means++ Initialisierung:** Intelligente Startpunkte für bessere Cluster-Qualität
+- **Auto-K Bestimmung:** Automatische Clusterzahl-Bestimmung (3-8) via Gaussian Mixture Model mit Bayesian Information Criterion
+- **Stabile Clusterzahl:** Vermeidet Über- oder Unter-Clustering
+- **Vorteil:** Datengetriebene, optimale Clusterzahl pro Bild
+
+**SLIC Superpixels + Guided Filter:**
+- **SLIC Superpixels:** Segmentierung in homogene Regionen für robustere Maskierung
+- **Guided Filter:** Edge-preserving Glättung der Maske basierend auf Bildintensität
+- **Majority Voting:** Entscheidung pro Superpixel basierend auf Mehrheit
+- **Vorteil:** Glattere Masken, weniger Randkontamination, bessere Kantenerkennung
+
+**ICC-Profil-Unterstützung:**
+- **ICC-Parser:** Extrahiert Weißpunkt (wtpt) und RGB-Colorant-XYZ aus ICC-Profilen
+- **Bradford-Adaptation:** Automatische Farbkonvertierung zum ICC-Weißpunkt
+- **Priorität:** ICC-Weißpunkt hat Vorrang über D50/D65 Toggle
+- **Vorteil:** Präzise Farbanalyse mit korrektem Farbprofil
+
+**Borderline-Erkennung:**
+- **Zirkuläre Statistik:** Korrekte Berechnung von Hue-Mittelwerten (0° = 360°)
+- **Soft Category Classification:** Wahrscheinlichkeits-basierte Farbkategorisierung
+- **Hue Histogram Peak Detection:** Erkennung mehrerer Farb-Peaks (z.B. bei Pleochroismus)
+- **Vorteil:** Erkennung von Grenzfarben zwischen Kategorien (z.B. Gelbgrün/Grün)
+
+**Erweiterte Export-Funktionen:**
+- **JSON-Export:** Vollständige Analyse-Daten inkl. Borderline-Informationen
+- **CSV-Export:** Tabellarische Zusammenfassung für weitere Analyse
+- **PDF-Export (v4):** Detaillierter Bericht mit allen neuen Features
 
 #### Whitepoint-Auswahl
 - **D65** (Standard): Standard für sRGB-Displays, Tageslicht-ähnlich
@@ -1385,9 +1437,10 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - Beeinflusst alle Farbberechnungen (Lab, ΔE2000, etc.)
 
 #### K-Means Clustering
-- **Automatisch**: Adaptive Cluster-Anzahl (3-20) basierend auf Bildgröße
+- **Automatisch (Standard)**: Adaptive Cluster-Anzahl (3-20) basierend auf Bildgröße
+- **Auto-K via GMM+BIC (Borderline v4)**: Automatische, datengetriebene Clusterzahl (3-8) via Gaussian Mixture Model
 - **Manuell**: Benutzerdefinierte Cluster-Anzahl (3-20)
-- **k-means++ Initialisierung**: Optimierte Startwerte
+- **K-Means++ Initialisierung**: Optimierte Startwerte für bessere Ergebnisse
 - **CIEDE2000-Distanz**: Wahrnehmungsgerechte Farbdistanz
 - **Gewichtete Durchschnitte**: Berücksichtigt Pixel-Gewichte
 
@@ -1402,6 +1455,16 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
   - **Schwarz-Filter**: Filtert sehr dunkle Pixel (Schwelle: 0-60)
   - **Sättigungs-Filter**: Filtert ungesättigte Pixel (Schwelle: 0-30)
   - **Smart Mask**: Intelligente Kanten-Erkennung
+- **SLIC Superpixels (Borderline v4)**:
+  - Segmentierung in homogene Regionen
+  - Superpixel-Größe einstellbar (8-32 Pixel, default: 16)
+  - Kompaktheit einstellbar (5-30, default: 10)
+  - Verbessert Masken-Qualität durch räumliche Zusammenhänge
+- **Guided Filter (Borderline v4)**:
+  - Edge-preserving Glättung der Maske
+  - Radius einstellbar (2-8 Pixel, default: 4)
+  - Regularisierung einstellbar (10⁻⁶ bis 10⁻², default: 10⁻³)
+  - Glattere Masken ohne Verlust von Kanten
 - **OpenCV GrabCut** (optional):
   - Präzise Hintergrund-Trennung
   - Rechteck-Initialisierung
@@ -1423,10 +1486,18 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 **Technische Details:**
 - **Algorithmus:** CIEDE2000 für Farbvergleiche
 - **Farbraum:** Lab (CIE L*a*b*) mit Whitepoint-Unterstützung
-- **Clustering:** K-Means für Farb-Clustering (adaptiv oder manuell)
+- **Clustering:** 
+  - Standard: K-Means (adaptiv oder manuell)
+  - Borderline v4: K-Means++ mit Auto-K via GMM+BIC
+- **Segmentierung:**
+  - Standard: Automatische Hintergrund-Erkennung
+  - Borderline v4: SLIC Superpixels + Guided Filter
+  - Optional: OpenCV GrabCut
 - **Edge Detection:** Für Facetten-Erkennung
 - **Adaptive Sampling:** Für wichtige Bildbereiche
-- **Bradford-Adaptation:** Für Whitepoint-Konvertierung
+- **Bradford-Adaptation:** Für Whitepoint-Konvertierung (D65 ↔ D50 ↔ ICC)
+- **ICC-Profil-Unterstützung:** Automatische Weißpunkt-Extraktion und -Verwendung
+- **Borderline-Erkennung:** Zirkuläre Statistik + Soft Category Classification
 - **OpenCV.js:** Für GrabCut-Segmentierung (optional)
 
 **Datenbank:**
@@ -1436,6 +1507,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
   - `maskingOptions` (JSON, optional)
   - `customPalette` (JSON: string[], optional)
   - `paletteComparisons` (JSON: PaletteComparison[], optional)
+  - `borderline` (JSON, optional) - Borderline v4: Borderline-Analyse-Ergebnisse
 - Korrekturen werden in `overallImpression.correctedVariety` gespeichert
 
 ---
@@ -1553,9 +1625,502 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ---
 
-## 8. Technische Details
+## 8. Mathematische und Physikalische Verfahren
 
-### 8.1 Authentifizierung & Autorisierung
+Dieser Abschnitt erklärt alle mathematischen und physikalischen Algorithmen, die im Farbanalyse-System verwendet werden. Die Erklärungen sind so formuliert, dass sie auch für Nicht-Mathematiker verständlich sind.
+
+---
+
+### 8.1 Farbraum-Konvertierungen
+
+#### 8.1.1 RGB → XYZ Konvertierung
+
+**Zweck:** Umwandlung von Bildschirm-Farben (RGB) in einen geräteunabhängigen Farbraum (XYZ).
+
+**Physikalischer Hintergrund:**
+- RGB ist geräteabhängig (jeder Monitor zeigt Farben leicht anders)
+- XYZ ist ein absoluter Farbraum, der auf menschlicher Farbwahrnehmung basiert
+- XYZ beschreibt Farben durch drei Werte: X (Rot-Anteil), Y (Helligkeit), Z (Blau-Anteil)
+
+**Mathematische Formel:**
+```
+1. Gamma-Korrektur (sRGB → Linear RGB):
+   - Wenn R ≤ 0.04045: R_linear = R / 12.92
+   - Sonst: R_linear = ((R + 0.055) / 1.055)^2.4
+   (Gleiches für G und B)
+
+2. Matrix-Multiplikation (sRGB → XYZ):
+   [X]   [0.4124  0.3576  0.1805] [R_linear]
+   [Y] = [0.2126  0.7152  0.0722] [G_linear]
+   [Z]   [0.0193  0.1192  0.9505] [B_linear]
+```
+
+**Warum wichtig?** 
+- XYZ ist die Basis für alle weiteren Farbberechnungen
+- Ermöglicht präzise Farbvergleiche unabhängig vom Ausgabegerät
+
+---
+
+#### 8.1.2 XYZ → Lab (CIE L*a*b*) Konvertierung
+
+**Zweck:** Umwandlung in einen wahrnehmungsgerechten Farbraum, in dem Abstände der menschlichen Farbwahrnehmung entsprechen.
+
+**Physikalischer Hintergrund:**
+- Lab wurde entwickelt, damit gleiche Abstände im Lab-Raum auch gleichen wahrgenommenen Farbunterschieden entsprechen
+- L* = Helligkeit (0 = schwarz, 100 = weiß)
+- a* = Rot-Grün-Achse (positiv = rot, negativ = grün)
+- b* = Gelb-Blau-Achse (positiv = gelb, negativ = blau)
+
+**Mathematische Formel:**
+```
+1. Normalisierung mit Weißpunkt (Xn, Yn, Zn):
+   fx = f(X/Xn)
+   fy = f(Y/Yn)
+   fz = f(Z/Zn)
+
+2. f-Funktion (nichtlinear):
+   f(t) = t^(1/3) wenn t > (6/29)^3
+   f(t) = (1/3) * (29/6)^2 * t + 4/29 sonst
+
+3. Lab-Berechnung:
+   L* = 116 * fy - 16
+   a* = 500 * (fx - fy)
+   b* = 200 * (fy - fz)
+```
+
+**Warum wichtig?**
+- Lab ist der Standard-Farbraum für Farbanalyse
+- Ermöglicht präzise Farbvergleiche (Delta E)
+- Wird von GIA (Gemological Institute of America) verwendet
+
+---
+
+#### 8.1.3 Bradford Chromatic Adaptation
+
+**Zweck:** Anpassung von Farbwerten zwischen verschiedenen Beleuchtungsbedingungen (z.B. Tageslicht D65 → D50).
+
+**Physikalischer Hintergrund:**
+- Farben sehen unter verschiedenen Lichtquellen unterschiedlich aus
+- D65 = Tageslicht (6500K Farbtemperatur) - Standard für Monitore
+- D50 = Neutralweiß (5000K) - Standard für Druck/ICC-Profile
+- Bradford-Transformation simuliert, wie das menschliche Auge Farben unter verschiedenen Lichtquellen wahrnimmt
+
+**Mathematische Formel:**
+```
+1. Konvertierung in "Cone Response" Domain:
+   [L]   [0.8951  0.2664  -0.1614] [X]
+   [M] = [-0.7502 1.7135  0.0367]  [Y]
+   [S]   [0.0389  -0.0685 1.0296]  [Z]
+
+2. Skalierung mit Weißpunkt-Verhältnis:
+   L' = L * (Yn_dest / Yn_source)
+   M' = M * (Yn_dest / Yn_source)
+   S' = S * (Zn_dest / Zn_source)
+
+3. Rückkonvertierung:
+   [X']   [0.9869929  -0.1470543  0.1599627] [L']
+   [Y'] = [0.4323053  0.5183603  0.0492912]  [M']
+   [Z']   [-0.0085287 0.0400428  0.9684867]  [S']
+```
+
+**Warum wichtig?**
+- Ermöglicht präzise Farbanalyse unter verschiedenen Beleuchtungsbedingungen
+- Notwendig für ICC-Profil-Unterstützung
+- Wichtig für professionelle Farbanalyse
+
+---
+
+### 8.2 Clustering-Algorithmen
+
+#### 8.2.1 K-Means Clustering
+
+**Zweck:** Gruppierung ähnlicher Farben in Cluster, um die dominanten Farben eines Edelsteins zu identifizieren.
+
+**Grundprinzip:**
+1. **Initialisierung:** Wähle K zufällige Farben als Cluster-Zentren (Centroids)
+2. **Zuordnung:** Weise jeden Pixel dem nächstgelegenen Cluster zu
+3. **Aktualisierung:** Berechne neue Cluster-Zentren als Durchschnitt aller zugeordneten Pixel
+4. **Wiederholung:** Wiederhole Schritt 2-3 bis Konvergenz (keine Änderungen mehr)
+
+**Mathematische Formel:**
+```
+Distanz zwischen Pixel p und Cluster c:
+d(p, c) = √[(R_p - R_c)² + (G_p - G_c)² + (B_p - B_c)²]
+
+Neues Cluster-Zentrum:
+c_new = (1/n) * Σ(p_i) für alle Pixel p_i im Cluster
+```
+
+**Parameter:**
+- **K:** Anzahl der Cluster (3-20, typischerweise 5-8)
+- **Max Iterationen:** Maximale Anzahl Wiederholungen (typischerweise 20-25)
+
+**Warum wichtig?**
+- Identifiziert die dominanten Farben eines Edelsteins
+- Reduziert Millionen von Pixeln auf wenige repräsentative Farben
+- Basis für alle weiteren Analysen
+
+---
+
+#### 8.2.2 K-Means++ Initialisierung
+
+**Zweck:** Intelligente Auswahl der Startpunkte für K-Means, um bessere Ergebnisse zu erzielen.
+
+**Problem mit Standard K-Means:**
+- Zufällige Initialisierung kann zu schlechten Ergebnissen führen
+- Cluster können zu nah beieinander starten
+- Kann zu lokalen Minima führen
+
+**K-Means++ Lösung:**
+1. Wähle ersten Centroid zufällig
+2. Für jeden weiteren Centroid:
+   - Berechne Abstand jedes Pixels zum nächstgelegenen existierenden Centroid
+   - Wähle Pixel mit größtem Abstand (höhere Wahrscheinlichkeit für weit entfernte Pixel)
+
+**Mathematische Formel:**
+```
+Wahrscheinlichkeit für Pixel p als nächster Centroid:
+P(p) = d(p, nearest_centroid)² / Σ(d(q, nearest_centroid)²)
+```
+
+**Vorteile:**
+- Bessere Cluster-Verteilung
+- Schnellere Konvergenz
+- Weniger lokale Minima
+- ~30% bessere Ergebnisse im Durchschnitt
+
+---
+
+#### 8.2.3 Gaussian Mixture Model (GMM) mit BIC
+
+**Zweck:** Automatische Bestimmung der optimalen Anzahl von Farb-Clustern (K).
+
+**Grundprinzip:**
+- Statt manuell K zu wählen, testet GMM verschiedene K-Werte (3-8)
+- Für jedes K wird ein Gaussian Mixture Model trainiert
+- BIC (Bayesian Information Criterion) bewertet jedes Modell
+- Modell mit niedrigstem BIC-Wert wird gewählt
+
+**Gaussian Mixture Model:**
+- Jeder Cluster wird als Gaußsche Verteilung (Normalverteilung) modelliert
+- Jede Verteilung hat Mittelwert (μ) und Varianz (σ²)
+- Wahrscheinlichkeit, dass ein Pixel zu einem Cluster gehört, wird berechnet
+
+**Mathematische Formel:**
+```
+Wahrscheinlichkeit für Pixel x in Cluster k:
+P(x|k) = (1/√(2πσ²)) * exp(-(x-μ)²/(2σ²))
+
+BIC (Bayesian Information Criterion):
+BIC = -2 * log(Likelihood) + k * log(n)
+wobei:
+- Likelihood = Wahrscheinlichkeit der Daten unter dem Modell
+- k = Anzahl Parameter
+- n = Anzahl Datenpunkte
+```
+
+**Vorteile:**
+- Automatische, datengetriebene Clusterzahl
+- Vermeidet Über-Clustering (zu viele Cluster)
+- Vermeidet Unter-Clustering (zu wenige Cluster)
+- Optimal für jedes Bild individuell
+
+---
+
+### 8.3 Bildsegmentierung
+
+#### 8.3.1 SLIC Superpixels
+
+**Zweck:** Segmentierung des Bildes in homogene Regionen (Superpixels), um präzisere Masken zu erstellen.
+
+**Grundprinzip:**
+- Statt pixelweise zu arbeiten, werden Pixel in Gruppen (Superpixels) zusammengefasst
+- Superpixels sind homogene Regionen mit ähnlichen Farben und Positionen
+- Verbessert Masken-Qualität durch Berücksichtigung von Nachbarschaften
+
+**Algorithmus:**
+1. **Initialisierung:** Platziere Cluster-Zentren in regelmäßigem Gitter (Abstand = step)
+2. **Zuordnung:** Weise jeden Pixel dem nächstgelegenen Cluster zu (basierend auf Farbe + Position)
+3. **Aktualisierung:** Berechne neues Cluster-Zentrum als Durchschnitt aller zugeordneten Pixel
+4. **Wiederholung:** Wiederhole 2-3 für 10 Iterationen
+
+**Mathematische Formel:**
+```
+Distanz zwischen Pixel p und Cluster c:
+d = √[(dc/m)² + (ds/S)²]
+wobei:
+- dc = Farbdistanz (RGB): √[(R_p-R_c)² + (G_p-G_c)² + (B_p-B_c)²]
+- ds = Raumdistanz (XY): √[(x_p-x_c)² + (y_p-y_c)²]
+- m = Kompaktheits-Parameter (10-30, default: 10)
+- S = Superpixel-Größe (step)
+```
+
+**Parameter:**
+- **step:** Superpixel-Größe (8-32 Pixel, default: 16)
+- **m:** Kompaktheit (5-30, default: 10) - höher = kompaktere Superpixels
+
+**Vorteile:**
+- Glattere Masken
+- Weniger Randkontamination
+- Bessere Kantenerkennung
+- Berücksichtigt räumliche Zusammenhänge
+
+---
+
+#### 8.3.2 Guided Filter
+
+**Zweck:** Glättung einer Maske unter Beibehaltung scharfer Kanten, basierend auf dem Originalbild.
+
+**Grundprinzip:**
+- Verwendet das Originalbild als "Führung" (Guide)
+- Glättet die Maske, aber nur dort, wo das Originalbild auch glatt ist
+- Erhält scharfe Kanten dort, wo das Originalbild Kanten hat
+
+**Mathematische Formel:**
+```
+Für jeden Pixel i:
+1. Berechne lokale Mittelwerte (Box-Filter):
+   mean_I = Durchschnitt von I in Fenster um i
+   mean_p = Durchschnitt von p (Maske) in Fenster um i
+
+2. Berechne lokale Varianz:
+   var_I = Varianz von I in Fenster um i
+
+3. Berechne Koeffizienten:
+   a = cov(I, p) / (var_I + ε)
+   b = mean_p - a * mean_I
+
+4. Glättung:
+   q_i = a * I_i + b
+```
+
+**Parameter:**
+- **r:** Radius des Glättungsfensters (2-8 Pixel, default: 4)
+- **ε:** Regularisierung (10⁻⁶ bis 10⁻², default: 10⁻³) - verhindert Division durch Null
+
+**Vorteile:**
+- Glattere Masken ohne Verlust von Kanten
+- Weniger Rauschen
+- Bessere Qualität als einfache Glättung
+- Edge-preserving (kantenerhaltend)
+
+---
+
+### 8.4 Farbdistanz-Metriken
+
+#### 8.4.1 CIEDE2000 (Delta E 2000)
+
+**Zweck:** Berechnung der wahrgenommenen Farbdistanz zwischen zwei Farben im Lab-Farbraum.
+
+**Physikalischer Hintergrund:**
+- Einfache euklidische Distanz in Lab entspricht nicht der menschlichen Wahrnehmung
+- CIEDE2000 berücksichtigt:
+  - Unterschiedliche Empfindlichkeit in verschiedenen Farbbereichen
+  - Chroma (Sättigung) und Hue (Farbton) Interaktionen
+  - Helligkeits-Kompensation
+
+**Mathematische Formel (vereinfacht):**
+```
+1. Berechne Hilfsvariablen:
+   C* = √(a*² + b*²)  (Chroma)
+   h = atan2(b*, a*)  (Hue-Winkel)
+
+2. Gewichtungen:
+   SL = 1 + (0.015 * (L* - 50)²) / √(20 + (L* - 50)²)
+   SC = 1 + 0.045 * C*
+   SH = 1 + 0.015 * C* * T
+
+3. Delta E 2000:
+   ΔE00 = √[(ΔL'/SL)² + (ΔC'/SC)² + (ΔH'/SH)² + RT * (ΔC'/SC) * (ΔH'/SH)]
+```
+
+**Interpretation:**
+- **ΔE00 < 1:** Unterschied ist für das menschliche Auge nicht wahrnehmbar
+- **ΔE00 < 3:** Sehr ähnliche Farben (professionell akzeptabel)
+- **ΔE00 < 6:** Ähnliche Farben (für Laien kaum unterscheidbar)
+- **ΔE00 > 6:** Deutlich unterschiedliche Farben
+
+**Warum wichtig?**
+- Standard-Metrik für Farbvergleiche in der Industrie
+- Wird von GIA verwendet
+- Präziseste verfügbare Metrik für Farbdistanz
+
+---
+
+### 8.5 Zirkuläre Statistik
+
+#### 8.5.1 Zirkuläre Statistik für Hue
+
+**Zweck:** Berechnung von Mittelwert und Streuung für Hue-Werte, die zirkulär sind (0° = 360°).
+
+**Problem:**
+- Standard-Mittelwert funktioniert nicht für zirkuläre Daten
+- Beispiel: Mittelwert von 350° und 10° sollte 0° sein, nicht 180°
+
+**Lösung:**
+- Konvertiere Hue-Werte in Einheitsvektoren auf einem Kreis
+- Summiere Vektoren
+- Berechne Mittelwert aus resultierendem Vektor
+
+**Mathematische Formel:**
+```
+1. Konvertiere zu Einheitsvektoren:
+   x = Σ cos(h_i)
+   y = Σ sin(h_i)
+
+2. Berechne Mittelwert:
+   mean = atan2(y, x)  (in Grad)
+
+3. Resultant Length (Kompaktheit):
+   R = √((x/n)² + (y/n)²)
+   - R = 1: Alle Werte identisch
+   - R = 0: Gleichmäßige Verteilung
+
+4. Zirkuläre Varianz:
+   circVar = 1 - R
+```
+
+**Anwendung:**
+- Erkennung von Borderline-Farben (Farben zwischen Kategorien)
+- Analyse von Pleochroismus (mehrere Farbrichtungen)
+- Bewertung der Farbkonsistenz
+
+---
+
+#### 8.5.2 Soft Category Classification
+
+**Zweck:** Klassifizierung einer Farbe in Kategorien mit Wahrscheinlichkeits-Scores statt harter Zuordnung.
+
+**Grundprinzip:**
+- Statt "Diese Farbe IST Grün" → "Diese Farbe ist zu 70% Grün, 25% Gelbgrün, 5% Blaugrün"
+- Verwendet Gaußsche Wahrscheinlichkeitsverteilung
+- Ermöglicht Erkennung von Borderline-Farben
+
+**Mathematische Formel:**
+```
+Wahrscheinlichkeit für Kategorie k:
+P(k) = exp(-0.5 * (d/σ)²)
+wobei:
+- d = zirkuläre Distanz zum Kategorie-Zentrum
+- σ = Standard-Abweichung (Breite) der Kategorie
+
+Konfidenz:
+conf = P(primary) - P(secondary)
+
+Borderline-Erkennung:
+borderline = conf < 0.15
+```
+
+**Kategorien:**
+- Gelb (90°), Gelbgrün (75°), Grün (140°), Blaugrün (190°)
+- Blau (240°), Blauviolett (280°), Violett (300°)
+- Rotviolett (330°), Rot (0°), Rotorange (20°), Orange (40°)
+
+**Vorteile:**
+- Realistischere Farbklassifikation
+- Erkennung von Grenzfarben
+- Quantifizierung von Unsicherheit
+
+---
+
+#### 8.5.3 Hue Histogram Peak Detection
+
+**Zweck:** Erkennung mehrerer Farb-Peaks im Hue-Histogramm (z.B. bei Pleochroismus).
+
+**Grundprinzip:**
+1. Erstelle Histogramm der Hue-Werte (360 Bins für 0-360°)
+2. Glätte Histogramm (Moving Average)
+3. Finde lokale Maxima (Peaks)
+4. Berechne Abstand zwischen Peaks
+
+**Mathematische Formel:**
+```
+1. Glättung (Moving Average):
+   smoothed[i] = (1/(2s+1)) * Σ(hist[j]) für j = i-s bis i+s
+   wobei s = Smoothing-Radius (default: 3)
+
+2. Peak-Erkennung:
+   Peak bei i wenn:
+   smoothed[i] > smoothed[i-1] UND smoothed[i] > smoothed[i+1]
+
+3. Peak-Abstand:
+   d = min(|peak1 - peak2|, 360 - |peak1 - peak2|)
+```
+
+**Anwendung:**
+- Erkennung von Pleochroismus (mehrere dominante Farbrichtungen)
+- Analyse von Farbübergängen
+- Bewertung der Farbkomplexität
+
+---
+
+### 8.6 ICC-Profil-Verarbeitung
+
+#### 8.6.1 ICC-Profil-Parsing
+
+**Zweck:** Extraktion von Farbraum-Informationen aus ICC-Profilen.
+
+**ICC-Profil-Struktur:**
+- **Header (128 Bytes):** Signatur, Version, Gerätetyp, Farbraum
+- **Tag-Tabelle:** Liste aller Tags mit Offsets und Größen
+- **Tag-Daten:** Tatsächliche Farbraum-Informationen
+
+**Wichtige Tags:**
+- **wtpt:** Weißpunkt (XYZ-Werte)
+- **rXYZ, gXYZ, bXYZ:** RGB-Colorant XYZ-Werte
+
+**Mathematische Formel:**
+```
+1. Tag-Offset lesen (32-bit big-endian):
+   offset = (buf[i] << 24) | (buf[i+1] << 16) | (buf[i+2] << 8) | buf[i+3]
+
+2. s15Fixed16 zu Float:
+   value = (int >> 16) + ((int & 0xFFFF) / 65536)
+
+3. XYZ-Werte extrahieren:
+   X = s15Fixed16(buf[offset + 8])
+   Y = s15Fixed16(buf[offset + 12])
+   Z = s15Fixed16(buf[offset + 16])
+```
+
+**Anwendung:**
+- Präzise Farbanalyse mit korrektem Weißpunkt
+- Unterstützung für verschiedene Farbprofile
+- Professionelle Farbverarbeitung
+
+---
+
+### 8.7 Zusammenfassung der Algorithmen
+
+**Farbraum-Konvertierungen:**
+- RGB → XYZ: Gamma-Korrektur + Matrix
+- XYZ → Lab: Nichtlineare Transformation mit Weißpunkt
+- Bradford-Adaptation: Weißpunkt-Konvertierung
+
+**Clustering:**
+- K-Means: Standard-Clustering
+- K-Means++: Intelligente Initialisierung
+- GMM+BIC: Automatische Clusterzahl
+
+**Segmentierung:**
+- SLIC: Superpixel-Generierung
+- Guided Filter: Edge-preserving Glättung
+
+**Farbdistanz:**
+- CIEDE2000: Wahrnehmungsgerechte Metrik
+
+**Statistik:**
+- Zirkuläre Statistik: Hue-Analyse
+- Soft Classification: Wahrscheinlichkeits-basierte Kategorisierung
+- Peak Detection: Mehrfach-Peak-Erkennung
+
+**Alle diese Algorithmen arbeiten zusammen, um eine präzise, professionelle Farbanalyse von Edelsteinen zu ermöglichen.**
+
+---
+
+## 9. Technische Details
+
+### 9.1 Authentifizierung & Autorisierung
 
 **NextAuth.js Konfiguration:**
 - Credentials-Provider für E-Mail/Passwort
@@ -1570,7 +2135,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ---
 
-### 8.2 Internationalisierung
+### 9.2 Internationalisierung
 
 **next-intl:**
 - Mehrsprachigkeit (de, en)
@@ -1580,7 +2145,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ---
 
-### 8.3 Bildverarbeitung
+### 9.3 Bildverarbeitung
 
 **Sharp:**
 - Bildoptimierung
@@ -1594,7 +2159,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ---
 
-### 8.4 PDF-Generierung
+### 9.4 PDF-Generierung
 
 **@react-pdf/renderer:**
 - Rechnungen als PDF
@@ -1603,7 +2168,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ---
 
-### 8.5 State Management
+### 9.5 State Management
 
 **Zustand:**
 - Warenkorb-State
@@ -1617,7 +2182,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ---
 
-### 8.6 Performance-Optimierungen
+### 9.6 Performance-Optimierungen
 
 - **Next.js Standalone Output** - Für Docker
 - **Image Optimization** - Next.js Image Component
@@ -1627,7 +2192,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ---
 
-### 8.7 Sicherheit
+### 9.7 Sicherheit
 
 - **CSRF-Schutz** - NextAuth.js
 - **XSS-Schutz** - React automatisch
@@ -1638,9 +2203,9 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ---
 
-## 9. Deployment & Wartung
+## 10. Deployment & Wartung
 
-### 9.1 Docker-Setup
+### 10.1 Docker-Setup
 
 **Production:**
 ```bash
@@ -1656,7 +2221,7 @@ docker-compose -f docker-compose.dev.yml up -d
 
 ---
 
-### 9.2 Datenbank-Migrationen
+### 10.2 Datenbank-Migrationen
 
 ```bash
 # Migrationen ausführen
@@ -1668,7 +2233,7 @@ npx prisma generate
 
 ---
 
-### 9.3 Backup-Strategie
+### 10.3 Backup-Strategie
 
 **Empfohlene Backups:**
 - Tägliche Datenbank-Backups
@@ -1677,16 +2242,16 @@ npx prisma generate
 
 ---
 
-## 10. Support & Kontakt
+## 11. Support & Kontakt
 
-### 10.1 Dokumentation
+### 11.1 Dokumentation
 
 - **Farbtafeln & Farbanalyse:** `DOKUMENTATION_FARBTAFELN_UND_FARBANALYSE.md`
 - **Docker:** `DOCKER_SETUP.md`
 - **API-Routen:** `ROUTES.md`
 - **Datenbank-Analyse:** `ANALYSE_FUNKTIONEN_DATENBANK.md`
 
-### 10.2 Troubleshooting
+### 11.2 Troubleshooting
 
 **Häufige Probleme:**
 1. **Session-Probleme:** Cookies löschen, neu einloggen
@@ -1696,9 +2261,9 @@ npx prisma generate
 
 ---
 
-## 11. Zusammenfassung
+## 12. Zusammenfassung
 
-### 11.1 Website-Übersicht
+### 12.1 Website-Übersicht
 
 Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
@@ -1708,7 +2273,7 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 - **100+ API-Endpunkte** für Backend-Funktionalität
 - **13.000+ Zeilen Code** für Farbtafeln und Farbanalyse
 
-### 11.2 Hauptfunktionen
+### 12.2 Hauptfunktionen
 
 #### Öffentliche Bereiche
 1. **E-Commerce:** Shop, Warenkorb, Checkout, Bestellungen
@@ -1726,7 +2291,7 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 6. **Analytics:** Dashboard, Reports, Checkout-Analytics, Audit-Log
 7. **Spezial-Features:** Farbtafeln, Farbanalysen
 
-### 11.3 Technologie-Highlights
+### 12.3 Technologie-Highlights
 
 - **Next.js 15.5.4** - Modernes React-Framework
 - **PostgreSQL + Prisma** - Type-safe Datenbankzugriff
@@ -1735,14 +2300,14 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 - **CIEDE2000** - Präzise Farbanalyse
 - **Docker** - Containerisierung für Deployment
 
-### 11.4 Datenbank-Statistik
+### 12.4 Datenbank-Statistik
 
 - **27 Haupt-Models**
 - **15 Enums** für typsichere Werte
 - **50+ Relations** zwischen Models
 - **100+ Indexes** für Performance
 
-### 11.5 Code-Statistik
+### 12.5 Code-Statistik
 
 - **Farbtafeln:** 8.174 Zeilen Code
 - **Farbanalyse:** 4.883 Zeilen Code
@@ -1751,9 +2316,9 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
 ---
 
-## 12. Schnellreferenz
+## 13. Schnellreferenz
 
-### 12.1 Wichtige URLs
+### 13.1 Wichtige URLs
 
 #### Öffentlich
 - Startseite: `/` oder `/de`
@@ -1772,7 +2337,7 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 - Farbtafeln: `/admin/color-charts`
 - Farbanalysen: `/admin/gemstone-analyses`
 
-### 12.2 Wichtige API-Endpunkte
+### 13.2 Wichtige API-Endpunkte
 
 #### Öffentlich
 - `POST /api/contact` - Kontaktformular
@@ -1786,7 +2351,7 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 - `GET /api/admin/customers` - Kunden abrufen
 - `GET /api/admin/orders` - Bestellungen abrufen
 
-### 12.3 Datenbank-Models (Kurzübersicht)
+### 13.3 Datenbank-Models (Kurzübersicht)
 
 **E-Commerce:**
 - Customer, Order, OrderItem, Cart, CartItem, Wishlist
@@ -1807,11 +2372,26 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
 **Ende des Anwenderhandbuchs**
 
-*Letzte Aktualisierung: 7.11.2025*  
-*Version: 1.3.0*  
-*Gesamt: 1.650+ Zeilen Dokumentation*
+*Letzte Aktualisierung: Dezember 2025*  
+*Version: 2.0.0*  
+*Gesamt: 2.200+ Zeilen Dokumentation*
 
 ## Änderungsprotokoll
+
+### Version 2.0.0 (Dezember 2025)
+- **Borderline v4: Erweiterte Farbanalyse-Funktionen:**
+  - K-Means++ Initialisierung für bessere Cluster-Qualität
+  - Auto-K via GMM+BIC für automatische, datengetriebene Clusterzahl
+  - SLIC Superpixels für verbesserte Maskierung
+  - Guided Filter für edge-preserving Masken-Glättung
+  - ICC-Profil-Unterstützung mit automatischer Weißpunkt-Extraktion
+  - Borderline-Erkennung mit zirkulärer Statistik und Soft Category Classification
+  - Hue Histogram Peak Detection für Pleochroismus-Analyse
+  - Erweiterte Export-Funktionen (CSV, PDF v4)
+- **Mathematische Dokumentation:**
+  - Umfassende Erklärung aller verwendeten Algorithmen
+  - Mathematische Formeln und physikalische Hintergründe
+  - Verständliche Erklärungen für Nicht-Mathematiker
 
 ### Version 1.3.0 (7.11.2025)
 - **Erweiterte Farbanalyse-Funktionen:**

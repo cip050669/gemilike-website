@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 
 // Helper function to generate slug
 function generateSlug(name: string): string {
@@ -22,10 +23,10 @@ export async function GET(request: NextRequest) {
 
     // Check if user is admin
     const session = await getServerSession(authOptions);
-    const isAdmin = session?.user && (session.user as { role?: string }).role === 'ADMIN';
+    const isAdmin = session?.user?.role === 'ADMIN';
 
     // Build where clause
-    const where: any = {
+    const where: Prisma.ColorChartWhereInput = {
       locale,
     };
 
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    if ((session.user as { role?: string }).role !== 'ADMIN') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized - Not ADMIN' },
         { status: 401 }
@@ -200,4 +201,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

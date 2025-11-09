@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /**
  * AddToCartButton Component Tests
  */
@@ -197,4 +198,3 @@ describe('AddToCartButton', () => {
     expect(screen.getByRole('button', { name: /In den Warenkorb/i })).toBeInTheDocument()
   })
 })
-

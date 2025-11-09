@@ -3,9 +3,51 @@
  * Provides GrabCut segmentation and brush tools for precise gemstone masking
  */
 
+type ScalarLike = unknown;
+
+interface CVMat {
+  delete(): void;
+  ucharPtr(row: number, col: number): Uint8Array;
+}
+
+interface MatConstructor {
+  new (...args: unknown[]): CVMat;
+  zeros(rows: number, cols: number, type: number): CVMat;
+}
+
+interface OpenCVModule {
+  Mat: MatConstructor;
+  CV_8UC1: number;
+  GC_FGD: number;
+  GC_BGD: number;
+  GC_PR_FGD: number;
+  GC_INIT_WITH_MASK: number;
+  GC_INIT_WITH_RECT: number;
+  matFromImageData(imageData: ImageData): CVMat;
+  circle(mat: CVMat, point: { x: number; y: number }, radius: number, color: ScalarLike, thickness: number): void;
+  Point: new (x: number, y: number) => { x: number; y: number };
+  Scalar: new (...values: number[]) => ScalarLike;
+  grabCut(
+    src: CVMat,
+    mask: CVMat,
+    rect: unknown,
+    bgdModel: CVMat,
+    fgdModel: CVMat,
+    iterCount: number,
+    mode: number
+  ): void;
+  Rect: new (x?: number, y?: number, width?: number, height?: number) => RectRegion;
+}
+
+type OpenCVLike = OpenCVModule & {
+  onRuntimeInitialized?: () => void;
+  then?: Promise<OpenCVModule>['then'];
+  catch?: Promise<OpenCVModule>['catch'];
+};
+
 declare global {
   interface Window {
-    cv: any;
+    cv?: OpenCVLike;
   }
 }
 
@@ -50,7 +92,7 @@ export async function loadOpenCV(): Promise<boolean> {
       if (success) {
         return true;
       }
-    } catch (error) {
+    } catch {
       console.warn(`OpenCV.js konnte nicht von ${urls[i]} geladen werden.`);
       if (i === urls.length - 1) {
         // Last URL failed - return false instead of throwing
@@ -107,37 +149,39 @@ function tryLoadOpenCV(url: string): Promise<boolean> {
         attempts++;
         
         // Check if cv is available directly
-        if (window.cv) {
+        const cvGlobal = window.cv;
+        if (cvGlobal) {
           // Check if it's a Promise
-          if (typeof window.cv.then === 'function') {
+          if (typeof cvGlobal.then === 'function') {
             // It's a Promise, wait for it
-            window.cv.then((cv: any) => {
-              window.cv = cv;
-              if (window.cv.Mat && typeof window.cv.Mat === 'function') {
-                console.log(`OpenCV.js erfolgreich geladen von ${url} (Promise)`);
-                if (!resolved) {
-                  resolved = true;
-                  resolve(true);
-                }
-              } else {
-                if (!resolved && attempts < maxAttempts) {
+            (cvGlobal as unknown as Promise<OpenCVModule>)
+              .then((cvModule) => {
+                window.cv = cvModule;
+                if (window.cv && window.cv.Mat && typeof window.cv.Mat === 'function') {
+                  console.log(`OpenCV.js erfolgreich geladen von ${url} (Promise)`);
+                  if (!resolved) {
+                    resolved = true;
+                    resolve(true);
+                  }
+                } else if (!resolved && attempts < maxAttempts) {
                   setTimeout(checkCV, 200);
                 } else if (!resolved) {
                   resolved = true;
                   reject(new Error('OpenCV Promise resolved but Mat not available'));
                 }
-              }
-            }).catch((error: any) => {
-              if (!resolved) {
-                resolved = true;
-                reject(new Error(`OpenCV Promise rejected: ${error}`));
-              }
-            });
+              })
+              .catch((error: unknown) => {
+                console.error(`OpenCV Promise rejected from ${url}:`, error);
+                if (!resolved) {
+                  resolved = true;
+                  reject(new Error(`OpenCV Promise rejected: ${String(error)}`));
+                }
+              });
             return;
           }
           
           // Direct cv object
-          if (window.cv.Mat && typeof window.cv.Mat === 'function') {
+          if (cvGlobal.Mat && typeof cvGlobal.Mat === 'function') {
             console.log(`OpenCV.js erfolgreich geladen von ${url}`);
             if (!resolved) {
               resolved = true;
@@ -147,9 +191,9 @@ function tryLoadOpenCV(url: string): Promise<boolean> {
           }
           
           // Check for onRuntimeInitialized
-          if (window.cv.onRuntimeInitialized) {
-            window.cv.onRuntimeInitialized = () => {
-              if (window.cv.Mat && typeof window.cv.Mat === 'function') {
+          if (typeof cvGlobal.onRuntimeInitialized === 'function') {
+            cvGlobal.onRuntimeInitialized = () => {
+              if (cvGlobal.Mat && typeof cvGlobal.Mat === 'function') {
                 console.log(`OpenCV.js erfolgreich geladen von ${url} (onRuntimeInitialized)`);
                 if (!resolved) {
                   resolved = true;
@@ -175,7 +219,7 @@ function tryLoadOpenCV(url: string): Promise<boolean> {
       checkCV();
     };
     
-    script.onerror = (error) => {
+    script.onerror = () => {
       // Don't log as error if it's just a network issue - this is expected for some CDNs
       console.warn(`OpenCV.js konnte nicht von ${url} geladen werden. Versuche nächste URL...`);
       if (!resolved) {
@@ -205,17 +249,17 @@ export function applyGrabCut(
   bgStrokes: BrushStroke[],
   rectRegion: RectRegion | null
 ): Uint8ClampedArray | null {
-  if (!window.cv) {
+  const cv = window.cv;
+  if (!cv) {
     return null;
   }
 
   try {
-    const cv = window.cv;
-    const { width, height, data } = imageData;
+    const { width, height } = imageData;
     
     // Create OpenCV Mat from ImageData
     const src = cv.matFromImageData(imageData);
-    const mask = new cv.Mat.zeros(height, width, cv.CV_8UC1);
+    const mask = cv.Mat.zeros(height, width, cv.CV_8UC1);
     const bgdModel = new cv.Mat();
     const fgdModel = new cv.Mat();
 
@@ -317,4 +361,3 @@ export function applyGrabCut(
     return null;
   }
 }
-

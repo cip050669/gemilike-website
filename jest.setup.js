@@ -23,7 +23,7 @@ jest.mock('next/navigation', () => ({
 // Mock Next.js image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ alt = '', src, width, height, fill: _fill, priority: _priority, onLoadingComplete: _onLoadingComplete, ...rest }) => {
+  default: ({ alt = '', src, width, height, ...rest }) => {
     const resolvedSrc = typeof src === 'string' ? src : src?.src ?? ''
     // eslint-disable-next-line @next/next/no-img-element
     return <img alt={alt} src={resolvedSrc} width={width} height={height} {...rest} />
@@ -115,14 +115,14 @@ if (typeof global.Request === 'undefined') {
   try {
     // Check if undici is available
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const undici = require('undici')
+    require('undici')
     // undici exports fetch, not directly Request/Response in older versions
     // But in newer versions, we can use the global fetch which includes Request/Response
     if (global.fetch && global.fetch.constructor) {
       // If fetch exists, Request/Response might be available via other means
       try {
         // Try to get Request from fetch
-        const testReq = new global.fetch.constructor('https://example.com')
+        new global.fetch.constructor('https://example.com')
         // If this works, Request is available
       } catch {
         // Fallback: set up basic polyfill
@@ -150,7 +150,7 @@ if (typeof global.Request === 'undefined') {
         }
       }
     }
-  } catch (e) {
+  } catch {
     // Fallback polyfill
     global.Request = class Request {
       constructor(input, init = {}) {
