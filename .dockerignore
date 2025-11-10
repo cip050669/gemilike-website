@@ -76,6 +76,7 @@ tsconfig.*.json
 .tmp
 .temp
 *.tmp
+*.backup
 
 # OS files
 .DS_Store
@@ -84,3 +85,7 @@ Thumbs.db
 # Python (if any)
 **/__pycache__
 **/*.pyc
+
+# Build artifacts
+tsconfig.tsbuildinfo
+*.tsbuildinfo

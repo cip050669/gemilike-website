@@ -86,6 +86,8 @@ services:
       - ./public/gemstone-analyses:/app/public/gemstone-analyses
       # Persist color chart data (if needed)
       - ./data:/app/data:ro
+      # Persist color chart exports (if stored locally)
+      - ./public/color-charts:/app/public/color-charts
     networks:
       - gemilike-network
     command: >

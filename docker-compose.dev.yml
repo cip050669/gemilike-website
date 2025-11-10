@@ -72,6 +72,8 @@ services:
       - ./public/gemstone-analyses:/app/public/gemstone-analyses
       # Mount data directory for color charts
       - ./data:/app/data
+      # Persist color chart exports (if stored locally)
+      - ./public/color-charts:/app/public/color-charts
     networks:
       - gemilike-dev-network
     command: npm run dev
