@@ -1,6 +1,7 @@
-GESCHICHTEN UM EDELSTEINE# Shop Relaunch – Architektur- & Implementierungsplan
+# Shop Relaunch – Architektur- & Implementierungsplan
 
 ## 1. Hosting & Infrastruktur (Strato-fokussiert)
+
 - **Server-Basis:** Virtueller oder dedizierter Strato-Server (Ubuntu 22.04 LTS) mit Docker + Docker Compose.
 - **Runtime:** Node.js 20 LTS (Next.js App Router) + pnpm oder npm (gemäß Projektstandard).
 - **Prozess-Layout:**
@@ -21,6 +22,7 @@ datasource db {
 ```
 
 ### Kern-Tabellen
+
 | Tabelle | Zweck | Schlüssel-Felder |
 | --- | --- | --- |
 | `Gemstone` | Stammdaten je Stein | `id`, `slug`, `status (draft/review/published/archived)`, `category`, `name`, `shortDescription`, `longDescription`, `origin`, `isNew`, `isSold`, `featured`, `createdAt`, `updatedAt` |
@@ -34,16 +36,18 @@ datasource db {
 | `Cart` & `CartItem` | Warenkorb | `customerId` (oder temporärer `sessionId`), `gemstoneId`, `quantity`, `priceSnapshot` |
 | `Order` | Bestellungen | `id`, `orderNumber`, `customerId`, `status`, `subtotal`, `taxAmount`, `shippingAmount`, `total`, `currency`, `paymentStatus`, `paymentMethod`, `placedAt` |
 | `OrderItem` | Positionen | `orderId`, `gemstoneId`, `quantity`, `unitPrice`, `unitNet`, `unitTax`, `weightSnapshot`, `attributesSnapshot` |
-| `Invoice`, `InvoiceItem` | Rechnungsfluss wie bestehend, erweitert um `pdfStorageKey`, `sentBy` |
+| `Invoice`, `InvoiceItem` | Rechnungsfluss wie bestehend, erweitert um `pdfStorageKey`, `sentBy` | `id`, `invoiceNumber`, `orderId`, `customerId`, `status`, `subtotal`, `taxAmount`, `total`, `currency`, `pdfStorageKey`, `sentBy`, `createdAt`, `dueDate` |
 | `DownloadGrant` | Download-/Dokumentzugriff nach Kauf | `id`, `customerId`, `gemstoneId?`, `orderId?`, `resourceType`, `resourceKey`, `grantedAt`, `expiresAt`, `downloadCount`, `maxDownloads` |
 | `AuditLog` | Admin-Änderungen | `id`, `actorId`, `action`, `entity`, `entityId`, `metadata`, `ipAddress`, `createdAt` |
 
 ### Erweiterbarkeit
+
 - Strukturierte JSON-Spalten (`attributesJson`, `metadata`) für zusätzliche Spezialdaten.
 - Versionierung via `GemstoneVersion` (optional) für Freigabeprozesse.
 - Indizes für `isNew`, `isSold`, `status`, `category`, `priceGross`, `createdAt`.
 
 ## 3. API-/Server-Action-Konzept
+
 - Alle Shop-Read-Flows als Server Components + Revalidate-Strategie (`revalidateTag('gemstones:list')`).
 - Mutationen via Server Actions (Admin) mit Role Guard (RBAC) + Audit-Logging.
 - Kundenaktionen (Wishlist, Cart, Checkout) via Server Actions, die Session/Token prüfen.
@@ -52,6 +56,7 @@ datasource db {
 - Background Jobs (BullMQ + Redis) für PDF-Erstellung, Medien-Transcoding, Mailversand.
 
 ## 4. Shop-Frontend (Zielbild)
+
 - **Startseite („Neuheiten“ Block):**
   - Grid 6 Zeilen × 5 Spalten (30 Kacheln) sichtbar, `grid-template-rows: repeat(6, minmax(0, 1fr))`, `grid-auto-rows` für virtuelles Nachladen.
   - Kachel 240×240 px Media (Square, `object-cover`), darunter Info-Stack.
@@ -69,6 +74,7 @@ datasource db {
   - CTA-Zone: Wishlist, Warenkorb, Kontakt/Anfrage (bei „verkauft“ optional).
 
 ## 5. Admin-Panel
+
 - **Listenansicht:**
   - Spalten: Vorschaubild, Name, Kategorie, Preis, Bestand, Status, Badges.
   - Filter: Status, Kategorie, Preisrange, Zertifizierung, `isNew`, `isSold`.
@@ -90,6 +96,7 @@ datasource db {
   - Admin bestätigt (`status = published`) → Trigger `revalidateTag`.
 
 ## 6. Authentifizierung & Konto
+
 - NextAuth (Credentials + WebAuthn Passkeys + optional TOTP).
 - Strategetische Cookies (Secure, HTTPOnly, SameSite=Lax).
 - Kundenkonto notwendig für Kauf, Downloadzugriff, Wunschliste (Gast-Wishlist via local storage synchronisiert bei Login).
@@ -97,12 +104,14 @@ datasource db {
 - Zugriff auf Downloads via signierte URLs + `DownloadGrant`.
 
 ## 7. Rechnungsflow & Payments
+
 - Bestellung → Payment Provider (Stripe/Mollie) → Webhook → `Order` Update → `Invoice` Generation (PDF via serverless Puppeteer oder PDFKit).
 - `Invoice` verlinkt zu `Order`; `InvoiceItem` Snapshot der Positionsdaten.
 - Nach erfolgreicher Zahlung: `DownloadGrant` erstellen (z. B. Zertifikate, Gutachten).
 - Admin-Reports: Umsatz, offene Rechnungen, Lagerbewertung (SQL Views + Admin-UI Karten).
 
 ## 8. Migration & Rollout
+
 1. **Schema-Erstellung:** Neue Prisma-Migration auf PostgreSQL, Tests mit `prisma migrate dev`.
 2. **Seed-Daten:** `prisma/seed.ts` (Demo-Gemstones, Admin-User, Preis-/Inventar-Defaults).
 3. **Datenübernahme (optional):** SQLite Export → Script zur Transformation → Import nach PostgreSQL.
@@ -111,6 +120,7 @@ datasource db {
 6. **Deployment:** CI/CD (GitHub Actions) → Build → Docker push → Compose up auf Strato.
 
 ## 9. Nächste operative Schritte
+
 1. **ERD & Contracts finalisieren:** Tabellen, Relationen, Server-Action-Signaturen.
 2. **Prisma-Schema refactor:** SQLite → PostgreSQL, neue Models umsetzen, Migration erzeugen.
 3. **Service Layer:** Repositorys/Server Actions für Gemstones, Wishlist, Cart, Orders.
@@ -121,4 +131,3 @@ datasource db {
 8. **Infra Setup:** Docker Compose Skripte, Strato-spezifische Hardening, Observability.
 
 > Reset ist akzeptabel – bestehende SQLite-Daten können bei Bedarf migriert oder verworfen werden, sobald PostgreSQL produktiv bereitsteht.
-

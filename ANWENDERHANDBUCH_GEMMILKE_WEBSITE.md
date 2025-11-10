@@ -116,6 +116,7 @@ gemilike-website/
 **Route:** `app/[locale]/page.tsx`
 
 **Funktionalität:**
+
 - Hero-Bereich mit konfigurierbaren Bildern und Texten
 - Newsticker für aktuelle Nachrichten
 - Neue Edelsteine Karussell
@@ -123,6 +124,7 @@ gemilike-website/
 - Newsletter-Anmeldung
 
 **Datenquellen:**
+
 - `HeroSettings` (Hero-Konfiguration)
 - `HeroImage` (Hero-Bilder)
 - `NewstickerItem` (Newsticker-Nachrichten)
@@ -130,6 +132,7 @@ gemilike-website/
 - `Blog` (Blog-Posts)
 
 **Technische Details:**
+
 - Server-Side Rendering (SSR)
 - Dynamische Datenladung aus Datenbank
 - Responsive Design mit Tailwind CSS
@@ -141,12 +144,14 @@ gemilike-website/
 **Route:** `app/[locale]/shop/page.tsx`
 
 **Funktionalität:**
+
 - Übersicht aller verfügbaren Edelsteine
 - Filterung nach Kategorie, Preis, Herkunft
 - Sortierung nach verschiedenen Kriterien
 - Detailansicht einzelner Edelsteine (`/shop/[gemId]`)
 
 **Datenquellen:**
+
 - `Gemstone` (Hauptdaten)
 - `GemstoneAttributes` (Attribute wie Größe, Farbe)
 - `GemstoneInventory` (Lagerbestand)
@@ -154,6 +159,7 @@ gemilike-website/
 - `GemstoneMedia` (Bilder/Videos)
 
 **Features:**
+
 - Erweiterte Suche mit Filtern
 - Warenkorb-Integration
 - Wishlist-Funktion
@@ -166,6 +172,7 @@ gemilike-website/
 **Route:** `app/[locale]/blog/page.tsx`
 
 **Funktionalität:**
+
 - Übersicht aller Blog-Posts
 - Kategorisierung und Tagging
 - Einzelansicht (`/blog/[slug]`)
@@ -173,9 +180,11 @@ gemilike-website/
 - Featured Posts
 
 **Datenquellen:**
+
 - `Blog` Model
 
 **Features:**
+
 - Markdown-Content-Rendering
 - Bildergalerien
 - SEO-optimiert mit Meta-Descriptions
@@ -188,15 +197,18 @@ gemilike-website/
 **Route:** `app/[locale]/wissenswertes/page.tsx`
 
 **Funktionalität:**
+
 - Knowledge Base Artikel
 - Kategorisierung
 - Einzelansicht (`/wissenswertes/[slug]`)
 - Schwierigkeitsgrad-Anzeige
 
 **Datenquellen:**
+
 - `KnowledgeBase` Model
 
 **Features:**
+
 - Strukturierte Artikel
 - Suchfunktion
 - Verwandte Artikel
@@ -208,17 +220,20 @@ gemilike-website/
 **Route:** `app/[locale]/worldmap/page.tsx`
 
 **Funktionalität:**
+
 - Interaktive Karte mit Leaflet
 - Fundorte von Edelsteinen
 - Filterung nach Edelstein-Typ
 - Detailansicht von Fundorten
 
 **Datenquellen:**
+
 - `Location` (Fundorte)
 - `GemType` (Edelstein-Typen)
 - `Country` (Länder)
 
 **Technische Details:**
+
 - Leaflet.js für Karten-Rendering
 - Clustering für viele Marker
 - Popups mit Detailinformationen
@@ -230,11 +245,13 @@ gemilike-website/
 **Route:** `app/[locale]/downloads/page.tsx`
 
 **Funktionalität:**
+
 - Farbtafeln-Download
 - Farbanalyse-Tool (siehe detaillierte Beschreibung unten)
 - Zertifikate-Download (nach Bestellung)
 
 **Features:**
+
 - Farbtafeln-Grid mit Filterung
 - DeltaE2000 Farbvergleich
 - PDF-Export von Farbtafeln
@@ -253,19 +270,19 @@ gemilike-website/
    - Unterstützte Formate: JPG, PNG, WebP
 
 2. **Erweiterte Einstellungen** (ausklappbar)
-   
+
    **Whitepoint-Auswahl:**
    - **D65** (Standard): Standard für sRGB-Displays
    - **D50**: Standard für Druck/ICC-Profile
    - **ICC-Profil (Borderline v4)**: Automatische Weißpunkt-Extraktion aus ICC-Profilen
    - Bradford-Chromatic-Adaptation für präzise Farbkonvertierung
-   
+
    **K-Means Cluster-Wert:**
    - **Automatisch (Standard)**: Adaptive Cluster-Anzahl (3-20) je nach Bildgröße
    - **Auto-K via GMM+BIC (Borderline v4)**: Automatische, datengetriebene Clusterzahl (3-8)
    - **Manuell**: Manuelle Festlegung der Cluster-Anzahl (3-20)
    - Beeinflusst die Farb-Extraktion und Genauigkeit
-   
+
    **Maskierungs-Optionen:**
    - **Hell/Neutral filtern**: Filtert helle und neutrale Pixel (Schwelle: 180-250)
    - **Sehr dunkel filtern**: Filtert sehr dunkle Pixel (Schwelle: 0-60)
@@ -277,17 +294,17 @@ gemilike-website/
    - **Guided Filter (Borderline v4)**: Edge-preserving Glättung
      - Radius: 2-8 Pixel (default: 4)
    - Anpassbare Schwellenwerte für alle Filter
-   
+
    **Benutzerdefinierte Palette:**
    - Manuelles Hinzufügen von HEX-Farben
    - Vergleich der Primärfarbe mit benutzerdefinierten Paletten
    - Integration in Palette-Vergleich
-   
+
    **Borderline v4: Erweiterte Features:**
    - **ICC-Profil-Upload**: Hochladen von ICC-Profilen (.icc, .icm) für präzise Farbanalyse
    - **Borderline-Erkennung**: Automatische Erkennung von Grenzfarben zwischen Kategorien
    - **Erweiterte Export-Formate**: CSV und PDF (v4) mit Borderline-Informationen
-   
+
    **OpenCV GrabCut (Erweiterte Segmentierung):**
    - Präzise Hintergrund-Trennung mit OpenCV.js
    - **Rechteck-Modus**: Initialisierung durch Rechteck-Auswahl
@@ -344,15 +361,18 @@ gemilike-website/
 **Route:** `app/[locale]/about/page.tsx`
 
 **Funktionalität:**
+
 - Über uns Sektionen
 - Firmengeschichte
 - Team-Informationen
 - Bilder und Content
 
 **Datenquellen:**
+
 - `AboutContent` Model (sections)
 
 **Verwaltung:**
+
 - Admin: `/admin/about`
 - Sektionen können verwaltet werden
 - Reihenfolge steuerbar
@@ -364,20 +384,24 @@ gemilike-website/
 **Route:** `app/[locale]/services/page.tsx`
 
 **Funktionalität:**
+
 - Übersicht der angebotenen Leistungen
 - Icons und Beschreibungen
 - Feature-Listen
 - Call-to-Action Buttons
 
 **Datenquellen:**
+
 - `Service` Model
 
 **Verwaltung:**
+
 - Admin: API `/api/admin/services`
 - Reihenfolge steuerbar
 - Aktivierung pro Service
 
 **Angezeigte Leistungen:**
+
 - Edelstein-Beratung
 - Zertifizierung
 - Versand & Lieferung
@@ -390,6 +414,7 @@ gemilike-website/
 **Route:** `app/[locale]/contact/page.tsx`
 
 **Funktionalität:**
+
 - Kontaktformular
 - Firmeninformationen
 - Öffnungszeiten
@@ -397,15 +422,19 @@ gemilike-website/
 - Karte (optional)
 
 **Datenquellen:**
+
 - `ContactData` Model
 
 **Verwaltung:**
+
 - Admin: `/admin/contact-data`
 
 **API:**
+
 - `POST /api/contact` - Kontaktformular senden
 
 **Formular-Felder:**
+
 - Name
 - E-Mail
 - Betreff
@@ -418,6 +447,7 @@ gemilike-website/
 **Komponente:** `components/layout/Footer.tsx`
 
 **Sektionen:**
+
 1. **Kontakt & Social Media**
    - Firmeninformationen aus `ContactData`
    - Social Media Links aus `HeaderData`
@@ -432,6 +462,7 @@ gemilike-website/
    - Dynamisch aus `LegalPage` Model
 
 **Datenquellen:**
+
 - `ContactData` - Kontaktinformationen
 - `HeaderData` - Social Media Links
 - `LegalPage` - Rechtliche Seiten
@@ -439,6 +470,7 @@ gemilike-website/
 - `FooterSection` - Footer-Sektionen (optional)
 
 **API:**
+
 - `GET /api/footer-data` - Footer-Daten abrufen
 
 ---
@@ -446,21 +478,27 @@ gemilike-website/
 ### 3.11 Rechtliche Seiten
 
 #### Impressum (`/impressum` oder `/imprint`)
+
 **Datenquelle:** `LegalPage` (slug: "impressum")
 
 #### Datenschutz (`/datenschutz` oder `/privacy`)
+
 **Datenquelle:** `LegalPage` (slug: "datenschutz")
 
 #### AGB (`/agb` oder `/terms`)
+
 **Datenquelle:** `LegalPage` (slug: "agb")
 
 #### Widerruf (`/widerruf` oder `/returns`)
+
 **Datenquelle:** `LegalPage` (slug: "widerruf")
 
 #### Versand (`/versand` oder `/shipping`)
+
 **Datenquelle:** `LegalPage` (slug: "versand")
 
 #### Cookies (`/cookies`)
+
 **Datenquelle:** `LegalPage` (slug: "cookies")
 
 **Verwaltung:** Alle rechtlichen Seiten können im Admin-Bereich unter `/admin/legal-pages` verwaltet werden.
@@ -470,23 +508,27 @@ gemilike-website/
 ### 3.12 Benutzer-Bereiche
 
 #### Profil (`/profile`)
+
 - Kundeninformationen
 - Bestellhistorie
 - Rechnungen
 - Wishlist-Verwaltung
 
 #### Warenkorb (`/cart`)
+
 - Artikel-Übersicht
 - Mengenänderung
 - Checkout-Vorbereitung
 
 #### Checkout (`/checkout`)
+
 - Adresseingabe
 - Zahlungsmethode
 - Bestellübersicht
 - Bestellbestätigung
 
 #### Bestellungen (`/orders/[id]`)
+
 - Bestelldetails
 - Status-Übersicht
 - Download-Berechtigungen
@@ -500,12 +542,14 @@ gemilike-website/
 **Login:** `/admin/login` oder `/admin/login-simple`
 
 **Rollen:**
+
 - **ADMIN:** Vollzugriff auf alle Funktionen
 - **EDITOR:** Zugriff auf Content-Management
 - **VIEWER:** Nur Lese-Zugriff
 - **CUSTOMER:** Kein Admin-Zugriff
 
 **Authentifizierung:**
+
 - NextAuth.js mit Credentials-Provider
 - Session-basiert
 - Middleware-Schutz für Admin-Routen
@@ -515,16 +559,19 @@ gemilike-website/
 ### 4.2 Dashboard (`/admin/dashboard`)
 
 **Funktionalität:**
+
 - Übersicht über wichtige Kennzahlen
 - Statistiken zu Edelsteinen, Bestellungen, Kunden
 - Charts und Grafiken
 - Schnellzugriff auf wichtige Funktionen
 
 **Datenquellen:**
+
 - Aggregierte Daten aus verschiedenen Models
 - API: `GET /api/admin/dashboard`
 
 **Angezeigte Statistiken:**
+
 - Anzahl Edelsteine (gesamt, veröffentlicht, verkauft)
 - Anzahl Bestellungen (gesamt, offen, erfüllt)
 - Anzahl Kunden
@@ -536,12 +583,14 @@ gemilike-website/
 ### 4.3 Edelstein-Verwaltung (`/admin/gemstones`)
 
 #### Übersicht (`/admin/gemstones`)
+
 - Tabelle aller Edelsteine
 - Filterung nach Status, Kategorie
 - Suche
 - Bulk-Aktionen
 
 #### Neuer Edelstein (`/admin/gemstones/new`)
+
 - Formular für alle Edelstein-Daten
 - Upload von Bildern/Videos
 - Attribute (Größe, Gewicht, Farbe)
@@ -549,12 +598,14 @@ gemilike-website/
 - Inventar-Verwaltung
 
 #### Bearbeiten (`/admin/gemstones/edit/[id]`)
+
 - Vollständige Bearbeitung aller Felder
 - Media-Verwaltung
 - Status-Änderung
 - Veröffentlichung
 
 **Datenbank-Models:**
+
 - `Gemstone` (Hauptdaten)
 - `GemstoneAttributes` (Attribute)
 - `GemstoneInventory` (Lagerbestand)
@@ -563,6 +614,7 @@ gemilike-website/
 - `GemstoneTag` (Tags)
 
 **Status:**
+
 - `DRAFT` - Entwurf
 - `REVIEW` - Zur Prüfung
 - `PUBLISHED` - Veröffentlicht
@@ -573,27 +625,32 @@ gemilike-website/
 ### 4.4 Kunden-Verwaltung (`/admin/customers`)
 
 #### Übersicht (`/admin/customers`)
+
 - Liste aller Kunden
 - Suche nach Name, Email, Kundennummer
 - Filterung nach Status
 
 #### Neuer Kunde (`/admin/customers/new`)
+
 - Erstellung neuer Kunden
 - Verknüpfung mit User-Account
 - Adressverwaltung
 
 #### Bearbeiten (`/admin/customers/edit/[id]`)
+
 - Kundeninformationen bearbeiten
 - Adressen verwalten
 - Notizen hinzufügen
 
 #### Kundenansicht (`/admin/customers/view/[id]`)
+
 - Vollständige Kundenübersicht
 - Bestellhistorie
 - Rechnungen
 - Download-Berechtigungen
 
 **Datenbank-Models:**
+
 - `Customer` (Kundendaten)
 - `User` (User-Account)
 - `Address` (Adressen)
@@ -605,33 +662,39 @@ gemilike-website/
 ### 4.5 Bestell-Verwaltung (`/admin/orders`)
 
 #### Übersicht (`/admin/orders`)
+
 - Liste aller Bestellungen
 - Filterung nach Status, Zahlungsstatus
 - Suche nach Bestellnummer, Kunde
 
 #### Neue Bestellung (`/admin/orders/new`)
+
 - Manuelle Bestellungserstellung
 - Artikel hinzufügen
 - Adressen zuweisen
 
 #### Bearbeiten (`/admin/orders/edit/[id]`)
+
 - Bestelldetails bearbeiten
 - Status ändern
 - Zahlungsstatus aktualisieren
 
 #### Bestellansicht (`/admin/orders/view/[id]`)
+
 - Vollständige Bestellübersicht
 - Artikel-Liste
 - Rechnungsverknüpfung
 - Versandinformationen
 
 **Datenbank-Models:**
+
 - `Order` (Bestelldaten)
 - `OrderItem` (Bestellpositionen)
 - `Address` (Liefer-/Rechnungsadresse)
 - `Customer` (Kunde)
 
 **Status:**
+
 - `PENDING` - Ausstehend
 - `CONFIRMED` - Bestätigt
 - `FULFILLED` - Erfüllt
@@ -639,6 +702,7 @@ gemilike-website/
 - `REFUNDED` - Rückerstattet
 
 **Zahlungsstatus:**
+
 - `UNPAID` - Nicht bezahlt
 - `PENDING` - Ausstehend
 - `PAID` - Bezahlt
@@ -650,22 +714,26 @@ gemilike-website/
 ### 4.6 Rechnungs-Verwaltung (`/admin/rechnungen`)
 
 #### Übersicht (`/admin/rechnungen`)
+
 - Liste aller Rechnungen
 - Filterung nach Status, Zahlungsstatus
 - Suche nach Rechnungsnummer
 
 #### Neue Rechnung (`/admin/rechnungen/neu`)
+
 - Manuelle Rechnungserstellung
 - Verknüpfung mit Bestellung
 - Positionen hinzufügen
 
 **Datenbank-Models:**
+
 - `Invoice` (Rechnungsdaten)
 - `InvoiceItem` (Rechnungspositionen)
 - `BankAccount` (Bankverbindungen)
 - `CompanySettings` (Firmendaten)
 
 **Status:**
+
 - `DRAFT` - Entwurf
 - `ISSUED` - Ausgestellt
 - `SENT` - Gesendet
@@ -674,6 +742,7 @@ gemilike-website/
 - `CANCELLED` - Storniert
 
 **Features:**
+
 - Automatische Rechnungsnummern
 - PDF-Generierung
 - E-Mail-Versand
@@ -684,6 +753,7 @@ gemilike-website/
 ### 4.7 Content-Management
 
 #### Blog-Verwaltung (`/admin/blogs`)
+
 - Erstellen, Bearbeiten, Löschen von Blog-Posts
 - Kategorisierung und Tagging
 - Veröffentlichung steuern
@@ -692,6 +762,7 @@ gemilike-website/
 **Datenbank-Model:** `Blog`
 
 #### Stories-Verwaltung (`/admin/stories`)
+
 - Story-Erstellung und -Verwaltung
 - Kategorisierung
 - Veröffentlichung
@@ -699,6 +770,7 @@ gemilike-website/
 **Datenbank-Model:** `Story`
 
 #### Wissenswertes (`/admin/wissenswertes`)
+
 - Knowledge Base Artikel verwalten
 - Kategorisierung
 - Schwierigkeitsgrad
@@ -707,6 +779,7 @@ gemilike-website/
 **Datenbank-Model:** `KnowledgeBase`
 
 #### Newsticker (`/admin/newsticker`)
+
 - Newsticker-Nachrichten verwalten
 - Zeitbasierte Anzeige
 - Link-Funktionalität
@@ -718,6 +791,7 @@ gemilike-website/
 ### 4.8 Newsletter-Verwaltung (`/admin/newsletter`)
 
 **Funktionalität:**
+
 - Abonnenten-Übersicht
 - Status-Verwaltung (PENDING, CONFIRMED, UNSUBSCRIBED)
 - Export-Funktion
@@ -726,11 +800,13 @@ gemilike-website/
 **Datenbank-Model:** `NewsletterSubscriber`
 
 **Status:**
+
 - `PENDING` - Ausstehend (Bestätigung)
 - `CONFIRMED` - Bestätigt
 - `UNSUBSCRIBED` - Abgemeldet
 
 **API-Endpunkte:**
+
 - `GET /api/admin/newsletter` - Abonnenten abrufen
 - `POST /api/admin/newsletter/[id]/send` - Newsletter senden
 - `GET /api/admin/newsletter/export` - Export als CSV
@@ -740,6 +816,7 @@ gemilike-website/
 ### 4.9 Farbtafeln-Verwaltung (`/admin/color-charts`)
 
 **Funktionalität:**
+
 - Übersicht aller Farbtafeln
 - Erstellen neuer Farbtafeln
 - Bearbeiten bestehender Farbtafeln
@@ -749,6 +826,7 @@ gemilike-website/
 **Datenbank-Model:** `ColorChart`
 
 **Felder:**
+
 - `name` - Name der Farbtafel (z.B. "Mahenge Spinell")
 - `slug` - URL-freundlicher Identifier
 - `origin` - Herkunft
@@ -760,6 +838,7 @@ gemilike-website/
 - `featured` - Featured-Status
 
 **API-Endpunkte:**
+
 - `GET /api/color-charts` - Farbtafeln abrufen
 - `POST /api/color-charts` - Neue Farbtafel erstellen
 - `GET /api/color-charts/[id]` - Einzelne Farbtafel abrufen
@@ -772,6 +851,7 @@ gemilike-website/
 ### 4.10 Farbanalyse-Verwaltung (`/admin/gemstone-analyses`)
 
 **Funktionalität:**
+
 - Übersicht aller Farbanalysen
 - Detailansicht einzelner Analysen
 - Veröffentlichung steuern
@@ -781,6 +861,7 @@ gemilike-website/
 **Datenbank-Model:** `GemstoneAnalysis`
 
 **Gespeicherte Daten (JSON):**
+
 - `primaryColor` - Primärfarbe-Analyse
 - `secondaryColors` - Sekundärfarben
 - `luminanceSaturation` - Helligkeit und Sättigung
@@ -789,6 +870,7 @@ gemilike-website/
 - `overallImpression` - Gesamteindruck (inkl. Varietät-Vorschläge)
 
 **Erweiterte Analyse-Parameter:**
+
 - `whitepoint` - Whitepoint (D50 oder D65, Standard: D65)
 - `kValue` - Manueller K-Means Cluster-Wert (optional)
 - `maskingOptions` - Maskierungs-Einstellungen (optional, nur wenn von Standard abweichend)
@@ -803,6 +885,7 @@ gemilike-website/
 - `paletteComparisons` - Palette-Vergleiche (Array von Vergleichs-Ergebnissen, optional)
 
 **Features:**
+
 - Lernsystem für Varietät-Korrekturen
 - Pleochroismus-Korrektur
 - Export-Funktionen (JSON, PDF)
@@ -811,6 +894,7 @@ gemilike-website/
 - Filterung und Suche nach verschiedenen Kriterien
 
 **Detailansicht (`/admin/gemstone-analyses/[id]`):**
+
 - Vollständige Analyse-Ergebnisse
 - Bild-Vorschau
 - Palette-Vergleiche (wenn vorhanden)
@@ -823,6 +907,7 @@ gemilike-website/
 - Erstellungsdatum und Ersteller
 
 **API-Endpunkte:**
+
 - `GET /api/gemstone-analyses` - Analysen abrufen (mit Filterung nach published)
 - `POST /api/gemstone-analyses` - Analyse speichern (inkl. erweiterte Parameter)
 - `GET /api/gemstone-analyses/[id]` - Einzelne Analyse abrufen
@@ -836,6 +921,7 @@ gemilike-website/
 ### 4.11 System-Verwaltung
 
 #### Einstellungen (`/admin/settings`)
+
 - Firmendaten
 - Rechnungseinstellungen
 - Zahlungsbedingungen
@@ -844,6 +930,7 @@ gemilike-website/
 **Datenbank-Model:** `CompanySettings`
 
 #### Header-Verwaltung (`/admin/header`)
+
 - Logo-Konfiguration
 - Navigation
 - Social Media Links
@@ -852,6 +939,7 @@ gemilike-website/
 **Datenbank-Model:** `HeaderData`
 
 #### Hero-Bild (`/admin/hero-image`)
+
 - Hero-Bilder verwalten
 - Reihenfolge festlegen
 - Aktivierung steuern
@@ -859,6 +947,7 @@ gemilike-website/
 **Datenbank-Model:** `HeroImage`
 
 #### Hero-Einstellungen (API)
+
 - Titel, Untertitel
 - Button-Texte und Links
 - Bild-URL
@@ -866,6 +955,7 @@ gemilike-website/
 **Datenbank-Model:** `HeroSettings`
 
 #### Kontaktdaten (`/admin/contact-data`)
+
 - Firmenname
 - Telefon, E-Mail
 - Adresse
@@ -875,17 +965,20 @@ gemilike-website/
 **Datenbank-Model:** `ContactData`
 
 #### Weltkarte (`/admin/worldmap`)
+
 - Fundorte verwalten
 - Edelstein-Typen verwalten
 - Länder verwalten
 - Bulk-Import
 
 **Datenbank-Models:**
+
 - `Location`
 - `GemType`
 - `Country`
 
 #### Select Options (`/admin/select-options`)
+
 - Dropdown-Optionen verwalten
 - Kategorisierung
 - Reihenfolge
@@ -893,6 +986,7 @@ gemilike-website/
 **Datenbank-Model:** `SelectOption`
 
 #### Piktogramme (`/admin/pictogram-descriptions`)
+
 - Piktogramm-Beschreibungen
 - Icons
 - Reihenfolge
@@ -900,6 +994,7 @@ gemilike-website/
 **Datenbank-Model:** `PictogramDescription`
 
 #### Rechtliche Seiten (`/admin/legal-pages`)
+
 - Impressum, Datenschutz, AGB, etc.
 - Mehrsprachigkeit
 - Aktivierung
@@ -911,6 +1006,7 @@ gemilike-website/
 ### 4.12 Analytics & Reports
 
 #### Checkout-Analytics (`/admin/checkout-analytics`)
+
 - Analyse des Checkout-Prozesses
 - Abbrüche identifizieren
 - Conversion-Optimierung
@@ -918,12 +1014,14 @@ gemilike-website/
 **Datenbank-Model:** `CheckoutEvent`
 
 #### Reports (`/admin/reports`)
+
 - Umsatz-Reports
 - Bestell-Reports
 - Kunden-Reports
 - Export-Funktionen
 
 #### Audit-Log (`/admin/audit`)
+
 - System-Aktivitäten protokollieren
 - Benutzer-Aktionen nachverfolgen
 - Sicherheits-Überwachung
@@ -931,6 +1029,7 @@ gemilike-website/
 **Datenbank-Model:** `AuditLog`
 
 **Protokollierte Aktionen:**
+
 - CREATE, UPDATE, DELETE
 - LOGIN, LOGOUT
 - Zugriff auf geschützte Ressourcen
@@ -940,6 +1039,7 @@ gemilike-website/
 ### 4.13 Weitere Admin-Funktionen
 
 #### Warenkörbe (`/admin/carts`)
+
 - Übersicht aktiver Warenkörbe
 - Abandoned Carts
 - Warenkorb-Details
@@ -947,6 +1047,7 @@ gemilike-website/
 **Datenbank-Model:** `Cart`
 
 #### Wishlists (`/admin/wishlists`)
+
 - Übersicht aller Wishlists
 - Kunden-Wishlists
 - Session-Wishlists
@@ -954,6 +1055,7 @@ gemilike-website/
 **Datenbank-Model:** `Wishlist`
 
 #### Reviews (`/admin/reviews`)
+
 - Kundenbewertungen verwalten
 - Verifizierung
 - Moderation
@@ -961,6 +1063,7 @@ gemilike-website/
 **Datenbank-Model:** `Review`
 
 #### Über uns (`/admin/about`)
+
 - About-Content verwalten
 - Sektionen mit Titel, Content, Bildern
 - Reihenfolge steuern
@@ -969,6 +1072,7 @@ gemilike-website/
 **Datenbank-Model:** `AboutContent`
 
 **Felder:**
+
 - `section` - Sektions-Identifier
 - `title` - Titel der Sektion
 - `content` - Markdown-Content
@@ -980,15 +1084,18 @@ gemilike-website/
 ---
 
 #### Footer-Verwaltung (API)
+
 - Footer-Links verwalten
 - Footer-Sektionen verwalten
 - Reihenfolge steuern
 
 **Datenbank-Models:**
+
 - `FooterLink` - Footer-Links
 - `FooterSection` - Footer-Sektionen
 
 **API-Endpunkte:**
+
 - `GET /api/admin/footer-links` - Links abrufen
 - `POST /api/admin/footer-links` - Link erstellen
 - `GET /api/admin/footer-links/[id]` - Einzelnen Link
@@ -1000,6 +1107,7 @@ gemilike-website/
 ---
 
 #### Services-Verwaltung (API)
+
 - Leistungen verwalten
 - Icons, Beschreibungen
 - Features-Listen
@@ -1007,6 +1115,7 @@ gemilike-website/
 **Datenbank-Model:** `Service`
 
 **API-Endpunkte:**
+
 - `GET /api/admin/services` - Services abrufen
 - `POST /api/admin/services` - Service erstellen
 - `GET /api/admin/services/[id]` - Einzelnen Service
@@ -1022,12 +1131,14 @@ gemilike-website/
 Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 
 #### Benutzer & Authentifizierung
+
 - `User` - Benutzer-Accounts
 - `Account` - OAuth-Accounts
 - `Session` - Session-Tokens
 - `VerificationToken` - E-Mail-Verifizierung
 
 #### E-Commerce
+
 - `Customer` - Kunden
 - `Address` - Adressen
 - `Cart` - Warenkörbe
@@ -1038,6 +1149,7 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 - `WishlistItem` - Wunschlisten-Artikel
 
 #### Edelsteine
+
 - `Gemstone` - Edelsteine
 - `GemstoneAttributes` - Attribute
 - `GemstoneInventory` - Lagerbestand
@@ -1047,18 +1159,21 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 - `Tag` - Tag-Definitionen
 
 #### Rechnungen
+
 - `Invoice` - Rechnungen
 - `InvoiceItem` - Rechnungspositionen
 - `BankAccount` - Bankverbindungen
 - `CompanySettings` - Firmendaten
 
 #### Content
+
 - `Blog` - Blog-Posts
 - `Story` - Stories
 - `KnowledgeBase` - Wissenswertes
 - `LegalPage` - Rechtliche Seiten
 
 #### System
+
 - `HeaderData` - Header-Konfiguration
 - `HeroImage` - Hero-Bilder
 - `HeroSettings` - Hero-Einstellungen
@@ -1082,6 +1197,7 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 - `DownloadGrant` - Download-Berechtigungen
 
 #### Spezial-Features
+
 - `ColorChart` - Farbtafeln
 - `GemstoneAnalysis` - Farbanalysen (inkl. erweiterte Parameter)
 
@@ -1090,38 +1206,47 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 ### 5.2 Wichtige Relations
 
 #### User → Customer
+
 - Ein `User` kann einen `Customer` haben
 - 1:1 Relation
 
 #### Customer → Orders
+
 - Ein `Customer` kann mehrere `Orders` haben
 - 1:N Relation
 
 #### Order → OrderItems
+
 - Eine `Order` hat mehrere `OrderItems`
 - 1:N Relation
 
 #### Gemstone → GemstoneAttributes
+
 - Ein `Gemstone` hat ein `GemstoneAttributes`
 - 1:1 Relation
 
 #### Gemstone → GemstoneInventory
+
 - Ein `Gemstone` hat ein `GemstoneInventory`
 - 1:1 Relation
 
 #### Gemstone → GemstonePrice
+
 - Ein `Gemstone` kann mehrere `GemstonePrice` haben (zeitbasierte Preise)
 - 1:N Relation
 
 #### Gemstone → GemstoneMedia
+
 - Ein `Gemstone` kann mehrere `GemstoneMedia` haben
 - 1:N Relation
 
 #### Order → Invoice
+
 - Eine `Order` kann eine `Invoice` haben
 - 1:1 Relation
 
 #### User → GemstoneAnalysis
+
 - Ein `User` kann mehrere `GemstoneAnalysis` erstellen
 - 1:N Relation
 - `createdById` ist optional (kann NULL sein)
@@ -1133,11 +1258,13 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 **Vollständige Feldbeschreibung:**
 
 #### Basis-Felder
+
 - `id` (String, Primary Key) - Eindeutige ID (CUID)
 - `imageUrl` (String?, optional) - URL zum analysierten Bild
 - `imageName` (String?, optional) - Original-Dateiname
 
 #### Analyse-Ergebnisse (JSON)
+
 - `primaryColor` (Json, required) - Primärfarbe-Analyse
   - Struktur: `PrimaryColorAnalysis`
   - Enthält: hex, rgb, lab, xyz, description, originSuggestion
@@ -1159,6 +1286,7 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 - `pleochroism` (String?, optional) - Pleochroismus-Beschreibung
 
 #### Erweiterte Analyse-Parameter
+
 - `whitepoint` (String?, optional, Default: 'D65')
   - Mögliche Werte: 'D50' | 'D65'
   - Standard: 'D65' (sRGB-Display)
@@ -1194,23 +1322,28 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
   - Nur gespeichert, wenn nicht leer
 
 #### Metadaten
+
 - `locale` (String, Default: 'de') - Sprache der Analyse
 - `notes` (String?, optional) - Zusätzliche Notizen
 - `tags` (String[]) - Tags für Kategorisierung (Array)
 
 #### Status
+
 - `published` (Boolean, Default: false) - Veröffentlichungsstatus
 - `featured` (Boolean, Default: false) - Featured-Status
 
 #### Timestamps
+
 - `createdAt` (DateTime) - Erstellungsdatum (automatisch)
 - `updatedAt` (DateTime) - Aktualisierungsdatum (automatisch)
 
 #### Relations
+
 - `createdById` (String?, optional) - ID des erstellenden Users
 - `createdBy` (User?, optional) - Relation zum User
 
 #### Indizes
+
 - `createdAt` - Für Sortierung nach Datum
 - `published` - Für Filterung nach Veröffentlichungsstatus
 - `createdById` - Für Filterung nach Ersteller
@@ -1220,22 +1353,26 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 ### 5.4 Enums
 
 #### UserRole
+
 - `CUSTOMER` - Standard-Kunde
 - `ADMIN` - Administrator
 - `EDITOR` - Redakteur
 - `VIEWER` - Nur Lese-Zugriff
 
 #### GemstoneStatus
+
 - `DRAFT` - Entwurf
 - `REVIEW` - Zur Prüfung
 - `PUBLISHED` - Veröffentlicht
 - `ARCHIVED` - Archiviert
 
 #### GemstoneCondition
+
 - `CUT` - Geschliffen
 - `ROUGH` - Roh
 
 #### OrderStatus
+
 - `PENDING` - Ausstehend
 - `CONFIRMED` - Bestätigt
 - `FULFILLED` - Erfüllt
@@ -1243,6 +1380,7 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 - `REFUNDED` - Rückerstattet
 
 #### PaymentStatus
+
 - `UNPAID` - Nicht bezahlt
 - `PENDING` - Ausstehend
 - `PAID` - Bezahlt
@@ -1250,6 +1388,7 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 - `REFUNDED` - Rückerstattet
 
 #### InvoiceStatus
+
 - `DRAFT` - Entwurf
 - `ISSUED` - Ausgestellt
 - `SENT` - Gesendet
@@ -1264,39 +1403,48 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 ### 6.1 Öffentliche APIs
 
 #### Cart API
+
 - `GET /api/cart` - Warenkorb abrufen
 - `POST /api/cart` - Artikel hinzufügen
 - `PUT /api/cart` - Warenkorb aktualisieren
 - `DELETE /api/cart` - Artikel entfernen
 
 #### Wishlist API
+
 - `GET /api/wishlist` - Wishlist abrufen
 - `POST /api/wishlist` - Artikel hinzufügen
 - `POST /api/wishlist/sync` - Synchronisierung
 
 #### Orders API
+
 - `POST /api/orders` - Bestellung erstellen
 - `POST /api/orders/confirmation` - Bestätigungs-E-Mail
 
 #### Newsletter API
+
 - `POST /api/newsletter` - Newsletter-Anmeldung
 - `GET /api/newsletter/subscribers` - Abonnenten (nur Admin)
 
 #### Contact API
+
 - `POST /api/contact` - Kontaktformular senden
 
 #### Search API
+
 - `POST /api/search/advanced` - Erweiterte Suche
 
 #### Downloads API
+
 - `GET /api/downloads/files/[fileId]` - Datei-Download
 
 #### Color Charts API
+
 - `GET /api/color-charts` - Farbtafeln abrufen
 - `GET /api/color-charts/[id]` - Einzelne Farbtafel
 - `GET /api/color-charts/[id]/export/json` - JSON-Export
 
 #### Gemstone Analyses API
+
 - `GET /api/gemstone-analyses` - Analysen abrufen
   - Query-Parameter: `locale`, `published` (nur für Admin)
   - Rückgabe: Array von Analysen mit erweiterten Parametern
@@ -1331,6 +1479,7 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 #### Gemstones API
+
 - `GET /api/admin/gemstones` - Edelsteine abrufen
 - `POST /api/admin/gemstones` - Neuen Edelstein erstellen
 - `GET /api/admin/gemstones/[id]` - Einzelnen Edelstein
@@ -1338,6 +1487,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - `DELETE /api/admin/gemstones/[id]` - Edelstein löschen
 
 #### Customers API
+
 - `GET /api/admin/customers` - Kunden abrufen
 - `POST /api/admin/customers` - Neuen Kunden erstellen
 - `GET /api/admin/customers/[id]` - Einzelnen Kunden
@@ -1345,12 +1495,14 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - `DELETE /api/admin/customers/[id]` - Kunden löschen
 
 #### Orders API
+
 - `GET /api/admin/orders` - Bestellungen abrufen
 - `POST /api/admin/orders` - Neue Bestellung erstellen
 - `GET /api/admin/orders/[id]` - Einzelne Bestellung
 - `PUT /api/admin/orders/[id]` - Bestellung aktualisieren
 
 #### Invoices API
+
 - `GET /api/admin/invoices` - Rechnungen abrufen
 - `POST /api/admin/invoices` - Neue Rechnung erstellen
 - `GET /api/admin/invoices/[id]` - Einzelne Rechnung
@@ -1358,6 +1510,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - `POST /api/admin/invoices/[id]/status` - Status ändern
 
 #### Content APIs
+
 - `GET /api/admin/blogs` - Blogs abrufen
 - `POST /api/admin/blogs` - Neuen Blog erstellen
 - `GET /api/admin/blogs/[id]` - Einzelnen Blog
@@ -1365,12 +1518,14 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - `DELETE /api/admin/blogs/[id]` - Blog löschen
 
 Ähnliche APIs für:
+
 - Stories (`/api/admin/stories`)
 - Knowledge Base (`/api/admin/knowledge-base`)
 - Legal Pages (`/api/admin/legal-pages`)
 - Services (`/api/admin/services`)
 
 #### System APIs
+
 - `GET /api/admin/dashboard` - Dashboard-Statistiken
 - `GET /api/admin/header` - Header-Daten
 - `PUT /api/admin/header` - Header aktualisieren
@@ -1386,6 +1541,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 **Zweck:** Automatische Farbanalyse von Edelstein-Bildern mit erweiterten Optionen
 
 **Funktionalität:**
+
 1. **Bild-Upload** - Hochladen eines oder mehrerer Edelstein-Bilder
 2. **Erweiterte Einstellungen** - Whitepoint, K-Value, Maskierungs-Optionen, Custom Palette, GrabCut
 3. **Farb-Extraktion** - Automatische Extraktion der dominanten Farben
@@ -1402,41 +1558,48 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 #### Borderline v4: Erweiterte Algorithmen
 
 **K-Means++ mit Auto-K via GMM+BIC:**
+
 - **K-Means++ Initialisierung:** Intelligente Startpunkte für bessere Cluster-Qualität
 - **Auto-K Bestimmung:** Automatische Clusterzahl-Bestimmung (3-8) via Gaussian Mixture Model mit Bayesian Information Criterion
 - **Stabile Clusterzahl:** Vermeidet Über- oder Unter-Clustering
 - **Vorteil:** Datengetriebene, optimale Clusterzahl pro Bild
 
 **SLIC Superpixels + Guided Filter:**
+
 - **SLIC Superpixels:** Segmentierung in homogene Regionen für robustere Maskierung
 - **Guided Filter:** Edge-preserving Glättung der Maske basierend auf Bildintensität
 - **Majority Voting:** Entscheidung pro Superpixel basierend auf Mehrheit
 - **Vorteil:** Glattere Masken, weniger Randkontamination, bessere Kantenerkennung
 
 **ICC-Profil-Unterstützung:**
+
 - **ICC-Parser:** Extrahiert Weißpunkt (wtpt) und RGB-Colorant-XYZ aus ICC-Profilen
 - **Bradford-Adaptation:** Automatische Farbkonvertierung zum ICC-Weißpunkt
 - **Priorität:** ICC-Weißpunkt hat Vorrang über D50/D65 Toggle
 - **Vorteil:** Präzise Farbanalyse mit korrektem Farbprofil
 
 **Borderline-Erkennung:**
+
 - **Zirkuläre Statistik:** Korrekte Berechnung von Hue-Mittelwerten (0° = 360°)
 - **Soft Category Classification:** Wahrscheinlichkeits-basierte Farbkategorisierung
 - **Hue Histogram Peak Detection:** Erkennung mehrerer Farb-Peaks (z.B. bei Pleochroismus)
 - **Vorteil:** Erkennung von Grenzfarben zwischen Kategorien (z.B. Gelbgrün/Grün)
 
 **Erweiterte Export-Funktionen:**
+
 - **JSON-Export:** Vollständige Analyse-Daten inkl. Borderline-Informationen
 - **CSV-Export:** Tabellarische Zusammenfassung für weitere Analyse
 - **PDF-Export (v4):** Detaillierter Bericht mit allen neuen Features
 
 #### Whitepoint-Auswahl
+
 - **D65** (Standard): Standard für sRGB-Displays, Tageslicht-ähnlich
 - **D50**: Standard für Druck/ICC-Profile, neutraleres Weiß
 - **Bradford-Chromatic-Adaptation**: Automatische Farbkonvertierung zwischen Whitepoints
 - Beeinflusst alle Farbberechnungen (Lab, ΔE2000, etc.)
 
 #### K-Means Clustering
+
 - **Automatisch (Standard)**: Adaptive Cluster-Anzahl (3-20) basierend auf Bildgröße
 - **Auto-K via GMM+BIC (Borderline v4)**: Automatische, datengetriebene Clusterzahl (3-8) via Gaussian Mixture Model
 - **Manuell**: Benutzerdefinierte Cluster-Anzahl (3-20)
@@ -1445,6 +1608,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - **Gewichtete Durchschnitte**: Berücksichtigt Pixel-Gewichte
 
 #### Maskierungs-Optionen
+
 - **Automatische Hintergrund-Erkennung**: Standard-Verfahren
   - Ecken- und Kanten-Sampling
   - Durchschnittliche Hintergrundfarbe
@@ -1472,21 +1636,24 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
   - Dynamisches Laden von OpenCV.js (~8MB)
 
 #### Palette-Vergleich
+
 - **Vordefinierte Paletten**: Vergleich mit Standard-Paletten (z.B. "Saphir-Blau (royal)")
 - **Benutzerdefinierte Paletten**: Manuell hinzugefügte HEX-Farben
 - **ΔE76 und ΔE2000 Metriken**: Zwei verschiedene Farbdistanz-Berechnungen
 - **Beste Übereinstimmungen**: Sortierung nach geringster Farbdistanz
 
 #### Mehrere Bilder
+
 - **Multi-Upload**: Mehrere Bilder in einem Vorgang
 - **Tab-Navigation**: Wechsel zwischen Bildern
 - **Separate Analyse**: Jedes Bild wird unabhängig analysiert
 - **State-Management**: Analyse-Ergebnisse bleiben erhalten beim Wechseln
 
 **Technische Details:**
+
 - **Algorithmus:** CIEDE2000 für Farbvergleiche
 - **Farbraum:** Lab (CIE L*a*b*) mit Whitepoint-Unterstützung
-- **Clustering:** 
+- **Clustering:**
   - Standard: K-Means (adaptiv oder manuell)
   - Borderline v4: K-Means++ mit Auto-K via GMM+BIC
 - **Segmentierung:**
@@ -1501,6 +1668,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - **OpenCV.js:** Für GrabCut-Segmentierung (optional)
 
 **Datenbank:**
+
 - `GemstoneAnalysis` - Gespeicherte Analysen mit erweiterten Parametern:
   - `whitepoint` (String: 'D50' | 'D65')
   - `kValue` (Int, optional)
@@ -1517,6 +1685,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 **Zweck:** GIA-konforme Darstellung von Edelstein-Farben
 
 **Funktionalität:**
+
 1. **Farbtafel-Erstellung** - Erstellen von Farbtafeln mit GIA-Daten
 2. **Gradient-Anzeige** - Visualisierung von Farbverläufen
 3. **Pleochroismus-Visualisierung** - Anzeige von Pleochroismus-Farben
@@ -1524,11 +1693,13 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 5. **Export-Funktionen** - PDF, JSON, Bild-Export
 
 **Technische Details:**
+
 - **GIA-Format:** Hue, Tone, Saturation
 - **Farbraum-Konvertierung:** Hex → RGB → XYZ → Lab
 - **DeltaE2000:** CIEDE2000-Algorithmus für Farbvergleiche
 
 **Datenbank:**
+
 - `ColorChart` - Farbtafeln
 
 ---
@@ -1536,11 +1707,13 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 ### 7.3 E-Commerce-Funktionen
 
 #### Warenkorb
+
 - Session-basierter Warenkorb
 - Persistierung für eingeloggte Benutzer
 - Cookie-basierte Speicherung
 
 #### Checkout-Prozess
+
 1. Warenkorb-Übersicht
 2. Adresseingabe (Lieferung, Rechnung)
 3. Zahlungsmethode
@@ -1548,11 +1721,13 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 5. Bestellbestätigung
 
 **Analytics:**
+
 - Checkout-Events werden protokolliert
 - Abbrüche werden erfasst
 - Conversion-Tracking
 
 #### Bestellverwaltung
+
 - Automatische Bestellnummern
 - Status-Verwaltung
 - E-Mail-Benachrichtigungen
@@ -1563,6 +1738,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 ### 7.4 Rechnungs-System
 
 **Funktionalität:**
+
 1. **Automatische Generierung** - Bei Bestellung
 2. **Manuelle Erstellung** - Im Admin-Bereich
 3. **PDF-Generierung** - Automatische PDF-Erstellung
@@ -1570,6 +1746,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 5. **Zahlungserinnerungen** - Automatische Erinnerungen
 
 **Features:**
+
 - Automatische Rechnungsnummern
 - Firmendaten-Integration
 - Bankverbindungen
@@ -1577,6 +1754,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - Zahlungsstatus-Tracking
 
 **Datenbank:**
+
 - `Invoice` - Rechnungen
 - `InvoiceItem` - Rechnungspositionen
 - `BankAccount` - Bankverbindungen
@@ -1587,6 +1765,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 ### 7.5 Content-Management
 
 #### Blog-System
+
 - Markdown-Editor
 - Bild-Upload
 - Kategorisierung
@@ -1595,6 +1774,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - Mehrsprachigkeit
 
 #### Knowledge Base
+
 - Strukturierte Artikel
 - Kategorisierung
 - Schwierigkeitsgrad
@@ -1602,6 +1782,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - Suchfunktion
 
 #### Stories
+
 - Story-Erstellung
 - Kategorisierung
 - Veröffentlichung
@@ -1612,6 +1793,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 ### 7.6 Newsletter-System
 
 **Funktionalität:**
+
 1. **Anmeldung** - Öffentliche Anmeldung
 2. **Bestätigung** - E-Mail-Bestätigung
 3. **Verwaltung** - Admin-Verwaltung
@@ -1619,6 +1801,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 5. **Export** - CSV-Export
 
 **Status-Verwaltung:**
+
 - PENDING - Wartet auf Bestätigung
 - CONFIRMED - Bestätigt
 - UNSUBSCRIBED - Abgemeldet
@@ -1638,11 +1821,13 @@ Dieser Abschnitt erklärt alle mathematischen und physikalischen Algorithmen, di
 **Zweck:** Umwandlung von Bildschirm-Farben (RGB) in einen geräteunabhängigen Farbraum (XYZ).
 
 **Physikalischer Hintergrund:**
+
 - RGB ist geräteabhängig (jeder Monitor zeigt Farben leicht anders)
 - XYZ ist ein absoluter Farbraum, der auf menschlicher Farbwahrnehmung basiert
 - XYZ beschreibt Farben durch drei Werte: X (Rot-Anteil), Y (Helligkeit), Z (Blau-Anteil)
 
 **Mathematische Formel:**
+
 ```
 1. Gamma-Korrektur (sRGB → Linear RGB):
    - Wenn R ≤ 0.04045: R_linear = R / 12.92
@@ -1655,7 +1840,8 @@ Dieser Abschnitt erklärt alle mathematischen und physikalischen Algorithmen, di
    [Z]   [0.0193  0.1192  0.9505] [B_linear]
 ```
 
-**Warum wichtig?** 
+**Warum wichtig?**
+
 - XYZ ist die Basis für alle weiteren Farbberechnungen
 - Ermöglicht präzise Farbvergleiche unabhängig vom Ausgabegerät
 
@@ -1666,12 +1852,14 @@ Dieser Abschnitt erklärt alle mathematischen und physikalischen Algorithmen, di
 **Zweck:** Umwandlung in einen wahrnehmungsgerechten Farbraum, in dem Abstände der menschlichen Farbwahrnehmung entsprechen.
 
 **Physikalischer Hintergrund:**
+
 - Lab wurde entwickelt, damit gleiche Abstände im Lab-Raum auch gleichen wahrgenommenen Farbunterschieden entsprechen
 - L* = Helligkeit (0 = schwarz, 100 = weiß)
 - a* = Rot-Grün-Achse (positiv = rot, negativ = grün)
 - b* = Gelb-Blau-Achse (positiv = gelb, negativ = blau)
 
 **Mathematische Formel:**
+
 ```
 1. Normalisierung mit Weißpunkt (Xn, Yn, Zn):
    fx = f(X/Xn)
@@ -1689,6 +1877,7 @@ Dieser Abschnitt erklärt alle mathematischen und physikalischen Algorithmen, di
 ```
 
 **Warum wichtig?**
+
 - Lab ist der Standard-Farbraum für Farbanalyse
 - Ermöglicht präzise Farbvergleiche (Delta E)
 - Wird von GIA (Gemological Institute of America) verwendet
@@ -1700,12 +1889,14 @@ Dieser Abschnitt erklärt alle mathematischen und physikalischen Algorithmen, di
 **Zweck:** Anpassung von Farbwerten zwischen verschiedenen Beleuchtungsbedingungen (z.B. Tageslicht D65 → D50).
 
 **Physikalischer Hintergrund:**
+
 - Farben sehen unter verschiedenen Lichtquellen unterschiedlich aus
 - D65 = Tageslicht (6500K Farbtemperatur) - Standard für Monitore
 - D50 = Neutralweiß (5000K) - Standard für Druck/ICC-Profile
 - Bradford-Transformation simuliert, wie das menschliche Auge Farben unter verschiedenen Lichtquellen wahrnimmt
 
 **Mathematische Formel:**
+
 ```
 1. Konvertierung in "Cone Response" Domain:
    [L]   [0.8951  0.2664  -0.1614] [X]
@@ -1724,6 +1915,7 @@ Dieser Abschnitt erklärt alle mathematischen und physikalischen Algorithmen, di
 ```
 
 **Warum wichtig?**
+
 - Ermöglicht präzise Farbanalyse unter verschiedenen Beleuchtungsbedingungen
 - Notwendig für ICC-Profil-Unterstützung
 - Wichtig für professionelle Farbanalyse
@@ -1737,12 +1929,14 @@ Dieser Abschnitt erklärt alle mathematischen und physikalischen Algorithmen, di
 **Zweck:** Gruppierung ähnlicher Farben in Cluster, um die dominanten Farben eines Edelsteins zu identifizieren.
 
 **Grundprinzip:**
+
 1. **Initialisierung:** Wähle K zufällige Farben als Cluster-Zentren (Centroids)
 2. **Zuordnung:** Weise jeden Pixel dem nächstgelegenen Cluster zu
 3. **Aktualisierung:** Berechne neue Cluster-Zentren als Durchschnitt aller zugeordneten Pixel
 4. **Wiederholung:** Wiederhole Schritt 2-3 bis Konvergenz (keine Änderungen mehr)
 
 **Mathematische Formel:**
+
 ```
 Distanz zwischen Pixel p und Cluster c:
 d(p, c) = √[(R_p - R_c)² + (G_p - G_c)² + (B_p - B_c)²]
@@ -1752,10 +1946,12 @@ c_new = (1/n) * Σ(p_i) für alle Pixel p_i im Cluster
 ```
 
 **Parameter:**
+
 - **K:** Anzahl der Cluster (3-20, typischerweise 5-8)
 - **Max Iterationen:** Maximale Anzahl Wiederholungen (typischerweise 20-25)
 
 **Warum wichtig?**
+
 - Identifiziert die dominanten Farben eines Edelsteins
 - Reduziert Millionen von Pixeln auf wenige repräsentative Farben
 - Basis für alle weiteren Analysen
@@ -1767,23 +1963,27 @@ c_new = (1/n) * Σ(p_i) für alle Pixel p_i im Cluster
 **Zweck:** Intelligente Auswahl der Startpunkte für K-Means, um bessere Ergebnisse zu erzielen.
 
 **Problem mit Standard K-Means:**
+
 - Zufällige Initialisierung kann zu schlechten Ergebnissen führen
 - Cluster können zu nah beieinander starten
 - Kann zu lokalen Minima führen
 
 **K-Means++ Lösung:**
+
 1. Wähle ersten Centroid zufällig
 2. Für jeden weiteren Centroid:
    - Berechne Abstand jedes Pixels zum nächstgelegenen existierenden Centroid
    - Wähle Pixel mit größtem Abstand (höhere Wahrscheinlichkeit für weit entfernte Pixel)
 
 **Mathematische Formel:**
+
 ```
 Wahrscheinlichkeit für Pixel p als nächster Centroid:
 P(p) = d(p, nearest_centroid)² / Σ(d(q, nearest_centroid)²)
 ```
 
 **Vorteile:**
+
 - Bessere Cluster-Verteilung
 - Schnellere Konvergenz
 - Weniger lokale Minima
@@ -1796,17 +1996,20 @@ P(p) = d(p, nearest_centroid)² / Σ(d(q, nearest_centroid)²)
 **Zweck:** Automatische Bestimmung der optimalen Anzahl von Farb-Clustern (K).
 
 **Grundprinzip:**
+
 - Statt manuell K zu wählen, testet GMM verschiedene K-Werte (3-8)
 - Für jedes K wird ein Gaussian Mixture Model trainiert
 - BIC (Bayesian Information Criterion) bewertet jedes Modell
 - Modell mit niedrigstem BIC-Wert wird gewählt
 
 **Gaussian Mixture Model:**
+
 - Jeder Cluster wird als Gaußsche Verteilung (Normalverteilung) modelliert
 - Jede Verteilung hat Mittelwert (μ) und Varianz (σ²)
 - Wahrscheinlichkeit, dass ein Pixel zu einem Cluster gehört, wird berechnet
 
 **Mathematische Formel:**
+
 ```
 Wahrscheinlichkeit für Pixel x in Cluster k:
 P(x|k) = (1/√(2πσ²)) * exp(-(x-μ)²/(2σ²))
@@ -1820,6 +2023,7 @@ wobei:
 ```
 
 **Vorteile:**
+
 - Automatische, datengetriebene Clusterzahl
 - Vermeidet Über-Clustering (zu viele Cluster)
 - Vermeidet Unter-Clustering (zu wenige Cluster)
@@ -1834,17 +2038,20 @@ wobei:
 **Zweck:** Segmentierung des Bildes in homogene Regionen (Superpixels), um präzisere Masken zu erstellen.
 
 **Grundprinzip:**
+
 - Statt pixelweise zu arbeiten, werden Pixel in Gruppen (Superpixels) zusammengefasst
 - Superpixels sind homogene Regionen mit ähnlichen Farben und Positionen
 - Verbessert Masken-Qualität durch Berücksichtigung von Nachbarschaften
 
 **Algorithmus:**
+
 1. **Initialisierung:** Platziere Cluster-Zentren in regelmäßigem Gitter (Abstand = step)
 2. **Zuordnung:** Weise jeden Pixel dem nächstgelegenen Cluster zu (basierend auf Farbe + Position)
 3. **Aktualisierung:** Berechne neues Cluster-Zentrum als Durchschnitt aller zugeordneten Pixel
 4. **Wiederholung:** Wiederhole 2-3 für 10 Iterationen
 
 **Mathematische Formel:**
+
 ```
 Distanz zwischen Pixel p und Cluster c:
 d = √[(dc/m)² + (ds/S)²]
@@ -1856,10 +2063,12 @@ wobei:
 ```
 
 **Parameter:**
+
 - **step:** Superpixel-Größe (8-32 Pixel, default: 16)
 - **m:** Kompaktheit (5-30, default: 10) - höher = kompaktere Superpixels
 
 **Vorteile:**
+
 - Glattere Masken
 - Weniger Randkontamination
 - Bessere Kantenerkennung
@@ -1872,11 +2081,13 @@ wobei:
 **Zweck:** Glättung einer Maske unter Beibehaltung scharfer Kanten, basierend auf dem Originalbild.
 
 **Grundprinzip:**
+
 - Verwendet das Originalbild als "Führung" (Guide)
 - Glättet die Maske, aber nur dort, wo das Originalbild auch glatt ist
 - Erhält scharfe Kanten dort, wo das Originalbild Kanten hat
 
 **Mathematische Formel:**
+
 ```
 Für jeden Pixel i:
 1. Berechne lokale Mittelwerte (Box-Filter):
@@ -1895,10 +2106,12 @@ Für jeden Pixel i:
 ```
 
 **Parameter:**
+
 - **r:** Radius des Glättungsfensters (2-8 Pixel, default: 4)
 - **ε:** Regularisierung (10⁻⁶ bis 10⁻², default: 10⁻³) - verhindert Division durch Null
 
 **Vorteile:**
+
 - Glattere Masken ohne Verlust von Kanten
 - Weniger Rauschen
 - Bessere Qualität als einfache Glättung
@@ -1913,6 +2126,7 @@ Für jeden Pixel i:
 **Zweck:** Berechnung der wahrgenommenen Farbdistanz zwischen zwei Farben im Lab-Farbraum.
 
 **Physikalischer Hintergrund:**
+
 - Einfache euklidische Distanz in Lab entspricht nicht der menschlichen Wahrnehmung
 - CIEDE2000 berücksichtigt:
   - Unterschiedliche Empfindlichkeit in verschiedenen Farbbereichen
@@ -1920,6 +2134,7 @@ Für jeden Pixel i:
   - Helligkeits-Kompensation
 
 **Mathematische Formel (vereinfacht):**
+
 ```
 1. Berechne Hilfsvariablen:
    C* = √(a*² + b*²)  (Chroma)
@@ -1935,12 +2150,14 @@ Für jeden Pixel i:
 ```
 
 **Interpretation:**
+
 - **ΔE00 < 1:** Unterschied ist für das menschliche Auge nicht wahrnehmbar
 - **ΔE00 < 3:** Sehr ähnliche Farben (professionell akzeptabel)
 - **ΔE00 < 6:** Ähnliche Farben (für Laien kaum unterscheidbar)
 - **ΔE00 > 6:** Deutlich unterschiedliche Farben
 
 **Warum wichtig?**
+
 - Standard-Metrik für Farbvergleiche in der Industrie
 - Wird von GIA verwendet
 - Präziseste verfügbare Metrik für Farbdistanz
@@ -1954,15 +2171,18 @@ Für jeden Pixel i:
 **Zweck:** Berechnung von Mittelwert und Streuung für Hue-Werte, die zirkulär sind (0° = 360°).
 
 **Problem:**
+
 - Standard-Mittelwert funktioniert nicht für zirkuläre Daten
 - Beispiel: Mittelwert von 350° und 10° sollte 0° sein, nicht 180°
 
 **Lösung:**
+
 - Konvertiere Hue-Werte in Einheitsvektoren auf einem Kreis
 - Summiere Vektoren
 - Berechne Mittelwert aus resultierendem Vektor
 
 **Mathematische Formel:**
+
 ```
 1. Konvertiere zu Einheitsvektoren:
    x = Σ cos(h_i)
@@ -1981,6 +2201,7 @@ Für jeden Pixel i:
 ```
 
 **Anwendung:**
+
 - Erkennung von Borderline-Farben (Farben zwischen Kategorien)
 - Analyse von Pleochroismus (mehrere Farbrichtungen)
 - Bewertung der Farbkonsistenz
@@ -1992,11 +2213,13 @@ Für jeden Pixel i:
 **Zweck:** Klassifizierung einer Farbe in Kategorien mit Wahrscheinlichkeits-Scores statt harter Zuordnung.
 
 **Grundprinzip:**
+
 - Statt "Diese Farbe IST Grün" → "Diese Farbe ist zu 70% Grün, 25% Gelbgrün, 5% Blaugrün"
 - Verwendet Gaußsche Wahrscheinlichkeitsverteilung
 - Ermöglicht Erkennung von Borderline-Farben
 
 **Mathematische Formel:**
+
 ```
 Wahrscheinlichkeit für Kategorie k:
 P(k) = exp(-0.5 * (d/σ)²)
@@ -2012,11 +2235,13 @@ borderline = conf < 0.15
 ```
 
 **Kategorien:**
+
 - Gelb (90°), Gelbgrün (75°), Grün (140°), Blaugrün (190°)
 - Blau (240°), Blauviolett (280°), Violett (300°)
 - Rotviolett (330°), Rot (0°), Rotorange (20°), Orange (40°)
 
 **Vorteile:**
+
 - Realistischere Farbklassifikation
 - Erkennung von Grenzfarben
 - Quantifizierung von Unsicherheit
@@ -2028,12 +2253,14 @@ borderline = conf < 0.15
 **Zweck:** Erkennung mehrerer Farb-Peaks im Hue-Histogramm (z.B. bei Pleochroismus).
 
 **Grundprinzip:**
+
 1. Erstelle Histogramm der Hue-Werte (360 Bins für 0-360°)
 2. Glätte Histogramm (Moving Average)
 3. Finde lokale Maxima (Peaks)
 4. Berechne Abstand zwischen Peaks
 
 **Mathematische Formel:**
+
 ```
 1. Glättung (Moving Average):
    smoothed[i] = (1/(2s+1)) * Σ(hist[j]) für j = i-s bis i+s
@@ -2048,6 +2275,7 @@ borderline = conf < 0.15
 ```
 
 **Anwendung:**
+
 - Erkennung von Pleochroismus (mehrere dominante Farbrichtungen)
 - Analyse von Farbübergängen
 - Bewertung der Farbkomplexität
@@ -2061,15 +2289,18 @@ borderline = conf < 0.15
 **Zweck:** Extraktion von Farbraum-Informationen aus ICC-Profilen.
 
 **ICC-Profil-Struktur:**
+
 - **Header (128 Bytes):** Signatur, Version, Gerätetyp, Farbraum
 - **Tag-Tabelle:** Liste aller Tags mit Offsets und Größen
 - **Tag-Daten:** Tatsächliche Farbraum-Informationen
 
 **Wichtige Tags:**
+
 - **wtpt:** Weißpunkt (XYZ-Werte)
 - **rXYZ, gXYZ, bXYZ:** RGB-Colorant XYZ-Werte
 
 **Mathematische Formel:**
+
 ```
 1. Tag-Offset lesen (32-bit big-endian):
    offset = (buf[i] << 24) | (buf[i+1] << 16) | (buf[i+2] << 8) | buf[i+3]
@@ -2084,6 +2315,7 @@ borderline = conf < 0.15
 ```
 
 **Anwendung:**
+
 - Präzise Farbanalyse mit korrektem Weißpunkt
 - Unterstützung für verschiedene Farbprofile
 - Professionelle Farbverarbeitung
@@ -2093,23 +2325,28 @@ borderline = conf < 0.15
 ### 8.7 Zusammenfassung der Algorithmen
 
 **Farbraum-Konvertierungen:**
+
 - RGB → XYZ: Gamma-Korrektur + Matrix
 - XYZ → Lab: Nichtlineare Transformation mit Weißpunkt
 - Bradford-Adaptation: Weißpunkt-Konvertierung
 
 **Clustering:**
+
 - K-Means: Standard-Clustering
 - K-Means++: Intelligente Initialisierung
 - GMM+BIC: Automatische Clusterzahl
 
 **Segmentierung:**
+
 - SLIC: Superpixel-Generierung
 - Guided Filter: Edge-preserving Glättung
 
 **Farbdistanz:**
+
 - CIEDE2000: Wahrnehmungsgerechte Metrik
 
 **Statistik:**
+
 - Zirkuläre Statistik: Hue-Analyse
 - Soft Classification: Wahrscheinlichkeits-basierte Kategorisierung
 - Peak Detection: Mehrfach-Peak-Erkennung
@@ -2123,12 +2360,14 @@ borderline = conf < 0.15
 ### 9.1 Authentifizierung & Autorisierung
 
 **NextAuth.js Konfiguration:**
+
 - Credentials-Provider für E-Mail/Passwort
 - Session-basiert (JWT)
 - Cookie-basiertes Session-Management
 - Middleware-Schutz für Admin-Routen
 
 **Rollen-System:**
+
 - Rollen werden in `User.role` gespeichert
 - Middleware prüft Rollen vor Zugriff
 - API-Routen prüfen Rollen
@@ -2138,6 +2377,7 @@ borderline = conf < 0.15
 ### 9.2 Internationalisierung
 
 **next-intl:**
+
 - Mehrsprachigkeit (de, en)
 - Locale-basierte Routen (`/[locale]/...`)
 - Übersetzungen in `messages/` Verzeichnis
@@ -2148,11 +2388,13 @@ borderline = conf < 0.15
 ### 9.3 Bildverarbeitung
 
 **Sharp:**
+
 - Bildoptimierung
 - Thumbnail-Generierung
 - Format-Konvertierung
 
 **Canvas (Browser):**
+
 - Farb-Extraktion
 - Bild-Analyse
 - Region-Erkennung
@@ -2162,6 +2404,7 @@ borderline = conf < 0.15
 ### 9.4 PDF-Generierung
 
 **@react-pdf/renderer:**
+
 - Rechnungen als PDF
 - Farbtafeln-Export
 - Zertifikate
@@ -2171,11 +2414,13 @@ borderline = conf < 0.15
 ### 9.5 State Management
 
 **Zustand:**
+
 - Warenkorb-State
 - Wishlist-State
 - UI-State
 
 **Server State:**
+
 - React Server Components
 - Server-Side Data Fetching
 - Caching
@@ -2208,11 +2453,13 @@ borderline = conf < 0.15
 ### 10.1 Docker-Setup
 
 **Production:**
+
 ```bash
 docker-compose up -d
 ```
 
 **Development:**
+
 ```bash
 docker-compose -f docker-compose.dev.yml up -d
 ```
@@ -2236,6 +2483,7 @@ npx prisma generate
 ### 10.3 Backup-Strategie
 
 **Empfohlene Backups:**
+
 - Tägliche Datenbank-Backups
 - Wöchentliche Media-Backups
 - Monatliche Voll-Backups
@@ -2254,6 +2502,7 @@ npx prisma generate
 ### 11.2 Troubleshooting
 
 **Häufige Probleme:**
+
 1. **Session-Probleme:** Cookies löschen, neu einloggen
 2. **Datenbank-Verbindung:** Prüfe DATABASE_URL
 3. **Build-Fehler:** `npm run build` für Details
@@ -2276,6 +2525,7 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 ### 12.2 Hauptfunktionen
 
 #### Öffentliche Bereiche
+
 1. **E-Commerce:** Shop, Warenkorb, Checkout, Bestellungen
 2. **Content:** Blog, Stories, Wissenswertes
 3. **Tools:** Farbanalyse, Farbtafeln, Weltkarte
@@ -2283,6 +2533,7 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 5. **Rechtliches:** Impressum, Datenschutz, AGB, etc.
 
 #### Admin-Bereiche
+
 1. **Produktverwaltung:** Edelsteine, Attribute, Preise, Inventar
 2. **Kundenverwaltung:** Kunden, Adressen, Bestellungen
 3. **Rechnungsverwaltung:** Rechnungen, Bankverbindungen, PDF
@@ -2320,14 +2571,16 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
 ### 13.1 Wichtige URLs
 
-#### Öffentlich
+#### Öffentliche URLs
+
 - Startseite: `/` oder `/de`
 - Shop: `/shop`
 - Blog: `/blog`
 - Downloads: `/downloads`
 - Kontakt: `/contact`
 
-#### Admin
+#### Admin URLs
+
 - Login: `/admin/login`
 - Dashboard: `/admin/dashboard`
 - Edelsteine: `/admin/gemstones`
@@ -2339,13 +2592,15 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
 ### 13.2 Wichtige API-Endpunkte
 
-#### Öffentlich
+#### Öffentliche APIs
+
 - `POST /api/contact` - Kontaktformular
 - `POST /api/newsletter` - Newsletter-Anmeldung
 - `POST /api/orders` - Bestellung erstellen
 - `GET /api/color-charts` - Farbtafeln abrufen
 
-#### Admin
+#### Admin APIs
+
 - `GET /api/admin/dashboard` - Dashboard-Statistiken
 - `GET /api/admin/gemstones` - Edelsteine abrufen
 - `GET /api/admin/customers` - Kunden abrufen
@@ -2354,18 +2609,23 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 ### 13.3 Datenbank-Models (Kurzübersicht)
 
 **E-Commerce:**
+
 - Customer, Order, OrderItem, Cart, CartItem, Wishlist
 
 **Edelsteine:**
+
 - Gemstone, GemstoneAttributes, GemstoneInventory, GemstonePrice, GemstoneMedia
 
 **Content:**
+
 - Blog, Story, KnowledgeBase, LegalPage
 
 **System:**
+
 - User, Session, AuditLog, CompanySettings
 
 **Spezial:**
+
 - ColorChart, GemstoneAnalysis
 
 ---
@@ -2379,6 +2639,7 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 ## Änderungsprotokoll
 
 ### Version 2.0.0 (Dezember 2025)
+
 - **Borderline v4: Erweiterte Farbanalyse-Funktionen:**
   - K-Means++ Initialisierung für bessere Cluster-Qualität
   - Auto-K via GMM+BIC für automatische, datengetriebene Clusterzahl
@@ -2394,6 +2655,7 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
   - Verständliche Erklärungen für Nicht-Mathematiker
 
 ### Version 1.3.0 (7.11.2025)
+
 - **Erweiterte Farbanalyse-Funktionen:**
   - D50/D65 Whitepoint-Auswahl mit Bradford-Chromatic-Adaptation
   - Manueller K-Means Cluster-Wert (3-20)
@@ -2411,6 +2673,6 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
   - Erweiterte Filterung und Suche
 
 ### Version 1.2.0 (Januar 2025)
+
 - Initiale Dokumentation
 - Basis-Funktionalitäten dokumentiert
-
