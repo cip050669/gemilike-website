@@ -6,27 +6,22 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 Starting audit logs API request...');
     
-    // Temporäre Lösung für Entwicklung - in Produktion sollte Authentifizierung aktiviert werden
+    // Authentifizierung ist IMMER erforderlich, auch in Development
     const { userId: currentUserId } = await getSessionWithUser();
     
-    // Für Entwicklung: Erlaube Zugriff ohne Authentifizierung
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔓 Development mode: Skipping authentication for audit logs');
-    } else {
-      if (!currentUserId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-      // Check if user is admin
-      const { prisma } = await import('@/lib/prisma');
-      const user = await prisma.user.findUnique({
-        where: { id: currentUserId },
-        select: { role: true }
-      });
+    // Check if user is admin
+    const { prisma } = await import('@/lib/prisma');
+    const user = await prisma.user.findUnique({
+      where: { id: currentUserId },
+      select: { role: true }
+    });
 
-      if (user?.role !== 'ADMIN') {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
+    if (user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     console.log('📊 Fetching audit logs from database...');

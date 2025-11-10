@@ -16,16 +16,24 @@ export default function StandaloneAdminLoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('🔍 Standalone login attempt:', { email, password });
+    console.log('🔍 Standalone login attempt:', { email });
     
-    // Einfachste Authentifizierung - keine API-Calls, keine Session
-    if (email === 'admin@gemilike.com' && password === 'admin123') {
+    // Verwende Environment Variables statt hardcodierter Credentials
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || '';
+    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '';
+    
+    if (!adminEmail || !adminPassword) {
+      setError('Admin-Zugangsdaten nicht konfiguriert. Bitte Environment Variables setzen.');
+      return;
+    }
+    
+    if (email === adminEmail && password === adminPassword) {
       console.log('✅ Standalone admin login successful');
       // Direkte Weiterleitung
       window.location.href = '/de/admin';
     } else {
       console.log('❌ Invalid credentials');
-      setError('Ungültige Anmeldedaten. Verwenden Sie admin@gemilike.com / admin123');
+      setError('Ungültige Anmeldedaten.');
     }
   };
 
@@ -66,7 +74,7 @@ export default function StandaloneAdminLoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@gemilike.com"
+                    placeholder="E-Mail-Adresse"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 bg-gray-800/30/10 border-white/20 text-white placeholder-gray-400 focus:border-blue-500"
@@ -108,12 +116,6 @@ export default function StandaloneAdminLoginPage() {
               </Button>
             </form>
 
-            <div className="text-center text-sm text-gray-400">
-              <p>Demo-Zugangsdaten:</p>
-              <p className="font-mono text-xs mt-1">
-                admin@gemilike.com / admin123
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>
