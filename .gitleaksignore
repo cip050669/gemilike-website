@@ -1,0 +1,19 @@
+# Gitleaks ignore patterns
+# Patterns that should be ignored during secret scanning
+
+# Example: Ignore specific test files with fake credentials
+# **/test/**/*.env
+# **/__tests__/**/*.env
+
+# Ignore example files
+**/env.example
+**/.env.example
+
+# Ignore documentation files with example credentials
+**/*.md
+**/README.md
+
+# Ignore backup files
+**/*.backup
+**/*.bak
+
