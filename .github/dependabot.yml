@@ -9,8 +9,9 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 10
-    reviewers:
-      - "cip050669"
+    # Removed reviewers to avoid secrets requirement
+    # reviewers:
+    #   - "cip050669"
     labels:
       - "dependencies"
       - "security"
@@ -39,8 +40,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-    reviewers:
-      - "cip050669"
+    # Removed reviewers to avoid secrets requirement
+    # reviewers:
+    #   - "cip050669"
     labels:
       - "github-actions"
       - "dependencies"
