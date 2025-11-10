@@ -42,7 +42,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, chart });
+    // Ensure gradient and pleochro are arrays
+    const serializedChart = {
+      ...chart,
+      gradient: Array.isArray(chart.gradient) ? chart.gradient : (chart.gradient ? [chart.gradient] : []),
+      pleochro: Array.isArray(chart.pleochro) ? chart.pleochro : (chart.pleochro ? [chart.pleochro] : []),
+    };
+
+    return NextResponse.json({ success: true, chart: serializedChart });
 
   } catch (error) {
     console.error('Error fetching color chart:', error);
@@ -75,6 +82,15 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
+
+    console.log('[API PUT] Updating chart:', {
+      id,
+      published: body.published,
+      gradient: body.gradient,
+      gradientLength: body.gradient?.length,
+      gradientType: typeof body.gradient,
+      isArray: Array.isArray(body.gradient),
+    });
 
     const existing = await prisma.colorChart.findUnique({
       where: { id },
@@ -142,12 +158,70 @@ export async function PUT(
       slug = body.slug;
     }
 
+    // Ensure gradient and pleochro are arrays
+    const updateData: {
+      slug: string;
+      name?: string;
+      origin?: string | null;
+      locale?: string;
+      gia?: { hue?: string; tone?: string; sat?: string } | null;
+      light?: string;
+      note?: string | null;
+      description?: string | null;
+      published?: boolean;
+      featured?: boolean;
+      order?: number;
+      gradient?: string[];
+      pleochro?: string[];
+    } = {
+      slug,
+    };
+
+    // Explicitly set all fields to ensure they're saved correctly
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.origin !== undefined) updateData.origin = body.origin;
+    if (body.locale !== undefined) updateData.locale = body.locale;
+    if (body.gia !== undefined) updateData.gia = body.gia;
+    if (body.light !== undefined) updateData.light = body.light;
+    if (body.note !== undefined) updateData.note = body.note;
+    if (body.description !== undefined) updateData.description = body.description;
+    
+    // CRITICAL: Ensure published and featured are booleans
+    if (body.published !== undefined) {
+      updateData.published = body.published === true || body.published === 'true' || body.published === 1;
+    }
+    if (body.featured !== undefined) {
+      updateData.featured = body.featured === true || body.featured === 'true' || body.featured === 1;
+    }
+    if (body.order !== undefined) updateData.order = body.order;
+
+    if (body.gradient !== undefined) {
+      updateData.gradient = Array.isArray(body.gradient) ? body.gradient : (body.gradient ? [body.gradient] : []);
+    }
+    if (body.pleochro !== undefined) {
+      updateData.pleochro = Array.isArray(body.pleochro) ? body.pleochro : (body.pleochro ? [body.pleochro] : []);
+    }
+
+    console.log('[API PUT] Update data:', {
+      published: updateData.published,
+      publishedType: typeof updateData.published,
+      featured: updateData.featured,
+      featuredType: typeof updateData.featured,
+      gradient: updateData.gradient,
+      gradientLength: updateData.gradient?.length,
+    });
+
     const updatedChart = await prisma.colorChart.update({
       where: { id },
-      data: {
-        ...body,
-        slug,
-      },
+      data: updateData,
+    });
+
+    console.log('[API PUT] Updated chart:', {
+      id: updatedChart.id,
+      name: updatedChart.name,
+      published: updatedChart.published,
+      gradient: updatedChart.gradient,
+      gradientLength: Array.isArray(updatedChart.gradient) ? updatedChart.gradient.length : 'not array',
     });
 
     return NextResponse.json({ success: true, chart: updatedChart });

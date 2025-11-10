@@ -166,7 +166,11 @@ export function ColorChartTable({
                   </td>
                   <td className="px-6 py-4">
                     <div className="w-32">
-                      <GradientBar colors={chart.gradient} height={30} />
+                      {Array.isArray(chart.gradient) && chart.gradient.length > 0 ? (
+                        <GradientBar colors={chart.gradient} height={30} />
+                      ) : (
+                        <div className="h-[30px] rounded bg-gray-200 dark:bg-gray-700" />
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

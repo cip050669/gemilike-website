@@ -9,27 +9,34 @@ interface GradientBarProps {
 }
 
 export function GradientBar({ colors, height = 60, className = '' }: GradientBarProps) {
+  // Ensure colors is an array
+  const validColors = useMemo(() => {
+    return Array.isArray(colors) ? colors : [];
+  }, [colors]);
+  
   const gradientStyle = useMemo(() => {
-    if (colors.length === 0) return {};
+    if (validColors.length === 0) return {};
     
-    const colorStops = colors
+    const colorStops = validColors
       .map((color, index) => {
-        const percentage = (index / (colors.length - 1)) * 100;
-        return `${color} ${percentage}%`;
+        const percentage = validColors.length === 1 ? '0%' : `${(index / (validColors.length - 1)) * 100}%`;
+        return `${color} ${percentage}`;
       })
       .join(', ');
 
     return {
       background: `linear-gradient(to right, ${colorStops})`,
       height: `${height}px`,
+      minHeight: `${height}px`,
+      width: '100%',
     };
-  }, [colors, height]);
+  }, [validColors, height]);
 
-  if (colors.length === 0) {
+  if (validColors.length === 0) {
     return (
       <div
         className={`rounded-md bg-slate-200 ${className}`}
-        style={{ height: `${height}px` }}
+        style={{ height: `${height}px`, minHeight: `${height}px` }}
       />
     );
   }

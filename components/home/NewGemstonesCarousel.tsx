@@ -81,7 +81,7 @@ export function NewGemstonesCarousel({
                 className="gem-card group flex min-w-[250px] max-w-[250px] snap-center flex-col gap-3 rounded-[18px] p-4 transition-all duration-300"
               >
                 <Link
-                  href={`/${locale}/shop/${gemstone.id}`}
+                  href={`/${locale}/shop?gem=${gemstone.id}`}
                   className="group relative block h-[230px] w-full overflow-hidden rounded-[18px]"
                 >
                   <Image
@@ -109,7 +109,7 @@ export function NewGemstonesCarousel({
                       {gemstone.category}
                     </span>
                     <Link
-                      href={`/${locale}/shop/${gemstone.id}`}
+                      href={`/${locale}/shop?gem=${gemstone.id}`}
                       className="block text-lg font-semibold text-white line-clamp-2 hover:text-primary"
                     >
                       {gemstone.name}

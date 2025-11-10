@@ -44,16 +44,48 @@ export function ColorChartGrid({ locale = 'de', initialCharts = [] }: ColorChart
     try {
       setLoading(true);
       const response = await fetch(`/api/color-charts?locale=${locale}&published=true`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
+      // Debug logging
+      if (process.env.NODE_ENV === 'development') {
+        const firstChart = Array.isArray(data.charts) && data.charts.length > 0 ? data.charts[0] : null;
+        console.log('[ColorChartGrid] Fetched data:', {
+          success: data.success,
+          chartsCount: Array.isArray(data.charts) ? data.charts.length : 0,
+          firstChart: firstChart ? {
+            id: firstChart.id,
+            name: firstChart.name,
+            published: firstChart.published,
+            gradient: firstChart.gradient,
+            gradientType: typeof firstChart.gradient,
+            isArray: Array.isArray(firstChart.gradient),
+            gradientLength: Array.isArray(firstChart.gradient) ? firstChart.gradient.length : 0,
+          } : null,
+        });
+      }
+      
       if (data.success && data.charts) {
-        setCharts(data.charts);
-        if (data.charts.length > 0) {
-          setSelectedChart(data.charts[0]);
+        // Ensure all charts have valid gradient arrays
+        const validCharts = data.charts.map((chart: ColorChart) => ({
+          ...chart,
+          gradient: Array.isArray(chart.gradient) ? chart.gradient : [],
+          pleochro: Array.isArray(chart.pleochro) ? chart.pleochro : [],
+        }));
+        
+        setCharts(validCharts);
+        if (validCharts.length > 0) {
+          setSelectedChart(validCharts[0]);
         }
+      } else {
+        console.error('[ColorChartGrid] Invalid response:', data);
       }
     } catch (error) {
-      console.error('Error fetching color charts:', error);
+      console.error('[ColorChartGrid] Error fetching color charts:', error);
     } finally {
       setLoading(false);
     }

@@ -33,8 +33,11 @@ export async function GET(request: NextRequest) {
     // Non-admin users can only see published charts
     if (!isAdmin) {
       where.published = true;
-    } else if (published !== null) {
-      where.published = published === 'true';
+    } else {
+      // Admin can filter by published status
+      if (published !== null) {
+        where.published = published === 'true';
+      }
     }
 
     if (featured === 'true') {
@@ -57,10 +60,33 @@ export async function GET(request: NextRequest) {
       ],
     });
 
+    // Ensure gradient and pleochro are arrays
+    const serializedCharts = charts.map(chart => {
+      const gradient = Array.isArray(chart.gradient) ? chart.gradient : (chart.gradient ? [chart.gradient] : []);
+      const pleochro = Array.isArray(chart.pleochro) ? chart.pleochro : (chart.pleochro ? [chart.pleochro] : []);
+      
+      return {
+        ...chart,
+        gradient,
+        pleochro,
+      };
+    });
+
+    console.log(`[API] Returning ${serializedCharts.length} charts for locale=${locale}, published=${published || 'all'}, isAdmin=${isAdmin}`);
+    if (serializedCharts.length > 0) {
+      console.log(`[API] First chart:`, {
+        id: serializedCharts[0].id,
+        name: serializedCharts[0].name,
+        published: serializedCharts[0].published,
+        gradient: serializedCharts[0].gradient,
+        gradientLength: serializedCharts[0].gradient?.length,
+      });
+    }
+
     return NextResponse.json({ 
       success: true, 
-      charts,
-      total: charts.length 
+      charts: serializedCharts,
+      total: serializedCharts.length 
     });
 
   } catch (error) {
@@ -113,21 +139,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!gradient || !Array.isArray(gradient) || gradient.length === 0) {
+    // Either GIA data or gradient must be provided
+    const hasGiaData = gia && (
+      (typeof gia === 'object' && (gia.hue || gia.tone || gia.sat)) ||
+      (typeof gia === 'string' && gia.trim().length > 0)
+    );
+    const hasGradient = gradient && Array.isArray(gradient) && gradient.length > 0;
+
+    if (!hasGiaData && !hasGradient) {
       return NextResponse.json(
-        { error: 'Gradient must be a non-empty array of hex colors' },
+        { error: 'Either GIA data (hue, tone, sat) or gradient must be provided' },
         { status: 400 }
       );
     }
 
-    // Validate hex colors
+    // Validate hex colors if gradient is provided
     const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-    for (const color of gradient) {
-      if (!hexColorRegex.test(color)) {
-        return NextResponse.json(
-          { error: `Invalid hex color in gradient: ${color}` },
-          { status: 400 }
-        );
+    if (hasGradient) {
+      for (const color of gradient) {
+        if (!hexColorRegex.test(color)) {
+          return NextResponse.json(
+            { error: `Invalid hex color in gradient: ${color}` },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -172,6 +207,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // CRITICAL: Ensure published and featured are booleans
+    const publishedBool = published === true || published === 'true' || published === 1;
+    const featuredBool = featured === true || featured === 'true' || featured === 1;
+
+    console.log('[API] Creating color chart:', {
+      name,
+      published: publishedBool,
+      publishedType: typeof publishedBool,
+      publishedOriginal: published,
+      publishedOriginalType: typeof published,
+      featured: featuredBool,
+      locale,
+    });
+
     const chart = await prisma.colorChart.create({
       data: {
         name,
@@ -179,16 +228,22 @@ export async function POST(request: NextRequest) {
         origin,
         locale,
         gia: giaData,
-        gradient,
+        gradient: gradient || [],
         pleochro: pleochro || [],
         light,
         note,
         description,
-        published,
-        featured,
+        published: publishedBool,
+        featured: featuredBool,
         order,
         createdById: session.user.id,
       },
+    });
+
+    console.log('[API] Created color chart:', {
+      id: chart.id,
+      name: chart.name,
+      published: chart.published,
     });
 
     return NextResponse.json({ success: true, chart }, { status: 201 });

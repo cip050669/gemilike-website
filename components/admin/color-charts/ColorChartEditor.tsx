@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { GradientBar } from '@/components/color-charts/GradientBar';
 import { GemColorCard, ColorChart } from '@/components/color-charts/GemColorCard';
+import { generateGradientFromGIA } from '@/components/color-charts/utils/giaToGradient';
 
 interface ColorChartEditorProps {
   chart?: ColorChart;
@@ -38,6 +39,21 @@ interface ColorChartFormData {
 export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // CRITICAL: Ensure published and featured are explicitly booleans
+  // Handle potential type mismatches from database (boolean, string, or number)
+  const initialPublished = chart?.published === true || 
+    (typeof chart?.published === 'string' && chart.published === 'true') ||
+    (typeof chart?.published === 'number' && chart.published === 1);
+  const initialFeatured = chart?.featured === true ||
+    (typeof chart?.featured === 'string' && chart.featured === 'true') ||
+    (typeof chart?.featured === 'number' && chart.featured === 1);
+  
+  // Ensure pleochro is always an array
+  const initialPleochro = Array.isArray(chart?.pleochro) 
+    ? chart.pleochro 
+    : (chart?.pleochro ? [chart.pleochro] : []);
+  
   const [formData, setFormData] = useState<ColorChartFormData>({
     name: chart?.name || '',
     origin: chart?.origin ?? '',
@@ -46,15 +62,46 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
       tone: chart?.gia?.tone ?? '',
       sat: chart?.gia?.sat ?? '',
     },
-    gradient: chart?.gradient || ['#FFFFFF'],
-    pleochro: chart?.pleochro || [],
+    gradient: Array.isArray(chart?.gradient) && chart.gradient.length > 0 
+      ? chart.gradient 
+      : (chart?.gradient && !Array.isArray(chart.gradient) ? [chart.gradient] : []),
+    pleochro: initialPleochro,
     light: chart?.light || 'D55, CRI ≥95',
     note: chart?.note ?? '',
     description: chart?.description ?? '',
-    published: chart?.published || false,
-    featured: chart?.featured || false,
+    published: initialPublished,
+    featured: initialFeatured,
     order: chart?.order || 0,
   });
+  
+  // Debug: Log pleochro initialization
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[ColorChartEditor] Pleochro initialization:', {
+        chartPleochro: chart?.pleochro,
+        chartPleochroType: typeof chart?.pleochro,
+        isArray: Array.isArray(chart?.pleochro),
+        initialPleochro,
+        formDataPleochro: formData.pleochro,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Debug: Log initial state
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[ColorChartEditor] Initialized:', {
+        mode,
+        chartId: chart?.id,
+        chartPublished: chart?.published,
+        chartPublishedType: typeof chart?.published,
+        formDataPublished: formData.published,
+        formDataPublishedType: typeof formData.published,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [newGradientColor, setNewGradientColor] = useState('#FFFFFF');
   const [newPleochroColor, setNewPleochroColor] = useState('#FFFFFF');
@@ -68,11 +115,29 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
   ) => {
     if (field.startsWith('gia.')) {
       const [, key] = field.split('.');
+      const stringValue = value as string;
+      
+      // Auto-parse GIA format: "pkR,5,4" -> hue="pkR", tone="5", sat="4"
+      if (key === 'hue' && stringValue.includes(',')) {
+        const parts = stringValue.split(',').map(p => p.trim());
+        if (parts.length === 3) {
+          setFormData(prev => ({
+            ...prev,
+            gia: {
+              hue: parts[0],
+              tone: parts[1],
+              sat: parts[2],
+            },
+          }));
+          return;
+        }
+      }
+      
       setFormData(prev => ({
         ...prev,
         gia: {
           ...prev.gia,
-          [key as GiaField]: value as string,
+          [key as GiaField]: stringValue,
         },
       }));
       return;
@@ -85,10 +150,25 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
   };
 
   const addGradientColor = () => {
-    if (newGradientColor.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+    // Normalize the color value
+    let colorValue = newGradientColor.trim();
+    
+    // Add # if missing
+    if (!colorValue.startsWith('#')) {
+      colorValue = '#' + colorValue;
+    }
+    
+    // Convert 3-digit hex to 6-digit
+    if (colorValue.match(/^#[A-Fa-f0-9]{3}$/)) {
+      const hex = colorValue.slice(1);
+      colorValue = `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+    }
+    
+    // Validate and add
+    if (colorValue.match(/^#[A-Fa-f0-9]{6}$/)) {
       setFormData(prev => ({
         ...prev,
-        gradient: [...prev.gradient, newGradientColor],
+        gradient: [...prev.gradient, colorValue],
       }));
       setNewGradientColor('#FFFFFF');
     }
@@ -102,20 +182,43 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
   };
 
   const addPleochroColor = () => {
-    if (newPleochroColor.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
-      setFormData(prev => ({
-        ...prev,
-        pleochro: [...prev.pleochro, newPleochroColor],
-      }));
+    // Normalize the color value
+    let colorValue = newPleochroColor.trim();
+    
+    // Add # if missing
+    if (!colorValue.startsWith('#')) {
+      colorValue = '#' + colorValue;
+    }
+    
+    // Convert 3-digit hex to 6-digit
+    if (colorValue.match(/^#[A-Fa-f0-9]{3}$/)) {
+      const hex = colorValue.slice(1);
+      colorValue = `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+    }
+    
+    // Validate and add
+    if (colorValue.match(/^#[A-Fa-f0-9]{6}$/)) {
+      setFormData(prev => {
+        // Ensure pleochro is always an array
+        const currentPleochro = Array.isArray(prev.pleochro) ? prev.pleochro : [];
+        return {
+          ...prev,
+          pleochro: [...currentPleochro, colorValue],
+        };
+      });
       setNewPleochroColor('#FFFFFF');
     }
   };
 
   const removePleochroColor = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      pleochro: prev.pleochro.filter((_, i) => i !== index),
-    }));
+    setFormData(prev => {
+      // Ensure pleochro is always an array
+      const currentPleochro = Array.isArray(prev.pleochro) ? prev.pleochro : [];
+      return {
+        ...prev,
+        pleochro: currentPleochro.filter((_, i) => i !== index),
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,15 +232,37 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
       
       const method = mode === 'create' ? 'POST' : 'PUT';
 
+      // Ensure published and featured are explicitly booleans
+      // Ensure pleochro and gradient are arrays
+      const payload = {
+        ...formData,
+        locale,
+        published: Boolean(formData.published),
+        featured: Boolean(formData.featured),
+        gradient: Array.isArray(formData.gradient) ? formData.gradient : (formData.gradient ? [formData.gradient] : []),
+        pleochro: Array.isArray(formData.pleochro) ? formData.pleochro : (formData.pleochro ? [formData.pleochro] : []),
+      };
+
+      console.log('[ColorChartEditor] Submitting chart:', {
+        mode,
+        published: payload.published,
+        publishedType: typeof payload.published,
+        featured: payload.featured,
+        featuredType: typeof payload.featured,
+        name: payload.name,
+        pleochro: payload.pleochro,
+        pleochroLength: payload.pleochro.length,
+        pleochroIsArray: Array.isArray(payload.pleochro),
+        formDataPleochro: formData.pleochro,
+        formDataPleochroType: typeof formData.pleochro,
+      });
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          locale,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -145,6 +270,14 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
         throw new Error(error.error || 'Fehler beim Speichern');
       }
 
+      const result = await response.json();
+      console.log('[ColorChartEditor] Save successful:', {
+        success: result.success,
+        chartPublished: result.chart?.published,
+        chartPublishedType: typeof result.chart?.published,
+      });
+
+      // Navigate back to list
       router.push(`/${locale}/admin/color-charts`);
       router.refresh();
     } catch (error) {
@@ -214,13 +347,13 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="gia-hue" className="text-white">Hue</Label>
+                <Label htmlFor="gia-hue" className="text-white">Hue (oder komplett: pkR,5,4)</Label>
                 <Input
                   id="gia-hue"
                   value={formData.gia.hue}
                   onChange={(e) => handleInputChange('gia.hue', e.target.value)}
                   className="bg-gray-700 text-white border-gray-600"
-                  placeholder="z.B. pkR–R (pinkish Red → Red)"
+                  placeholder="z.B. pkR oder pkR,5,4 (wird automatisch aufgeteilt)"
                 />
               </div>
               <div>
@@ -252,7 +385,30 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
               <CardTitle className="text-white">Farbverlauf (Gradient)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <GradientBar colors={formData.gradient} height={60} />
+              {(() => {
+                // Check if we have a manual gradient
+                const hasManualGradient = Array.isArray(formData.gradient) && formData.gradient.length > 0 && formData.gradient.some(c => c && c.trim().toUpperCase() !== '#FFFFFF' && c.trim().toUpperCase() !== 'FFFFFF');
+                
+                // If no manual gradient, try to generate from GIA data
+                if (!hasManualGradient && formData.gia.hue) {
+                  const giaGradient = generateGradientFromGIA(formData.gia);
+                  if (giaGradient.length > 0) {
+                    return <GradientBar colors={giaGradient} height={60} />;
+                  }
+                }
+                
+                // Show manual gradient if available
+                if (hasManualGradient) {
+                  return <GradientBar colors={formData.gradient.filter(c => c && c.trim().toUpperCase() !== '#FFFFFF' && c.trim().toUpperCase() !== 'FFFFFF')} height={60} />;
+                }
+                
+                // No gradient available
+                return (
+                  <div className="h-[60px] rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-muted-foreground">
+                    Kein Farbverlauf - Bitte Farben hinzufügen oder GIA-Daten eingeben
+                  </div>
+                );
+              })()}
               <div className="flex gap-2 flex-wrap">
                 {formData.gradient.map((color, index) => (
                   <div key={index} className="flex items-center gap-2">
@@ -377,9 +533,14 @@ export function ColorChartEditor({ chart, locale, mode }: ColorChartEditorProps)
                   <Switch
                     id="published"
                     checked={formData.published}
-                    onCheckedChange={(checked) => handleInputChange('published', checked)}
+                    onCheckedChange={(checked) => {
+                      console.log('[ColorChartEditor] Published changed to:', checked);
+                      handleInputChange('published', checked);
+                    }}
                   />
-                  <Label htmlFor="published" className="text-white">Veröffentlicht</Label>
+                  <Label htmlFor="published" className="text-white">
+                    Veröffentlicht {formData.published ? '(wird auf öffentlicher Seite angezeigt)' : '(nur im Admin sichtbar)'}
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch

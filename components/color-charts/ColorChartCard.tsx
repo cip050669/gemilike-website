@@ -12,6 +12,9 @@ interface ColorChartCardProps {
 }
 
 export function ColorChartCard({ chart, onClick, className = '' }: ColorChartCardProps) {
+  // Ensure gradient is an array
+  const gradient = Array.isArray(chart.gradient) ? chart.gradient : [];
+  
   return (
     <Card
       className={`cursor-pointer hover:shadow-lg transition-all ${className}`}
@@ -35,7 +38,7 @@ export function ColorChartCard({ chart, onClick, className = '' }: ColorChartCar
         </div>
       </CardHeader>
       <CardContent>
-        <GradientBar colors={chart.gradient} height={60} className="mb-3" />
+        <GradientBar colors={gradient} height={60} className="mb-3" />
         {chart.gia && (
           <div className="flex gap-2 text-xs text-muted-foreground">
             {chart.gia.hue && <span>H: {chart.gia.hue}</span>}

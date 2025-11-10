@@ -34,10 +34,9 @@ import { LuminanceSaturationSection } from './analysis/LuminanceSaturationSectio
 import { SpectralCharacteristicSection } from './analysis/SpectralCharacteristicSection';
 import { GIAColorGradeSection } from './analysis/GIAColorGradeSection';
 import { OverallImpressionSection } from './analysis/OverallImpressionSection';
-import { PaletteComparisonSection } from './analysis/PaletteComparisonSection';
 import { GemstoneImageCrop } from './GemstoneImageCrop';
-import { compareToAllPalettes, PaletteComparison } from './utils/paletteComparison';
 import { loadOpenCV, applyGrabCut, BrushMode, BrushStroke, RectRegion } from './utils/opencvIntegration';
+import type { PaletteComparison } from './utils/paletteComparison';
 
 export function GemstoneColorAnalyzer() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -690,9 +689,10 @@ export function GemstoneColorAnalyzer() {
       );
       setOverallImpression(overall);
       
-      // 7. Palette Comparison (ΔE)
-      const comparisons = compareToAllPalettes(imageAnalysis.primaryColor.hex, whitepoint, customPalette.length > 0 ? customPalette : undefined);
-      setPaletteComparisons(comparisons);
+      // 7. Palette Comparison (ΔE) - Removed per user request
+      // const comparisons = compareToAllPalettes(imageAnalysis.primaryColor.hex, whitepoint, customPalette.length > 0 ? customPalette : undefined);
+      // setPaletteComparisons(comparisons);
+      setPaletteComparisons([]);
       
       // Store analysis for export
       setCurrentImageAnalysis(imageAnalysis);
@@ -1787,10 +1787,6 @@ export function GemstoneColorAnalyzer() {
             <PrimaryColorSection analysis={primaryColor} />
           )}
 
-          {/* 1.5. Palette Comparison */}
-          {paletteComparisons.length > 0 && (
-            <PaletteComparisonSection comparisons={paletteComparisons} />
-          )}
 
           {/* 2. Secondary Color Analysis */}
           {secondaryColors.length > 0 && (

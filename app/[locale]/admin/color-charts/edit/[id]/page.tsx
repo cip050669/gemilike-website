@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { ColorChartEditor } from '@/components/admin/color-charts/ColorChartEditor';
 import { Button } from '@/components/ui/button';
 import { ColorChart } from '@/components/color-charts/GemColorCard';
+import { ColorChartEditor } from '@/components/admin/color-charts/ColorChartEditor';
 
 export default async function ColorChartEditPage({
   params,
@@ -30,19 +30,23 @@ export default async function ColorChartEditPage({
     );
   }
 
+  // Ensure gradient and pleochro are arrays
+  const gradient = Array.isArray(chart.gradient) ? chart.gradient : (chart.gradient ? [chart.gradient] : []);
+  const pleochro = Array.isArray(chart.pleochro) ? chart.pleochro : (chart.pleochro ? [chart.pleochro] : []);
+
   const chartData: ColorChart = {
     id: chart.id,
     name: chart.name,
     origin: chart.origin,
     locale: chart.locale,
     gia: chart.gia as { hue?: string; tone?: string; sat?: string },
-    gradient: chart.gradient,
-    pleochro: chart.pleochro,
+    gradient,
+    pleochro,
     light: chart.light,
     note: chart.note,
     description: chart.description,
-    published: chart.published,
-    featured: chart.featured,
+    published: Boolean(chart.published),
+    featured: Boolean(chart.featured),
     order: chart.order,
     createdAt: chart.createdAt,
     updatedAt: chart.updatedAt,

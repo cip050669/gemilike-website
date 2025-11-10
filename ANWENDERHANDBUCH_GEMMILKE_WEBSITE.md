@@ -1,6 +1,6 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.0.0  
+**Version:** 2.1.0  
 **Stand:** Dezember 2025  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
@@ -120,6 +120,8 @@ gemilike-website/
 - Hero-Bereich mit konfigurierbaren Bildern und Texten
 - Newsticker für aktuelle Nachrichten
 - Neue Edelsteine Karussell
+  - **Interaktion:** Klick auf Thumbnail oder Edelstein-Name öffnet die Detailansicht auf der Shop-Seite (`/shop?gem={id}`)
+  - **Navigation:** Verlinkt zur Shop-Seite mit automatischer Öffnung der GemstoneCard
 - Blog/Stories Sektion
 - Newsletter-Anmeldung
 
@@ -146,9 +148,9 @@ gemilike-website/
 **Funktionalität:**
 
 - Übersicht aller verfügbaren Edelsteine
-- Filterung nach Kategorie, Preis, Herkunft
+- Filterung nach mehreren Kriterien (siehe unten)
 - Sortierung nach verschiedenen Kriterien
-- Detailansicht einzelner Edelsteine (`/shop/[gemId]`)
+- Detailansicht einzelner Edelsteine als modale Karte (nicht als separate Seite)
 
 **Datenquellen:**
 
@@ -158,12 +160,63 @@ gemilike-website/
 - `GemstonePrice` (Preise)
 - `GemstoneMedia` (Bilder/Videos)
 
+**Layout:**
+
+- **Grid-Layout:** 5 Thumbnails pro Zeile, linksbündig ausgerichtet
+- **Thumbnail-Größe:** 240×240px pro Karte
+- **Responsive:** Automatische Anpassung für kleinere Bildschirme
+
+**Filter-System:**
+
+Die Filter sind in einer Zeile angeordnet und haben eine reduzierte Breite (max. 33,333% der Containerbreite):
+
+1. **Suche:** Freitext-Suche nach Name, Art, Herkunft, Beschreibung
+2. **Edelsteinart** (ehemals "Kategorie"): Dropdown mit allen verfügbaren Edelsteinarten
+3. **Herkunft:** Dropdown mit allen verfügbaren Herkunftsangaben (neben "Edelsteinart" platziert)
+4. **Farbe:** Dropdown mit allen verfügbaren Farben
+5. **Klarheit:** Dropdown mit allen verfügbaren Klarheitsgraden
+6. **Behandlung:** Dropdown mit allen verfügbaren Behandlungen
+   - "Keine Behandlung" steht am Anfang der Liste (falls vorhanden)
+7. **Zertifizierung:** Dropdown mit Zertifizierungen
+   - "Alle Zertifizierungen" (Standard)
+   - "Keine Zertifizierungen" (am Anfang, filtert nach Edelsteinen ohne Zertifizierung)
+   - Alle vorhandenen Zertifizierungen (alphabetisch sortiert)
+8. **Sortierung:** 
+   - Neuheiten zuerst
+   - Preis (aufsteigend/absteigend)
+   - Gewicht (aufsteigend/absteigend)
+
+**Weitere Optionen:**
+
+- **Filter zurücksetzen:** Setzt alle Filter auf Standardwerte zurück
+- **Verkauft-Status ausblenden:** Checkbox 20px rechts vom "Filter zurücksetzen"-Button
+  - Standard: aktiviert (verkaufte Edelsteine werden ausgeblendet)
+
+**Detailansicht (GemstoneCard):**
+
+- **Öffnung:** Klick auf Thumbnail oder Edelstein-Name öffnet eine modale, verschiebbare Karte
+- **Position:** Karte kann frei auf dem Bildschirm verschoben werden
+- **Größe:** 450px Breite, max. 90vh Höhe
+- **Badges:** Farbcodierte Badges mit gleichen Farben wie die Piktogramme:
+  - Edelsteinart: Orange (#FF9447)
+  - Typ (Geschliffen/Roh): Purple (#6A1B9A)
+  - Neu: Gold (#FFC107)
+  - Verkauft/Nicht verfügbar: Rot (#FF7B7B)
+  - Seltenheit: Amber (#D45E00)
+- **MediaGallery:** 
+  - Bilder und Videos in einer Galerie
+  - Keine Nummerierung der Bilder
+  - Thumbnail-Navigation ohne Nummern
+- **Details:** Farbcodierte Piktogramme für alle Attribute (Edelsteinart, Preis, Bestand, Gewicht, Herkunft, etc.)
+- **Aktionen:** Warenkorb hinzufügen, Wishlist, Details schließen
+
 **Features:**
 
-- Erweiterte Suche mit Filtern
+- Erweiterte Suche mit mehreren Filtern
 - Warenkorb-Integration
 - Wishlist-Funktion
-- Responsive Grid-Layout
+- Responsive Grid-Layout (5 Spalten)
+- Modale Detailansicht ohne Seitenwechsel
 
 ---
 
@@ -327,12 +380,9 @@ gemilike-website/
    - GIA-Farbbewertung
    - Gesamteindruck mit Varietät-Vorschlägen
 
-5. **Palette-Vergleich**
-   - Automatischer Vergleich mit vordefinierten Paletten
-   - Vergleich mit benutzerdefinierter Palette
-   - ΔE76 und ΔE2000 Metriken
-   - Anzeige der besten Übereinstimmungen
-   - Integration in Analyse-Ergebnisse
+5. **Palette-Vergleich** (entfernt)
+   - Diese Funktion wurde entfernt
+   - Stattdessen: Fokus auf direkte Farbanalyse-Ergebnisse
 
 6. **Export-Funktionen**
    - **PNG-Export**: Hochauflösendes Bild (2x Skalierung) mit allen Ergebnissen
@@ -831,11 +881,25 @@ gemilike-website/
 - `slug` - URL-freundlicher Identifier
 - `origin` - Herkunft
 - `gia` - GIA-Daten (JSON: hue, tone, sat)
+  - **Hue:** Farbton (z.B. "pkR", "R", "O", "Y", etc.)
+  - **Tone:** Helligkeit (1-10)
+  - **Sat:** Sättigung (1-9)
+  - **Auto-Parsing:** Eingabe im Format "pkR,5,4" wird automatisch in hue="pkR", tone="5", sat="4" aufgeteilt
 - `gradient` - Array von Hex-Farben
-- `pleochro` - Array von Pleochroismus-Farben
+  - **Unabhängig von GIA:** Gradient kann unabhängig von GIA-Daten definiert werden
+  - **GIA-Generierung:** Wenn kein manueller Gradient vorhanden, wird automatisch ein Gradient aus GIA-Daten generiert
+  - **Priorität:** Manueller Gradient hat Vorrang vor GIA-Generierung
+- `pleochro` - Array von Pleochroismus-Farben (Hex-Farben)
 - `light` - Lichtstandard (Standard: "D55, CRI ≥95")
 - `published` - Veröffentlichungsstatus
 - `featured` - Featured-Status
+
+**GIA-Daten und Gradient:**
+
+- **Unabhängigkeit:** GIA-Daten und Gradient sind unabhängig voneinander
+- **Entweder-Oder:** Es muss entweder GIA-Daten ODER Gradient vorhanden sein (mindestens eines)
+- **Automatische Gradient-Generierung:** Wenn GIA-Daten vorhanden sind, aber kein manueller Gradient, wird automatisch ein Farbverlauf aus den GIA-Daten generiert
+- **Manuelle Priorität:** Wenn ein manueller Gradient vorhanden ist, wird dieser verwendet (auch wenn GIA-Daten vorhanden sind)
 
 **API-Endpunkte:**
 
@@ -1686,21 +1750,47 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 **Funktionalität:**
 
-1. **Farbtafel-Erstellung** - Erstellen von Farbtafeln mit GIA-Daten
+1. **Farbtafel-Erstellung** - Erstellen von Farbtafeln mit GIA-Daten oder manuellen Gradienten
 2. **Gradient-Anzeige** - Visualisierung von Farbverläufen
+   - **Manuelle Gradienten:** Direkte Eingabe von Hex-Farben
+   - **GIA-Generierung:** Automatische Generierung aus GIA-Daten (Hue, Tone, Saturation)
 3. **Pleochroismus-Visualisierung** - Anzeige von Pleochroismus-Farben
 4. **DeltaE2000-Vergleich** - Vergleich mit anderen Farbtafeln
-5. **Export-Funktionen** - PDF, JSON, Bild-Export
+5. **Export-Funktionen** - PNG, JSON (PDF-Export entfernt)
+
+**GIA-Daten-Eingabe:**
+
+- **Format:** Hue, Tone, Saturation (separate Felder)
+- **Kombiniertes Format:** Eingabe im Format "pkR,5,4" wird automatisch geparst:
+  - Hue: "pkR"
+  - Tone: "5"
+  - Sat: "4"
+- **Auto-Parsing:** Komma-getrennte Werte werden automatisch aufgeteilt
+
+**Gradient-Generierung aus GIA-Daten:**
+
+- **Algorithmus:** Konvertierung von GIA-Daten (Hue, Tone, Saturation) in Lab-Farbraum
+- **Schritte:**
+  1. Basis-Hue-Mapping: Jeder GIA-Hue wird einem Lab-Farbpunkt zugeordnet
+  2. Tone-Anpassung: Helligkeit (L*) wird basierend auf Tone (1-10) skaliert
+  3. Saturation-Anpassung: Chroma (a*, b*) wird basierend auf Sat (1-9) skaliert
+  4. Gradient-Generierung: 5 Farbstufen werden generiert mit leichten Variationen in Helligkeit und Sättigung
+  5. Konvertierung: Lab → XYZ → RGB → Hex
+- **Ergebnis:** Ein Farbverlauf mit 5 Farben, der die GIA-Daten visuell repräsentiert
 
 **Technische Details:**
 
 - **GIA-Format:** Hue, Tone, Saturation
-- **Farbraum-Konvertierung:** Hex → RGB → XYZ → Lab
+- **Farbraum-Konvertierung:** Hex → RGB → XYZ → Lab (und umgekehrt)
 - **DeltaE2000:** CIEDE2000-Algorithmus für Farbvergleiche
+- **GIA-Gradient:** Automatische Generierung von Farbverläufen aus GIA-Daten
 
 **Datenbank:**
 
 - `ColorChart` - Farbtafeln
+  - `gia` (JSON): Hue, Tone, Saturation
+  - `gradient` (Array): Hex-Farben (manuell oder GIA-generiert)
+  - `pleochro` (Array): Hex-Farben für Pleochroismus
 
 ---
 
@@ -2633,10 +2723,34 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 **Ende des Anwenderhandbuchs**
 
 *Letzte Aktualisierung: Dezember 2025*  
-*Version: 2.0.0*  
-*Gesamt: 2.200+ Zeilen Dokumentation*
+*Version: 2.1.0*  
+*Gesamt: 2.400+ Zeilen Dokumentation*
 
 ## Änderungsprotokoll
+
+### Version 2.1.0 (Dezember 2025)
+
+- **Shop-Seite Verbesserungen:**
+  - Grid-Layout: 5 Thumbnails pro Zeile, linksbündig ausgerichtet
+  - Filter-Felder: Breite um 2/3 reduziert (max. 33,333% der Containerbreite)
+  - Filter-Anordnung: "Herkunft" neben "Edelsteinart" platziert
+  - Filter-Umbenennung: "Kategorie" zu "Edelsteinart" geändert
+  - Neue Filter hinzugefügt: Farbe, Klarheit, Behandlung, Zertifizierung
+  - Behandlung-Filter: "Keine Behandlung" steht am Anfang der Liste
+  - Zertifizierung-Filter: "Keine Zertifizierungen" als separate Option am Anfang
+  - Checkbox-Position: "Verkauft-Status ausblenden" 20px rechts vom "Filter zurücksetzen"-Button
+  - GemstoneCard: Modale, verschiebbare Detailansicht (keine separate Seite)
+  - Badges: Farbcodierung mit gleichen Farben wie Piktogramme
+  - MediaGallery: Nummerierung der Bilder entfernt
+- **Homepage Karussell:**
+  - Links öffnen jetzt die GemstoneCard auf der Shop-Seite (`/shop?gem={id}`)
+- **Farbtafeln-Verbesserungen:**
+  - GIA-Daten unabhängig vom Gradient (entweder GIA oder Gradient erforderlich)
+  - Automatische Gradient-Generierung aus GIA-Daten
+  - Auto-Parsing für GIA-Eingabe im Format "pkR,5,4"
+  - Manueller Gradient hat Priorität vor GIA-Generierung
+- **Downloads-Seite:**
+  - Palette-Vergleich (ΔE) Sektion entfernt
 
 ### Version 2.0.0 (Dezember 2025)
 

@@ -142,7 +142,7 @@ export function MediaGallery({
   }
 
   return (
-    <div className={cn('w-full space-y-4', className)} style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
+    <div className={cn('w-full space-y-4', className)} style={{ maxWidth: '100%', boxSizing: 'border-box', width: '100%' }}>
       <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-gray-900/70 backdrop-blur" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
         <div
           ref={scrollContainerRef}
@@ -172,7 +172,7 @@ export function MediaGallery({
                 ) : (
                   <Image
                     src={item.src || PLACEHOLDER}
-                    alt={`${gemName} - Bild ${index + 1}`}
+                    alt={`${gemName}`}
                     width={900}
                     height={600}
                     className="h-full w-full max-h-[360px] select-none object-contain"
@@ -196,7 +196,7 @@ export function MediaGallery({
                         onClick={(event) => {
                           event.stopPropagation();
                         }}
-                        aria-label={`Bild ${index + 1} vergrößern`}
+                        aria-label={`Bild vergrößern`}
                       >
                         <ZoomIn className="h-4 w-4" />
                       </Button>
@@ -224,14 +224,6 @@ export function MediaGallery({
                   </div>
                 )}
 
-                {mediaItems.length > 1 && (
-                  <div 
-                    className="absolute z-10 rounded-full bg-gray-800/80 border border-white/20 px-3 py-1 text-xs font-semibold text-white shadow-lg backdrop-blur"
-                    style={{ bottom: '12px', right: '12px', position: 'absolute' }}
-                  >
-                    {index + 1} / {mediaItems.length}
-                  </div>
-                )}
 
                 {certification?.certified && (
                   <div 
@@ -294,11 +286,11 @@ export function MediaGallery({
                     'h-[120px] w-[120px]',
                     isActive ? 'border-primary shadow-lg ring-2 ring-primary/50 scale-105' : 'border-white/30 hover:border-white/50'
                   )}
-                  aria-label={`${item.type === 'video' ? 'Video' : 'Bild'} ${index + 1} auswählen`}
+                  aria-label={`${item.type === 'video' ? 'Video' : 'Bild'} auswählen`}
                 >
                   <Image
                     src={thumbSrc || PLACEHOLDER}
-                    alt={`${gemName} Vorschau ${index + 1}`}
+                    alt={`${gemName} Vorschau`}
                     fill
                     className="object-cover"
                     sizes="120px"
@@ -308,9 +300,6 @@ export function MediaGallery({
                       <Play className="h-10 w-10 text-white" />
                     </div>
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-sm px-2 py-1 text-center font-bold">
-                    {index + 1}
-                  </div>
                 </button>
               );
             })}

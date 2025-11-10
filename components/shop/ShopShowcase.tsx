@@ -21,6 +21,10 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string>('alle');
   const [origin, setOrigin] = useState<string>('alle');
+  const [color, setColor] = useState<string>('alle');
+  const [clarity, setClarity] = useState<string>('alle');
+  const [treatment, setTreatment] = useState<string>('alle');
+  const [certification, setCertification] = useState<string>('alle');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [hideSold, setHideSold] = useState(true);
   const [visibleCount, setVisibleCount] = useState(LOAD_STEP);
@@ -30,7 +34,7 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
 
   useEffect(() => {
     setVisibleCount(LOAD_STEP);
-  }, [search, category, origin, sortBy, hideSold, gemstones]);
+  }, [search, category, origin, color, clarity, treatment, certification, sortBy, hideSold, gemstones]);
 
   const categoryOptions = useMemo(() => {
     const options = new Set<string>();
@@ -48,6 +52,47 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
     return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
   }, [gemstones]);
 
+  const colorOptions = useMemo(() => {
+    const options = new Set<string>();
+    gemstones.forEach((gem) => {
+      if (gem.color) options.add(gem.color);
+    });
+    return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
+  }, [gemstones]);
+
+  const clarityOptions = useMemo(() => {
+    const options = new Set<string>();
+    gemstones.forEach((gem) => {
+      if (gem.clarity) options.add(gem.clarity);
+    });
+    return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
+  }, [gemstones]);
+
+  const treatmentOptions = useMemo(() => {
+    const options = new Set<string>();
+    gemstones.forEach((gem) => {
+      if (gem.treatment) options.add(gem.treatment);
+    });
+    const sorted = Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
+    // Move "Keine Behandlung" to the beginning if it exists
+    const keineBehandlungIndex = sorted.findIndex(opt => 
+      opt.toLowerCase().includes('keine') || opt.toLowerCase().includes('none') || opt.toLowerCase().includes('ohne')
+    );
+    if (keineBehandlungIndex > 0) {
+      const keineBehandlung = sorted.splice(keineBehandlungIndex, 1)[0];
+      return [keineBehandlung, ...sorted];
+    }
+    return sorted;
+  }, [gemstones]);
+
+  const certificationOptions = useMemo(() => {
+    const options = new Set<string>();
+    gemstones.forEach((gem) => {
+      if (gem.certification) options.add(gem.certification);
+    });
+    return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
+  }, [gemstones]);
+
   const filteredGemstones = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
     return gemstones
@@ -55,6 +100,18 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
         if (hideSold && gem.isSold) return false;
         if (category !== 'alle' && gem.category !== category) return false;
         if (origin !== 'alle' && gem.origin !== origin) return false;
+        if (color !== 'alle' && gem.color !== color) return false;
+        if (clarity !== 'alle' && gem.clarity !== clarity) return false;
+        if (treatment !== 'alle' && gem.treatment !== treatment) return false;
+        if (certification !== 'alle') {
+          if (certification === 'keine') {
+            // Filter for gems without certification
+            if (gem.certification) return false;
+          } else {
+            // Filter for specific certification
+            if (gem.certification !== certification) return false;
+          }
+        }
         if (normalizedSearch.length) {
           const haystack = [
             gem.name,
@@ -94,7 +151,7 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
             return a.isNew ? -1 : 1;
         }
       });
-  }, [gemstones, hideSold, category, origin, sortBy, search]);
+  }, [gemstones, hideSold, category, origin, color, clarity, treatment, certification, sortBy, search]);
 
   useEffect(() => {
     if (!searchParams) {
@@ -164,28 +221,43 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
                   blenden Sie verkaufte Exemplare aus.
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setSearch('');
-                  setCategory('alle');
-                  setOrigin('alle');
-                  setSortBy('newest');
-                  setHideSold(true);
-                }}
-                className={cn(
-                  navStyles.navButton,
-                  navStyles.navButtonTight,
-                  'self-start text-sm px-4 py-2'
-                )}
-              >
-                <span className={navStyles.navLabel}>Filter zurücksetzen</span>
-                <span className={navStyles.navGlow} />
-              </button>
+              <div className="flex items-center gap-5">
+                <button
+                  onClick={() => {
+                    setSearch('');
+                    setCategory('alle');
+                    setOrigin('alle');
+                    setColor('alle');
+                    setClarity('alle');
+                    setTreatment('alle');
+                    setCertification('alle');
+                    setSortBy('newest');
+                    setHideSold(true);
+                  }}
+                  className={cn(
+                    navStyles.navButton,
+                    navStyles.navButtonTight,
+                    'self-start text-sm px-4 py-2'
+                  )}
+                >
+                  <span className={navStyles.navLabel}>Filter zurücksetzen</span>
+                  <span className={navStyles.navGlow} />
+                </button>
+                <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-white/55" style={{ marginLeft: '20px' }}>
+                  <input
+                    type="checkbox"
+                    checked={hideSold}
+                    onChange={(event) => setHideSold(event.target.checked)}
+                    className="h-4 w-4 rounded border border-white/30 bg-gray-900 text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                  />
+                  Verkauft-Status ausblenden
+                </label>
+              </div>
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-4">
+            <div className="space-y-2 max-w-[33.333%]">
               <label className="text-xs uppercase tracking-wide text-white/55">Suche</label>
               <Input
                 placeholder="Name, Art, Herkunft …"
@@ -194,37 +266,100 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
                 className="border-white/20 bg-gray-800/60 text-white placeholder:text-white/35 focus-visible:ring-primary"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wide text-white/55">Kategorie</label>
-              <select
-                value={category}
-                onChange={(event) => setCategory(event.target.value)}
-                className="w-full rounded-lg border border-white/20 bg-gray-800/60 px-3 py-2 text-sm text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <option value="alle">Alle Kategorien</option>
-                {categoryOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+            <div className="flex gap-4 flex-wrap">
+              <div className="space-y-2 max-w-[33.333%]">
+                <label className="text-xs uppercase tracking-wide text-white/55">Edelsteinart</label>
+                <select
+                  value={category}
+                  onChange={(event) => setCategory(event.target.value)}
+                  className="w-full rounded-lg border border-white/20 bg-gray-800/60 px-3 py-2 text-sm text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <option value="alle">Alle Edelsteinarten</option>
+                  {categoryOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2 max-w-[33.333%]">
+                <label className="text-xs uppercase tracking-wide text-white/55">Herkunft</label>
+                <select
+                  value={origin}
+                  onChange={(event) => setOrigin(event.target.value)}
+                  className="w-full rounded-lg border border-white/20 bg-gray-800/60 px-3 py-2 text-sm text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <option value="alle">Alle Herkunftsangaben</option>
+                  {originOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2 max-w-[33.333%]">
+                <label className="text-xs uppercase tracking-wide text-white/55">Farbe</label>
+                <select
+                  value={color}
+                  onChange={(event) => setColor(event.target.value)}
+                  className="w-full rounded-lg border border-white/20 bg-gray-800/60 px-3 py-2 text-sm text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <option value="alle">Alle Farben</option>
+                  {colorOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2 max-w-[33.333%]">
+                <label className="text-xs uppercase tracking-wide text-white/55">Klarheit</label>
+                <select
+                  value={clarity}
+                  onChange={(event) => setClarity(event.target.value)}
+                  className="w-full rounded-lg border border-white/20 bg-gray-800/60 px-3 py-2 text-sm text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <option value="alle">Alle Klarheiten</option>
+                  {clarityOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2 max-w-[33.333%]">
+                <label className="text-xs uppercase tracking-wide text-white/55">Behandlung</label>
+                <select
+                  value={treatment}
+                  onChange={(event) => setTreatment(event.target.value)}
+                  className="w-full rounded-lg border border-white/20 bg-gray-800/60 px-3 py-2 text-sm text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <option value="alle">Alle Behandlungen</option>
+                  {treatmentOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2 max-w-[33.333%]">
+                <label className="text-xs uppercase tracking-wide text-white/55">Zertifizierung</label>
+                <select
+                  value={certification}
+                  onChange={(event) => setCertification(event.target.value)}
+                  className="w-full rounded-lg border border-white/20 bg-gray-800/60 px-3 py-2 text-sm text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <option value="alle">Alle Zertifizierungen</option>
+                  <option value="keine">Keine Zertifizierungen</option>
+                  {certificationOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wide text-white/55">Herkunft</label>
-              <select
-                value={origin}
-                onChange={(event) => setOrigin(event.target.value)}
-                className="w-full rounded-lg border border-white/20 bg-gray-800/60 px-3 py-2 text-sm text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <option value="alle">Alle Herkunftsangaben</option>
-                {originOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
+            <div className="space-y-2 max-w-[33.333%]">
               <label className="text-xs uppercase tracking-wide text-white/55">Sortierung</label>
               <select
                 value={sortBy}
@@ -239,16 +374,6 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
               </select>
             </div>
           </div>
-
-          <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-white/55">
-            <input
-              type="checkbox"
-              checked={hideSold}
-              onChange={(event) => setHideSold(event.target.checked)}
-              className="h-4 w-4 rounded border border-white/30 bg-gray-900 text-primary focus-visible:ring-2 focus-visible:ring-primary"
-            />
-            Verkauft-Status ausblenden
-          </label>
         </div>
 
         {filteredGemstones.length > 0 ? (

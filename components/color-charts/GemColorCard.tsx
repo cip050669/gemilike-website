@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas';
 import { GradientBar } from './GradientBar';
 import { PleochroismViewer } from './PleochroismViewer';
 import { DeltaEPanel } from './DeltaEPanel';
-import { PDFExport } from './PDFExport';
+import { generateGradientFromGIA } from './utils/giaToGradient';
 
 export interface ColorChart {
   id: string;
@@ -138,7 +138,6 @@ export function GemColorCard({
                     )}
                     PNG
                   </Button>
-                  <PDFExport chart={chart} />
                 </div>
               )}
             </div>
@@ -150,7 +149,30 @@ export function GemColorCard({
           <h3 className="text-sm font-semibold mb-2 text-muted-foreground">
             Farbverlauf
           </h3>
-          <GradientBar colors={chart.gradient} height={80} />
+          {(() => {
+            // Check if we have a manual gradient
+            const hasManualGradient = Array.isArray(chart.gradient) && chart.gradient.length > 0;
+            
+            // If no manual gradient, try to generate from GIA data
+            if (!hasManualGradient && chart.gia?.hue) {
+              const giaGradient = generateGradientFromGIA(chart.gia);
+              if (giaGradient.length > 0) {
+                return <GradientBar colors={giaGradient} height={80} />;
+              }
+            }
+            
+            // Show manual gradient if available
+            if (hasManualGradient) {
+              return <GradientBar colors={chart.gradient} height={80} />;
+            }
+            
+            // No gradient available
+            return (
+              <div className="h-20 rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-muted-foreground">
+                Kein Farbverlauf verfügbar
+              </div>
+            );
+          })()}
         </div>
 
         {/* GIA Data */}

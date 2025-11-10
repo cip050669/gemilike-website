@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -55,8 +54,6 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const cardRef = React.useRef<HTMLDivElement>(null);
-  const params = useParams<{ locale: string }>();
-  const locale = params?.locale ?? 'de';
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -173,7 +170,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
     <>
       <div
         className="grid gap-[16px]"
-        style={{ gridTemplateColumns: 'repeat(4, 240px)', justifyContent: 'center', maxHeight: 'calc(6 * 340px + 5 * 16px)', overflowY: 'auto', overflowX: 'hidden', paddingBottom: '16px' }}
+        style={{ gridTemplateColumns: 'repeat(5, 240px)', justifyContent: 'center', maxHeight: 'calc(6 * 340px + 5 * 16px)', overflowY: 'auto', paddingBottom: '16px' }}
       >
         {displayGemstones.map((gem) => {
           const previewImage = gem.images[0] ?? PLACEHOLDER_IMAGE;
@@ -215,12 +212,13 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                   <span className="text-[11px] uppercase tracking-[0.3em] text-white/45">
                     {gem.category}
                   </span>
-                  <Link
-                    href={`/${locale}/shop/${gem.id}`}
-                    className="block text-lg font-semibold text-white line-clamp-2 hover:text-primary"
+                  <button
+                    type="button"
+                    onClick={() => openGemstone(gem)}
+                    className="block text-left text-lg font-semibold text-white line-clamp-2 hover:text-primary cursor-pointer"
                   >
                     {gem.name}
-                  </Link>
+                  </button>
                 </div>
                 <div className="space-y-1 text-xs text-white/60">
                   <p>{priceLabel}</p>
@@ -286,7 +284,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
               {/* Header with Close Button - Draggable area */}
               <div 
                 className="flex justify-between items-start mb-4 cursor-move"
-                onMouseDown={(e) => {
+                onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
                   // Allow dragging from header, but not from close button
                   if ((e.target as HTMLElement).closest('button')) {
                     e.stopPropagation();
@@ -342,29 +340,71 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
 
                       {/* Badges */}
                       <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wide">
-                          <Badge className="bg-gray-800/60 text-white border-white/20">
+                          <Badge 
+                            className="border-white/20"
+                            style={{ 
+                              backgroundColor: 'rgba(255, 148, 71, 0.3)', 
+                              borderColor: 'rgba(255, 148, 71, 0.5)',
+                              color: '#FF9447'
+                            }}
+                          >
                             {selectedGemstone.category}
                           </Badge>
-                          <Badge className="bg-gray-800/60 text-white border-white/20">
+                          <Badge 
+                            className="border-white/20"
+                            style={{ 
+                              backgroundColor: 'rgba(106, 27, 154, 0.3)', 
+                              borderColor: 'rgba(106, 27, 154, 0.5)',
+                              color: '#6A1B9A'
+                            }}
+                          >
                             {selectedGemstone.type === 'cut' ? 'Geschliffener Stein' : 'Rohstein'}
                           </Badge>
                           {selectedGemstone.isNew && (
-                            <Badge className="bg-orange-600/30 text-orange-200 border-orange-500/40">
+                            <Badge 
+                              className="border-white/20"
+                              style={{ 
+                                backgroundColor: 'rgba(255, 193, 7, 0.3)', 
+                                borderColor: 'rgba(255, 193, 7, 0.5)',
+                                color: '#FFC107'
+                              }}
+                            >
                               Neu
                             </Badge>
                           )}
                           {selectedGemstone.isSold && (
-                            <Badge className="bg-red-600/30 text-red-200 border-red-500/40">
+                            <Badge 
+                              className="border-white/20"
+                              style={{ 
+                                backgroundColor: 'rgba(255, 123, 123, 0.3)', 
+                                borderColor: 'rgba(255, 123, 123, 0.5)',
+                                color: '#FF7B7B'
+                              }}
+                            >
                               Verkauft
                             </Badge>
                           )}
                           {!selectedGemstone.isSold && !selectedGemstone.inStock && (
-                            <Badge className="bg-red-600/30 text-red-200 border-red-500/40">
+                            <Badge 
+                              className="border-white/20"
+                              style={{ 
+                                backgroundColor: 'rgba(255, 123, 123, 0.3)', 
+                                borderColor: 'rgba(255, 123, 123, 0.5)',
+                                color: '#FF7B7B'
+                              }}
+                            >
                               Nicht verfügbar
                             </Badge>
                           )}
                           {selectedGemstone.rarity && (
-                            <Badge className="bg-purple-600/30 text-purple-200 border-purple-500/40">
+                            <Badge 
+                              className="border-white/20"
+                              style={{ 
+                                backgroundColor: 'rgba(212, 94, 0, 0.3)', 
+                                borderColor: 'rgba(212, 94, 0, 0.5)',
+                                color: '#D45E00'
+                              }}
+                            >
                               {selectedGemstone.rarity}
                             </Badge>
                           )}
@@ -486,7 +526,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   const getIconAndStyle = (label: string) => {
     // Jedes Icon bekommt eine eindeutige, kontrastreiche Farbe
-    // Optimiert für maximale visuelle Unterscheidbarkeit
+    // Komplementärfarben und hoher Kontrast für dunklen Hintergrund
     const iconMap: Record<string, { 
       icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>, 
       style: React.CSSProperties 
@@ -494,99 +534,99 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
       'Edelsteinart': { 
         icon: Gem, 
         style: { 
-          color: '#FF6B35', // Kräftiges Rot-Orange
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#FF9447', // Orange (gem-fire) - sehr hell
+          filter: 'brightness(1.2) saturate(1.3)',
         } 
       },
       'Preis': { 
         icon: Euro, 
         style: { 
-          color: '#00E5FF', // Helles Cyan
-          filter: 'brightness(1.5) saturate(1.6)',
+          color: '#00E5FF', // Hell-Cyan (gem-iceLight) - Komplementär zu Orange
+          filter: 'brightness(1.3) saturate(1.4)',
         } 
       },
       'Bestand': { 
         icon: Package, 
         style: { 
-          color: '#9C27B0', // Kräftiges Violett
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#8A5CF6', // Purple - sehr gesättigt
+          filter: 'brightness(1.2) saturate(1.3)',
         } 
       },
       'Gewicht': { 
         icon: Weight, 
         style: { 
-          color: '#FFC107', // Kräftiges Gelb
-          filter: 'brightness(1.5) saturate(1.6)',
+          color: '#FFD85E', // Gold (gem-fireLight) - Komplementär zu Purple
+          filter: 'brightness(1.3) saturate(1.4)',
         } 
       },
       'Herkunft': { 
         icon: MapPin, 
         style: { 
-          color: '#4CAF50', // Kräftiges Grün
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#00B8A9', // Grün-Cyan (gem-green)
+          filter: 'brightness(1.3) saturate(1.4)',
         } 
       },
       'Abmessungen': { 
         icon: Ruler, 
         style: { 
-          color: '#FF1493', // Kräftiges Deep Pink/Magenta (deutlich anders als Rot-Orange)
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#FF6B35', // Orange-Rot - Komplementär zu Cyan
+          filter: 'brightness(1.2) saturate(1.3)',
         } 
       },
       'Farbe': { 
         icon: Palette, 
         style: { 
-          color: '#F44336', // Kräftiges Rot (deutlich anders als Violett)
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#FF7B7B', // Logo-Rot - Pink-Ton
+          filter: 'brightness(1.3) saturate(1.4)',
         } 
       },
       'Farbsättigung': { 
         icon: Droplets, 
         style: { 
-          color: '#00FF7F', // Kräftiges Grün (deutlich anders als Cyan/Blau)
-          filter: 'brightness(1.5) saturate(1.6)',
+          color: '#00BCD4', // Cyan (gem-ice)
+          filter: 'brightness(1.3) saturate(1.4)',
         } 
       },
       'Klarheit': { 
         icon: Star, 
         style: { 
-          color: '#FF9800', // Kräftiges Orange (deutlich anders als Gelb)
-          filter: 'brightness(1.5) saturate(1.6)',
+          color: '#FFC107', // Gold-Gelb - sehr hell
+          filter: 'brightness(1.4) saturate(1.5)',
         } 
       },
       'Schliff': { 
         icon: Gem, 
         style: { 
-          color: '#E91E63', // Pink/Magenta
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#E53935', // Rot (gem-fireDark) - Komplementär zu Cyan
+          filter: 'brightness(1.2) saturate(1.3)',
         } 
       },
       'Schliffform': { 
         icon: Shapes, 
         style: { 
-          color: '#7B1FA2', // Dunkles Violett
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#6A1B9A', // Dunkles Purple
+          filter: 'brightness(1.3) saturate(1.4)',
         } 
       },
       'Behandlung': { 
         icon: FlaskConical, 
         style: { 
-          color: '#673AB7', // Dunkles Violett/Indigo (deutlich anders als Cyan und Grün)
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#478EFF', // Blau (compOrange) - Komplementär zu Orange
+          filter: 'brightness(1.3) saturate(1.4)',
         } 
       },
       'Zertifizierung': { 
         icon: Award, 
         style: { 
-          color: '#3F51B5', // Indigo
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#5E8EFF', // Azure-Blau (compYellow) - Komplementär zu Gold
+          filter: 'brightness(1.3) saturate(1.4)',
         } 
       },
       'Seltenheit': { 
         icon: Sparkles, 
         style: { 
-          color: '#2196F3', // Kräftiges Blau
-          filter: 'brightness(1.4) saturate(1.5)',
+          color: '#D45E00', // Amber (compCyan) - Komplementär zu Cyan
+          filter: 'brightness(1.2) saturate(1.3)',
         } 
       },
     };
@@ -595,7 +635,7 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
       icon: Tag, 
       style: { 
         color: '#00BCD4',
-        filter: 'brightness(1.5) saturate(1.6)',
+        filter: 'brightness(1.3) saturate(1.4)',
       }
     };
   };
