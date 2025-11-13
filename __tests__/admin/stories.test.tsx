@@ -92,8 +92,8 @@ describe('Admin Stories Management', () => {
     it('should display status badges with correct colors', () => {
       render(<StoriesAdminPage />);
 
-      expect(screen.getByText('Veröffentlicht')).toBeInTheDocument();
-      expect(screen.getByText('Entwurf')).toBeInTheDocument();
+      expect(screen.getAllByText('Veröffentlicht').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Entwurf').length).toBeGreaterThan(0);
     });
 
     it('should format dates correctly', () => {
@@ -109,16 +109,16 @@ describe('Admin Stories Management', () => {
     it('should convert status to correct text', () => {
       render(<StoriesAdminPage />);
 
-      expect(screen.getByText('Veröffentlicht')).toBeInTheDocument();
-      expect(screen.getByText('Entwurf')).toBeInTheDocument();
+      expect(screen.getAllByText('Veröffentlicht').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Entwurf').length).toBeGreaterThan(0);
     });
 
     it('should apply correct status colors', () => {
       render(<StoriesAdminPage />);
 
       // Status badges should have appropriate styling
-      const publishedBadge = screen.getByText('Veröffentlicht');
-      expect(publishedBadge.closest('span')).toHaveClass('bg-green-100', 'text-green-800');
+      const publishedBadge = screen.getAllByText('Veröffentlicht', { selector: 'span' })[0];
+      expect(publishedBadge).toHaveClass('bg-green-100', 'text-green-800');
     });
   });
 
@@ -136,6 +136,7 @@ describe('Admin Stories Management', () => {
 
       const viewLinks = screen.getAllByText('Anzeigen');
       expect(viewLinks.length).toBeGreaterThan(0);
+      expect(viewLinks[0].closest('a')).toHaveAttribute('href', '/de/stories/die-geschichte-des-smaragds');
     });
   });
 
@@ -150,4 +151,3 @@ describe('Admin Stories Management', () => {
     });
   });
 });
-

@@ -8,13 +8,17 @@ interface SecondaryColorSectionProps {
   pleochroism: string;
 }
 
-function Swatch({ hex, label, rgb, share }: { hex: string; label: string; rgb: string; share?: string }) {
+function Swatch({ hex, label, rgb, share, cieHue }: { hex: string; label: string; rgb: string; share?: string; cieHue?: string }) {
   return (
     <div className="flex items-center gap-3 p-3 rounded-2xl border bg-white/50 shadow-sm">
       <div className="h-10 w-10 rounded-xl border" style={{ backgroundColor: hex }} />
       <div className="min-w-0 flex-1">
         <div className="text-sm font-medium text-gray-900">{label}</div>
-        <div className="text-xs text-gray-600">HEX {hex} • RGB {rgb}{share ? ` • Anteil ${share}` : ""}</div>
+        <div className="text-xs text-gray-600">
+          HEX {hex} • RGB {rgb}
+          {cieHue && ` • CIE-Hue: ${cieHue}`}
+          {share ? ` • Anteil ${share}` : ""}
+        </div>
       </div>
     </div>
   );
@@ -39,6 +43,7 @@ export function SecondaryColorSection({ analysis, pleochroism }: SecondaryColorS
                 hex={item.hex}
                 label={`${item.region} – ${item.tone}`}
                 rgb={rgbString}
+                cieHue={item.cieHue}
                 share={`≈ ${item.percentage.toFixed(0)}%`}
               />
             );

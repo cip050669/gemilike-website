@@ -1,5 +1,10 @@
 # Verfügbare Routen
 
+**Version:** 2.2.0  
+**Letzte Aktualisierung:** November 2025
+
+**Hinweis:** Diese Dokumentation ist vollständig in das Anwenderhandbuch integriert. Siehe `ANWENDERHANDBUCH_GEMMILKE_WEBSITE.md` Abschnitt 11.2 für die vollständige Dokumentation.
+
 ## Deutsch (Standard)
 
 **Hinweis:** Der Development Server läuft standardmäßig auf Port 3000. Falls dieser belegt ist, wird automatisch ein anderer Port verwendet (z.B. 3002). Prüfen Sie die Terminal-Ausgabe für den korrekten Port.

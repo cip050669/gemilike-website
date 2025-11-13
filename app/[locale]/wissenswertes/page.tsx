@@ -2,7 +2,6 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
 import { getKnowledgeArticles } from '@/lib/services/knowledge.service';
-import { ArrowLeftIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { PublicLayout } from '@/components/layout/PublicLayout';
@@ -64,16 +63,6 @@ export default async function KnowledgeListPage({
       <div className="public-page-bg text-foreground">
         <div className="container py-12 md:py-20 space-y-10">
         <header className="space-y-4 text-center">
-          <div className="flex justify-center mb-4">
-            <Link
-              href={`/${locale}`}
-              className={cn(navStyles.navButton, navStyles.navButtonTight, 'gap-2 px-3')}
-            >
-              <ArrowLeftIcon className="relative z-[1] h-4 w-4" />
-              <span className={navStyles.navLabel}>Zurück zur Startseite</span>
-              <span className={navStyles.navGlow} />
-            </Link>
-          </div>
           <h1
             className="text-4xl md:text-5xl font-impact font-weight-impact"
             style={{ color: settings.headingColor }}

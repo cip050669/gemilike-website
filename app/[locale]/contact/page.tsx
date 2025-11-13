@@ -5,10 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MailIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckIcon, XIcon, ArrowLeftIcon } from 'lucide-react';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import navStyles from '@/components/layout/HeaderNav.module.css';
+import { MailIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckIcon, XIcon } from 'lucide-react';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 
 export default function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -34,7 +31,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...formData, locale: 'de' }),
+        body: JSON.stringify({ ...formData, locale }),
       });
       
       const result = await response.json();
@@ -65,16 +62,6 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
         <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <Link
-                href={`/${locale}`}
-                className={cn(navStyles.navButton, navStyles.navButtonTight, 'group gap-2')}
-              >
-                <ArrowLeftIcon className="relative z-[1] h-4 w-4 text-black transition-colors duration-200 group-active:text-[#FF7B7B]" />
-                <span className={navStyles.navLabel}>Zurück zur Startseite</span>
-                <span className={navStyles.navGlow} />
-              </Link>
-            </div>
             <h1 className="gemilike-text-gradient text-4xl font-bold mb-4">Kontakt</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Haben Sie Fragen zu unseren Edelsteinen oder benötigen Sie eine Beratung? 

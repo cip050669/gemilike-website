@@ -22,6 +22,9 @@ jest.mock('@/lib/prisma', () => ({
       aggregate: jest.fn(),
       findMany: jest.fn(),
     },
+    checkoutEvent: {
+      count: jest.fn(),
+    },
   },
 }));
 
@@ -73,6 +76,18 @@ describe('Admin Dashboard', () => {
         },
       },
     ]);
+    (prisma.checkoutEvent.count as jest.Mock).mockImplementation(({ where }) => {
+      switch (where?.step) {
+        case 'start':
+          return Promise.resolve(120);
+        case 'success':
+          return Promise.resolve(80);
+        case 'abandon':
+          return Promise.resolve(40);
+        default:
+          return Promise.resolve(0);
+      }
+    });
   });
 
   describe('Page Rendering', () => {
@@ -255,11 +270,13 @@ describe('Admin Dashboard', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (prisma.gemstone.count as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (prisma.gemstone.count as jest.Mock).mockImplementationOnce(() => {
+        throw new Error('Database error');
+      });
 
       await expect(
         AdminDashboardPage({ params: Promise.resolve({ locale: 'de' }) })
-      ).rejects.toThrow();
+      ).rejects.toThrow('Database error');
     });
   });
 
@@ -309,4 +326,3 @@ describe('Admin Dashboard', () => {
     });
   });
 });
-

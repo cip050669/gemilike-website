@@ -7,7 +7,7 @@ export default async function ShopPage() {
 
   return (
     <PublicLayout>
-      <div className="min-h-screen public-page-bg text-white py-16">
+      <div className="min-h-screen public-page-bg text-white pb-16">
         <div className="max-w-6xl mx-auto px-4">
           <ShopShowcase gemstones={gemstones} />
         </div>

@@ -1,13 +1,14 @@
 import { prisma } from '@/lib/prisma';
 import { InteractiveWorldMap } from '@/components/worldmap/InteractiveWorldMap';
-import Link from 'next/link';
-import { ArrowLeftIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import navStyles from '@/components/layout/HeaderNav.module.css';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 
 export default async function WorldMapPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  const isGerman = locale === 'de';
+  const heading = isGerman ? 'Edelstein-Fundorte' : 'Gemstone Locations';
+  const subheading = isGerman
+    ? 'Entdecken Sie die wichtigsten Fundorte der 20 bedeutendsten Edelsteine auf unserer interaktiven Weltkarte'
+    : 'Discover the key deposits of the 20 most significant gemstones on our interactive world map.';
 
   // Lade alle aktiven Fundorte mit ihren Daten
   const locationRecords = await prisma.location.findMany({
@@ -49,24 +50,14 @@ export default async function WorldMapPage({ params }: { params: Promise<{ local
 
   return (
     <PublicLayout>
-      <div className="min-h-screen public-page-bg">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <Link
-                href={`/${locale}`}
-                className={cn(navStyles.navButton, navStyles.navButtonTight, 'gap-2 px-3')}
-              >
-                <ArrowLeftIcon className="relative z-[1] h-4 w-4" />
-                <span className={navStyles.navLabel}>Zurück zur Startseite</span>
-                <span className={navStyles.navGlow} />
-              </Link>
-            </div>
+      <div className="public-page-bg text-foreground">
+        <div className="container py-12 md:py-20 space-y-10">
+          <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              <span className="gradient-text animate-glow">Edelstein-Fundorte</span>
+              <span className="gradient-text animate-glow">{heading}</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Entdecken Sie die wichtigsten Fundorte der 20 bedeutendsten Edelsteine auf unserer interaktiven Weltkarte
+            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+              {subheading}
             </p>
           </div>
 

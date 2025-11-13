@@ -194,6 +194,7 @@ export async function extractColorsEnhanced(
 
         const baseStep = Math.max(1, Math.floor(((endX - startX) * (endY - startY)) / sampleSize));
 
+        // First pass: try with mask
         for (let y = startY; y < endY; y += baseStep) {
           for (let x = startX; x < endX; x += baseStep) {
             if (!mask[y] || !mask[y][x]) continue;
@@ -202,7 +203,8 @@ export async function extractColorsEnhanced(
             const r = imageData.data[0];
             const g = imageData.data[1];
             const b = imageData.data[2];
-            if (imageData.data[3] < 128) continue;
+            // Relaxed alpha check: only skip fully transparent pixels
+            if (imageData.data[3] < 10) continue;
 
             const hex = rgbToHex(r, g, b);
             const rgb = { r: r / 255, g: g / 255, b: b / 255 };
@@ -225,6 +227,107 @@ export async function extractColorsEnhanced(
               weight: 1,
             });
           }
+        }
+
+        // Fallback: if mask is too restrictive, sample from center region
+        if (pixels.length === 0) {
+          console.warn('Maske zu restriktiv, verwende Fallback: Zentrale Region');
+          
+          // Calculate center region (60% of image centered)
+          const centerX = (startX + endX) / 2;
+          const centerY = (startY + endY) / 2;
+          const fallbackWidth = (endX - startX) * 0.6;
+          const fallbackHeight = (endY - startY) * 0.6;
+          const fallbackStartX = Math.max(startX, Math.floor(centerX - fallbackWidth / 2));
+          const fallbackStartY = Math.max(startY, Math.floor(centerY - fallbackHeight / 2));
+          const fallbackEndX = Math.min(endX, Math.floor(centerX + fallbackWidth / 2));
+          const fallbackEndY = Math.min(endY, Math.floor(centerY + fallbackHeight / 2));
+          
+          const fallbackStep = Math.max(1, Math.floor((fallbackWidth * fallbackHeight) / sampleSize));
+          
+          for (let y = fallbackStartY; y < fallbackEndY; y += fallbackStep) {
+            for (let x = fallbackStartX; x < fallbackEndX; x += fallbackStep) {
+              const imageData = ctx.getImageData(x, y, 1, 1);
+              const r = imageData.data[0];
+              const g = imageData.data[1];
+              const b = imageData.data[2];
+              // Skip fully transparent or very dark pixels
+              if (imageData.data[3] < 10) continue;
+              if (r < 10 && g < 10 && b < 10) continue; // Skip pure black
+
+              const hex = rgbToHex(r, g, b);
+              const rgb = { r: r / 255, g: g / 255, b: b / 255 };
+              const xyz = rgbToXyz(rgb);
+              const lab = xyzToLab(xyz, whitepoint, effectiveWP);
+
+              const [h] = rgbToHsv(r, g, b);
+              hues.push(h);
+              hueHist[Math.floor(h) % 360]++;
+
+              pixels.push({
+                hex,
+                rgb: { r, g, b },
+                lab,
+                xyz,
+                percentage: 0,
+                x,
+                y,
+                weight: 0.8, // Lower weight for fallback pixels
+              });
+            }
+          }
+        }
+
+        // Final fallback: if still no pixels, sample entire image (excluding edges)
+        if (pixels.length === 0) {
+          console.warn('Fallback fehlgeschlagen, verwende gesamtes Bild (ohne Ränder)');
+          
+          const edgeMargin = Math.min(canvas.width, canvas.height) * 0.1;
+          const fullStartX = Math.floor(edgeMargin);
+          const fullStartY = Math.floor(edgeMargin);
+          const fullEndX = Math.floor(canvas.width - edgeMargin);
+          const fullEndY = Math.floor(canvas.height - edgeMargin);
+          
+          const fullStep = Math.max(1, Math.floor(((fullEndX - fullStartX) * (fullEndY - fullStartY)) / sampleSize));
+          
+          for (let y = fullStartY; y < fullEndY; y += fullStep) {
+            for (let x = fullStartX; x < fullEndX; x += fullStep) {
+              const imageData = ctx.getImageData(x, y, 1, 1);
+              const r = imageData.data[0];
+              const g = imageData.data[1];
+              const b = imageData.data[2];
+              // Skip fully transparent or very dark pixels
+              if (imageData.data[3] < 10) continue;
+              if (r < 10 && g < 10 && b < 10) continue; // Skip pure black
+
+              const hex = rgbToHex(r, g, b);
+              const rgb = { r: r / 255, g: g / 255, b: b / 255 };
+              const xyz = rgbToXyz(rgb);
+              const lab = xyzToLab(xyz, whitepoint, effectiveWP);
+
+              const [h] = rgbToHsv(r, g, b);
+              hues.push(h);
+              hueHist[Math.floor(h) % 360]++;
+
+              pixels.push({
+                hex,
+                rgb: { r, g, b },
+                lab,
+                xyz,
+                percentage: 0,
+                x,
+                y,
+                weight: 0.5, // Even lower weight for final fallback
+              });
+            }
+          }
+        }
+
+        // Validate that we have pixels to analyze
+        if (pixels.length === 0) {
+          URL.revokeObjectURL(url);
+          reject(new Error('Keine Pixel gefunden. Bitte stellen Sie sicher, dass das Bild ein Edelstein zeigt und die Maske korrekt erkannt wurde. Versuchen Sie ein anderes Bild oder deaktivieren Sie die erweiterte Maskierung.'));
+          return;
         }
 
         // Step 3: Enhanced clustering
@@ -309,9 +412,24 @@ export async function extractColorsEnhanced(
           };
         }
 
+        // Validate that we have clusters
+        if (clusters.length === 0) {
+          URL.revokeObjectURL(url);
+          reject(new Error('Keine Farbcluster gefunden. Bitte versuchen Sie es mit einem anderen Bild.'));
+          return;
+        }
+
         // Step 5: Calculate metrics
         const sorted = clusters.sort((a, b) => b.percentage - a.percentage);
         const primaryColor = sorted[0];
+        
+        // Validate that primaryColor exists
+        if (!primaryColor) {
+          URL.revokeObjectURL(url);
+          reject(new Error('Keine Primärfarbe gefunden. Bitte versuchen Sie es mit einem anderen Bild.'));
+          return;
+        }
+        
         const secondaryColors = sorted.slice(1, 5);
 
         const totalWeight = clusters.reduce((sum, c) => sum + (c.weight || c.percentage), 0);

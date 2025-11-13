@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "jest",
+    "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "seed": "prisma db seed"
@@ -41,6 +41,7 @@
     "cmdk": "^1.1.1",
     "critters": "^0.0.25",
     "dotenv": "^17.2.3",
+    "exceljs": "^4.4.0",
     "gray-matter": "^4.0.3",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
@@ -65,7 +66,6 @@
     "sharp": "^0.34.4",
     "tailwind-merge": "^3.3.1",
     "uuid": "^13.0.0",
-    "xlsx": "^0.18.5",
     "yaml": "^2.8.1",
     "zustand": "^5.0.8"
   },

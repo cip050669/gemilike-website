@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Upload, FileJson, FileSpreadsheet, FileText, AlertCircle, CheckCircle, Copy } from 'lucide-react';
 import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 import * as yaml from 'yaml';
 import { ColorChart } from './GemColorCard';
 
@@ -202,9 +202,44 @@ export function UploadPanel({ onImport, className = '' }: UploadPanelProps) {
   const handleExcel = async (file: File) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json<SpreadsheetRow>(firstSheet);
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(arrayBuffer);
+      
+      // Get first worksheet
+      const worksheet = workbook.worksheets[0];
+      if (!worksheet) {
+        throw new Error('Excel-Datei enthält keine Arbeitsblätter');
+      }
+
+      // Convert worksheet to JSON
+      const jsonData: SpreadsheetRow[] = [];
+      const headerRow = worksheet.getRow(1);
+      const headers: string[] = [];
+      
+      headerRow.eachCell((cell, colNumber) => {
+        headers[colNumber - 1] = cell.value?.toString() || '';
+      });
+
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // Skip header row
+        
+        const rowData: SpreadsheetRow = {};
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          const header = headers[colNumber - 1];
+          if (header) {
+            const value = cell.value;
+            // Convert ExcelJS cell value to string/number/boolean
+            if (value === null || value === undefined) {
+              rowData[header] = null;
+            } else if (typeof value === 'object' && 'text' in value) {
+              rowData[header] = (value as { text: string }).text;
+            } else {
+              rowData[header] = value as string | number | boolean;
+            }
+          }
+        });
+        jsonData.push(rowData);
+      });
 
       const charts = jsonData.map(mapSpreadsheetRowToChart);
 

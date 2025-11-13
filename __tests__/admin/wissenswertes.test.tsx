@@ -5,12 +5,12 @@
 
 import { render, screen, waitFor } from '@testing-library/react';
 import KnowledgeAdminPage from '@/app/[locale]/admin/wissenswertes/page';
-import { loadKnowledgeArticles } from '@/lib/data/knowledge';
+import { getKnowledgeArticles } from '@/lib/services/knowledge.service';
 import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
 
 // Mock data loaders
-jest.mock('@/lib/data/knowledge', () => ({
-  loadKnowledgeArticles: jest.fn(),
+jest.mock('@/lib/services/knowledge.service', () => ({
+  getKnowledgeArticles: jest.fn(),
 }));
 
 jest.mock('@/lib/data/knowledge-settings', () => ({
@@ -84,7 +84,7 @@ const mockSettings = {
 describe('Admin Wissenswertes Management', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (loadKnowledgeArticles as jest.Mock).mockResolvedValue(mockArticles);
+    (getKnowledgeArticles as jest.Mock).mockResolvedValue(mockArticles);
     (loadKnowledgeSectionSettings as jest.Mock).mockResolvedValue(mockSettings);
   });
 
@@ -94,7 +94,7 @@ describe('Admin Wissenswertes Management', () => {
       render(page);
 
       await waitFor(() => {
-        expect(screen.getByText('Wissenswertes')).toBeInTheDocument();
+        expect(screen.getByText('Wissenswertes-Verwaltung')).toBeInTheDocument();
       });
     });
 
@@ -103,7 +103,7 @@ describe('Admin Wissenswertes Management', () => {
       render(page);
 
       await waitFor(() => {
-        expect(loadKnowledgeArticles).toHaveBeenCalled();
+        expect(getKnowledgeArticles).toHaveBeenCalled();
         expect(loadKnowledgeSectionSettings).toHaveBeenCalled();
       });
     });
@@ -156,7 +156,7 @@ describe('Admin Wissenswertes Management', () => {
 
   describe('Error Handling', () => {
     it('should handle load errors gracefully', async () => {
-      (loadKnowledgeArticles as jest.Mock).mockRejectedValue(new Error('Load error'));
+      (getKnowledgeArticles as jest.Mock).mockRejectedValue(new Error('Load error'));
 
       await expect(
         KnowledgeAdminPage({ params: Promise.resolve({ locale: 'de' }) })
@@ -164,4 +164,3 @@ describe('Admin Wissenswertes Management', () => {
     });
   });
 });
-

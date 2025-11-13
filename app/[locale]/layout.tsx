@@ -1,12 +1,10 @@
-import { Inter } from 'next/font/google';
 import '../globals.css';
 import { SessionProvider } from '@/components/providers/SessionProvider';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header';
-
-const inter = Inter({ subsets: ['latin'] });
+import clsx from 'clsx';
 
 export const metadata: Metadata = {
   title: 'Gemilike - Heroes in Gems | Edelsteinhandel',
@@ -41,7 +39,7 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
       </head>
-      <body className={`${inter.className} public-page-bg`} suppressHydrationWarning>
+      <body className={clsx('public-page-bg', 'font-sans')} suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>
             <Header />

@@ -9,6 +9,13 @@ export default async function OrdersPage() {
     },
   });
 
+  const formatDate = (value: string | Date) =>
+    new Date(value).toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
   return (
     <div className="min-h-screen bg-gray-800/50">
       <div className="container mx-auto px-4 py-8">
@@ -168,7 +175,7 @@ export default async function OrdersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                      {new Date(order.createdAt).toLocaleDateString('de-DE')}
+                      {formatDate(order.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${

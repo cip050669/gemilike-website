@@ -278,6 +278,9 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
               maxHeight: '90vh',
               boxSizing: 'border-box',
             }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Details für ${selectedGemstone.name}`}
             onMouseDown={handleMouseDown}
           >
             <div className="overflow-y-auto space-y-6 w-full" style={{ maxHeight: 'calc(90vh - 3rem)', boxSizing: 'border-box', width: '100%' }}>

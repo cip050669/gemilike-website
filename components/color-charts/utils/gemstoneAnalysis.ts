@@ -25,7 +25,9 @@ export interface SecondaryColorAnalysis {
   region: string;
   hex: string;
   rgb: { r: number; g: number; b: number }; // 0-255 range
+  lab: { L: number; a: number; b: number };
   tone: string;
+  cieHue: string;
   percentage: number;
 }
 
@@ -95,8 +97,8 @@ export function analyzePrimaryColor(color: ColorSample): PrimaryColorAnalysis {
   // Determine tone (lightness)
   const tone = getToneDescription(lab.L);
   
-  // Determine CIE Hue
-  const cieHue = getCIEHue(lab.a, lab.b);
+  // Determine CIE Hue (pass hex for RGB-based correction)
+  const cieHue = getCIEHue(lab.a, lab.b, hex);
   
   // Get color description
   const description = getColorDescription(hex, lab);
@@ -131,7 +133,9 @@ export function analyzeSecondaryColors(
       region: 'Zentralbereich',
       hex: primary.hex,
       rgb: { r: primary.rgb.r, g: primary.rgb.g, b: primary.rgb.b }, // Already in 0-255 range from ColorSample
+      lab: primary.lab,
       tone: getToneDescription(primary.lab.L),
+      cieHue: getCIEHue(primary.lab.a, primary.lab.b, primary.hex),
       percentage: primary.percentage,
     });
   }
@@ -143,7 +147,9 @@ export function analyzeSecondaryColors(
       region: 'Facettenreflexe',
       hex: primary.hex,
       rgb: { r: primary.rgb.r, g: primary.rgb.g, b: primary.rgb.b }, // Already in 0-255 range from ColorSample
+      lab: primary.lab,
       tone: getToneDescription(primary.lab.L),
+      cieHue: getCIEHue(primary.lab.a, primary.lab.b, primary.hex),
       percentage: primary.percentage,
     });
   }
@@ -155,7 +161,9 @@ export function analyzeSecondaryColors(
       region: 'Schattenbereiche',
       hex: primary.hex,
       rgb: { r: primary.rgb.r, g: primary.rgb.g, b: primary.rgb.b }, // Already in 0-255 range from ColorSample
+      lab: primary.lab,
       tone: getToneDescription(primary.lab.L),
+      cieHue: getCIEHue(primary.lab.a, primary.lab.b, primary.hex),
       percentage: primary.percentage,
     });
   }
@@ -404,10 +412,78 @@ function getToneDescription(L: number): string {
   return 'Sehr hell (Very Light)';
 }
 
-function getCIEHue(a: number, b: number): string {
+function getCIEHue(a: number, b: number, hex?: string): string {
   const angle = (Math.atan2(b, a) * 180) / Math.PI;
   const normalizedAngle = angle < 0 ? angle + 360 : angle;
   
+  // Parse RGB from hex if provided for better accuracy
+  let r = 0, g = 0, bl = 0;
+  if (hex) {
+    const hexClean = hex.replace('#', '');
+    if (hexClean.length === 6) {
+      r = parseInt(hexClean.substring(0, 2), 16);
+      g = parseInt(hexClean.substring(2, 4), 16);
+      bl = parseInt(hexClean.substring(4, 6), 16);
+    } else if (hexClean.length === 3) {
+      r = parseInt(hexClean[0] + hexClean[0], 16);
+      g = parseInt(hexClean[1] + hexClean[1], 16);
+      bl = parseInt(hexClean[2] + hexClean[2], 16);
+    }
+  }
+  
+  // CRITICAL: For the problematic range 285-345°, check RGB to distinguish violet from red
+  if (normalizedAngle >= 285 && normalizedAngle < 345) {
+    // If b < 0 (negative b means blue/violet), check blue component
+    if (b < 0 && hex) {
+      // If blue is significant (> 50), it's likely violet, not red
+      if (bl > 50) {
+        // Only classify as red if red is OVERWHELMINGLY dominant (r > bl * 2.0)
+        if (r > bl * 2.0 && r > g * 1.5) {
+          return 'Rot (R)';
+        }
+        // If blue is at least 50% of red, it's violet
+        if (bl >= r * 0.5) {
+          return 'Violett (P)';
+        }
+        // If blue is significant and red is not 2x blue, it's violet
+        return 'Violett (P)';
+      }
+      
+      // If blue is moderate (30-50), still prefer violet unless red is very dominant
+      if (bl > 30) {
+        if (r > bl * 2.5 && r > g * 1.5) {
+          return 'Rot (R)';
+        }
+        return 'Violett (P)';
+      }
+      
+      // Even if blue is small (10-30), if it exists and b < 0, it's likely violet
+      if (bl > 10) {
+        if (r > bl * 3.0 && r > g * 2.0) {
+          return 'Rot (R)';
+        }
+        // Default to violet if blue exists
+        return 'Violett (P)';
+      }
+    }
+    
+    // DEFAULT: If we're in this range and b < 0, it's likely violet
+    if (b < 0) {
+      return 'Violett (P)';
+    }
+    
+    // Only if blue is truly minimal (< 10) and red is clearly dominant, classify as red
+    if (hex && bl < 10 && r > g && r > bl * 1.5) {
+      return 'Rot (R)';
+    }
+    
+    // Final fallback: default to violet for this range (safer than red)
+    if (b < 0) {
+      return 'Violett (P)';
+    }
+  }
+  
+  // Standard angle-based classification for other ranges
   if (normalizedAngle < 15 || normalizedAngle >= 345) return 'Rot (R)';
   if (normalizedAngle < 45) return 'Gelb-Rot (YR)';
   if (normalizedAngle < 75) return 'Gelb (Y)';
@@ -418,7 +494,9 @@ function getCIEHue(a: number, b: number): string {
   if (normalizedAngle < 225) return 'Blau-Violett (PB)';
   if (normalizedAngle < 255) return 'Violett (P)';
   if (normalizedAngle < 285) return 'Rot-Violett (RP)';
-  return 'Rot (R)';
+  
+  // Final fallback
+  return 'Violett (P)';
 }
 
 function getColorDescription(hex: string, lab: { L: number; a: number; b: number }): string {
@@ -814,10 +892,31 @@ function getColorDescription(hex: string, lab: { L: number; a: number; b: number
       }
     }
     
-    // Red-Violet: a is positive, b is negative, but red component is strong
+    // CRITICAL: Check RGB FIRST to determine if it's violet or red-violet
+    // If blue is dominant or equal to red, it's violet (not red-violet)
+    if (b < 0) {
+      // If blue is clearly dominant or equal to red, it's violet
+      if (bl >= r && bl > g) {
+        // Even if red is close, if blue is at least equal, it's violet
+        if (bl >= r * 0.95) {
+          return 'Violett';
+        }
+      }
+      // If blue is significantly higher than red, it's definitely violet
+      if (bl > r * 1.1 && bl > g) {
+        return 'Violett';
+      }
+      // For light colors, if blue is highest or equal, it's violet
+      if (lab.L > 60 && bl >= r && bl > g) {
+        return 'Violett';
+      }
+    }
+    
+    // Red-Violet: a is positive, b is negative, but red component must be STRONGLY dominant
     // BUT: Only if b < 0 (blue/violet have negative b, green has positive b)
     if (a > 5 && b < -5) {
-      // Check RGB: red-violet should have more red than blue
+      // Check RGB: red-violet should have SIGNIFICANTLY more red than blue
+      // Only classify as red-violet if red is clearly dominant (at least 20% more)
       if (r > bl * 1.2 && r > g) {
         return 'Rot-Violett';
       }
@@ -825,10 +924,12 @@ function getColorDescription(hex: string, lab: { L: number; a: number; b: number
       if (bl >= r * 0.9 && bl > g) {
         return 'Violett';
       }
-      // If red is slightly more than blue, it's red-violet
-      if (r > bl && r > g) {
+      // If red is only slightly more than blue, it's still violet (not red-violet)
+      // Only if red is clearly dominant (r > bl * 1.15), classify as red-violet
+      if (r > bl * 1.15 && r > g) {
         return 'Rot-Violett';
       }
+      // Default to violet if blue and red are similar
       return 'Violett';
     }
     // For this angle range, if a is not strongly positive, check RGB
@@ -841,12 +942,75 @@ function getColorDescription(hex: string, lab: { L: number; a: number; b: number
       if (lab.L > 70 && bl > r && bl > g && b < 0) {
         return 'Blau';
       }
+      // If blue is at least equal to red, it's violet
+      if (bl >= r && bl > g && b < 0) {
+        return 'Violett';
+      }
     }
-    return 'Rot-Violett';
+    // CRITICAL: Default to violet (not red-violet) if blue is present
+    // Only classify as red-violet if red is clearly dominant
+    if (b < 0) {
+      // If blue is at least equal to red, it's violet
+      if (bl >= r && bl > g) {
+        return 'Violett';
+      }
+      // Only if red is clearly dominant (r > bl * 1.2), classify as red-violet
+      if (r > bl * 1.2 && r > g) {
+        return 'Rot-Violett';
+      }
+      // Default to violet for this range
+      return 'Violett';
+    }
+    // If b is not negative, it might be something else, but default to violet
+    return 'Violett';
   }
   
   // Pink/Red (285-345 degrees)
+  // CRITICAL: This range is often violet, not red. Be VERY conservative about classifying as red.
   if (normalizedAngle < 345) {
+    // ABSOLUTE RULE: If b < 0 (negative b means blue/violet, not red), check blue component FIRST
+    if (b < 0) {
+      // If blue is present at all and significant (> 50), it's likely violet, not red
+      // Only classify as red if red is OVERWHELMINGLY dominant (r > bl * 2.0)
+      if (bl > 50) {
+        // Blue is significant - require red to be at least 2x blue to be considered red
+        if (r > bl * 2.0 && r > g * 1.5) {
+          // Red is overwhelmingly dominant, it's red
+          return chroma > 25 ? 'Rot' : 'Rosa';
+        }
+        // If blue is at least 50% of red, it's violet
+        if (bl >= r * 0.5) {
+          return 'Violett';
+        }
+        // If blue is significant and red is not 2x blue, it's violet
+        return 'Violett';
+      }
+      
+      // If blue is moderate (30-50), still prefer violet unless red is very dominant
+      if (bl > 30) {
+        if (r > bl * 2.5 && r > g * 1.5) {
+          return chroma > 25 ? 'Rot' : 'Rosa';
+        }
+        return 'Violett';
+      }
+      
+      // Even if blue is small (10-30), if it exists and b < 0, it's likely violet
+      if (bl > 10) {
+        if (r > bl * 3.0 && r > g * 2.0) {
+          return chroma > 25 ? 'Rot' : 'Rosa';
+        }
+        // Default to violet if blue exists
+        return 'Violett';
+      }
+    }
+    
+    // If b >= 0, it might be red, but check if blue is still present
+    // Even with positive b, if blue is significant, it could be a measurement artifact
+    if (bl > 100 && bl >= r * 0.6) {
+      // Blue is still significant, likely violet
+      return 'Violett';
+    }
+    
     // Final safety check: if blue is still dominant in RGB, it's not red/pink
     if (bl > r * 1.3 && bl > g * 1.3 && b < 0) {
       // Could be blue-violet or violet
@@ -855,7 +1019,25 @@ function getColorDescription(hex: string, lab: { L: number; a: number; b: number
       }
       return 'Blau-Violett';
     }
-    return chroma > 25 ? 'Rot' : 'Rosa';
+    
+    // ONLY if blue is truly minimal (< 10) and red is clearly dominant, classify as red
+    if (bl < 10 && r > g && r > bl * 1.5) {
+      return chroma > 25 ? 'Rot' : 'Rosa';
+    }
+    
+    // DEFAULT: If we're in this range and blue exists at all, it's violet
+    // This is the safest default for this problematic angle range
+    if (b < 0) {
+      return 'Violett';
+    }
+    
+    // Only if b >= 0 AND blue is truly minimal, it might be red
+    if (bl < 20 && r > g * 1.3) {
+      return chroma > 25 ? 'Rot' : 'Rosa';
+    }
+    
+    // Final fallback: default to violet for this range (safer than red)
+    return 'Violett';
   }
   
   // Final fallback: check RGB values if angle-based classification failed
@@ -1502,10 +1684,27 @@ function getGIAHue(a: number, b: number, hex: string): string {
       return 'G (Green)';
     }
     
-    // Red-Violet: a is positive, b is negative, but red component should be strong
+    // CRITICAL: Check RGB FIRST to determine if it's purple or red-violet
+    // If blue is dominant or equal to red, it's purple (not red-violet)
+    if (b < 0) {
+      // If blue is clearly dominant or equal to red, it's purple
+      if (bl >= r && bl > g) {
+        // Even if red is close, if blue is at least equal, it's purple
+        if (bl >= r * 0.95) {
+          return 'P (Purple)';
+        }
+      }
+      // If blue is significantly higher than red, it's definitely purple
+      if (bl > r * 1.1 && bl > g) {
+        return 'P (Purple)';
+      }
+    }
+    
+    // Red-Violet: a is positive, b is negative, but red component must be STRONGLY dominant
     // BUT: Only if b < 0 (blue/violet have negative b, green has positive b)
     if (a > 5 && b < -5) {
-      // Check RGB: red-violet should have more red than blue
+      // Check RGB: red-violet should have SIGNIFICANTLY more red than blue
+      // Only classify as red-violet if red is clearly dominant (at least 20% more)
       if (r > bl * 1.2 && r > g) {
         return 'RP (Reddish Purple)';
       }
@@ -1513,10 +1712,12 @@ function getGIAHue(a: number, b: number, hex: string): string {
       if (bl >= r * 0.9 && bl > g) {
         return 'P (Purple)';
       }
-      // If red is slightly more than blue, it's red-violet
-      if (r > bl && r > g) {
+      // If red is only slightly more than blue, it's still purple (not red-violet)
+      // Only if red is clearly dominant (r > bl * 1.15), classify as red-violet
+      if (r > bl * 1.15 && r > g) {
         return 'RP (Reddish Purple)';
       }
+      // Default to purple if blue and red are similar
       return 'P (Purple)';
     }
     // For this angle range, if a is not strongly positive, check RGB
@@ -1525,16 +1726,75 @@ function getGIAHue(a: number, b: number, hex: string): string {
       if (bl > 50 && bl >= r * 0.8) {
         return 'P (Purple)';
       }
+      // If blue is at least equal to red, it's purple
+      if (bl >= r && bl > g && b < 0) {
+        return 'P (Purple)';
+      }
     }
-    // Final check: if blue is dominant, it's purple, not red-violet
-    if (bl > r * 1.1 && bl > g) {
+    // CRITICAL: Default to purple (not red-violet) if blue is present
+    // Only classify as red-violet if red is clearly dominant
+    if (b < 0) {
+      // If blue is at least equal to red, it's purple
+      if (bl >= r && bl > g) {
+        return 'P (Purple)';
+      }
+      // Only if red is clearly dominant (r > bl * 1.2), classify as red-violet
+      if (r > bl * 1.2 && r > g) {
+        return 'RP (Reddish Purple)';
+      }
+      // Default to purple for this range
       return 'P (Purple)';
     }
-    return 'RP (Reddish Purple)';
+    // If b is not negative, it might be something else, but default to purple
+    return 'P (Purple)';
   }
   
   // Pink/Red (285-345 degrees)
+  // CRITICAL: This range is often purple, not red. Be VERY conservative about classifying as red.
   if (normalizedAngle < 345) {
+    // ABSOLUTE RULE: If b < 0 (negative b means blue/purple, not red), check blue component FIRST
+    if (b < 0) {
+      // If blue is present at all and significant (> 50), it's likely purple, not red
+      // Only classify as red if red is OVERWHELMINGLY dominant (r > bl * 2.0)
+      if (bl > 50) {
+        // Blue is significant - require red to be at least 2x blue to be considered red
+        if (r > bl * 2.0 && r > g * 1.5) {
+          // Red is overwhelmingly dominant, it's red
+          return 'R (Red)';
+        }
+        // If blue is at least 50% of red, it's purple
+        if (bl >= r * 0.5) {
+          return 'P (Purple)';
+        }
+        // If blue is significant and red is not 2x blue, it's purple
+        return 'P (Purple)';
+      }
+      
+      // If blue is moderate (30-50), still prefer purple unless red is very dominant
+      if (bl > 30) {
+        if (r > bl * 2.5 && r > g * 1.5) {
+          return 'R (Red)';
+        }
+        return 'P (Purple)';
+      }
+      
+      // Even if blue is small (10-30), if it exists and b < 0, it's likely purple
+      if (bl > 10) {
+        if (r > bl * 3.0 && r > g * 2.0) {
+          return 'R (Red)';
+        }
+        // Default to purple if blue exists
+        return 'P (Purple)';
+      }
+    }
+    
+    // If b >= 0, it might be red, but check if blue is still present
+    // Even with positive b, if blue is significant, it could be a measurement artifact
+    if (bl > 100 && bl >= r * 0.6) {
+      // Blue is still significant, likely purple
+      return 'P (Purple)';
+    }
+    
     // Final safety check: if blue is still dominant in RGB, it's not red/pink
     if (bl > r * 1.3 && bl > g * 1.3 && b < 0) {
       // Could be purple or violetish blue
@@ -1543,7 +1803,25 @@ function getGIAHue(a: number, b: number, hex: string): string {
       }
       return 'vB (Violetish Blue)';
     }
-    return 'R (Red)';
+    
+    // ONLY if blue is truly minimal (< 10) and red is clearly dominant, classify as red
+    if (bl < 10 && r > g && r > bl * 1.5) {
+      return 'R (Red)';
+    }
+    
+    // DEFAULT: If we're in this range and blue exists at all, it's purple
+    // This is the safest default for this problematic angle range
+    if (b < 0) {
+      return 'P (Purple)';
+    }
+    
+    // Only if b >= 0 AND blue is truly minimal, it might be red
+    if (bl < 20 && r > g * 1.3) {
+      return 'R (Red)';
+    }
+    
+    // Final fallback: default to purple for this range (safer than red)
+    return 'P (Purple)';
   }
   
   // Final fallback: check RGB values if angle-based classification failed

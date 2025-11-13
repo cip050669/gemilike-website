@@ -149,8 +149,7 @@ describe('Admin Wishlists Management', () => {
       render(<AdminWishlistsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Gesamt Merklisten')).toBeInTheDocument();
-        expect(screen.getByText('2')).toBeInTheDocument();
+        expect(screen.getByTestId('wishlist-analytics-total-wishlists-value')).toHaveTextContent('2');
       });
     });
 
@@ -158,8 +157,7 @@ describe('Admin Wishlists Management', () => {
       render(<AdminWishlistsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Gesamt Artikel')).toBeInTheDocument();
-        expect(screen.getByText('3')).toBeInTheDocument();
+        expect(screen.getByTestId('wishlist-analytics-total-items-value')).toHaveTextContent('3');
       });
     });
 
@@ -167,10 +165,7 @@ describe('Admin Wishlists Management', () => {
       render(<AdminWishlistsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Kunden mit Merkliste')).toBeInTheDocument();
-        // The count "2" appears in multiple cards, check that it exists
-        const countElements = screen.getAllByText('2');
-        expect(countElements.length).toBeGreaterThan(0);
+        expect(screen.getByTestId('wishlist-analytics-total-customers-value')).toHaveTextContent('2');
       });
     });
 
@@ -178,9 +173,7 @@ describe('Admin Wishlists Management', () => {
       render(<AdminWishlistsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Durchschnitt pro Merkliste')).toBeInTheDocument();
-        // 3 items / 2 wishlists = 1.5
-        expect(screen.getByText('1.5')).toBeInTheDocument();
+        expect(screen.getByTestId('wishlist-analytics-average-items-value')).toHaveTextContent('1.5');
       });
     });
 
@@ -202,10 +195,7 @@ describe('Admin Wishlists Management', () => {
       render(<AdminWishlistsPage />);
 
       await waitFor(() => {
-        // Check for "0" in the average card context
-        expect(screen.getByText('Durchschnitt pro Merkliste')).toBeInTheDocument();
-        const zeroElements = screen.getAllByText('0');
-        expect(zeroElements.length).toBeGreaterThan(0);
+        expect(screen.getByTestId('wishlist-analytics-average-items-value')).toHaveTextContent('0');
       });
     });
   });
@@ -223,8 +213,8 @@ describe('Admin Wishlists Management', () => {
       render(<AdminWishlistsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Diamant')).toBeInTheDocument();
-        expect(screen.getByText('Smaragd')).toBeInTheDocument();
+        expect(screen.getAllByText('Diamant').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Smaragd').length).toBeGreaterThan(0);
       });
     });
 
@@ -347,7 +337,7 @@ describe('Admin Wishlists Management', () => {
       render(<AdminWishlistsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Gelöschtes Produkt')).toBeInTheDocument();
+        expect(screen.getAllByText('Gelöschtes Produkt').length).toBeGreaterThan(0);
       });
     });
 
@@ -462,4 +452,3 @@ describe('Admin Wishlists Management', () => {
     });
   });
 });
-

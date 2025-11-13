@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin
-    const { prisma } = await import('@/lib/prisma');
     const user = await prisma.user.findUnique({
       where: { id: currentUserId },
       select: { role: true }
@@ -35,65 +34,56 @@ export async function GET(request: NextRequest) {
 
     console.log('🔍 Query parameters:', { page, limit, action, actorId, entityType });
 
-    // Erstelle neue Prisma-Instanz
-    const prisma = new PrismaClient();
+    const where: Partial<{ action: string; actorId: string; entity: string }> = {};
+      
+    if (action) {
+      where.action = action;
+    }
     
-    try {
-      // Direkte Prisma-Abfrage
-      const where: Partial<{ action: string; actorId: string; entity: string }> = {};
-      
-      if (action) {
-        where.action = action;
-      }
-      
-      if (actorId) {
-        where.actorId = actorId;
-      }
-      
-      if (entityType) {
-        where.entity = entityType;
-      }
+    if (actorId) {
+      where.actorId = actorId;
+    }
+    
+    if (entityType) {
+      where.entity = entityType;
+    }
 
-      console.log('🔍 Prisma where clause:', where);
+    console.log('🔍 Prisma where clause:', where);
 
-      const auditLogs = await prisma.auditLog.findMany({
-        where,
-        include: {
-          actor: {
-            select: {
-              name: true,
-              email: true,
-            },
+    const auditLogs = await prisma.auditLog.findMany({
+      where,
+      include: {
+        actor: {
+          select: {
+            name: true,
+            email: true,
           },
         },
-        orderBy: { createdAt: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
-      });
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
 
-      console.log('📋 Found audit logs:', auditLogs.length);
+    console.log('📋 Found audit logs:', auditLogs.length);
 
-      // Transform data for frontend
-      const transformedLogs = auditLogs.map(log => ({
-        id: log.id,
-        userId: log.actorId,
-        userName: log.actor?.name || 'Unbekannt',
-        action: log.action,
-        entityType: log.entity,
-        entityId: log.entityId,
-        details: log.metadata,
-        ipAddress: log.ipAddress,
-        userAgent: log.userAgent,
-        createdAt: log.createdAt,
-      }));
+    // Transform data for frontend
+    const transformedLogs = auditLogs.map(log => ({
+      id: log.id,
+      userId: log.actorId,
+      userName: log.actor?.name || 'Unbekannt',
+      action: log.action,
+      entityType: log.entity,
+      entityId: log.entityId,
+      details: log.metadata,
+      ipAddress: log.ipAddress,
+      userAgent: log.userAgent,
+      createdAt: log.createdAt,
+    }));
 
-      console.log('✅ Returning transformed logs:', transformedLogs.length);
-      
-      return NextResponse.json(transformedLogs);
-    } finally {
-      // Schließe Prisma-Verbindung
-      await prisma.$disconnect();
-    }
+    console.log('✅ Returning transformed logs:', transformedLogs.length);
+    
+    return NextResponse.json(transformedLogs);
   } catch (error: unknown) {
     const err = error as Error;
     console.error('❌ Error fetching audit logs:', err);

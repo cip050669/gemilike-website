@@ -403,12 +403,34 @@ export async function extractColorsFromImage(
           }
         }
 
+        // Validate that we have pixels to analyze
+        if (pixels.length === 0) {
+          URL.revokeObjectURL(url);
+          reject(new Error('Keine Pixel gefunden. Bitte stellen Sie sicher, dass das Bild ein Edelstein zeigt und die Maske korrekt erkannt wurde.'));
+          return;
+        }
+
         // Cluster similar colors
         const clustered = clusterColors(pixels, kValue);
+        
+        // Validate that clustering produced results
+        if (clustered.length === 0) {
+          URL.revokeObjectURL(url);
+          reject(new Error('Farbclustering fehlgeschlagen. Bitte versuchen Sie es mit einem anderen Bild.'));
+          return;
+        }
         
         // Calculate primary and secondary colors
         const sorted = clustered.sort((a, b) => b.percentage - a.percentage);
         const primaryColor = sorted[0];
+        
+        // Validate that primaryColor exists
+        if (!primaryColor) {
+          URL.revokeObjectURL(url);
+          reject(new Error('Keine Primärfarbe gefunden. Bitte versuchen Sie es mit einem anderen Bild.'));
+          return;
+        }
+        
         const secondaryColors = sorted.slice(1, 5); // Top 4 secondary colors
 
         // Calculate overall metrics with weighted statistics

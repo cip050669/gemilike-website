@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { GemstoneGrid } from '@/components/shop/GemstoneGrid';
 import type { ShopGemstone } from '@/lib/services/shop/types';
@@ -41,39 +40,39 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
     gemstones.forEach((gem) => {
       if (gem.category) options.add(gem.category);
     });
-    return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
-  }, [gemstones]);
+    return Array.from(options).sort((a, b) => a.localeCompare(b, locale));
+  }, [gemstones, locale]);
 
   const originOptions = useMemo(() => {
     const options = new Set<string>();
     gemstones.forEach((gem) => {
       if (gem.origin) options.add(gem.origin);
     });
-    return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
-  }, [gemstones]);
+    return Array.from(options).sort((a, b) => a.localeCompare(b, locale));
+  }, [gemstones, locale]);
 
   const colorOptions = useMemo(() => {
     const options = new Set<string>();
     gemstones.forEach((gem) => {
       if (gem.color) options.add(gem.color);
     });
-    return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
-  }, [gemstones]);
+    return Array.from(options).sort((a, b) => a.localeCompare(b, locale));
+  }, [gemstones, locale]);
 
   const clarityOptions = useMemo(() => {
     const options = new Set<string>();
     gemstones.forEach((gem) => {
       if (gem.clarity) options.add(gem.clarity);
     });
-    return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
-  }, [gemstones]);
+    return Array.from(options).sort((a, b) => a.localeCompare(b, locale));
+  }, [gemstones, locale]);
 
   const treatmentOptions = useMemo(() => {
     const options = new Set<string>();
     gemstones.forEach((gem) => {
       if (gem.treatment) options.add(gem.treatment);
     });
-    const sorted = Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
+    const sorted = Array.from(options).sort((a, b) => a.localeCompare(b, locale));
     // Move "Keine Behandlung" to the beginning if it exists
     const keineBehandlungIndex = sorted.findIndex(opt => 
       opt.toLowerCase().includes('keine') || opt.toLowerCase().includes('none') || opt.toLowerCase().includes('ohne')
@@ -83,15 +82,15 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
       return [keineBehandlung, ...sorted];
     }
     return sorted;
-  }, [gemstones]);
+  }, [gemstones, locale]);
 
   const certificationOptions = useMemo(() => {
     const options = new Set<string>();
     gemstones.forEach((gem) => {
       if (gem.certification) options.add(gem.certification);
     });
-    return Array.from(options).sort((a, b) => a.localeCompare(b, 'de'));
-  }, [gemstones]);
+    return Array.from(options).sort((a, b) => a.localeCompare(b, locale));
+  }, [gemstones, locale]);
 
   const filteredGemstones = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -185,19 +184,6 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
     <div className="space-y-16">
       <section className="main-container">
         <div className="story-card space-y-4 p-6 md:p-8">
-          <div className="flex flex-col items-center gap-3 md:flex-row md:justify-end md:items-end w-full">
-            <Link
-              href={`/${locale}`}
-              className={cn(
-                navStyles.navButton,
-                navStyles.navButtonTight,
-                'px-4 py-2 text-sm md:ml-auto'
-              )}
-            >
-              <span className={navStyles.navLabel}>Zurück zur Startseite</span>
-              <span className={navStyles.navGlow} />
-            </Link>
-          </div>
           <div className="space-y-4 text-center">
             <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
               <span className="gemilike-text-gradient">Unsere Auswahl an Edelsteinen</span>

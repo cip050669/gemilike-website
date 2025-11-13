@@ -24,7 +24,19 @@ export default function StoriesAdminPage() {
   };
 
   const formatDate = (dateString: Date) => {
-    return new Date(dateString).toLocaleDateString('de-DE');
+    return new Date(dateString).toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
+  const getExcerpt = (story: { excerpt?: string | null; content: string }) => {
+    if (story.excerpt && story.excerpt.trim()) {
+      return story.excerpt.trim();
+    }
+    const content = story.content ?? '';
+    return content.length > 0 ? `${content.substring(0, 150)}...` : '';
   };
 
   return (
@@ -125,10 +137,18 @@ export default function StoriesAdminPage() {
                           Autor: {story.author} | Erstellt: {formatDate(story.createdAt)}
                         </div>
                         <p className="text-sm text-gray-200 line-clamp-2">
-                          {story.content.substring(0, 150)}...
+                          {getExcerpt(story)}
                         </p>
                       </div>
                       <div className="flex gap-2 ml-4">
+                        {story.status === 'published' && (
+                          <Link
+                            href={`/de/stories/${story.slug}`}
+                            className="text-indigo-400 hover:text-indigo-200 text-sm font-medium"
+                          >
+                            Anzeigen
+                          </Link>
+                        )}
                         <Link
                           href={`/de/admin/stories/edit/${story.id}`}
                           className="text-blue-600 hover:text-blue-900 text-sm font-medium"

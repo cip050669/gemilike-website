@@ -5,12 +5,12 @@
 
 import { render, screen, waitFor } from '@testing-library/react';
 import BlogsAdminPage from '@/app/[locale]/admin/blogs/page';
-import { loadBlogs } from '@/lib/data/blogs';
+import { getBlogs } from '@/lib/services/blog.service';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 
 // Mock data loaders
-jest.mock('@/lib/data/blogs', () => ({
-  loadBlogs: jest.fn(),
+jest.mock('@/lib/services/blog.service', () => ({
+  getBlogs: jest.fn(),
 }));
 
 jest.mock('@/lib/data/blog-settings', () => ({
@@ -84,7 +84,7 @@ const mockSettings = {
 describe('Admin Blog Management', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (loadBlogs as jest.Mock).mockResolvedValue(mockBlogs);
+    (getBlogs as jest.Mock).mockResolvedValue(mockBlogs);
     (loadBlogSectionSettings as jest.Mock).mockResolvedValue(mockSettings);
   });
 
@@ -94,7 +94,7 @@ describe('Admin Blog Management', () => {
       render(page);
 
       await waitFor(() => {
-        expect(screen.getByText('Blog')).toBeInTheDocument();
+        expect(screen.getByText('Blog-Verwaltung')).toBeInTheDocument();
       });
     });
 
@@ -103,7 +103,7 @@ describe('Admin Blog Management', () => {
       render(page);
 
       await waitFor(() => {
-        expect(loadBlogs).toHaveBeenCalled();
+        expect(getBlogs).toHaveBeenCalled();
         expect(loadBlogSectionSettings).toHaveBeenCalled();
       });
     });
@@ -156,7 +156,7 @@ describe('Admin Blog Management', () => {
 
   describe('Error Handling', () => {
     it('should handle load errors gracefully', async () => {
-      (loadBlogs as jest.Mock).mockRejectedValue(new Error('Load error'));
+      (getBlogs as jest.Mock).mockRejectedValue(new Error('Load error'));
 
       await expect(
         BlogsAdminPage({ params: Promise.resolve({ locale: 'de' }) })
@@ -164,4 +164,3 @@ describe('Admin Blog Management', () => {
     });
   });
 });
-

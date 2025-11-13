@@ -1046,6 +1046,8 @@ Bei Fragen oder Problemen:
 
 ---
 
-**Letzte Aktualisierung:** 2024
-**Version:** 1.0.0
+**Letzte Aktualisierung:** November 2025
+**Version:** 2.2.0
+
+**Hinweis:** Diese Dokumentation ist vollständig in das Anwenderhandbuch integriert. Siehe `ANWENDERHANDBUCH_GEMMILKE_WEBSITE.md` Abschnitte 7.1 und 7.2 für die vollständige Dokumentation.
 

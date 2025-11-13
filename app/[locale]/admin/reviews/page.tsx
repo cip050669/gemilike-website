@@ -195,6 +195,8 @@ export default function AdminReviewsPage() {
                     <Button
                       size="sm"
                       variant="destructive"
+                      aria-label={`Bewertung löschen${review.customerName ? ` ${review.customerName}` : ''}`}
+                      title="Bewertung löschen"
                       onClick={() => handleDelete(review.id)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -240,4 +242,3 @@ export default function AdminReviewsPage() {
     </div>
   );
 }
-

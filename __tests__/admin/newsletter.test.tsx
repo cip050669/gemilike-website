@@ -36,7 +36,7 @@ describe('Admin Newsletter Management', () => {
     it('should display subscriber count', () => {
       render(<NewsletterAdminPage />);
 
-      expect(screen.getByText('1,247')).toBeInTheDocument();
+      expect(screen.getAllByText('1,247').length).toBeGreaterThan(0);
       expect(screen.getByText('Abonnenten')).toBeInTheDocument();
     });
 
@@ -50,8 +50,8 @@ describe('Admin Newsletter Management', () => {
     it('should display open rate', () => {
       render(<NewsletterAdminPage />);
 
-      expect(screen.getByText('68%')).toBeInTheDocument();
-      expect(screen.getByText('Öffnungsrate')).toBeInTheDocument();
+      expect(screen.getAllByText('68%').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Öffnungsrate').length).toBeGreaterThan(0);
     });
 
     it('should display click rate', () => {
@@ -66,12 +66,12 @@ describe('Admin Newsletter Management', () => {
     it('should display newsletter table with headers', () => {
       render(<NewsletterAdminPage />);
 
-      expect(screen.getByText('Betreff')).toBeInTheDocument();
-      expect(screen.getByText('Empfänger')).toBeInTheDocument();
-      expect(screen.getByText('Status')).toBeInTheDocument();
-      expect(screen.getByText('Gesendet')).toBeInTheDocument();
-      expect(screen.getByText('Öffnungsrate')).toBeInTheDocument();
-      expect(screen.getByText('Aktionen')).toBeInTheDocument();
+      expect(screen.getAllByText('Betreff').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Empfänger').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Status').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Gesendet').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Öffnungsrate').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Aktionen').length).toBeGreaterThan(0);
     });
 
     it('should display newsletter subjects and descriptions', () => {
@@ -91,7 +91,7 @@ describe('Admin Newsletter Management', () => {
     it('should display recipient counts', () => {
       render(<NewsletterAdminPage />);
 
-      expect(screen.getByText('1,247')).toBeInTheDocument();
+      expect(screen.getAllByText('1,247').length).toBeGreaterThan(0);
       expect(screen.getByText('1,200')).toBeInTheDocument();
     });
 
@@ -169,10 +169,10 @@ describe('Admin Newsletter Management', () => {
     it('should display subscriber table', () => {
       render(<NewsletterAdminPage />);
 
-      expect(screen.getByText('E-Mail')).toBeInTheDocument();
-      expect(screen.getByText('Name')).toBeInTheDocument();
-      expect(screen.getByText('Abonniert seit')).toBeInTheDocument();
-      expect(screen.getByText('Status')).toBeInTheDocument();
+      expect(screen.getAllByText('E-Mail').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Name').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Abonniert seit').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Status').length).toBeGreaterThan(0);
     });
 
     it('should display subscriber data', () => {
@@ -191,4 +191,3 @@ describe('Admin Newsletter Management', () => {
     });
   });
 });
-

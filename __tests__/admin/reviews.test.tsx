@@ -3,7 +3,7 @@
  * Tests all CRUD operations, filtering, and verification for reviews
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import AdminReviewsPage from '@/app/[locale]/admin/reviews/page';
 
 // Mock fetch
@@ -265,7 +265,7 @@ describe('Admin Reviews Management', () => {
       render(<AdminReviewsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Verifizieren')).toBeInTheDocument();
+        expect(screen.getAllByText('Verifizieren').length).toBeGreaterThan(0);
       });
 
       const verifyButtons = screen.getAllByText('Verifizieren');
@@ -333,10 +333,10 @@ describe('Admin Reviews Management', () => {
       render(<AdminReviewsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Verifizieren')).toBeInTheDocument();
+        expect(screen.getAllByText('Verifizieren').length).toBeGreaterThan(0);
       });
 
-      const verifyButton = screen.getByText('Verifizieren');
+      const [verifyButton] = screen.getAllByRole('button', { name: 'Verifizieren' });
       fireEvent.click(verifyButton);
 
       await waitFor(() => {
@@ -348,37 +348,26 @@ describe('Admin Reviews Management', () => {
 
   describe('Delete Actions', () => {
     it('should confirm before deleting a review', async () => {
-      window.confirm = jest.fn(() => true);
+      const confirmMock = jest.fn(() => true);
+      (window as any).confirm = confirmMock;
 
       render(<AdminReviewsPage />);
 
       await waitFor(() => {
-        // Find delete buttons - they have destructive variant
-        // Button contains only Trash2 icon, no text
-        const deleteButtons = screen.getAllByRole('button').filter(
-          (btn) => {
-            const className = btn.className || '';
-            const hasTrashIcon = btn.querySelector('svg');
-            // Check for destructive styling or variant
-            return (className.includes('destructive') || className.includes('bg-destructive') || className.includes('text-destructive')) && hasTrashIcon;
-          }
-        );
-        
-        if (deleteButtons.length > 0) {
-          fireEvent.click(deleteButtons[0]);
-          
-          expect(window.confirm).toHaveBeenCalledWith(
-            'Sind Sie sicher, dass Sie diese Bewertung löschen möchten?'
-          );
-        } else {
-          // If no buttons found, still check that confirm was set up
-          expect(window.confirm).toBeDefined();
-        }
-      }, { timeout: 3000 });
+        expect(screen.getAllByLabelText(/Bewertung löschen/i).length).toBeGreaterThan(0);
+      });
+
+      const deleteButton = screen.getAllByLabelText(/Bewertung löschen/i)[0];
+      fireEvent.click(deleteButton);
+
+      expect(confirmMock).toHaveBeenCalledWith(
+        'Sind Sie sicher, dass Sie diese Bewertung löschen möchten?'
+      );
     });
 
     it('should delete review after confirmation', async () => {
-      window.confirm = jest.fn(() => true);
+      const confirmMock = jest.fn(() => true);
+      (window as any).confirm = confirmMock;
 
       let callCount = 0;
       (global.fetch as jest.Mock).mockImplementation(async (url, options) => {
@@ -410,47 +399,38 @@ describe('Admin Reviews Management', () => {
       render(<AdminReviewsPage />);
 
       await waitFor(() => {
-        const deleteButtons = screen.getAllByRole('button').filter(
-          (btn) => {
-            const variant = btn.getAttribute('variant');
-            const hasTrashIcon = btn.querySelector('svg');
-            return variant === 'destructive' && hasTrashIcon;
-          }
-        );
-        
-        if (deleteButtons.length > 0) {
-          fireEvent.click(deleteButtons[0]);
-
-          waitFor(() => {
-            const deleteCalls = (global.fetch as jest.Mock).mock.calls.filter(
-              (call) => call[1]?.method === 'DELETE'
-            );
-            expect(deleteCalls.length).toBeGreaterThan(0);
-          }, { timeout: 3000 });
-        }
+        expect(screen.getAllByLabelText(/Bewertung löschen/i).length).toBeGreaterThan(0);
       });
+
+      const deleteButton = screen.getAllByLabelText(/Bewertung löschen/i)[0];
+      fireEvent.click(deleteButton);
+
+      await waitFor(() => {
+        const deleteCalls = (global.fetch as jest.Mock).mock.calls.filter(
+          (call) => call[1]?.method === 'DELETE'
+        );
+        expect(deleteCalls.length).toBeGreaterThan(0);
+      }, { timeout: 3000 });
     });
 
     it('should not delete review if confirmation is cancelled', async () => {
-      window.confirm = jest.fn(() => false);
+      const confirmMock = jest.fn(() => false);
+      (window as any).confirm = confirmMock;
 
       render(<AdminReviewsPage />);
 
       await waitFor(() => {
-        const deleteButton = screen.getAllByRole('button').find(
-          (btn) => btn.querySelector('svg') && btn.getAttribute('variant') === 'destructive'
-        );
-        if (deleteButton) {
-          fireEvent.click(deleteButton);
+        expect(screen.getAllByLabelText(/Bewertung löschen/i).length).toBeGreaterThan(0);
+      });
 
-          waitFor(() => {
-            // Should not call DELETE if cancelled
-            const deleteCalls = (global.fetch as jest.Mock).mock.calls.filter(
-              (call) => call[0].includes('DELETE')
-            );
-            expect(deleteCalls.length).toBe(0);
-          });
-        }
+      const deleteButton = screen.getAllByLabelText(/Bewertung löschen/i)[0];
+      fireEvent.click(deleteButton);
+
+      await waitFor(() => {
+        const deleteCalls = (global.fetch as jest.Mock).mock.calls.filter(
+          (call) => call[1]?.method === 'DELETE'
+        );
+        expect(deleteCalls.length).toBe(0);
       });
     });
   });
@@ -530,4 +510,3 @@ describe('Admin Reviews Management', () => {
     });
   });
 });
-

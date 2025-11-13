@@ -103,44 +103,62 @@ export default function AdminWishlistsPage() {
         {/* Analytics */}
         {analytics && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
+            <Card data-testid="wishlist-analytics-total-wishlists">
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Gesamt Merklisten
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{analytics.totalWishlists}</div>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="wishlist-analytics-total-wishlists-value"
+                >
+                  {analytics.totalWishlists}
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card data-testid="wishlist-analytics-total-items">
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Gesamt Artikel
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{analytics.totalItems}</div>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="wishlist-analytics-total-items-value"
+                >
+                  {analytics.totalItems}
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card data-testid="wishlist-analytics-total-customers">
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Kunden mit Merkliste
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{analytics.totalCustomers}</div>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="wishlist-analytics-total-customers-value"
+                >
+                  {analytics.totalCustomers}
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card data-testid="wishlist-analytics-average-items">
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Durchschnitt pro Merkliste
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="wishlist-analytics-average-items-value"
+                >
                   {analytics.totalWishlists > 0
                     ? (analytics.totalItems / analytics.totalWishlists).toFixed(1)
                     : '0'}
@@ -263,4 +281,3 @@ export default function AdminWishlistsPage() {
     </div>
   );
 }
-

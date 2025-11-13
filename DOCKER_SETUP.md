@@ -1,5 +1,10 @@
 # Docker Setup für Gemilike Website
 
+**Version:** 2.2.0  
+**Letzte Aktualisierung:** November 2025
+
+**Hinweis:** Diese Dokumentation ist vollständig in das Anwenderhandbuch integriert. Siehe `ANWENDERHANDBUCH_GEMMILKE_WEBSITE.md` Abschnitt 10.1 für die vollständige Dokumentation.
+
 Diese Anleitung erklärt, wie Sie die Gemilike-Website mit Docker ausführen.
 
 ## Voraussetzungen
@@ -219,7 +224,7 @@ docker-compose logs app
 docker-compose ps
 
 # Prüfe Netzwerk
-docker network ls
+docker network ls`http://localhost:3000/de/admin/reviews`
 ```
 
 ### Datenbank-Verbindungsfehler

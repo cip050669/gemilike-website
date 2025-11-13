@@ -1,7 +1,10 @@
 # Analyse: Website-Funktionen vs. Admin-Funktionen vs. Datenbank-Instanzen
 
+**Version:** 2.2.0  
 **Erstellt am:** 2025-01-15  
-**Letzte Aktualisierung:** 2025-11-01
+**Letzte Aktualisierung:** November 2025
+
+**Hinweis:** Diese Dokumentation ist vollständig in das Anwenderhandbuch integriert. Siehe `ANWENDERHANDBUCH_GEMMILKE_WEBSITE.md` Abschnitt 11.3 für die vollständige Dokumentation.
 
 **Status-Änderungen:**
 - ✅ Review System vollständig implementiert (Frontend + Admin + API)

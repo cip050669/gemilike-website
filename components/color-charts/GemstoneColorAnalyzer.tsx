@@ -644,6 +644,15 @@ export function GemstoneColorAnalyzer() {
         regions = await analyzeImageRegions(imageFile, cropRegion || undefined, whitepoint, kValue, maskingOptions);
       }
       
+      // Validate that we have valid analysis results
+      if (!imageAnalysis.primaryColor) {
+        throw new Error('Keine Primärfarbe gefunden. Bitte versuchen Sie es mit einem anderen Bild.');
+      }
+      
+      if (!imageAnalysis.primaryColor.lab || !imageAnalysis.primaryColor.hex || !imageAnalysis.primaryColor.rgb) {
+        throw new Error('Ungültige Farbdaten. Bitte versuchen Sie es mit einem anderen Bild.');
+      }
+      
       // 1. Primary Color Analysis
       const primary = analyzePrimaryColor(imageAnalysis.primaryColor);
       setPrimaryColor(primary);
@@ -668,7 +677,7 @@ export function GemstoneColorAnalyzer() {
       // 4. Spectral Characteristic
       const spectral = analyzeSpectralCharacteristic(
         imageAnalysis.primaryColor,
-        imageAnalysis.secondaryColors
+        imageAnalysis.secondaryColors || []
       );
       setSpectralCharacteristic(spectral);
       
