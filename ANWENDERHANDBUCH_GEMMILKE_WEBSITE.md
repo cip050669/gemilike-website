@@ -1,6 +1,6 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.3.0  
+**Version:** 2.4.0  
 **Stand:** November 2025  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
@@ -44,6 +44,14 @@ Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit f
 - **Kundenverwaltung** mit Bestellungen und Rechnungen
 - **Newsletter-Management**
 - **Weltkarte** mit Fundorten
+- **Moderne Web Design Features** (Version 2.4.0):
+  - Progressive Enhancement für alle Formulare
+  - Dark Mode mit System-Präferenz-Erkennung
+  - Neumorphismus Design-Elemente
+  - Microinteractions und Scroll-Animationen
+  - Service Worker für Offline-Support
+  - Vollständige Accessibility (WCAG 2.1 AA)
+  - 3D-Effekte und Parallax-Scrolling
 
 ### 1.3 Technologie-Stack
 
@@ -2785,6 +2793,13 @@ Die Docker-Konfiguration wurde aktualisiert mit:
 - ✅ Node.js 22 Alpine (neueste LTS)
 - ✅ Multi-Stage Build für optimierte Image-Größe
 - ✅ Standalone Output für bessere Performance
+- ✅ **Service Worker Verifikation** (Version 2.4.0)
+  - Build-Time Verifikation für `public/sw.js`
+  - Standalone Build Verifikation
+  - Runtime Service Worker Check beim Container-Start
+- ✅ **Optimierte Build-Prozesse** (Version 2.4.0)
+  - Automatische Verifikation kritischer Dateien
+  - Verbesserte Logs und Fehlerbehandlung
 
 #### Container-Update (November 2025)
 
@@ -3402,7 +3417,8 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 - **50+ öffentliche Seiten** für Benutzer
 - **40+ Admin-Funktionen** für Verwaltung
 - **100+ API-Endpunkte** für Backend-Funktionalität
-- **13.000+ Zeilen Code** für Farbtafeln und Farbanalyse
+- **12.182 Zeilen Code** für Farbtafeln und Farbanalyse
+- **105.373 Zeilen Code** gesamt (573 Dateien)
 
 ### 13.2 Hauptfunktionen
 
@@ -3442,10 +3458,278 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
 ### 13.5 Code-Statistik
 
+**Stand: November 2025**
+
+#### 13.5.1 Gesamt-Übersicht nach Dateitypen
+
+| Dateityp | Dateien | Zeilen Code | Anteil |
+|----------|---------|-------------|--------|
+| **TypeScript (.ts)** | 230 | 35.658 | 33,1% |
+| **TypeScript React (.tsx)** | 283 | 59.962 | 55,7% |
+| **JavaScript (.js)** | 48 | 7.976 | 7,4% |
+| **HTML (.html)** | 8 | 907 | 0,8% |
+| **CSS (.css)** | 4 | 870 | 0,8% |
+| **SCSS/SASS (.sst)** | 0 | 0 | 0,0% |
+| **GESAMT** | **573** | **105.373** | **100,0%** |
+
+#### 13.5.2 Zusammenfassung
+
+- **TypeScript/TSX:** 513 Dateien, 95.620 Zeilen (88,8%)
+  - TypeScript React (TSX): 283 Dateien, 59.962 Zeilen (55,7%)
+  - TypeScript (TS): 230 Dateien, 35.658 Zeilen (33,1%)
+- **JavaScript:** 48 Dateien, 7.976 Zeilen (7,4%)
+- **HTML/CSS:** 12 Dateien, 1.777 Zeilen (1,6%)
+  - HTML: 8 Dateien, 907 Zeilen (0,8%)
+  - CSS: 4 Dateien, 870 Zeilen (0,8%)
+- **SCSS/SASS:** 0 Dateien, 0 Zeilen (0,0%)
+
+#### 13.5.3 Hauptsprachen
+
+1. **TypeScript React (TSX)** - 55,7% (59.962 Zeilen)
+2. **TypeScript (TS)** - 33,1% (35.658 Zeilen)
+3. **JavaScript (JS)** - 7,4% (7.976 Zeilen)
+
+#### 13.5.4 Feature-spezifische Statistiken
+
 - **Farbtafeln:** 2.958 Zeilen Code
 - **Farbanalyse:** 8.704 Zeilen Code
 - **Gesamt (color-charts):** 12.182 Zeilen Code (nur für diese Features)
-- **Gesamt-Projekt:** ~94.600 Zeilen Code (TypeScript/JavaScript)
+- **Gesamt-Projekt:** 105.373 Zeilen Code (alle Dateitypen)
+
+**Hinweis:** Die Statistiken schließen `node_modules`, `.next`, `.git`, `dist` und `build` aus.
+
+### 13.6 Moderne Web Design Vorschläge
+
+Ein umfassendes Dokument mit modernen Web Design-Trends, Progressive Enhancement-Strategien und Implementierungsvorschlägen für das Gemilike-Projekt finden Sie in:
+
+**📄 `MODERNE_WEB_DESIGN_VORSCHLAEGE.md`**
+
+Das Dokument enthält:
+- Progressive Enhancement Strategien (HTML → CSS → JavaScript Schichten)
+- Moderne Design-Trends 2025 (Neumorphismus, Dark Mode, Immersive Experiences)
+- Performance-Optimierungen (Lazy Loading, Code Splitting, Service Workers)
+- Accessibility & Inklusion (WCAG 2.1 AA, ARIA, Keyboard Navigation)
+- Interaktive Elemente (Mikrointeraktionen, Scroll-Animationen, 3D-Effekte)
+- Implementierungs-Roadmap (10-Wochen-Plan)
+
+**Basierend auf:**
+- [Progressive Enhancement Best Practices](https://medium.com/theymakedesign/progressive-enhancement-536a064edbff)
+- [Modern Website Design Trends](https://www.spinxdigital.com/blog/best-website-design/)
+- [Awwwards Best Practices](https://www.awwwards.com/)
+- [Designmodo Web Design Trends](https://designmodo.com/web-design-trends/)
+
+### 13.7 Implementierte Moderne Web Design Features (Version 2.4.0)
+
+**Status:** ✅ Alle Phasen implementiert (November 2025)
+
+#### Phase 1: Foundation (Progressive Enhancement & Accessibility)
+
+**✅ Progressive Enhancement für Formulare:**
+- Kontaktformular (`app/[locale]/contact/page.tsx`)
+  - Server-Side Fallback mit `action="/api/contact"` und `method="POST"`
+  - `<noscript>` Fallback für JavaScript-deaktivierte Browser
+  - Semantisches HTML mit `<main>`, `<header>`, `<section>`, `<aside>`
+  - Vollständige ARIA-Labels (`aria-label`, `aria-required`, `aria-describedby`)
+  - Screen Reader Optimierung mit `sr-only` Klassen
+- Newsletter-Formular (`components/newsletter/NewsletterForm.tsx`)
+  - Server-Side Fallback mit `action="/api/newsletter"`
+  - ARIA-Labels und Hidden Inputs für Locale
+  - `<noscript>` Fallback
+- Review-Formular (`components/shop/ReviewForm.tsx`)
+  - Server-Side Fallback mit `action="/api/reviews"`
+  - `role="radiogroup"` für Star-Rating
+  - Vollständige ARIA-Unterstützung
+- AddToCart Button (`components/shop/AddToCartButton.tsx`)
+  - `<noscript>` Fallback-Formular für JavaScript-deaktivierte Browser
+  - ARIA-Labels und Live-Regionen
+
+**✅ Semantisches HTML:**
+- Alle Formulare verwenden semantische HTML5-Elemente
+- Korrekte Verwendung von `<main>`, `<header>`, `<section>`, `<article>`, `<aside>`
+- Verbesserte SEO und Accessibility
+
+**✅ ARIA-Labels:**
+- Alle interaktiven Elemente haben `aria-label` oder `aria-labelledby`
+- Formular-Felder mit `aria-required` und `aria-describedby`
+- Live-Regionen für dynamische Updates (`aria-live="polite"`)
+- Icons mit `aria-hidden="true"`
+
+**✅ `<noscript>` Fallbacks:**
+- Alle kritischen Formulare haben Fallbacks
+- AddToCart Button mit Fallback-Formular
+- Benutzerfreundliche Nachrichten für JavaScript-deaktivierte Browser
+
+#### Phase 2: Design-Updates
+
+**✅ Neumorphismus (Soft UI):**
+- CSS-Klassen in `app/globals.css`:
+  - `.neumorphic` für Light Mode
+  - `.neumorphic-dark` für Dark Mode
+  - Hover-Effekte mit inset shadows
+  - Smooth Transitions
+- Angewendet auf GemstoneCard Komponenten
+
+**✅ Dark Mode:**
+- `DarkModeToggle` Komponente (`components/ui/DarkModeToggle.tsx`)
+  - System-Präferenz-Erkennung
+  - localStorage Persistenz
+  - Hydration-safe Implementation
+  - Integration in Header (Desktop & Mobile)
+- Tailwind Config: `darkMode: 'class'` aktiviert
+- CSS Dark Mode Varianten für alle Komponenten
+
+**✅ Immersive Hero-Section:**
+- Verbesserte Gradient-Overlays für besseren Text-Kontrast
+- Dark Mode Varianten
+- Parallax-Effekt via `ParallaxHero` Komponente
+- ARIA-Labels für Accessibility
+
+#### Phase 3: Interaktivität
+
+**✅ Microinteractions:**
+- `RippleButton` Komponente (`components/ui/RippleButton.tsx`)
+  - Ripple-Effekt auf Button-Klicks
+  - Smooth Animationen
+- `MicroInteraction` Komponente (`components/ui/MicroInteraction.tsx`)
+  - Scale, Bounce, Pulse, Glow Effekte
+  - Hover-Interaktionen
+- CSS-Animationen in `app/globals.css`:
+  - `@keyframes ripple`
+  - `.hover-scale`, `.hover-bounce`, `.hover-pulse`, `.hover-glow`
+
+**✅ Scroll-Animationen:**
+- `ScrollAnimated` Komponente (`components/ui/ScrollAnimated.tsx`)
+  - Intersection Observer API
+  - Fade, Slide (up/down/left/right) Animationen
+  - Delay und Direction Props
+  - Angewendet auf:
+    - Shop Showcase Sektionen
+    - Homepage Blog-Sektion
+    - New Gemstones Carousel
+
+**✅ Swipe-Gesten:**
+- `Swipeable` Komponente (`components/ui/Swipeable.tsx`)
+  - Touch-basierte Swipe-Erkennung
+  - Links/Rechts Swipe-Handler
+  - Angewendet auf MediaGallery für mobile Navigation
+
+**✅ Parallax-Effekte:**
+- `ParallaxHero` Komponente (`components/ui/ParallaxHero.tsx`)
+  - Scroll-basierter Parallax-Effekt
+  - Angewendet auf Hero-Section Hintergrundbilder
+
+#### Phase 4: Performance
+
+**✅ Lazy Loading:**
+- Dynamische Imports für schwere Komponenten:
+  - `InteractiveWorldMap` (WorldMap Client Component)
+  - `ColorChartGrid` (Download Area)
+  - `GemstoneColorAnalyzer` (Download Area)
+- Image Lazy Loading:
+  - `loading="lazy"` für Thumbnails
+  - `priority={index === 0}` für erste Bilder
+  - `sizes` Attribute für responsive Images
+  - `placeholder="blur"` mit `blurDataURL` für progressive Loading
+
+**✅ Image-Optimierung:**
+- Next.js Image-Komponente mit optimierten Attributen
+- Responsive `sizes` Attribute
+- Blur Placeholders für bessere UX
+- Lazy Loading für nicht-kritische Bilder
+
+**✅ Service Worker:**
+- `public/sw.js` - Service Worker für PWA/Offline Support
+  - Cache-First Strategie
+  - Pre-caching für kritische Routen
+  - Runtime Caching für dynamische Inhalte
+  - Offline Fallbacks
+- `ServiceWorkerRegistration` Komponente (`components/ServiceWorkerRegistration.tsx`)
+  - Automatische Registrierung in Production
+  - Update-Handling
+
+**✅ Preloading:**
+- Kritische Ressourcen in `app/[locale]/layout.tsx`:
+  - Logo Preload: `<link rel="preload" href="/logo.png" as="image" type="image/png" />`
+
+#### Phase 5: Accessibility & Inklusion
+
+**✅ Skip-to-Content Link:**
+- `SkipToContent` Komponente (`components/accessibility/SkipToContent.tsx`)
+  - Sichtbar bei Keyboard-Focus
+  - Springt zu `#main-content`
+- Integration in `app/[locale]/layout.tsx`
+
+**✅ Keyboard Navigation:**
+- `useKeyboardNavigation` Hook (`components/accessibility/useKeyboardNavigation.ts`)
+  - Escape, Enter, Arrow Keys Support
+  - Flexible Event-Handler
+- `useFocusTrap` Hook (`components/accessibility/useFocusTrap.ts`)
+  - Focus-Trapping für Modals/Dialogs
+  - Tab-Navigation innerhalb von Containern
+
+**✅ Focus Management:**
+- Verbesserte Focus-Styles in `app/globals.css`:
+  - `*:focus-visible` Styles
+  - Element-spezifische Focus-Styles
+  - Dark Mode Focus-Varianten
+  - High Contrast Mode Support
+
+**✅ Screen Reader Optimierung:**
+- `LiveRegion` Komponente (`components/accessibility/LiveRegion.tsx`)
+  - `role="status"` und `aria-live="polite"`
+  - Dynamische Updates für Screen Reader
+- `sr-only` und `sr-only-focusable` Utility-Klassen
+- ARIA-Labels auf allen interaktiven Elementen
+
+**✅ WCAG 2.1 AA Compliance:**
+- Reduced Motion Support: `@media (prefers-reduced-motion: reduce)`
+- High Contrast Support: `@media (prefers-contrast: high)`
+- Color Contrast Ratios überprüft
+- Keyboard-Navigation für alle Features
+
+#### Phase 6: Interaktive Elemente
+
+**✅ 3D-Effekte:**
+- `Card3D` Komponente (`components/ui/Card3D.tsx`)
+  - 3D Tilt-Effekt basierend auf Mausposition
+  - `rotateX` und `rotateY` Transformationen
+  - Intensity und Disabled Props
+- Angewendet auf GemstoneCard Komponenten
+- CSS 3D-Transform Utilities in `app/globals.css`
+
+**✅ Erweiterte Scroll-Animationen:**
+- Verschiedene Animation-Directions (fade, up, down, left, right)
+- Delay-Props für gestaffelte Animationen
+- Intersection Observer für Performance
+
+**✅ Microinteractions:**
+- Button-Press Animationen
+- Hover-Effekte (Scale, Bounce, Pulse, Glow)
+- Ripple-Effekte auf Klicks
+
+#### Docker-Updates (Version 2.4.0)
+
+**✅ Production Dockerfile:**
+- Service Worker Verifikation nach Build
+- Standalone Build Verifikation
+- Kommentare für Service Worker Support
+- Multi-Stage Build optimiert
+
+**✅ Development Dockerfile:**
+- Service Worker über Volume-Mount verfügbar
+- Hot Reload für Development
+
+**✅ docker-compose.yml:**
+- Service Worker Verifikation beim Container-Start
+- Verbesserte Logs und Health Checks
+
+**✅ Build-Prozess:**
+- Standalone Output aktiviert (`output: 'standalone'`)
+- Optimierte Bundle-Größe
+- Schnellere Container-Starts
+- Cache Mounts für npm und Prisma
+
+**Detaillierte Docker-Dokumentation:** Siehe `DOCKER_UPDATES.md`
 
 ---
 
@@ -3515,10 +3799,39 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 **Ende des Anwenderhandbuchs**
 
 *Letzte Aktualisierung: November 2025*  
-*Version: 2.3.0*  
-*Gesamt: 2.800+ Zeilen Dokumentation*
+*Version: 2.4.0*  
+*Gesamt: 3.900+ Zeilen Dokumentation*
 
 ## Änderungsprotokoll
+
+### Version 2.4.0 (November 2025)
+
+- **Moderne Web Design Features - Vollständige Implementierung:**
+  - ✅ **Phase 1: Foundation** - Progressive Enhancement, Semantisches HTML, ARIA-Labels, `<noscript>` Fallbacks
+  - ✅ **Phase 2: Design-Updates** - Neumorphismus, Dark Mode, Immersive Hero-Section
+  - ✅ **Phase 3: Interaktivität** - Microinteractions, Scroll-Animationen, Swipe-Gesten, Parallax-Effekte
+  - ✅ **Phase 4: Performance** - Lazy Loading, Image-Optimierung, Service Worker, Preloading
+  - ✅ **Phase 5: Accessibility & Inklusion** - Skip-to-Content, Keyboard Navigation, Focus Management, WCAG 2.1 AA, Screen Reader Optimierung
+  - ✅ **Phase 6: Interaktive Elemente** - 3D-Effekte, Erweiterte Scroll-Animationen, Microinteractions
+
+- **Neue Komponenten:**
+  - `DarkModeToggle`, `RippleButton`, `ScrollAnimated`, `Swipeable`, `ParallaxHero`
+  - `Card3D`, `MicroInteraction`, `SkipToContent`, `LiveRegion`
+  - `ServiceWorkerRegistration`, `useKeyboardNavigation`, `useFocusTrap`
+
+- **Docker-Updates:**
+  - ✅ Service Worker Verifikation im Build-Prozess
+  - ✅ Standalone Build Verifikation
+  - ✅ Runtime Service Worker Check
+  - ✅ Optimierte Multi-Stage Builds
+
+- **Performance & Accessibility:**
+  - ✅ Lazy Loading für schwere Komponenten
+  - ✅ Image-Optimierung mit Next.js Image-Komponente
+  - ✅ Service Worker für Offline-Support
+  - ✅ Vollständige WCAG 2.1 AA Compliance
+
+**Detaillierte Dokumentation:** Siehe Abschnitt [13.7](#137-implementierte-moderne-web-design-features-version-240)
 
 ### Version 2.3.0 (November 2025)
 

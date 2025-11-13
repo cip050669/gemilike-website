@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
-import { InteractiveWorldMap } from '@/components/worldmap/InteractiveWorldMap';
 import { PublicLayout } from '@/components/layout/PublicLayout';
+import { WorldMapClient } from '@/components/worldmap/WorldMapClient';
 
 export default async function WorldMapPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -61,7 +61,7 @@ export default async function WorldMapPage({ params }: { params: Promise<{ local
             </p>
           </div>
 
-          <InteractiveWorldMap locations={locations} gemTypes={gemTypes} />
+          <WorldMapClient locations={locations} gemTypes={gemTypes} />
         </div>
       </div>
     </PublicLayout>

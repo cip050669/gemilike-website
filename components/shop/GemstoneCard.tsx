@@ -9,6 +9,7 @@ import { WishlistButton } from '@/components/cart/WishlistButton';
 import { PictogramWithTooltip } from './PictogramWithTooltip';
 import { useTranslations } from 'next-intl';
 import { getColorBadgeStyle, getColorIntensityBadgeStyle } from '@/lib/utils/colorBadge';
+import { Card3D } from '@/components/ui/Card3D';
 
 interface GemstoneCardProps {
   gemstone: Gemstone;
@@ -27,11 +28,13 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
     : null;
   
   return (
-    <Card 
-      className="flex flex-col hover:shadow-lg transition-shadow"
-      role="article"
-      aria-label={`Edelstein ${gemstone.name} - ${gemstone.category}`}
-    >
+    <Card3D intensity={0.08} disabled={!gemstone.inStock}>
+      <Card 
+        className="flex flex-col hover:shadow-lg transition-all duration-300 neumorphic dark:neumorphic-dark focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 gemstone-card-3d"
+        role="article"
+        aria-labelledby={`gemstone-title-${gemstone.id}`}
+        aria-describedby={`gemstone-description-${gemstone.id}`}
+      >
       <CardHeader className="p-2 sm:p-3 pb-0 flex-shrink-0">
         {/* Media Gallery */}
         <div className="relative mb-4 overflow-hidden">
@@ -94,7 +97,10 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
         </div>
 
         {/* Beschreibung */}
-        <p className="text-xs text-gem-text2 mb-3 line-clamp-2 flex-shrink-0">
+        <p 
+          className="text-xs text-gem-text2 mb-3 line-clamp-2 flex-shrink-0"
+          id={`gemstone-description-${gemstone.id}`}
+        >
           {gemstone.description}
         </p>
 
@@ -347,5 +353,6 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
         </div>
       </CardFooter>
     </Card>
+    </Card3D>
   );
 }

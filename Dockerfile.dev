@@ -55,4 +55,5 @@ ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Use dev:lan to allow external connections
+# Service Worker will be available in development via public/sw.js
 CMD ["npm", "run", "dev:lan"]

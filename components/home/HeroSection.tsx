@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type CSSProperties } from 'react';
 import type { HeroSettingsData } from '@/lib/data/hero-settings';
+import { ParallaxHero } from '@/components/ui/ParallaxHero';
 
 interface HeroSectionProps {
   locale: string;
@@ -128,8 +129,25 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
         backgroundRepeat: 'no-repeat',
       }}
       lang={locale}
+      aria-label="Hero Section"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/50" />
+      {/* Immersive Overlay mit verbessertem Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60 dark:from-black/60 dark:via-black/40 dark:to-black/80" />
+      
+      {/* Parallax-Effekt für Hintergrund */}
+      <ParallaxHero speed={0.3}>
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${heroSrc})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            transform: 'scale(1.1)',
+          }}
+          aria-hidden="true"
+        />
+      </ParallaxHero>
 
       <div
         className="relative z-10 w-full max-w-5xl px-6 pb-24 text-white"

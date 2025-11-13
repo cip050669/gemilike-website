@@ -1,12 +1,36 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, FileText, Image as ImageIcon, Video, Palette } from 'lucide-react';
-import { ColorChartGrid } from '@/components/color-charts/ColorChartGrid';
-import { GemstoneColorAnalyzer } from '@/components/color-charts/GemstoneColorAnalyzer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// Lazy Load schwere Komponenten
+const ColorChartGrid = dynamic(
+  () => import('@/components/color-charts/ColorChartGrid').then((mod) => ({ default: mod.ColorChartGrid })),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Lade Farbtafeln...</div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
+
+const GemstoneColorAnalyzer = dynamic(
+  () => import('@/components/color-charts/GemstoneColorAnalyzer').then((mod) => ({ default: mod.GemstoneColorAnalyzer })),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Lade Farbanalyse...</div>
+      </div>
+    ),
+    ssr: false, // Client-Side nur
+  }
+);
 
 interface DownloadItem {
   id: string;

@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Cart } from '@/components/cart/Cart';
 import { useCartStore } from '@/lib/store/cart';
 import { cn } from '@/lib/utils';
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
 import styles from './HeaderNav.module.css';
 
 const NAV_ITEMS = [
@@ -82,7 +83,10 @@ export function Header() {
         </div>
 
         {/* Hauptnavigation */}
-        <nav className="flex items-center justify-start flex-1 gap-[30px] ml-10 overflow-x-auto sm:overflow-visible">
+        <nav 
+          className="flex items-center justify-start flex-1 gap-[30px] ml-10 overflow-x-auto sm:overflow-visible"
+          aria-label="Hauptnavigation"
+        >
           {NAV_ITEMS.map(({ href, label }) => {
             const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
             return (
@@ -90,6 +94,7 @@ export function Header() {
                 key={href}
                 href={buildHref(href)}
                 className={cn(styles.navButton, isActive && 'shadow-[0_0_32px_rgba(0,0,0,0.35)]')}
+                aria-current={isActive ? 'page' : undefined}
               >
                 <span className={styles.navLabel}>{label}</span>
                 <span className={styles.navGlow} />
@@ -101,18 +106,29 @@ export function Header() {
         {/* Right Side Actions - Rechts */}
         <div className="hidden md:flex items-center justify-end space-x-3 lg:space-x-4 flex-shrink-0">
           {/* Action Buttons */}
-          <Button variant="outline" size="icon" className="h-9 w-9 border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50">
-            <UserIcon className="h-4 w-4" />
+          <DarkModeToggle />
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="h-9 w-9 border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
+            aria-label="Benutzerprofil öffnen"
+          >
+            <UserIcon className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button 
             variant="outline" 
             size="icon" 
             onClick={toggleCart}
             className="relative h-9 w-9 border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
+            aria-label={`Warenkorb öffnen${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel im Warenkorb` : ''}`}
+            aria-expanded={false}
           >
-            <ShoppingCartIcon className="h-4 w-4" />
+            <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
             {isMounted && getTotalItems() > 0 && (
-              <span className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span 
+                className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                aria-hidden="true"
+              >
                 {getTotalItems()}
               </span>
             )}
@@ -121,28 +137,40 @@ export function Header() {
 
         {/* Mobile Menu */}
         <div className="flex items-center space-x-2 md:hidden">
+          <DarkModeToggle />
           <Button 
             variant="outline" 
             size="icon" 
             onClick={toggleCart}
             className="relative border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
+            aria-label={`Warenkorb öffnen${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel im Warenkorb` : ''}`}
+            aria-expanded={false}
           >
-            <ShoppingCartIcon className="h-4 w-4" />
+            <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
             {isMounted && getTotalItems() > 0 && (
-              <span className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span 
+                className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                aria-hidden="true"
+              >
                 {getTotalItems()}
               </span>
             )}
           </Button>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50">
-                <MenuIcon className="h-6 w-6" />
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
+                aria-label="Navigation öffnen"
+                aria-expanded={false}
+              >
+                <MenuIcon className="h-6 w-6" aria-hidden="true" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
-              <SheetTitle className="sr-only">Navigation</SheetTitle>
-              <nav className="flex flex-col gap-3 mt-6">
+              <SheetTitle>Navigation</SheetTitle>
+              <nav className="flex flex-col gap-3 mt-6" aria-label="Mobile Navigation">
                 {NAV_ITEMS.map(({ href, label }) => {
                   const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
                   return (

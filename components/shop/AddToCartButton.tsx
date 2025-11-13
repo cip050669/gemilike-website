@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useCartStore } from '@/lib/store/cart';
 import { Button } from '@/components/ui/button';
+import { RippleButton } from '@/components/ui/RippleButton';
 import { ShoppingCartIcon, CheckIcon } from 'lucide-react';
 
 interface AddToCartButtonProps {
@@ -52,34 +53,68 @@ export function AddToCartButton({ item, disabled = false }: AddToCartButtonProps
   };
 
   return (
-    <Button
-      onClick={handleAddToCart}
-      disabled={disabled || isPending || isStoreLoading}
-      className={`${
-        disabled
-          ? 'bg-gray-700 text-gray-300 hover:bg-gray-700'
-          :
-        isAdded 
-          ? 'bg-green-600 hover:bg-green-700' 
-          : 'bg-primary hover:bg-primary/90'
-      } text-primary-foreground transition-colors duration-300`}
-    >
-      {isAdded ? (
-        <>
-          <CheckIcon className="h-4 w-4 mr-2" />
-          Hinzugefügt
-        </>
-      ) : disabled ? (
-        <>
-          <ShoppingCartIcon className="h-4 w-4 mr-2" />
-          Nicht verfügbar
-        </>
-      ) : (
-        <>
-          <ShoppingCartIcon className="h-4 w-4 mr-2" />
-          In den Warenkorb
-        </>
-      )}
-    </Button>
+    <>
+      <RippleButton
+        onClick={handleAddToCart}
+        disabled={disabled || isPending || isStoreLoading}
+        className={`${
+          disabled
+            ? 'bg-gray-700 text-gray-300 hover:bg-gray-700'
+            :
+          isAdded 
+            ? 'bg-green-600 hover:bg-green-700' 
+            : 'bg-primary hover:bg-primary/90'
+        } text-primary-foreground transition-colors duration-300`}
+        aria-label={
+          isAdded 
+            ? `${item.name} wurde zum Warenkorb hinzugefügt`
+            : disabled
+            ? `${item.name} ist nicht verfügbar`
+            : `${item.name} zum Warenkorb hinzufügen`
+        }
+        aria-describedby="cart-button-help"
+      >
+        {isAdded ? (
+          <>
+            <CheckIcon className="h-4 w-4 mr-2" aria-hidden="true" />
+            <span aria-live="polite" aria-atomic="true">Hinzugefügt</span>
+          </>
+        ) : disabled ? (
+          <>
+            <ShoppingCartIcon className="h-4 w-4 mr-2" aria-hidden="true" />
+            Nicht verfügbar
+          </>
+        ) : (
+          <>
+            <ShoppingCartIcon className="h-4 w-4 mr-2" aria-hidden="true" />
+            In den Warenkorb
+          </>
+        )}
+      </RippleButton>
+      <span id="cart-button-help" className="sr-only">
+        Fügt {item.name} zum Warenkorb hinzu
+      </span>
+
+      {/* Progressive Enhancement: noscript Fallback für JavaScript-freie Umgebungen */}
+      <noscript>
+        <form action="/api/cart/add" method="POST" style={{ display: 'inline' }}>
+          <input type="hidden" name="gemstoneId" value={item.id} />
+          <input type="hidden" name="quantity" value="1" />
+          <Button
+            type="submit"
+            disabled={disabled}
+            className={`${
+              disabled
+                ? 'bg-gray-700 text-gray-300 hover:bg-gray-700'
+                : 'bg-primary hover:bg-primary/90'
+            } text-primary-foreground transition-colors duration-300`}
+            aria-label={`${item.name} zum Warenkorb hinzufügen (Formular-Submit)`}
+          >
+            <ShoppingCartIcon className="h-4 w-4 mr-2" aria-hidden="true" />
+            In den Warenkorb
+          </Button>
+        </form>
+      </noscript>
+    </>
   );
 }

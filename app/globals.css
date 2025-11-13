@@ -2,6 +2,331 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Screen Reader Only - Accessibility */
+@layer utilities {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Skip to Content Link */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #9A1A63;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    z-index: 10000;
+    border-radius: 0 0 4px 0;
+    font-weight: 600;
+    transition: top 0.3s ease;
+  }
+
+  .skip-link:focus {
+    top: 0;
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+  }
+
+  /* Neumorphismus (Soft UI) Styles */
+  .neumorphic {
+    background: #f0f0f3;
+    border-radius: 20px;
+    box-shadow: 
+      9px 9px 16px rgba(163, 177, 198, 0.6),
+      -9px -9px 16px rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .neumorphic:hover {
+    box-shadow: 
+      inset 9px 9px 16px rgba(163, 177, 198, 0.6),
+      inset -9px -9px 16px rgba(255, 255, 255, 0.5);
+  }
+
+  .neumorphic-dark {
+    background: #1a1a1a;
+    box-shadow: 
+      9px 9px 16px rgba(0, 0, 0, 0.6),
+      -9px -9px 16px rgba(255, 255, 255, 0.05);
+  }
+
+  .neumorphic-dark:hover {
+    box-shadow: 
+      inset 9px 9px 16px rgba(0, 0, 0, 0.6),
+      inset -9px -9px 16px rgba(255, 255, 255, 0.03);
+  }
+
+  /* Dark Mode Support */
+  .dark .neumorphic {
+    background: #1a1a1a;
+    box-shadow: 
+      9px 9px 16px rgba(0, 0, 0, 0.6),
+      -9px -9px 16px rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .neumorphic:hover {
+    box-shadow: 
+      inset 9px 9px 16px rgba(0, 0, 0, 0.6),
+      inset -9px -9px 16px rgba(255, 255, 255, 0.03);
+  }
+
+  /* Minimalistisches Layout - Mehr Weißraum */
+  .minimal-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  .minimal-card {
+    padding: 3rem;
+    margin-bottom: 4rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .minimal-card {
+    background: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Viel Weißraum */
+  .minimal-section {
+    margin-bottom: 6rem;
+  }
+
+  .minimal-heading {
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+
+  /* Verbesserte Spacing für Cards */
+  .card-spacing {
+    padding: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .card-spacing {
+      padding: 3rem;
+      margin-bottom: 4rem;
+    }
+  }
+
+  /* Focus Styles für bessere Accessibility */
+  *:focus-visible {
+    outline: 2px solid #9A1A63;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Verbesserte Focus-Styles für interaktive Elemente */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid #9A1A63;
+    outline-offset: 3px;
+  }
+
+  /* Dark Mode Focus Styles */
+  .dark *:focus-visible {
+    outline-color: #6FF3FF;
+  }
+
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* High Contrast Mode Support */
+  @media (prefers-contrast: high) {
+    * {
+      border-color: currentColor !important;
+    }
+  }
+
+  /* 3D Transform Styles */
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* 3D Card Hover Effect */
+  .gemstone-card-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .gemstone-card-3d:hover {
+    transform: perspective(1000px) rotateY(5deg) rotateX(5deg) scale(1.02);
+  }
+
+  /* 3D Viewer für Edelstein-Detailansicht */
+  .gemstone-3d-viewer {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+  }
+
+  .gemstone-3d-model {
+    transform-style: preserve-3d;
+    animation: rotate-3d 20s infinite linear;
+  }
+
+  @keyframes rotate-3d {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(360deg);
+    }
+  }
+
+  /* Smooth Scroll Animation */
+  .scroll-animated {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .scroll-animated.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Microinteraction: Hover Scale */
+  .hover-scale {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  /* Microinteraction: Button Press */
+  .button-press:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+
+  /* Microinteraction: Bounce */
+  .hover-bounce {
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .hover-bounce:hover {
+    transform: translateY(-5px);
+  }
+
+  .bounce-active {
+    animation: bounce-micro 0.3s ease;
+  }
+
+  @keyframes bounce-micro {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* Microinteraction: Pulse */
+  .hover-pulse {
+    transition: transform 0.3s ease;
+  }
+
+  .hover-pulse:hover {
+    animation: pulse-micro 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-micro {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  /* Microinteraction: Glow */
+  .hover-glow {
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(154, 26, 99, 0.5);
+    transform: scale(1.02);
+  }
+
+  .glow-active {
+    box-shadow: 0 0 30px rgba(154, 26, 99, 0.7);
+  }
+
+  /* Reduced Motion: Disable animations */
+  @media (prefers-reduced-motion: reduce) {
+    .gemstone-card-3d,
+    .hover-scale,
+    .hover-bounce,
+    .hover-pulse,
+    .hover-glow,
+    .scroll-animated {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* Ripple Animation für Buttons */
+  @keyframes ripple {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+    100% {
+      width: 300px;
+      height: 300px;
+      opacity: 0;
+    }
+  }
+
+  .animate-ripple {
+    animation: ripple 0.6s ease-out;
+  }
+}
+
 /* Global dark theme with blur effects */
 body {
   background: linear-gradient(135deg, rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.9)) !important;

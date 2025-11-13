@@ -4,6 +4,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header';
+import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
+import { SkipToContent } from '@/components/accessibility/SkipToContent';
 import clsx from 'clsx';
 
 export const metadata: Metadata = {
@@ -38,12 +40,18 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        {/* Preload wichtige Ressourcen */}
+        <link rel="preload" href="/logo.png" as="image" type="image/png" />
       </head>
       <body className={clsx('public-page-bg', 'font-sans')} suppressHydrationWarning>
+        <SkipToContent />
+        <ServiceWorkerRegistration />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>
             <Header />
-            {children}
+            <main id="main-content" tabIndex={-1}>
+              {children}
+            </main>
           </SessionProvider>
         </NextIntlClientProvider>
       </body>

@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { GemstoneGrid } from '@/components/shop/GemstoneGrid';
 import type { ShopGemstone } from '@/lib/services/shop/types';
 import { Input } from '@/components/ui/input';
+import { ScrollAnimated } from '@/components/ui/ScrollAnimated';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { cn } from '@/lib/utils';
 
@@ -182,23 +183,26 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
 
   return (
     <div className="space-y-16">
-      <section className="main-container">
-        <div className="story-card space-y-4 p-6 md:p-8">
-          <div className="space-y-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
-              <span className="gemilike-text-gradient">Unsere Auswahl an Edelsteinen</span>
-            </h1>
-            <p className="mx-auto max-w-3xl text-sm md:text-base text-white/80">
-              Entdecken Sie neue Funde, einzigartige Einzelstücke und zertifizierte Qualitäten. Jede
-              Kachel zeigt Gewicht, Herkunft, Preis und Status auf einen Blick.
-            </p>
+      <ScrollAnimated direction="fade" delay={0}>
+        <section className="main-container">
+          <div className="story-card space-y-4 p-6 md:p-8">
+            <div className="space-y-4 text-center">
+              <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
+                <span className="gemilike-text-gradient">Unsere Auswahl an Edelsteinen</span>
+              </h1>
+              <p className="mx-auto max-w-3xl text-sm md:text-base text-white/80">
+                Entdecken Sie neue Funde, einzigartige Einzelstücke und zertifizierte Qualitäten. Jede
+                Kachel zeigt Gewicht, Herkunft, Preis und Status auf einen Blick.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollAnimated>
 
-      <section className="main-container">
-        <div className="story-card space-y-8">
-          <div className="flex flex-col gap-6 rounded-2xl border border-white/20 bg-gray-900/70/80 p-6 backdrop-blur">
+      <ScrollAnimated direction="up" delay={100}>
+        <section className="main-container">
+          <div className="story-card space-y-8">
+            <div className="flex flex-col gap-6 rounded-2xl border border-white/20 bg-gray-900/70/80 p-6 backdrop-blur">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="space-y-1">
                 <h2 className="text-2xl font-semibold text-white">Bestand filtern</h2>
@@ -364,39 +368,46 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
 
         {filteredGemstones.length > 0 ? (
           <>
-            <GemstoneGrid gemstones={visibleGemstones} />
-            <div className="mt-10 flex flex-col items-center gap-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/45">
-                {hasMore
-                  ? `Zeigt ${shownCount} von ${filteredGemstones.length} Edelsteinen`
-                  : `Alle ${filteredGemstones.length} Edelsteine werden angezeigt`}
-              </p>
-              {hasMore && (
-                <button
-                  type="button"
-                  className={cn(
-                    navStyles.navButton,
-                    navStyles.navButtonTight,
-                    'px-6 py-2 text-sm'
-                  )}
-                  onClick={() =>
-                    setVisibleCount((count) =>
-                      Math.min(count + LOAD_STEP, filteredGemstones.length)
-                    )
-                  }
-                >
-                  <span className={navStyles.navLabel}>Weitere Edelsteine laden</span>
-                  <span className={navStyles.navGlow} />
-                </button>
-              )}
-            </div>
+            <ScrollAnimated direction="up" delay={200}>
+              <GemstoneGrid gemstones={visibleGemstones} />
+            </ScrollAnimated>
+            <ScrollAnimated direction="fade" delay={300}>
+              <div className="mt-10 flex flex-col items-center gap-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-white/45">
+                  {hasMore
+                    ? `Zeigt ${shownCount} von ${filteredGemstones.length} Edelsteinen`
+                    : `Alle ${filteredGemstones.length} Edelsteine werden angezeigt`}
+                </p>
+                {hasMore && (
+                  <button
+                    type="button"
+                    className={cn(
+                      navStyles.navButton,
+                      navStyles.navButtonTight,
+                      'px-6 py-2 text-sm'
+                    )}
+                    onClick={() =>
+                      setVisibleCount((count) =>
+                        Math.min(count + LOAD_STEP, filteredGemstones.length)
+                      )
+                    }
+                  >
+                    <span className={navStyles.navLabel}>Weitere Edelsteine laden</span>
+                    <span className={navStyles.navGlow} />
+                  </button>
+                )}
+              </div>
+            </ScrollAnimated>
           </>
         ) : (
-          <div className="rounded-3xl border border-white/10 bg-gray-900/60 p-10 text-center text-white/70">
-            Keine Edelsteine gefunden. Passen Sie die Filter oder die Suche an.
-          </div>
+          <ScrollAnimated direction="fade">
+            <div className="rounded-3xl border border-white/10 bg-gray-900/60 p-10 text-center text-white/70">
+              Keine Edelsteine gefunden. Passen Sie die Filter oder die Suche an.
+            </div>
+          </ScrollAnimated>
         )}
-      </section>
+        </section>
+      </ScrollAnimated>
     </div>
   );
 }

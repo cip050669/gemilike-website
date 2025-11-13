@@ -60,7 +60,12 @@ ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 # Build the application
+# This will create the standalone output in .next/standalone
 RUN npm run build
+
+# Verify critical files exist after build
+RUN test -f public/sw.js && echo "✓ Service Worker found" || echo "⚠ Warning: Service Worker not found" && \
+    test -d .next/standalone && echo "✓ Standalone build found" || (echo "✗ Standalone build missing" && exit 1)
 
 # ============================================
 # Runner Stage (Production)
@@ -99,6 +104,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy Service Worker (for PWA/Offline support)
+# Service Worker is in public/sw.js and will be served automatically
+# No additional copy needed as it's already in public/
+
 # Copy Prisma schema and migrations (needed for migrations at runtime)
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
@@ -113,6 +122,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/messages ./messages
 
 # Copy package.json for potential runtime scripts
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+
+# Ensure Service Worker is accessible (already in public/, but verify)
+# Service Worker registration happens client-side via ServiceWorkerRegistration component
 
 # Note: Data files for color charts are mounted as volumes in docker-compose
 # They are not copied into the image to keep it smaller and allow updates without rebuild

@@ -101,6 +101,8 @@ services:
         echo 'Running migrations...' &&
         npx prisma migrate deploy &&
         npx prisma generate &&
+        echo 'Verifying Service Worker...' &&
+        test -f public/sw.js && echo 'Service Worker found' || echo 'Warning: Service Worker not found' &&
         echo 'Starting application...' &&
         node server.js
       "

@@ -12,6 +12,7 @@ import { loadShopGemstones } from '@/lib/shop/shopData';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { NewGemstonesCarousel } from '@/components/home/NewGemstonesCarousel';
+import { ScrollAnimated } from '@/components/ui/ScrollAnimated';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -78,12 +79,16 @@ export default async function HomePage({
 
       {/* Container 1: Geschichten um Edelsteine */}
       <div className="main-container">
-        <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-center">
-          <span className="gemilike-text-gradient">{blogSettings.heading}</span>
-        </h2>
-        <p className="text-lg text-gray-300 text-center mb-16">
-          <span style={{ color: blogSettings.subheadingColor }}>{blogSettings.subheading}</span>
-        </p>
+        <ScrollAnimated direction="fade" delay={100}>
+          <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-center">
+            <span className="gemilike-text-gradient">{blogSettings.heading}</span>
+          </h2>
+        </ScrollAnimated>
+        <ScrollAnimated direction="fade" delay={200}>
+          <p className="text-lg text-gray-300 text-center mb-16">
+            <span style={{ color: blogSettings.subheadingColor }}>{blogSettings.subheading}</span>
+          </p>
+        </ScrollAnimated>
         {stories.length > 0 ? (
           <div className="max-h-[620px] overflow-y-auto pr-3 scrollbar-thin">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[75px]">
@@ -165,11 +170,13 @@ export default async function HomePage({
       </div>
 
       {/* Container 2: Neue Edelsteine */}
-      <NewGemstonesCarousel
-        gemstones={newGemstones}
-        locale={locale}
-        description="Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar."
-      />
+      <ScrollAnimated direction="up" delay={300}>
+        <NewGemstonesCarousel
+          gemstones={newGemstones}
+          locale={locale}
+          description="Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar."
+        />
+      </ScrollAnimated>
     </div>
     </PublicLayout>
   );

@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, Play, ZoomIn, Award } from 'lucide-react';
+import { Swipeable } from '@/components/ui/Swipeable';
 import { cn } from '@/lib/utils';
 
 interface MediaGalleryProps {
@@ -143,7 +144,12 @@ export function MediaGallery({
 
   return (
     <div className={cn('w-full space-y-4', className)} style={{ maxWidth: '100%', boxSizing: 'border-box', width: '100%' }}>
-      <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-gray-900/70 backdrop-blur" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
+      <Swipeable
+        onSwipeLeft={handleNext}
+        onSwipeRight={handlePrev}
+        threshold={50}
+        className="relative overflow-hidden rounded-2xl border border-white/20 bg-gray-900/70 backdrop-blur"
+      >
         <div
           ref={scrollContainerRef}
           className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scroll-smooth"
@@ -177,6 +183,10 @@ export function MediaGallery({
                     height={600}
                     className="h-full w-full max-h-[360px] select-none object-contain"
                     priority={index === 0}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 900px"
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                   />
                 )}
 
@@ -212,6 +222,8 @@ export function MediaGallery({
                           width={1400}
                           height={900}
                           className="max-h-[80vh] w-full object-contain"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1400px"
+                          quality={90}
                         />
                       </div>
                     </DialogContent>
@@ -263,7 +275,7 @@ export function MediaGallery({
             </Button>
           </>
         )}
-      </div>
+      </Swipeable>
 
       {mediaItems.length > 1 && (
         <div className="bg-gray-900/70 border border-white/20 p-4 rounded-lg backdrop-blur" role="tablist" aria-label="Medienauswahl">
@@ -294,6 +306,7 @@ export function MediaGallery({
                     fill
                     className="object-cover"
                     sizes="120px"
+                    loading="lazy"
                   />
                   {item.type === 'video' && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50">
