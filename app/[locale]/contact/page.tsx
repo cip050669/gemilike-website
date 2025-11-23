@@ -4,9 +4,9 @@ import { use, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MailIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckIcon, XIcon } from 'lucide-react';
 import { PublicLayout } from '@/components/layout/PublicLayout';
+import { ScrollAnimated } from '@/components/ui/ScrollAnimated';
 
 export default function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
@@ -58,31 +58,40 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
 
   return (
     <PublicLayout>
-      <main className="min-h-screen public-page-bg">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-6xl mx-auto">
-          <header className="text-center mb-12">
-            <h1 className="gemilike-text-gradient text-4xl font-bold mb-4">Kontakt</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Haben Sie Fragen zu unseren Edelsteinen oder benötigen Sie eine Beratung? 
-              Wir sind gerne für Sie da!
-            </p>
-          </header>
+      <div className="min-h-screen public-page-bg text-white pb-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <ScrollAnimated direction="fade" delay={0}>
+            <section className="main-container">
+              <div className="story-card space-y-4 p-6 md:p-8">
+                <div className="space-y-4 text-center">
+                  <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
+                    <span className="gemilike-text-gradient">Kontakt</span>
+                  </h1>
+                  <p className="mx-auto max-w-3xl text-sm md:text-base text-gray-200">
+                    Haben Sie Fragen zu unseren Edelsteinen oder benötigen Sie eine Beratung? 
+                    Wir sind gerne für Sie da!
+                  </p>
+                </div>
+              </div>
+            </section>
+          </ScrollAnimated>
+
+          <ScrollAnimated direction="up" delay={100}>
+            <section className="main-container">
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Kontaktformular */}
             <section aria-labelledby="contact-form-heading">
-              <Card>
-                <CardHeader>
-                  <CardTitle 
+              <div className="story-card">
+                <div className="p-6 md:p-8">
+                  <h2 
                     id="contact-form-heading"
-                    className="flex items-center space-x-2"
+                    className="text-2xl font-bold mb-6 flex items-center space-x-2 text-gray-200"
                   >
                     <MailIcon className="h-5 w-5 text-primary" aria-hidden="true" />
                     <span>Nachricht senden</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                  </h2>
+                <div>
                   {/* Progressive Enhancement: HTML-Schicht mit action/method für Fallback */}
                   <form 
                     onSubmit={handleSubmit} 
@@ -96,7 +105,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                       <div>
                         <label 
                           htmlFor="name" 
-                          className="block text-sm font-medium mb-2"
+                          className="block text-sm font-medium mb-2 text-gray-200"
                           id="name-label"
                         >
                           Name <span aria-label="erforderlich">*</span>
@@ -120,7 +129,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                       <div>
                         <label 
                           htmlFor="email" 
-                          className="block text-sm font-medium mb-2"
+                          className="block text-sm font-medium mb-2 text-gray-200"
                           id="email-label"
                         >
                           E-Mail <span aria-label="erforderlich">*</span>
@@ -147,7 +156,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                     <div>
                       <label 
                         htmlFor="subject" 
-                        className="block text-sm font-medium mb-2"
+                        className="block text-sm font-medium mb-2 text-gray-200"
                         id="subject-label"
                       >
                         Betreff <span aria-label="erforderlich">*</span>
@@ -172,7 +181,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                     <div>
                       <label 
                         htmlFor="message" 
-                        className="block text-sm font-medium mb-2"
+                        className="block text-sm font-medium mb-2 text-gray-200"
                         id="message-label"
                       >
                         Nachricht <span aria-label="erforderlich">*</span>
@@ -252,22 +261,21 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                       </p>
                     </div>
                   </noscript>
-                </CardContent>
-              </Card>
+                </div>
+                </div>
+              </div>
             </section>
 
             {/* Kontaktinformationen */}
             <aside className="space-y-6" aria-label="Kontaktinformationen">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Kontaktinformationen</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div className="story-card">
+                <div className="p-6 md:p-8 space-y-4">
+                  <h2 className="text-2xl font-bold mb-6 text-gray-200">Kontaktinformationen</h2>
                   <div className="flex items-start space-x-3">
                     <MapPinIcon className="h-5 w-5 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold">Adresse</h3>
-                      <p className="text-muted-foreground">
+                      <h3 className="font-semibold text-gray-200">Adresse</h3>
+                      <p className="text-gray-200">
                         Gemilike GmbH<br />
                         Musterstraße 123<br />
                         12345 Musterstadt<br />
@@ -279,8 +287,8 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                   <div className="flex items-start space-x-3">
                     <PhoneIcon className="h-5 w-5 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold">Telefon</h3>
-                      <p className="text-muted-foreground">
+                      <h3 className="font-semibold text-gray-200">Telefon</h3>
+                      <p className="text-gray-200">
                         +49 (0) 123 456 789<br />
                         Mo-Fr: 9:00-18:00 Uhr
                       </p>
@@ -290,8 +298,8 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                   <div className="flex items-start space-x-3">
                     <MailIcon className="h-5 w-5 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold">E-Mail</h3>
-                      <p className="text-muted-foreground">
+                      <h3 className="font-semibold text-gray-200">E-Mail</h3>
+                      <p className="text-gray-200">
                         info@gemilike.com<br />
                         support@gemilike.com
                       </p>
@@ -301,51 +309,50 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                   <div className="flex items-start space-x-3">
                     <ClockIcon className="h-5 w-5 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold">Öffnungszeiten</h3>
-                      <p className="text-muted-foreground">
+                      <h3 className="font-semibold text-gray-200">Öffnungszeiten</h3>
+                      <p className="text-gray-200">
                         Montag - Freitag: 9:00 - 18:00<br />
                         Samstag: 10:00 - 16:00<br />
                         Sonntag: Geschlossen
                       </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Beratung & Service</CardTitle>
-                </CardHeader>
-                <CardContent>
+              <div className="story-card">
+                <div className="p-6 md:p-8">
+                  <h2 className="text-2xl font-bold mb-6 text-gray-200">Beratung & Service</h2>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm">Kostenlose Edelstein-Beratung</span>
+                      <span className="text-sm text-gray-200">Kostenlose Edelstein-Beratung</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm">Zertifikate und Gutachten</span>
+                      <span className="text-sm text-gray-200">Zertifikate und Gutachten</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm">Individuelle Schmuckanfertigung</span>
+                      <span className="text-sm text-gray-200">Individuelle Schmuckanfertigung</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm">Reparaturen und Restaurierung</span>
+                      <span className="text-sm text-gray-200">Reparaturen und Restaurierung</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm">Wertgutachten und Schätzungen</span>
+                      <span className="text-sm text-gray-200">Wertgutachten und Schätzungen</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </aside>
           </div>
-          </div>
+            </section>
+          </ScrollAnimated>
         </div>
-      </main>
+      </div>
     </PublicLayout>
   );
 }

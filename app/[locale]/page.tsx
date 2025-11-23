@@ -66,7 +66,7 @@ export default async function HomePage({
 
   return (
     <PublicLayout>
-    <div className="min-h-screen public-page-bg">
+    <div className="min-h-screen public-page-bg text-white pb-16">
       {/* Hero Section */}
       <HeroSection locale={locale} settings={heroSettings} />
 
@@ -77,18 +77,25 @@ export default async function HomePage({
         </div>
       )}
 
+      <div className="max-w-6xl mx-auto px-4">
       {/* Container 1: Geschichten um Edelsteine */}
-      <div className="main-container">
-        <ScrollAnimated direction="fade" delay={100}>
-          <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4 text-center">
-            <span className="gemilike-text-gradient">{blogSettings.heading}</span>
-          </h2>
-        </ScrollAnimated>
-        <ScrollAnimated direction="fade" delay={200}>
-          <p className="text-lg text-gray-300 text-center mb-16">
-            <span style={{ color: blogSettings.subheadingColor }}>{blogSettings.subheading}</span>
-          </p>
-        </ScrollAnimated>
+      <ScrollAnimated direction="fade" delay={0}>
+        <section className="main-container">
+          <div className="story-card space-y-4 p-6 md:p-8">
+            <div className="space-y-4 text-center">
+              <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4">
+                <span className="gemilike-text-gradient">{blogSettings.heading}</span>
+              </h2>
+              <p className="text-lg text-gray-200 mb-16">
+                {blogSettings.subheading}
+              </p>
+            </div>
+          </div>
+        </section>
+      </ScrollAnimated>
+
+      <ScrollAnimated direction="up" delay={100}>
+        <section className="main-container">
         {stories.length > 0 ? (
           <div className="max-h-[620px] overflow-y-auto pr-3 scrollbar-thin">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[75px]">
@@ -114,7 +121,7 @@ export default async function HomePage({
                           <h3 className="text-xl font-bold gemilike-text-gradient">
                             {story.title}
                           </h3>
-                          <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">
+                          <p className="text-gray-200 text-sm leading-relaxed line-clamp-4">
                             {story.excerpt}
                           </p>
                         </div>
@@ -154,7 +161,7 @@ export default async function HomePage({
             <h3 className="text-2xl font-bold mb-4 gemilike-text-gradient">
               Noch keine Geschichten veröffentlicht
             </h3>
-            <p className="text-gray-300 text-base leading-relaxed">
+            <p className="text-gray-200 text-base leading-relaxed">
               Sobald Blog-Beiträge veröffentlicht sind, erscheinen sie hier als
               Inspiration rund um Edelsteine.
             </p>
@@ -167,16 +174,18 @@ export default async function HomePage({
             </Button>
           </div>
         )}
-      </div>
+        </section>
+      </ScrollAnimated>
 
       {/* Container 2: Neue Edelsteine */}
-      <ScrollAnimated direction="up" delay={300}>
+      <ScrollAnimated direction="up" delay={200}>
         <NewGemstonesCarousel
           gemstones={newGemstones}
           locale={locale}
           description="Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar."
         />
       </ScrollAnimated>
+      </div>
     </div>
     </PublicLayout>
   );

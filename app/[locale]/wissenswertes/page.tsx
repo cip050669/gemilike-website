@@ -5,6 +5,7 @@ import { getKnowledgeArticles } from '@/lib/services/knowledge.service';
 import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { PublicLayout } from '@/components/layout/PublicLayout';
+import { ScrollAnimated } from '@/components/ui/ScrollAnimated';
 
 // Force dynamic rendering to always show latest articles
 export const dynamic = 'force-dynamic';
@@ -60,25 +61,25 @@ export default async function KnowledgeListPage({
 
   return (
     <PublicLayout>
-      <div className="public-page-bg text-foreground">
-        <div className="container py-12 md:py-20 space-y-10">
-        <header className="space-y-4 text-center">
-          <h1
-            className="text-4xl md:text-5xl font-impact font-weight-impact"
-            style={{ color: settings.headingColor }}
-          >
-            {settings.heading}
-          </h1>
-          <p
-            className="mx-auto max-w-3xl text-base md:text-lg text-white/70"
-            style={{ color: settings.subheadingColor }}
-          >
-            {settings.subheading}
-          </p>
-        </header>
+      <div className="min-h-screen public-page-bg text-white pb-16">
+        <div className="max-w-6xl mx-auto px-4">
+        <ScrollAnimated direction="fade" delay={0}>
+          <section className="main-container">
+            <div className="story-card space-y-4 p-6 md:p-8">
+              <div className="space-y-4 text-center">
+                <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
+                  <span className="gemilike-text-gradient">{settings.heading}</span>
+                </h1>
+                <p className="mx-auto max-w-3xl text-sm md:text-base text-gray-200">
+                  {settings.subheading}
+                </p>
+              </div>
+            </div>
+          </section>
+        </ScrollAnimated>
 
-        {/* Container: Geschichten um Edelsteine */}
-        <div className="main-container">
+        <ScrollAnimated direction="up" delay={100}>
+          <section className="main-container">
           {stories.length > 0 ? (
             <div className="max-h-[620px] overflow-y-auto pr-3 scrollbar-thin">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[75px]">
@@ -88,17 +89,14 @@ export default async function KnowledgeListPage({
                     className="story-card group transition-transform hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div className="flex gap-[50px] items-center">
-                      <div className="relative overflow-hidden rounded-lg border border-white/10 public-page-bg/20 h-[240px] w-[240px] flex-shrink-0 bg-gray-900/30 flex items-center justify-center">
+                      <div className="relative overflow-hidden rounded-lg border border-white/20 bg-gray-900/70 backdrop-blur h-[180px] w-[204px] flex-shrink-0 flex items-center justify-center">
                         <NextImage
                           src={story.image}
                           alt={story.title}
-                          width={240}
-                          height={240}
-                          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
-                          loading="lazy"
-                          sizes="(max-width: 768px) 240px, 240px"
-                          placeholder="blur"
-                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                          fill
+                          sizes="(max-width: 768px) 50vw, 204px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          priority={false}
                         />
                       </div>
                       <div className="flex flex-col gap-6 justify-center flex-1">
@@ -107,7 +105,7 @@ export default async function KnowledgeListPage({
                             <h3 className="text-xl font-bold gemilike-text-gradient">
                               {story.title}
                             </h3>
-                            <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">
+                            <p className="text-gray-200 text-sm leading-relaxed line-clamp-4">
                               {story.excerpt}
                             </p>
                           </div>
@@ -147,12 +145,13 @@ export default async function KnowledgeListPage({
               <h3 className="text-2xl font-bold mb-4 gemilike-text-gradient">
                 Noch keine Artikel veröffentlicht
               </h3>
-              <p className="text-gray-300 text-base leading-relaxed">
+              <p className="text-gray-200 text-base leading-relaxed">
                 Sobald Wissenswert-Artikel veröffentlicht sind, erscheinen sie hier.
               </p>
             </div>
           )}
-        </div>
+          </section>
+        </ScrollAnimated>
         </div>
       </div>
     </PublicLayout>

@@ -6,7 +6,15 @@ import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 import { SkipToContent } from '@/components/accessibility/SkipToContent';
+import { Inter } from 'next/font/google';
 import clsx from 'clsx';
+
+const inter = Inter({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-inter',
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+});
 
 export const metadata: Metadata = {
   title: 'Gemilike - Heroes in Gems | Edelsteinhandel',
@@ -38,12 +46,12 @@ export default async function LocaleLayout({
   }
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
         {/* Preload wichtige Ressourcen */}
         <link rel="preload" href="/logo.png" as="image" type="image/png" />
       </head>
-      <body className={clsx('public-page-bg', 'font-sans')} suppressHydrationWarning>
+      <body className={clsx('public-page-bg', 'font-inter')} suppressHydrationWarning>
         <SkipToContent />
         <ServiceWorkerRegistration />
         <NextIntlClientProvider locale={locale} messages={messages}>

@@ -1,6 +1,6 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.4.0  
+**Version:** 2.5.0  
 **Stand:** November 2025  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
@@ -44,7 +44,7 @@ Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit f
 - **Kundenverwaltung** mit Bestellungen und Rechnungen
 - **Newsletter-Management**
 - **Weltkarte** mit Fundorten
-- **Moderne Web Design Features** (Version 2.4.0):
+- **Moderne Web Design Features** (Version 2.4.0+):
   - Progressive Enhancement für alle Formulare
   - Dark Mode mit System-Präferenz-Erkennung
   - Neumorphismus Design-Elemente
@@ -115,6 +115,238 @@ gemilike-website/
 - **Relations** zwischen Models für Datenintegrität
 - **Indexes** für Performance-Optimierung
 - **Enums** für typsichere Werte
+
+### 2.4 Design & Layout-System
+
+#### 2.4.1 Design-Vorlage: Shop-Seite
+
+Die **Shop-Seite** (`/shop`) dient als Design-Vorlage für alle anderen Seiten der Website. Alle Seiten übernehmen exakt dasselbe Layout, Background, Farbverlauf, Container und Thumbnail-Styles.
+
+**Hintergrund:**
+- Klasse: `public-page-bg`
+- Gradient: `linear-gradient(135deg, rgba(31, 41, 55, 0.7), rgba(17, 24, 39, 0.8))`
+- Backdrop-Filter: `blur(15px)`
+- Zusätzliche Radial-Gradienten für subtile Farbakzente
+
+**Container:**
+- Klasse: `main-container`
+- Gradient mit Orange, Lila und Cyan-Akzenten
+- Border: `rgba(0, 229, 255, 0.6)` (Cyan)
+- Box-Shadow mit Glow-Effekten
+- Backdrop-Filter: `blur(12px)`
+- Margin: `4rem 8rem` (Desktop)
+- Padding: `3rem`
+- Border-Radius: `0.9rem`
+
+**Cards:**
+- Klasse: `story-card`
+- Gradient mit Orange, Cyan und Lila
+- Hover-Effekt: `translateY(-8px) scale(1.02)`
+- Border: `rgba(0, 229, 255, 0.6)`
+- Backdrop-Filter: `blur(12px)`
+
+**Thumbnails:**
+- Background: `rgba(17, 24, 39, 0.7)` (gray-900/70)
+- Border: `rgba(255, 255, 255, 0.2)` (white/20)
+- Backdrop-Filter: `blur(12px)`
+- Border-Radius: `1rem`
+
+#### 2.4.2 Typografie & Überschriften
+
+**Moderne Progressive Schriftart: Inter**
+
+Die Website verwendet **Inter** als primäre Schriftart für alle Body-Texte. Inter ist eine moderne, progressive Schriftart, die speziell für digitale Interfaces entwickelt wurde.
+
+**Vorteile:**
+- Modern und progressiv
+- Optimiert für Bildschirmlesbarkeit
+- Sehr gute Lesbarkeit in allen Größen
+- Professionell und zeitgemäß
+- Von vielen modernen Websites verwendet
+
+**Integration:**
+- Next.js Font Optimization für optimale Performance
+- Verfügbar in allen Gewichtungen (300-900)
+- Automatisches Font-Swapping für bessere Ladezeiten
+
+**Schriftart-Strategie:**
+- **Display-Font (Impact):** Nur für H1 und H2 Überschriften
+- **Body-Font (Inter):** Für alle anderen Texte (H3, Body, Buttons, etc.)
+
+**Einheitliche Überschriften-Hierarchie:**
+
+**H1 (Hauptüberschriften - Seiten-Titel):**
+- Font: `Impact`, `Arial Black`, sans-serif (Display-Font)
+- Größe: `2.5rem` (Desktop: `3.5rem`)
+- Gewicht: `900`
+- Letter-Spacing: `0.08em`
+- Text-Transform: `uppercase`
+- **IMMER mit `gemilike-text-gradient`** (animierter Gradient)
+- Verwendung: Hero-Titel, Hauptüberschriften auf allen Seiten
+
+**H2 (Sektions-Überschriften):**
+- Font: `Impact`, `Arial Black`, sans-serif (Display-Font)
+- Größe: `2rem` (Desktop: `2.5rem`)
+- Gewicht: `800`
+- Letter-Spacing: `0.05em`
+- Farbe: Optional mit Gradient oder `text-gray-200`
+
+**H3 (Unterüberschriften):**
+- Font: `Inter`, sans-serif (Body-Font)
+- Größe: `1.5rem` (Desktop: `1.75rem`)
+- Gewicht: `700`
+- Farbe: `text-gray-200`
+
+**Body-Text (Haupttext):**
+- Font: `Inter`, sans-serif (Body-Font)
+- Größe: `1rem`
+- Gewicht: `400`
+- Line-Height: `1.6`
+- Farbe: `text-gray-200`
+
+**Regel:**
+- **H1:** Immer mit `gemilike-text-gradient` (Gradient), nie mit statischer Farbe
+- **H2:** Optional mit Gradient oder `text-gray-200`
+- **H3:** Immer `text-gray-200` mit Inter
+- **Body:** Immer `text-gray-200` mit Inter
+
+#### 2.4.3 Textfarbe-Strategie (Helles Grau)
+
+Statt reinem Weiß wird helles Grau verwendet für bessere Lesbarkeit und angenehmeres Erscheinungsbild.
+
+**Primärer Text (Body):**
+- Klasse: `text-gray-200`
+- Farbe: `#E5E7EB`
+- Verwendung: Haupttext, Beschreibungen
+
+**Sekundärer Text (Metadaten, Labels):**
+- Klasse: `text-gray-300`
+- Farbe: `#D1D5DB`
+- Verwendung: Kategorien, Metadaten, sekundäre Informationen
+
+**Tertiärer Text (Hinweise, deaktivierte Elemente):**
+- Klasse: `text-gray-400`
+- Farbe: `#9CA3AF`
+- Verwendung: Platzhalter, Hinweise, deaktivierte Buttons
+
+**Kontrast-Mindestanforderungen (WCAG AA):**
+- Primärer Text: ✅ 12.6:1 (ausreichend)
+- Sekundärer Text: ✅ 9.5:1 (ausreichend)
+- Tertiärer Text: ✅ 6.8:1 (ausreichend)
+
+**Regel:**
+- ❌ **NIEMALS** schwarze Schrift (`#000000` oder `text-black`) auf dunklem Hintergrund
+- ✅ **IMMER** helles Grau statt reinem Weiß
+- ✅ Primärer Text: `text-gray-200`
+- ✅ Sekundärer Text: `text-gray-300`
+- ✅ Tertiärer Text: `text-gray-400`
+
+#### 2.4.4 Layout-Konsistenz
+
+**Container-Struktur:**
+- Alle Seiten verwenden `main-container` Klasse
+- Einheitliche Margins und Paddings
+- Konsistente Border-Radius und Shadows
+
+**Spacing-System:**
+- XS: `0.5rem` (8px)
+- SM: `1rem` (16px)
+- MD: `2rem` (32px)
+- LG: `3rem` (48px)
+- XL: `4rem` (64px)
+- 2XL: `6rem` (96px)
+
+**Responsive Breakpoints:**
+- Mobile: `< 768px`
+- Tablet: `768px - 1024px`
+- Desktop: `> 1024px`
+
+#### 2.4.5 Moderne Progressive Schriftart: Inter
+
+Die Website verwendet **Inter** als primäre Schriftart für alle Body-Texte. Inter ist eine moderne, progressive Schriftart, die speziell für digitale Interfaces entwickelt wurde.
+
+**Vorteile:**
+- Modern und progressiv
+- Optimiert für Bildschirmlesbarkeit
+- Sehr gute Lesbarkeit in allen Größen
+- Professionell und zeitgemäß
+- Von vielen modernen Websites verwendet (Vercel, GitHub, etc.)
+
+**Integration über Next.js Font Optimization (Empfohlen):**
+```typescript
+// app/[locale]/layout.tsx
+import { Inter } from 'next/font/google';
+
+const inter = Inter({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-inter',
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+});
+
+export default function LocaleLayout({ children }) {
+  return (
+    <html lang={locale} className={inter.variable}>
+      <body className="font-inter">
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+**Tailwind CSS Konfiguration:**
+```javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['Impact', 'Arial Black', 'sans-serif'],
+      },
+    },
+  },
+}
+```
+
+**Schriftart-Verwendung:**
+- **Display-Font (Impact):** Nur für H1 und H2 Überschriften
+- **Body-Font (Inter):** Für alle anderen Texte (H3, Body, Buttons, etc.)
+
+#### 2.4.6 Umsetzungsstatus
+
+**Aktueller Stand (Version 2.5.0):**
+- ✅ Shop-Seite als Vorlage definiert
+- ✅ Design-System vollständig dokumentiert
+- ✅ Inter-Schriftart integriert und aktiv
+- ✅ **Alle Seiten vollständig angepasst**
+
+**Vollständig umgesetzte Seiten:**
+- ✅ Startseite (`/`) - Angepasst an Shop-Layout
+- ✅ Shop-Seite (`/shop`) - Vorlage für alle anderen Seiten
+- ✅ Wissenswertes (`/wissenswertes`) - Angepasst an Shop-Layout
+- ✅ Blog (`/blog`) - Angepasst an Shop-Layout
+- ✅ Kontakt (`/contact`) - Angepasst an Shop-Layout
+- ✅ Services (`/services`) - Angepasst an Shop-Layout
+- ✅ Downloads (`/downloads`) - Angepasst an Shop-Layout
+- ✅ Weltkarte (`/worldmap`) - Angepasst an Shop-Layout
+- ✅ Zertifikate (`/certificates`) - Angepasst an Shop-Layout
+- ✅ AGB (`/terms`) - Angepasst an Shop-Layout
+- ✅ Datenschutz (`/privacy`) - Angepasst an Shop-Layout
+- ✅ Impressum (`/imprint`) - Angepasst an Shop-Layout
+- ✅ Cookies (`/cookies`) - Angepasst an Shop-Layout
+- ✅ Widerruf (`/returns`) - Angepasst an Shop-Layout
+- ✅ Versand (`/shipping`) - Angepasst an Shop-Layout
+
+**Einheitliche Implementierung:**
+- ✅ Alle Seiten verwenden `public-page-bg` Hintergrund
+- ✅ Alle Seiten verwenden `main-container` für Container
+- ✅ Alle Seiten verwenden `story-card` für Content-Cards
+- ✅ Alle H1-Überschriften verwenden `font-impact font-weight-impact` mit `gemilike-text-gradient`
+- ✅ Alle H2/H3-Überschriften verwenden Inter mit `font-bold` oder `font-semibold`
+- ✅ Alle Texte verwenden `text-gray-200` statt `text-white` oder `text-black`
+- ✅ Inter-Schriftart ist global über `layout.tsx` aktiviert
 
 ---
 
@@ -3799,10 +4031,51 @@ Das Dokument enthält:
 **Ende des Anwenderhandbuchs**
 
 *Letzte Aktualisierung: November 2025*  
-*Version: 2.4.0*  
-*Gesamt: 3.900+ Zeilen Dokumentation*
+*Version: 2.5.0*  
+*Gesamt: 4.000+ Zeilen Dokumentation*
 
 ## Änderungsprotokoll
+
+### Version 2.5.0 (November 2025)
+
+- **Design & Layout-System - Vollständige Umsetzung:**
+  - ✅ **Alle öffentlichen Seiten angepasst** - Einheitliches Layout basierend auf Shop-Seite
+  - ✅ **Inter-Schriftart vollständig integriert** - Über Next.js Font Optimization
+  - ✅ **Einheitliche Überschriften-Hierarchie** - H1 mit Impact + Gradient, H2/H3 mit Inter
+  - ✅ **Textfarbe-Strategie umgesetzt** - Alle Texte verwenden `text-gray-200` statt `text-white`
+  - ✅ **Layout-Konsistenz hergestellt** - Alle Seiten verwenden identisches Background, Container und Card-Styling
+
+- **Angepasste Seiten:**
+  - ✅ Startseite (`/`) - Layout, Hintergrund, Container, Typografie
+  - ✅ Shop-Seite (`/shop`) - Vorlage für alle anderen Seiten
+  - ✅ Wissenswertes (`/wissenswertes`) - Vollständig angepasst
+  - ✅ Blog (`/blog`) - Vollständig angepasst
+  - ✅ Kontakt (`/contact`) - Vollständig angepasst, Textfarben korrigiert
+  - ✅ Services (`/services`) - Vollständig angepasst, Textfarben korrigiert
+  - ✅ Downloads (`/downloads`) - Vollständig angepasst
+  - ✅ Weltkarte (`/worldmap`) - Vollständig angepasst
+  - ✅ Zertifikate (`/certificates`) - Komplett neu gestaltet (vorher heller Hintergrund)
+  - ✅ AGB (`/terms`) - Vollständig angepasst, Container und Textfarben
+  - ✅ Datenschutz (`/privacy`) - Vollständig angepasst, Container und Textfarben
+  - ✅ Impressum (`/imprint`) - Vollständig angepasst, Container und Textfarben
+  - ✅ Cookies (`/cookies`) - Vollständig angepasst, Container und Textfarben
+  - ✅ Widerruf (`/returns`) - Vollständig angepasst, Container und Textfarben
+  - ✅ Versand (`/shipping`) - Vollständig angepasst, Container und Textfarben
+
+- **Technische Verbesserungen:**
+  - ✅ Inter-Schriftart über `layout.tsx` global aktiviert
+  - ✅ Alle `text-gray-300` zu `text-gray-200` geändert für bessere Konsistenz
+  - ✅ Alle Legal Pages verwenden jetzt `story-card` statt `bg-card`
+  - ✅ Alle H1-Überschriften verwenden einheitlich `font-impact font-weight-impact` mit `gemilike-text-gradient`
+  - ✅ Alle H2/H3-Überschriften verwenden Inter (automatisch über `font-inter` auf body)
+  - ✅ Code-Qualität: Alle Linter-Fehler behoben
+
+- **Code-Qualität:**
+  - ✅ Linter läuft ohne Fehler oder Warnungen
+  - ✅ Alle Parsing-Fehler behoben
+  - ✅ Ungenutzte Parameter entfernt
+
+**Detaillierte Dokumentation:** Siehe Abschnitt [2.4](#24-design--layout-system)
 
 ### Version 2.4.0 (November 2025)
 

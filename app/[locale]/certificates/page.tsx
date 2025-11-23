@@ -1,206 +1,199 @@
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, Award, CheckCircle, FileText } from 'lucide-react';
+import { PublicLayout } from '@/components/layout/PublicLayout';
 
 export default function CertificatesPage() {
   const t = useTranslations('certificates');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="container py-12 md:py-20">
-        <div className="mx-auto max-w-6xl container-dark">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold gradient-text animate-glow mb-6">
-              {t('title')}
-            </h1>
-            <p className="text-xl text-gray-300 dark:text-gray-300 max-w-3xl mx-auto">
-              {t('subtitle')}
-            </p>
+    <PublicLayout>
+      <div className="min-h-screen public-page-bg text-white pb-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="main-container">
+            <div className="story-card space-y-4 p-6 md:p-8">
+              <div className="space-y-4 text-center">
+                <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
+                  <span className="gemilike-text-gradient">{t('title')}</span>
+                </h1>
+                <p className="mx-auto max-w-3xl text-sm md:text-base text-gray-200">
+                  {t('subtitle')}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Certificate Types */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Shield className="h-8 w-8 text-blue-600" />
-                  <CardTitle className="text-xl">{t('gemologicalCertificate')}</CardTitle>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 mt-8">
+            <div className="story-card">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Shield className="h-8 w-8 text-primary" />
+                  <h2 className="text-xl font-bold text-gray-200">{t('gemologicalCertificate')}</h2>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-300 dark:text-gray-300 mb-4">
+                <p className="text-gray-200 mb-4">
                   {t('gemologicalCertificateDesc')}
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('authenticity')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('authenticity')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('quality')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('quality')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('origin')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('origin')}</span>
                   </li>
                 </ul>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Award className="h-8 w-8 text-green-600" />
-                  <CardTitle className="text-xl">{t('qualityCertificate')}</CardTitle>
+            <div className="story-card">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Award className="h-8 w-8 text-primary" />
+                  <h2 className="text-xl font-bold text-gray-200">{t('qualityCertificate')}</h2>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-300 dark:text-gray-300 mb-4">
+                <p className="text-gray-200 mb-4">
                   {t('qualityCertificateDesc')}
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('cutQuality')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('cutQuality')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('colorGrade')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('colorGrade')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('clarity')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('clarity')}</span>
                   </li>
                 </ul>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <FileText className="h-8 w-8 text-purple-600" />
-                  <CardTitle className="text-xl">{t('originCertificate')}</CardTitle>
+            <div className="story-card">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <FileText className="h-8 w-8 text-primary" />
+                  <h2 className="text-xl font-bold text-gray-200">{t('originCertificate')}</h2>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-300 dark:text-gray-300 mb-4">
+                <p className="text-gray-200 mb-4">
                   {t('originCertificateDesc')}
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('miningLocation')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('miningLocation')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('ethicalSourcing')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('ethicalSourcing')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>{t('traceability')}</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-gray-200">{t('traceability')}</span>
                   </li>
                 </ul>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Certification Process */}
           <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">{t('certificationProcess')}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">{t('step1')}</h4>
-                  <p className="text-gray-300 dark:text-gray-300">
-                    {t('step1Desc')}
-                  </p>
+            <div className="story-card">
+              <div className="p-6 md:p-8">
+                <h2 className="text-2xl font-bold mb-6 text-gray-200">{t('certificationProcess')}</h2>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-2 text-gray-200">{t('step1')}</h3>
+                    <p className="text-gray-200">
+                      {t('step1Desc')}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2 text-gray-200">{t('step2')}</h3>
+                    <p className="text-gray-200">
+                      {t('step2Desc')}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2 text-gray-200">{t('step3')}</h3>
+                    <p className="text-gray-200">
+                      {t('step3Desc')}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2 text-gray-200">{t('step4')}</h3>
+                    <p className="text-gray-200">
+                      {t('step4Desc')}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-2">{t('step2')}</h4>
-                  <p className="text-gray-300 dark:text-gray-300">
-                    {t('step2Desc')}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">{t('step3')}</h4>
-                  <p className="text-gray-300 dark:text-gray-300">
-                    {t('step3Desc')}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">{t('step4')}</h4>
-                  <p className="text-gray-300 dark:text-gray-300">
-                    {t('step4Desc')}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">{t('certificationBenefits')}</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="story-card">
+              <div className="p-6 md:p-8">
+                <h2 className="text-2xl font-bold mb-6 text-gray-200">{t('certificationBenefits')}</h2>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>{t('benefit1')}</span>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <span className="text-gray-200">{t('benefit1')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>{t('benefit2')}</span>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <span className="text-gray-200">{t('benefit2')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>{t('benefit3')}</span>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <span className="text-gray-200">{t('benefit3')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>{t('benefit4')}</span>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <span className="text-gray-200">{t('benefit4')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>{t('benefit5')}</span>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <span className="text-gray-200">{t('benefit5')}</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Contact Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">{t('contactInfo')}</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="story-card">
+            <div className="p-6 md:p-8">
+              <h2 className="text-2xl font-bold mb-6 text-gray-200">{t('contactInfo')}</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold mb-2">{t('certificationRequest')}</h4>
-                  <p className="text-gray-300 dark:text-gray-300 mb-4">
+                  <h3 className="font-semibold mb-2 text-gray-200">{t('certificationRequest')}</h3>
+                  <p className="text-gray-200 mb-4">
                     {t('certificationRequestDesc')}
                   </p>
-                  <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                  <button className="bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 transition-colors">
                     {t('requestCertificate')}
                   </button>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">{t('verification')}</h4>
-                  <p className="text-gray-300 dark:text-gray-300 mb-4">
+                  <h3 className="font-semibold mb-2 text-gray-200">{t('verification')}</h3>
+                  <p className="text-gray-200 mb-4">
                     {t('verificationDesc')}
                   </p>
-                  <button className="public-page-bg0/50 text-white py-2 px-4 rounded-md hover:bg-gray-700/300/70 transition-colors">
+                  <button className="bg-primary/50 text-white py-2 px-4 rounded-md hover:bg-primary/70 transition-colors">
                     {t('verifyCertificate')}
                   </button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </PublicLayout>
   );
 }

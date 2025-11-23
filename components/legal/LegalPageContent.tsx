@@ -26,8 +26,8 @@ export async function LegalPageContent({
 
   return (
     <div className="space-y-6">
-      <h1 className="gemilike-text-gradient text-3xl font-bold mb-8">
-        {page.title}
+      <h1 className="text-4xl md:text-5xl font-impact font-weight-impact mb-8">
+        <span className="gemilike-text-gradient">{page.title}</span>
       </h1>
       <div className="max-w-none">
         <MarkdownRenderer content={page.content} />

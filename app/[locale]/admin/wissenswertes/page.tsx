@@ -3,6 +3,7 @@ import { getKnowledgeArticles } from '@/lib/services/knowledge.service';
 import { loadKnowledgeSectionSettings } from '@/lib/data/knowledge-settings';
 import { KnowledgeTable } from '@/components/admin/KnowledgeTable';
 import { KnowledgeSettingsForm } from '@/components/admin/KnowledgeSettingsForm';
+import { KnowledgeVectorControls } from '@/components/admin/KnowledgeVectorControls';
 
 import type { KnowledgeArticle } from '@/lib/types/knowledge';
 
@@ -103,6 +104,10 @@ export default async function KnowledgeAdminPage({
             headingColor={settings.headingColor}
             subheadingColor={settings.subheadingColor}
           />
+        </div>
+
+        <div className="mb-8">
+          <KnowledgeVectorControls locale={locale} />
         </div>
 
         <KnowledgeTable articles={articlesAsKnowledgeArticle.map(toListItem)} locale={locale} />

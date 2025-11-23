@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { GemstoneGrid } from '@/components/shop/GemstoneGrid';
 import type { ShopGemstone } from '@/lib/services/shop/types';
@@ -28,13 +28,36 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [hideSold, setHideSold] = useState(true);
   const [visibleCount, setVisibleCount] = useState(LOAD_STEP);
+  const [vectorQuery, setVectorQuery] = useState('');
+  const [vectorMatches, setVectorMatches] = useState<string[] | null>(null);
+  const [vectorStatus, setVectorStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [vectorError, setVectorError] = useState<string | null>(null);
+  const [lastVectorQuery, setLastVectorQuery] = useState('');
   const params = useParams<{ locale: string }>();
   const locale = params?.locale ?? 'de';
   const searchParams = useSearchParams();
+  const vectorMatchSet = useMemo(
+    () => (vectorMatches ? new Set(vectorMatches) : null),
+    [vectorMatches]
+  );
+  const vectorActive = vectorMatchSet !== null && lastVectorQuery.trim().length > 0;
+  const vectorSearching = vectorStatus === 'loading';
 
   useEffect(() => {
     setVisibleCount(LOAD_STEP);
-  }, [search, category, origin, color, clarity, treatment, certification, sortBy, hideSold, gemstones]);
+  }, [
+    search,
+    category,
+    origin,
+    color,
+    clarity,
+    treatment,
+    certification,
+    sortBy,
+    hideSold,
+    gemstones,
+    vectorMatches,
+  ]);
 
   const categoryOptions = useMemo(() => {
     const options = new Set<string>();
@@ -112,6 +135,7 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
             if (gem.certification !== certification) return false;
           }
         }
+        if (vectorMatchSet && !vectorMatchSet.has(gem.id)) return false;
         if (normalizedSearch.length) {
           const haystack = [
             gem.name,
@@ -151,7 +175,7 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
             return a.isNew ? -1 : 1;
         }
       });
-  }, [gemstones, hideSold, category, origin, color, clarity, treatment, certification, sortBy, search]);
+  }, [gemstones, hideSold, category, origin, color, clarity, treatment, certification, sortBy, search, vectorMatchSet]);
 
   useEffect(() => {
     if (!searchParams) {
@@ -180,6 +204,49 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
   );
   const hasMore = visibleCount < filteredGemstones.length;
   const shownCount = visibleGemstones.length;
+
+  const handleVectorReset = () => {
+    setVectorMatches(null);
+    setVectorError(null);
+    setVectorStatus('idle');
+    setVectorQuery('');
+    setLastVectorQuery('');
+  };
+
+  const handleVectorSearch = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = vectorQuery.trim();
+    if (!trimmed) {
+      handleVectorReset();
+      return;
+    }
+    setVectorStatus('loading');
+    setVectorError(null);
+    try {
+      const response = await fetch(
+        `/api/shop/vector-search?q=${encodeURIComponent(trimmed)}&locale=${locale}`
+      );
+      if (!response.ok) {
+        throw new Error('Die Vektorsuche konnte nicht ausgeführt werden.');
+      }
+      const data = await response.json();
+      const ids: string[] = Array.isArray(data.results)
+        ? data.results.map((result: { id: string }) => result.id)
+        : [];
+      setVectorMatches(ids);
+      setLastVectorQuery(trimmed);
+      setVectorStatus('success');
+      setVectorError(ids.length ? null : 'Keine Edelsteine entsprechen dieser Beschreibung.');
+    } catch (error) {
+      console.error(error);
+      setVectorStatus('error');
+      setVectorError(
+        error instanceof Error
+          ? error.message
+          : 'Unbekannter Fehler bei der Vektorsuche. Bitte versuche es erneut.'
+      );
+    }
+  };
 
   return (
     <div className="space-y-16">
@@ -223,6 +290,7 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
                     setCertification('alle');
                     setSortBy('newest');
                     setHideSold(true);
+                    handleVectorReset();
                   }}
                   className={cn(
                     navStyles.navButton,
@@ -247,6 +315,65 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
           </div>
 
           <div className="flex flex-col gap-4">
+            <form
+              onSubmit={handleVectorSearch}
+              className="space-y-3 rounded-2xl border border-white/15 bg-gray-900/40 p-4"
+            >
+              <div className="flex flex-col gap-3 md:flex-row md:items-end">
+                <div className="flex-1">
+                  <label className="text-xs uppercase tracking-wide text-white/55">
+                    Semantische Vektorsuche
+                  </label>
+                  <Input
+                    placeholder="Beschreibe Farbe, Herkunft, Zertifikat …"
+                    value={vectorQuery}
+                    onChange={(event) => setVectorQuery(event.target.value)}
+                    className="border-white/20 bg-gray-900/60 text-white placeholder:text-white/35 focus-visible:ring-primary"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={vectorSearching}
+                    className={cn(
+                      navStyles.navButton,
+                      navStyles.navButtonTight,
+                      'px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60'
+                    )}
+                  >
+                    <span className={navStyles.navLabel}>
+                      {vectorSearching ? 'Suche …' : 'Vektor-Suche'}
+                    </span>
+                    <span className={navStyles.navGlow} />
+                  </button>
+                  {vectorActive && (
+                    <button
+                      type="button"
+                      onClick={handleVectorReset}
+                      disabled={vectorSearching}
+                      className="rounded-lg border border-white/30 px-4 py-2 text-sm text-white transition hover:border-white/60 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Zurücksetzen
+                    </button>
+                  )}
+                </div>
+              </div>
+              {vectorActive ? (
+                <p className="text-xs text-emerald-200">
+                  {vectorMatches?.length ?? 0} semantische Treffer für „{lastVectorQuery}“ – alle
+                  anderen Edelsteine werden ausgeblendet.
+                </p>
+              ) : (
+                <p className="text-xs text-white/55">
+                  Beschreibe natürliche Sprache, z. B. „intensiv grüner Smaragd aus Kolumbien“, um
+                  ähnliche Stücke zu finden.
+                </p>
+              )}
+              {vectorError && (
+                <p className="text-xs text-red-300">{vectorError}</p>
+              )}
+            </form>
+
             <div className="space-y-2 max-w-[33.333%]">
               <label className="text-xs uppercase tracking-wide text-white/55">Suche</label>
               <Input

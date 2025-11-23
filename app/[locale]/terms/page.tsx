@@ -3,17 +3,20 @@ import { LegalPageContent } from '@/components/legal/LegalPageContent';
 function StaticTermsContent() {
   return (
     <div className="space-y-8">
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 1 Geltungsbereich</h2>
-        <div className="space-y-2 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 1 Geltungsbereich</h2>
+          <div className="space-y-2 text-gray-200">
           <p>Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge zwischen der Gemilike GmbH (nachfolgend &quot;Verkäufer&quot;) und ihren Kunden (nachfolgend &quot;Käufer&quot;) über den Verkauf von Edelsteinen und verwandten Produkten über den Online-Shop unter https://gemilike.de.</p>
           <p>Abweichende, entgegenstehende oder ergänzende AGB des Käufers werden nicht Vertragsbestandteil, es sei denn, ihrer Geltung wird ausdrücklich schriftlich zugestimmt.</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 2 Vertragspartner</h2>
-        <div className="space-y-2 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 2 Vertragspartner</h2>
+          <div className="space-y-2 text-gray-200">
           <p><strong>Verkäufer:</strong></p>
           <p>Gemilike GmbH</p>
           <p>Musterstraße 123</p>
@@ -26,12 +29,14 @@ function StaticTermsContent() {
           <p><strong>USt-IdNr.:</strong> DE123456789</p>
           <p><strong>Telefon:</strong> +49 (0) 123 456 789</p>
           <p><strong>E-Mail:</strong> info@gemilike.com</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 3 Vertragsschluss</h2>
-        <div className="space-y-4 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 3 Vertragsschluss</h2>
+          <div className="space-y-4 text-gray-200">
           <p><strong>Angebot:</strong></p>
           <p>Die Darstellung der Produkte im Online-Shop stellt kein rechtlich bindendes Angebot, sondern einen unverbindlichen Online-Katalog dar. Durch Anklicken des Buttons &quot;In den Warenkorb&quot; oder &quot;Kaufen&quot; geben Sie ein verbindliches Angebot zum Kauf der im Warenkorb befindlichen Waren ab.</p>
           
@@ -45,12 +50,14 @@ function StaticTermsContent() {
           
           <p><strong>Vertragssprache:</strong> Deutsch</p>
           <p><strong>Vertragstext:</strong> Der Vertragstext wird vom Verkäufer gespeichert und dem Käufer nach Vertragsschluss per E-Mail zugesandt.</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 4 Preise und Zahlungsbedingungen</h2>
-        <div className="space-y-4 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 4 Preise und Zahlungsbedingungen</h2>
+          <div className="space-y-4 text-gray-200">
           <p><strong>Preise:</strong></p>
           <p>Alle Preise verstehen sich inklusive der gesetzlichen Mehrwertsteuer. Zusätzliche Kosten für Versand, Verpackung oder Zahlungsabwicklung werden gesondert ausgewiesen.</p>
           
@@ -67,12 +74,14 @@ function StaticTermsContent() {
           
           <p><strong>Preisänderungen:</strong></p>
           <p>Der Verkäufer behält sich das Recht vor, die Preise zu ändern. Bereits abgeschlossene Verträge bleiben unberührt.</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 5 Lieferung und Versand</h2>
-        <div className="space-y-4 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 5 Lieferung und Versand</h2>
+          <div className="space-y-4 text-gray-200">
           <p><strong>Lieferzeit:</strong></p>
           <p>Die Lieferzeit beträgt 3-5 Werktage nach Zahlungseingang. Bei nicht verfügbaren Artikeln werden Sie umgehend informiert.</p>
           
@@ -88,12 +97,14 @@ function StaticTermsContent() {
           
           <p><strong>Versandrisiko:</strong></p>
           <p>Das Versandrisiko geht mit der Übergabe der Ware an den Versanddienstleister auf den Käufer über.</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 6 Widerrufsrecht</h2>
-        <div className="space-y-4 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 6 Widerrufsrecht</h2>
+          <div className="space-y-4 text-gray-200">
           <p><strong>Widerrufsfrist:</strong></p>
           <p>Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.</p>
           
@@ -108,12 +119,14 @@ function StaticTermsContent() {
           
           <p><strong>Ausschluss des Widerrufsrechts:</strong></p>
           <p>Das Widerrufsrecht besteht nicht bei individuell angefertigten Edelsteinen oder bei Edelsteinen, die nach Ihren Spezifikationen bearbeitet wurden.</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 7 Gewährleistung und Haftung</h2>
-        <div className="space-y-4 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 7 Gewährleistung und Haftung</h2>
+          <div className="space-y-4 text-gray-200">
           <p><strong>Gewährleistung:</strong></p>
           <p>Es gelten die gesetzlichen Gewährleistungsbestimmungen. Die Gewährleistungsfrist beträgt 2 Jahre ab Lieferung.</p>
           
@@ -125,19 +138,23 @@ function StaticTermsContent() {
           
           <p><strong>Edelstein-Zertifikate:</strong></p>
           <p>Für hochwertige Edelsteine werden auf Wunsch Zertifikate von anerkannten Instituten ausgestellt. Die Kosten hierfür trägt der Käufer.</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 8 Datenschutz</h2>
-        <div className="space-y-2 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 8 Datenschutz</h2>
+          <div className="space-y-2 text-gray-200">
           <p>Die Erhebung, Verarbeitung und Nutzung Ihrer personenbezogenen Daten erfolgt ausschließlich im Rahmen der gesetzlichen Bestimmungen. Einzelheiten entnehmen Sie bitte unserer Datenschutzerklärung unter https://gemilike.de/privacy.</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">§ 9 Schlussbestimmungen</h2>
-        <div className="space-y-4 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">§ 9 Schlussbestimmungen</h2>
+          <div className="space-y-4 text-gray-200">
           <p><strong>Gerichtsstand:</strong></p>
           <p>Gerichtsstand ist Musterstadt, soweit der Käufer Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen ist.</p>
           
@@ -149,16 +166,19 @@ function StaticTermsContent() {
           
           <p><strong>Änderungen:</strong></p>
           <p>Der Verkäufer behält sich das Recht vor, diese AGB zu ändern. Die Änderungen werden dem Käufer spätestens zwei Wochen vor ihrem Inkrafttreten mitgeteilt.</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 text-primary">Kontakt</h2>
-        <div className="space-y-2 text-muted-foreground">
+      <div className="story-card">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-200">Kontakt</h2>
+          <div className="space-y-2 text-gray-200">
           <p>Bei Fragen zu diesen AGB wenden Sie sich bitte an:</p>
           <p><strong>E-Mail:</strong> info@gemilike.com</p>
           <p><strong>Telefon:</strong> +49 (0) 123 456 789</p>
           <p><strong>Post:</strong> Gemilike GmbH, Musterstraße 123, 12345 Musterstadt</p>
+          </div>
         </div>
       </div>
     </div>
@@ -173,19 +193,25 @@ export default async function TermsPage({
   const { locale } = await params;
 
   return (
-    <div className="min-h-screen public-page-bg">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <LegalPageContent
-            slug="terms"
-            locale={locale}
-            fallbackContent={
-              <>
-                <h1 className="gemilike-text-gradient text-3xl font-bold mb-8">Allgemeine Geschäftsbedingungen</h1>
-                <StaticTermsContent />
-              </>
-            }
-          />
+    <div className="min-h-screen public-page-bg text-white pb-16">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="main-container">
+          <div className="story-card space-y-4 p-6 md:p-8">
+            <LegalPageContent
+              slug="terms"
+              locale={locale}
+              fallbackContent={
+                <>
+                  <div className="space-y-4 text-center mb-8">
+                    <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
+                      <span className="gemilike-text-gradient">Allgemeine Geschäftsbedingungen</span>
+                    </h1>
+                  </div>
+                  <StaticTermsContent />
+                </>
+              }
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -86,7 +86,10 @@ module.exports = {
         },
       },
       fontFamily: {
+        'sans': ['var(--font-inter)', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        'display': ['Impact', 'Arial Black', 'sans-serif'],
         'impact': ['Impact', 'Arial Black', 'sans-serif'],
+        'inter': ['var(--font-inter)', 'Inter', 'sans-serif'],
       },
       fontWeight: {
         'impact': '900',

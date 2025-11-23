@@ -6,18 +6,24 @@ export default async function DownloadsPage({ params }: { params: Promise<{ loca
   await getTranslations();
 
   return (
-    <div className="container py-12 md:py-20">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4">
-            <span className="gradient-text animate-glow">Download-Bereich</span>
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Geschützter Bereich für Projekt-Downloads
-          </p>
+    <div className="min-h-screen public-page-bg text-white pb-16">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="main-container">
+          <div className="story-card space-y-4 p-6 md:p-8">
+            <div className="space-y-4 text-center">
+              <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
+                <span className="gemilike-text-gradient">Download-Bereich</span>
+              </h1>
+              <p className="mx-auto max-w-3xl text-sm md:text-base text-gray-200">
+                Geschützter Bereich für Projekt-Downloads
+              </p>
+            </div>
+          </div>
         </div>
 
-        <DownloadArea />
+        <div className="mt-8">
+          <DownloadArea />
+        </div>
       </div>
     </div>
   );
