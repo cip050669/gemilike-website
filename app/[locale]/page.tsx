@@ -5,7 +5,7 @@ import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { getBlogs } from '@/lib/services/blog.service';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
-import { loadNewstickerData } from '@/lib/newsticker/data';
+import { getNewstickerItems } from '@/lib/services/newsticker.service';
 import { Newsticker } from '@/components/ui/Newsticker';
 import { loadHeroSettings } from '@/lib/data/hero-settings';
 import { loadShopGemstones } from '@/lib/shop/shopData';
@@ -32,8 +32,7 @@ export default async function HomePage({
   const { locale } = await params;
   const blogs = await getBlogs(locale, true); // Get only published blogs for this locale
   const blogSettings = await loadBlogSectionSettings();
-  const newstickerItems = loadNewstickerData();
-  const activeNewstickerItems = newstickerItems.filter((item) => item.isActive);
+  const activeNewstickerItems = await getNewstickerItems(true);
   const shopGemstones = await loadShopGemstones();
   const newGemstones = shopGemstones.filter((gem) => gem.isNew).slice(0, 12);
   const heroSettings = await loadHeroSettings();

@@ -34,6 +34,10 @@ export async function PUT(request: NextRequest) {
           : current.titleLine2 || defaults.titleLine2,
       subtitle:
         typeof body.subtitle === 'string' ? body.subtitle : current.subtitle || defaults.subtitle,
+      subtitleColor:
+        typeof body.subtitleColor === 'string'
+          ? body.subtitleColor
+          : current.subtitleColor || defaults.subtitleColor,
       backgroundImage:
         typeof body.backgroundImage === 'string'
           ? body.backgroundImage

@@ -598,6 +598,7 @@ header[class*="fixed"] {
     animation: gradient-shift 4s ease infinite;
     filter: drop-shadow(0 0 8px rgba(255, 148, 71, 0.6));
   }
+
   
   /* Custom Scrollbar Styles */
   .scrollbar-thin {

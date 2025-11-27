@@ -50,7 +50,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
 RUN --mount=type=cache,target=/root/.cache/prisma \
-    npx prisma generate
+    npx prisma@6.18.0 generate
 
 # Copy source code
 COPY . .

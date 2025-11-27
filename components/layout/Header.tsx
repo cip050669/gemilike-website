@@ -13,18 +13,25 @@ import { cn } from '@/lib/utils';
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
 import styles from './HeaderNav.module.css';
 
-const NAV_ITEMS = [
-  { href: '/', label: 'Startseite' },
-  { href: '/shop', label: 'Shop' },
-  { href: '/wissenswertes', label: 'Wissenswertes' },
-  { href: '/worldmap', label: 'Fundorte' },
-  { href: '/contact', label: 'Kontakt' },
-  { href: '/downloads', label: 'Download' },
+interface NavigationItem {
+  href: string;
+  label: string;
+  id: string;
+}
+
+const FALLBACK_NAV: NavigationItem[] = [
+  { href: '/', label: 'Startseite', id: 'fallback-1' },
+  { href: '/shop', label: 'Shop', id: 'fallback-2' },
+  { href: '/wissenswertes', label: 'Wissenswertes', id: 'fallback-3' },
+  { href: '/worldmap', label: 'Fundorte', id: 'fallback-4' },
+  { href: '/contact', label: 'Kontakt', id: 'fallback-5' },
+  { href: '/downloads', label: 'Download', id: 'fallback-6' },
 ];
 
 export function Header() {
   const [/* searchQuery */, /* setSearchQuery */] = useState('');
   const [isMounted, setIsMounted] = useState(false);
+  const [navItems, setNavItems] = useState<NavigationItem[]>(FALLBACK_NAV);
   const toggleCart = useCartStore((state) => state.toggleCart);
   const getTotalItems = useCartStore((state) => state.getTotalItems);
   const fetchCart = useCartStore((state) => state.fetchCart);
@@ -36,6 +43,43 @@ export function Header() {
     if (!summary) {
       void fetchCart();
     }
+    void (async () => {
+      try {
+        const response = await fetch('/api/admin/header');
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data?.navigation?.items?.length) {
+          const mapped = data.navigation.items
+            .map((item: { id?: string; text: string; url: string }, index: number) => {
+              const label = item?.text?.trim();
+              const rawUrl = item?.url?.trim();
+              if (!label || !rawUrl) return null;
+              return {
+                id: item.id ?? `db-${index}`,
+                label,
+                href: rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`,
+              } satisfies NavigationItem;
+            })
+            .filter(Boolean) as NavigationItem[];
+
+          const ensureDefaults = ['/downloads'];
+          ensureDefaults.forEach((path) => {
+            if (!mapped.some((item) => item.href === path)) {
+              const fallbackMatch = FALLBACK_NAV.find((item) => item.href === path);
+              if (fallbackMatch) {
+                mapped.push({ ...fallbackMatch, id: `fallback-${path}` });
+              }
+            }
+          });
+
+          if (mapped.length) {
+            setNavItems(mapped);
+          }
+        }
+      } catch (error) {
+        console.warn('Header navigation fetch failed, using fallback.', error);
+      }
+    })();
   }, [summary, fetchCart]);
 
   const localePrefix = (() => {
@@ -87,11 +131,11 @@ export function Header() {
           className="flex items-center justify-start flex-1 gap-[30px] ml-10 overflow-x-auto sm:overflow-visible"
           aria-label="Hauptnavigation"
         >
-          {NAV_ITEMS.map(({ href, label }) => {
+          {navItems.map(({ href, label, id }) => {
             const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
             return (
               <Link
-                key={href}
+                key={id}
                 href={buildHref(href)}
                 className={cn(styles.navButton, isActive && 'shadow-[0_0_32px_rgba(0,0,0,0.35)]')}
                 aria-current={isActive ? 'page' : undefined}
@@ -171,11 +215,11 @@ export function Header() {
             <SheetContent side="right">
               <SheetTitle>Navigation</SheetTitle>
               <nav className="flex flex-col gap-3 mt-6" aria-label="Mobile Navigation">
-                {NAV_ITEMS.map(({ href, label }) => {
+                {navItems.map(({ href, label, id }) => {
                   const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
                   return (
                     <Link
-                      key={href}
+                      key={id}
                       href={buildHref(href)}
                       className={cn(styles.navButton, styles.navButtonCompact, 'justify-between px-3 py-2 text-sm', isActive && 'shadow-[0_0_28px_rgba(0,0,0,0.35)]')}
                     >

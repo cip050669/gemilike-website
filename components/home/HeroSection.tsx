@@ -17,6 +17,7 @@ const defaultPrimaryCtaLink = '/shop';
 const defaultSecondaryCtaLabel = 'Kontaktieren Sie uns';
 const defaultSecondaryCtaLink = '/contact';
 const HERO_TOP_OFFSET_PX = 85;
+const defaultSubtitleColor = '#F4F4FF';
 
 const renderGemLikeTitle = (title: string) => {
   const gemGradientStyle: CSSProperties = {
@@ -83,6 +84,7 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
     title: defaultTitle,
     titleLine2: 'Heroes in Gems------',
     subtitle: defaultSubtitle,
+    subtitleColor: defaultSubtitleColor,
     backgroundImage: defaultHeroImage,
     ctaText: defaultPrimaryCtaLabel,
     ctaLink: defaultPrimaryCtaLink,
@@ -112,6 +114,10 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
     normalizedSettings.subtitle !== undefined && normalizedSettings.subtitle !== null
       ? normalizedSettings.subtitle
       : defaultSubtitle;
+  const heroSubtitleColor =
+    normalizedSettings.subtitleColor !== undefined && normalizedSettings.subtitleColor !== null
+      ? normalizedSettings.subtitleColor
+      : defaultSubtitleColor;
   const titleLine2 =
     normalizedSettings.titleLine2 !== undefined && normalizedSettings.titleLine2 !== null
       ? normalizedSettings.titleLine2
@@ -163,7 +169,10 @@ export function HeroSection({ locale, settings }: HeroSectionProps) {
             )}
           </h1>
 
-          <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-white/90 max-w-3xl mx-auto">
+          <p
+            className="text-base sm:text-lg lg:text-xl leading-relaxed max-w-3xl mx-auto"
+            style={{ color: heroSubtitleColor }}
+          >
             {heroSubtitle}
           </p>
         </div>

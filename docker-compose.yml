@@ -99,8 +99,8 @@ services:
         done &&
         echo 'Database is ready!' &&
         echo 'Running migrations...' &&
-        npx prisma migrate deploy &&
-        npx prisma generate &&
+        npx prisma@6.18.0 migrate deploy &&
+        npx prisma@6.18.0 generate &&
         echo 'Verifying Service Worker...' &&
         test -f public/sw.js && echo 'Service Worker found' || echo 'Warning: Service Worker not found' &&
         echo 'Starting application...' &&

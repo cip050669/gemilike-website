@@ -9,6 +9,7 @@ export interface HeroSettingsData {
   title: string;
   titleLine2?: string | null;
   subtitle: string;
+  subtitleColor: string;
   backgroundImage: string;
   ctaText: string;
   ctaLink: string;
@@ -47,6 +48,7 @@ const DEFAULT_SETTINGS: HeroSettingsData = {
   title: 'Einfach nur Gemilike',
   titleLine2: 'Heroes in Gems------',
   subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
+  subtitleColor: '#F4F4FF',
   backgroundImage: fallbackHeroImage(),
   ctaText: 'Sortiment entdecken',
   ctaLink: '/shop',
@@ -82,6 +84,7 @@ const normalizeSettings = (settings?: Partial<HeroSettingsData>): HeroSettingsDa
     title: normalizeText(settings?.title, DEFAULT_SETTINGS.title),
     titleLine2: normalizeOptionalText(settings?.titleLine2, DEFAULT_SETTINGS.titleLine2),
     subtitle: normalizeText(settings?.subtitle, DEFAULT_SETTINGS.subtitle),
+    subtitleColor: normalizeText(settings?.subtitleColor, DEFAULT_SETTINGS.subtitleColor),
     backgroundImage,
     ctaText: normalizeText(settings?.ctaText, DEFAULT_SETTINGS.ctaText),
     ctaLink: normalizeText(settings?.ctaLink, DEFAULT_SETTINGS.ctaLink),
@@ -115,6 +118,7 @@ export const loadHeroSettings = async (): Promise<HeroSettingsData> => {
     title: record.title,
     titleLine2: record.titleLine2 ?? undefined,
     subtitle: record.subtitle,
+    subtitleColor: (record as { subtitleColor?: string }).subtitleColor ?? DEFAULT_SETTINGS.subtitleColor,
     backgroundImage: record.imageUrl,
     ctaText: record.primaryButtonText,
     ctaLink: record.primaryButtonLink,
@@ -132,6 +136,7 @@ export const saveHeroSettings = async (settings: HeroSettingsData): Promise<Hero
       title: normalized.title,
       titleLine2: normalized.titleLine2,
       subtitle: normalized.subtitle,
+      subtitleColor: normalized.subtitleColor,
       imageUrl: normalized.backgroundImage,
       primaryButtonText: normalized.ctaText,
       primaryButtonLink: normalized.ctaLink,
@@ -143,6 +148,7 @@ export const saveHeroSettings = async (settings: HeroSettingsData): Promise<Hero
       title: normalized.title,
       titleLine2: normalized.titleLine2,
       subtitle: normalized.subtitle,
+      subtitleColor: normalized.subtitleColor,
       imageUrl: normalized.backgroundImage,
       primaryButtonText: normalized.ctaText,
       primaryButtonLink: normalized.ctaLink,

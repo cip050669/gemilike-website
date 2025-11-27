@@ -24,6 +24,7 @@ import {
   Twitter,
   Youtube
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface HeaderData {
   logo: {
@@ -72,6 +73,10 @@ interface NavigationItem {
   icon?: string;
 }
 
+const REQUIRED_NAV_ITEMS: NavigationItem[] = [
+  { id: 'required-downloads', text: 'Download', url: '/downloads' },
+];
+
 const initialHeaderData: HeaderData = {
   logo: {
     text: 'Gemilike',
@@ -115,6 +120,25 @@ const initialHeaderData: HeaderData = {
   }
 };
 
+const ensureRequiredNavItems = (items: NavigationItem[]): NavigationItem[] => {
+  const normalized = [...items];
+  REQUIRED_NAV_ITEMS.forEach((required) => {
+    if (!normalized.some((item) => item.url === required.url)) {
+      normalized.push({ ...required });
+    }
+  });
+  return normalized;
+};
+
+const isRequiredNavItem = (itemOrId: NavigationItem | string, items?: NavigationItem[]) => {
+  const item =
+    typeof itemOrId === 'string'
+      ? (items ?? []).find((candidate) => candidate.id === itemOrId)
+      : itemOrId;
+  if (!item) return false;
+  return REQUIRED_NAV_ITEMS.some((required) => required.url === item.url);
+};
+
 export default function HeaderManagement() {
   const [headerData, setHeaderData] = useState<HeaderData>(() => ({
     ...initialHeaderData,
@@ -149,11 +173,26 @@ export default function HeaderManagement() {
     try {
       // Lade Header-Daten
       const headerResponse = await fetch('/api/admin/header');
-      let headerData = initialHeaderData;
+      let headerData = {
+        ...initialHeaderData,
+        navigation: {
+          items: ensureRequiredNavItems(initialHeaderData.navigation.items),
+        },
+      };
       if (headerResponse.ok) {
         const data = await headerResponse.json();
-        headerData = { ...initialHeaderData, ...data };
+        headerData = {
+          ...initialHeaderData,
+          ...data,
+          navigation: {
+            items: ensureRequiredNavItems(
+              (data?.navigation?.items as NavigationItem[] | undefined) ?? initialHeaderData.navigation.items
+            ),
+          },
+        };
       }
+
+      setHeaderData(headerData);
 
       // Lade zentrale Kontaktdaten
       const contactResponse = await fetch('/api/admin/contact-data');
@@ -181,12 +220,19 @@ export default function HeaderManagement() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const payload: HeaderData = {
+        ...headerData,
+        navigation: {
+          items: ensureRequiredNavItems(headerData.navigation.items),
+        },
+      };
+
       const response = await fetch('/api/admin/header', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(headerData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -229,6 +275,9 @@ export default function HeaderManagement() {
   };
 
   const handleRemoveNavItem = (id: string) => {
+    if (isRequiredNavItem(id, headerData.navigation.items)) {
+      return;
+    }
     setHeaderData(prev => ({
       ...prev,
       navigation: {
@@ -311,7 +360,16 @@ export default function HeaderManagement() {
                   />
                   <button
                     onClick={() => handleRemoveNavItem(item.id)}
-                    className="text-red-500 hover:text-red-700 transition-colors duration-300"
+                    className={cn(
+                      'text-red-500 hover:text-red-700 transition-colors duration-300',
+                      isRequiredNavItem(item) && 'opacity-40 cursor-not-allowed hover:text-red-500'
+                    )}
+                    disabled={isRequiredNavItem(item)}
+                    title={
+                      isRequiredNavItem(item)
+                        ? 'Pflichtnavigation kann nicht entfernt werden (Download-Link)'
+                        : 'Navigationseintrag entfernen'
+                    }
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

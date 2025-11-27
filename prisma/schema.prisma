@@ -369,6 +369,7 @@ model HeroSettings {
   title               String
   titleLine2          String?
   subtitle            String
+  subtitleColor       String   @default("#F4F4FF")
   primaryButtonText   String
   primaryButtonLink   String
   secondaryButtonText String?
@@ -600,17 +601,20 @@ model NewsletterSubscriber {
 }
 
 model NewstickerItem {
-  id        String    @id @default(cuid())
-  message   String
-  type      String    @default("info")
-  link      String?
-  linkText  String?
-  isActive  Boolean   @default(true)
-  startDate DateTime?
-  endDate   DateTime?
-  order     Int       @default(0)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  text            String
+  type            String    @default("info")
+  priority        String    @default("medium")
+  link            String?
+  linkText        String?
+  isActive        Boolean   @default(true)
+  startDate       DateTime?
+  endDate         DateTime?
+  order           Int       @default(0)
+  headingColor    String?
+  subheadingColor String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model CheckoutEvent {

@@ -13,6 +13,7 @@ interface HeroImageSettings {
   title: string;
   titleLine2: string;
   subtitle: string;
+  subtitleColor: string;
   primaryButtonText: string;
   secondaryButtonText: string;
   primaryButtonLink: string;
@@ -24,6 +25,7 @@ const INITIAL_SETTINGS: HeroImageSettings = {
   title: 'Einfach nur Gemilike',
   titleLine2: 'Heroes in Gems',
   subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
+  subtitleColor: '#F4F4FF',
   primaryButtonText: 'Sortiment entdecken',
   secondaryButtonText: 'Kontaktieren Sie uns',
   primaryButtonLink: '/shop',
@@ -48,6 +50,7 @@ export function HeroImageManager() {
             title?: string;
             titleLine2?: string;
             subtitle?: string;
+            subtitleColor?: string;
             backgroundImage?: string;
             ctaText?: string;
             ctaLink?: string;
@@ -59,6 +62,7 @@ export function HeroImageManager() {
             title: apiSettings.title ?? INITIAL_SETTINGS.title,
             titleLine2: apiSettings.titleLine2 ?? INITIAL_SETTINGS.titleLine2,
             subtitle: apiSettings.subtitle ?? INITIAL_SETTINGS.subtitle,
+            subtitleColor: apiSettings.subtitleColor ?? INITIAL_SETTINGS.subtitleColor,
             primaryButtonText: apiSettings.ctaText ?? INITIAL_SETTINGS.primaryButtonText,
             primaryButtonLink: apiSettings.ctaLink ?? INITIAL_SETTINGS.primaryButtonLink,
             secondaryButtonText:
@@ -95,7 +99,7 @@ export function HeroImageManager() {
     const handleSettingsUpdate = async () => {
       const updated = await loadSettings();
       if (updated) {
-        const merged = { ...INITIAL_SETTINGS, ...updated };
+          const merged = { ...INITIAL_SETTINGS, ...updated };
         setSettings(merged);
         localStorage.setItem('heroImageSettings', JSON.stringify(merged));
       }
@@ -119,6 +123,7 @@ export function HeroImageManager() {
           title: settings.title,
           titleLine2: settings.titleLine2,
           subtitle: settings.subtitle,
+          subtitleColor: settings.subtitleColor,
           backgroundImage: settings.imageUrl,
           ctaText: settings.primaryButtonText,
           ctaLink: settings.primaryButtonLink,
@@ -156,6 +161,7 @@ export function HeroImageManager() {
         title: INITIAL_SETTINGS.title,
         titleLine2: INITIAL_SETTINGS.titleLine2,
         subtitle: INITIAL_SETTINGS.subtitle,
+        subtitleColor: INITIAL_SETTINGS.subtitleColor,
         backgroundImage: INITIAL_SETTINGS.imageUrl,
         ctaText: INITIAL_SETTINGS.primaryButtonText,
         ctaLink: INITIAL_SETTINGS.primaryButtonLink,
@@ -212,6 +218,7 @@ export function HeroImageManager() {
             title: newSettings.title,
             titleLine2: newSettings.titleLine2,
             subtitle: newSettings.subtitle,
+            subtitleColor: newSettings.subtitleColor,
             backgroundImage: newSettings.imageUrl,
             ctaText: newSettings.primaryButtonText,
             ctaLink: newSettings.primaryButtonLink,
@@ -324,6 +331,27 @@ export function HeroImageManager() {
             />
           </div>
 
+          {/* Subtitle color */}
+          <div className="space-y-2">
+            <Label htmlFor="subtitle-color">Subtitle-Farbe</Label>
+            <div className="flex items-center gap-3">
+              <Input
+                id="subtitle-color"
+                type="color"
+                value={settings.subtitleColor}
+                onChange={(e) =>
+                  setSettings(prev => ({ ...prev, subtitleColor: e.target.value || INITIAL_SETTINGS.subtitleColor }))
+                }
+                className="h-12 w-20 cursor-pointer"
+              />
+              <Input
+                value={settings.subtitleColor}
+                onChange={(e) => setSettings(prev => ({ ...prev, subtitleColor: e.target.value }))}
+                placeholder="#F4F4FF"
+              />
+            </div>
+          </div>
+
           {/* Primary button */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -410,7 +438,10 @@ export function HeroImageManager() {
                   <h1 className="text-3xl md:text-5xl font-bold mb-4">
                     {settings.title}
                   </h1>
-                  <p className="text-lg mb-8 max-w-2xl opacity-90">
+                  <p
+                    className="text-lg mb-8 max-w-2xl"
+                    style={{ color: settings.subtitleColor }}
+                  >
                     {settings.subtitle}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
