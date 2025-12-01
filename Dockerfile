@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.8
 
 ARG NODE_VERSION=22-alpine
 
@@ -50,7 +50,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
 RUN --mount=type=cache,target=/root/.cache/prisma \
-    npx prisma@6.18.0 generate
+    npx prisma generate
 
 # Copy source code
 COPY . .

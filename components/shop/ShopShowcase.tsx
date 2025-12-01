@@ -101,6 +101,156 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
     }
     setVectorStatus('loading');
     setVectorError(null);
+
+    const normalized = trimmed.toLowerCase();
+
+    // Clientseitige Fallback-Filter für Preisangaben (z. B. "Preis von 1000 bis 5000")
+    const numberMatches = normalized.match(/[\d\.]+/g);
+    if (numberMatches && numberMatches.length) {
+      const prices = numberMatches
+        .map((n) => Number(n.replace(/\./g, '').replace(',', '.')))
+        .filter((n) => Number.isFinite(n));
+
+      if (prices.length) {
+        const lower = normalized;
+        let min: number;
+        let max: number;
+
+        if (prices.length > 1) {
+          min = Math.min(...prices);
+          max = Math.max(...prices);
+        } else {
+          const value = prices[0];
+          if (lower.includes('>') || lower.includes('über') || lower.includes('ab') || lower.includes('mind')) {
+            min = value;
+            max = Number.POSITIVE_INFINITY;
+          } else if (lower.includes('<') || lower.includes('unter') || lower.includes('bis')) {
+            min = 0;
+            max = value;
+          } else {
+            min = value;
+            max = value;
+          }
+        }
+
+        const ids = gemstones
+          .filter((g) => {
+            const price = Number(g.price);
+            if (!Number.isFinite(price)) return false;
+            return price >= min && price <= max;
+          })
+          .map((g) => g.id);
+
+        setLastVectorQuery(trimmed);
+        setVectorMatches(ids);
+        if (ids.length > 0) {
+          setVectorStatus('success');
+          setVectorError(null);
+        } else {
+          setVectorStatus('error');
+          setVectorError('Keine Edelsteine entsprechen diesem Preisbereich.');
+        }
+        return;
+      }
+    }
+
+    // Keyword-basierter Fallback (Name/Kategorie/Origin/Farbe + Zertifikat)
+    const stopwords = ['mit', 'und', 'der', 'die', 'das', 'ein', 'eine', 'von', 'ab', 'bis', 'über', 'unter', 'mehr', 'weniger', 'preis', 'kostet', 'ohne', 'kein', 'keine'];
+    const tokens = normalized
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length > 2 && !stopwords.includes(t));
+
+    const requiresCert =
+      normalized.includes('zert') || normalized.includes('cert') || normalized.includes('gia') || normalized.includes('igi');
+    const requiresNoCert =
+      normalized.includes('ohne zert') ||
+      normalized.includes('ohne cert') ||
+      normalized.includes('ohne certificate') ||
+      normalized.includes('kein zert') ||
+      normalized.includes('keine zert') ||
+      normalized.includes('uncertified');
+
+    // Spezifische Zertifikats-Anfragen sofort behandeln
+    if (requiresNoCert) {
+      const ids = gemstones
+        .filter((g) => {
+          const certificationRaw: unknown = (g as { certification?: unknown }).certification;
+          let hasCert = false;
+          if (typeof certificationRaw === 'string') {
+            const certValue = certificationRaw.toLowerCase().trim();
+            hasCert =
+              certValue.length > 0 &&
+              !['none', 'uncertified', 'kein', 'keine', 'keiner', 'no', 'ohne'].includes(certValue);
+          } else if (certificationRaw && typeof certificationRaw === 'object') {
+            hasCert = Boolean((certificationRaw as { certified?: boolean }).certified);
+          }
+          return !hasCert;
+        })
+        .map((g) => g.id);
+
+      setLastVectorQuery(trimmed);
+      setVectorMatches(ids);
+      setVectorStatus(ids.length ? 'success' : 'error');
+      setVectorError(ids.length ? null : 'Keine Edelsteine ohne Zertifikat gefunden.');
+      return;
+    }
+
+    if (tokens.length > 0) {
+      const genericTokens = ['edelstein', 'edelsteine', 'gem', 'gems', 'gemstone', 'stone', 'stein'];
+      const ids = gemstones
+        .filter((g) => {
+          const certificationRaw: unknown = (g as { certification?: unknown }).certification;
+          let hasCert = false;
+          if (typeof certificationRaw === 'string') {
+            const certValue = certificationRaw.toLowerCase().trim();
+            hasCert =
+              certValue.length > 0 &&
+              !['none', 'uncertified', 'kein', 'keine', 'keiner', 'no', 'ohne'].includes(certValue);
+          } else if (certificationRaw && typeof certificationRaw === 'object') {
+            hasCert = Boolean((certificationRaw as { certified?: boolean }).certified);
+          }
+          if (requiresCert && !hasCert) return false;
+          if (requiresNoCert && hasCert) return false;
+          const fields = [
+            g.name?.toLowerCase() ?? '',
+            g.category?.toLowerCase() ?? '',
+            g.origin?.toLowerCase() ?? '',
+            g.color?.toLowerCase() ?? '',
+            g.treatment?.toLowerCase() ?? '',
+            typeof g.certification === 'string'
+              ? g.certification.toLowerCase()
+              : typeof certificationRaw === 'object' &&
+                certificationRaw !== null &&
+                'lab' in certificationRaw &&
+                typeof (certificationRaw as { lab?: unknown }).lab === 'string'
+              ? ((certificationRaw as { lab?: string }).lab as string).toLowerCase()
+              : '',
+          ];
+          return tokens.every((token) => {
+            if (['zertifikat', 'zertifiziert', 'certified', 'certificate', 'zert'].includes(token)) {
+              if (requiresNoCert) return !hasCert;
+              if (requiresCert) return hasCert;
+              return hasCert || fields.some((f) => f.includes(token));
+            }
+            if (genericTokens.includes(token)) {
+              return true;
+            }
+            return fields.some((f) => f.includes(token));
+          });
+        })
+        .map((g) => g.id);
+
+      if (ids.length > 0) {
+        setLastVectorQuery(trimmed);
+        setVectorMatches(ids);
+        setVectorStatus('success');
+        setVectorError(null);
+        return;
+      }
+    }
+
+    // Fallback: echte Vektorsuche
     try {
       const response = await fetch(
         `/api/shop/vector-search?q=${encodeURIComponent(trimmed)}&locale=${locale}`
@@ -112,9 +262,10 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
       const ids: string[] = Array.isArray(data.results)
         ? data.results.map((result: { id: string }) => result.id)
         : [];
-      setVectorMatches(ids);
+
       setLastVectorQuery(trimmed);
-      setVectorStatus('success');
+      setVectorMatches(ids);
+      setVectorStatus(ids.length ? 'success' : 'error');
       setVectorError(ids.length ? null : 'Keine Edelsteine entsprechen dieser Beschreibung.');
     } catch (error) {
       console.error(error);

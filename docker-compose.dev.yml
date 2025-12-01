@@ -2,9 +2,8 @@
 services:
   # PostgreSQL Database (Development)
   postgres:
-    image: postgres:16-alpine
-    # Use specific version tag for stability
-    # Update to postgres:17-alpine when available and tested
+    image: postgres:17-alpine
+    # PostgreSQL 17 is the latest stable version
     container_name: gemilike-postgres-dev
     restart: unless-stopped
     environment:
@@ -80,7 +79,8 @@ services:
 
   # MailHog for email testing in development
   mailhog:
-    image: mailhog/mailhog:latest
+    image: mailhog/mailhog:v1.0.1
+    # Use specific version tag for stability
     container_name: gemilike-mailhog
     restart: unless-stopped
     ports:

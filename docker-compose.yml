@@ -2,9 +2,8 @@
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
-    # Use specific version tag for stability
-    # Update to postgres:17-alpine when available and tested
+    image: postgres:17-alpine
+    # PostgreSQL 17 is the latest stable version
     container_name: gemilike-postgres
     restart: unless-stopped
     environment:
@@ -99,8 +98,8 @@ services:
         done &&
         echo 'Database is ready!' &&
         echo 'Running migrations...' &&
-        npx prisma@6.18.0 migrate deploy &&
-        npx prisma@6.18.0 generate &&
+        npx prisma migrate deploy &&
+        npx prisma generate &&
         echo 'Verifying Service Worker...' &&
         test -f public/sw.js && echo 'Service Worker found' || echo 'Warning: Service Worker not found' &&
         echo 'Starting application...' &&

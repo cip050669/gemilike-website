@@ -4,11 +4,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { MenuIcon, ShoppingCartIcon, UserIcon } from 'lucide-react';
+import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Cart } from '@/components/cart/Cart';
 import { useCartStore } from '@/lib/store/cart';
+import { useWishlistStore } from '@/lib/store/wishlist';
 import { cn } from '@/lib/utils';
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
 import styles from './HeaderNav.module.css';
@@ -32,17 +33,40 @@ export function Header() {
   const [/* searchQuery */, /* setSearchQuery */] = useState('');
   const [isMounted, setIsMounted] = useState(false);
   const [navItems, setNavItems] = useState<NavigationItem[]>(FALLBACK_NAV);
+  const actionButtonClass =
+    'relative h-10 w-10 rounded-full border border-white/40 bg-white/30 text-white hover:bg-white/45 hover:border-white/60 hover:text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-white/80';
+  const [headerSettings, setHeaderSettings] = useState({
+    cartEnabled: true,
+    cartShowCount: true,
+    wishlistEnabled: true,
+    wishlistShowCount: true,
+  });
   const toggleCart = useCartStore((state) => state.toggleCart);
   const getTotalItems = useCartStore((state) => state.getTotalItems);
   const fetchCart = useCartStore((state) => state.fetchCart);
-  const summary = useCartStore((state) => state.summary);
+  const cartSummary = useCartStore((state) => state.summary);
+  const fetchWishlist = useWishlistStore((state) => state.fetchWishlist);
+  const wishlistSummary = useWishlistStore((state) => state.summary);
+  const wishlistCount = useWishlistStore((state) => state.totalItems);
   const pathname = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
-    if (!summary) {
+  }, []);
+
+  useEffect(() => {
+    if (!cartSummary) {
       void fetchCart();
     }
+  }, [cartSummary, fetchCart]);
+
+  useEffect(() => {
+    if (!wishlistSummary) {
+      void fetchWishlist();
+    }
+  }, [wishlistSummary, fetchWishlist]);
+
+  useEffect(() => {
     void (async () => {
       try {
         const response = await fetch('/api/admin/header');
@@ -76,11 +100,17 @@ export function Header() {
             setNavItems(mapped);
           }
         }
+        setHeaderSettings({
+          cartEnabled: data?.cartSettings?.enabled ?? true,
+          cartShowCount: data?.cartSettings?.showCount ?? true,
+          wishlistEnabled: data?.wishlist?.enabled ?? true,
+          wishlistShowCount: data?.wishlist?.showCount ?? true,
+        });
       } catch (error) {
         console.warn('Header navigation fetch failed, using fallback.', error);
       }
     })();
-  }, [summary, fetchCart]);
+  }, []);
 
   const localePrefix = (() => {
     if (!pathname) return '';
@@ -110,16 +140,16 @@ export function Header() {
       className="sticky top-0 h-16 z-[9999] header-gradient-bg"
     >
       {/* Header Content - zentriert im Container */}
-      <div className="flex items-center justify-between w-full h-full px-6 gap-4" style={{ width: '100%', maxWidth: 'none' }}>
+      <div className="flex items-center justify-between w-full h-full px-4 sm:px-6 gap-3 sm:gap-4 max-w-7xl mx-auto">
         {/* Logo - Links */}
         <div className="flex-shrink-0">
-          <Link href="/" className="inline-flex items-center transition-transform duration-200 hover:scale-[1.4]">
+          <Link href="/" className="inline-flex items-center transition-transform duration-200 hover:scale-[1.08]">
             <Image
               src="/logo.png"
               alt="Gemilike - Heroes in Gems"
-              width={180}
-              height={84}
-              className="h-16 w-auto"
+              width={140}
+              height={64}
+              className="h-12 w-auto sm:h-14"
               style={{ width: 'auto' }}
               priority
             />
@@ -128,7 +158,7 @@ export function Header() {
 
         {/* Hauptnavigation */}
         <nav 
-          className="flex items-center justify-start flex-1 gap-[30px] ml-10 overflow-x-auto sm:overflow-visible"
+          className="flex items-center justify-start flex-1 gap-3 sm:gap-5 ml-4 sm:ml-6 overflow-x-auto sm:overflow-visible px-2"
           aria-label="Hauptnavigation"
         >
           {navItems.map(({ href, label, id }) => {
@@ -152,54 +182,100 @@ export function Header() {
           {/* Action Buttons */}
           <DarkModeToggle />
           <Button 
-            variant="outline" 
+            variant="ghost" 
             size="icon" 
-            className="h-9 w-9 border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
+            className={actionButtonClass}
             aria-label="Benutzerprofil öffnen"
           >
             <UserIcon className="h-4 w-4" aria-hidden="true" />
           </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={toggleCart}
-            className="relative h-9 w-9 border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
-            aria-label={`Warenkorb öffnen${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel im Warenkorb` : ''}`}
-            aria-expanded={false}
-          >
-            <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
-            {isMounted && getTotalItems() > 0 && (
-              <span 
-                className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                aria-hidden="true"
-              >
-                {getTotalItems()}
-              </span>
-            )}
-          </Button>
+          {headerSettings.wishlistEnabled && (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className={actionButtonClass}
+              aria-label={`Wunschliste öffnen${isMounted && wishlistCount > 0 ? `, ${wishlistCount} Artikel gemerkt` : ''}`}
+            >
+              <Link href={buildHref('/wishlist')}>
+                <HeartIcon className="h-4 w-4" aria-hidden="true" />
+                {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
+                  <span
+                    className="absolute -top-2 -right-2 bg-gem-purple text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                    aria-hidden="true"
+                  >
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+            </Button>
+          )}
+          {headerSettings.cartEnabled && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleCart}
+              className={actionButtonClass}
+              aria-label={`Warenkorb öffnen${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel im Warenkorb` : ''}`}
+              aria-expanded={false}
+            >
+              <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
+              {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
+                <span 
+                  className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                  aria-hidden="true"
+                >
+                  {getTotalItems()}
+                </span>
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Mobile Menu */}
         <div className="flex items-center space-x-2 md:hidden">
           <DarkModeToggle />
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={toggleCart}
-            className="relative border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
-            aria-label={`Warenkorb öffnen${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel im Warenkorb` : ''}`}
-            aria-expanded={false}
-          >
-            <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
-            {isMounted && getTotalItems() > 0 && (
-              <span 
-                className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                aria-hidden="true"
-              >
-                {getTotalItems()}
-              </span>
-            )}
-          </Button>
+          {headerSettings.wishlistEnabled && (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className={actionButtonClass}
+              aria-label={`Wunschliste öffnen${isMounted && wishlistCount > 0 ? `, ${wishlistCount} Artikel gemerkt` : ''}`}
+            >
+              <Link href={buildHref('/wishlist')}>
+                <HeartIcon className="h-4 w-4" aria-hidden="true" />
+                {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
+                  <span
+                    className="absolute -top-2 -right-2 bg-gem-purple text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                    aria-hidden="true"
+                  >
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+            </Button>
+          )}
+          {headerSettings.cartEnabled && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleCart}
+              className={actionButtonClass}
+              aria-label={`Warenkorb öffnen${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel im Warenkorb` : ''}`}
+              aria-expanded={false}
+            >
+              <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
+              {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
+                <span 
+                  className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                  aria-hidden="true"
+                >
+                  {getTotalItems()}
+                </span>
+              )}
+            </Button>
+          )}
           <Sheet>
             <SheetTrigger asChild>
               <Button 

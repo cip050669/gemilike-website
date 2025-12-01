@@ -48,6 +48,16 @@
     "type": "Type",
     "actions": "Actions"
   },
+  "shop": {
+    "viewDetails": "View details",
+    "wishlist": "Wishlist",
+    "wishlistCount": "{count, plural, one {# item saved} other {# items saved}}",
+    "wishlistEmpty": "Your wishlist is empty",
+    "wishlistEmptyDescription": "Save your favorite gems with the heart icon to find them here later.",
+    "goToShop": "Go to shop",
+    "backToHome": "Back to home",
+    "clearWishlist": "Clear wishlist"
+  },
   "errors": {
     "loading": "Error loading",
     "saving": "Error saving",

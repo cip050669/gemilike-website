@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   // Enable standalone output for Docker optimization
   output: 'standalone',
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        'http://localhost:3000',
+        'https://fqm1955x-3000.euw.devtunnels.ms',
+      ],
+    },
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

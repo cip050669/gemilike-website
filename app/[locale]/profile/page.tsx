@@ -147,12 +147,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 text-[var(--color-text-primary)]">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Mein Profil</h1>
-          <p className="text-gray-300 mt-2">Verwalten Sie Ihre persönlichen Daten und Einstellungen</p>
+          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Mein Profil</h1>
+          <p className="mt-2 text-[var(--color-text-secondary)]">Verwalten Sie Ihre persönlichen Daten und Einstellungen</p>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
@@ -390,9 +390,9 @@ export default function ProfilePage() {
             {addresses.length === 0 && (
               <Card>
                 <CardContent className="text-center py-12">
-                  <MapPin className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-white">Keine Adressen</h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <MapPin className="mx-auto h-12 w-12 text-[var(--color-text-muted)]" />
+                  <h3 className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">Keine Adressen</h3>
+                  <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                     Fügen Sie Ihre erste Adresse hinzu.
                   </p>
                   <div className="mt-6">
@@ -421,9 +421,9 @@ export default function ProfilePage() {
               <CardContent>
                 {orders.length === 0 ? (
                   <div className="text-center py-12">
-                    <ShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-white">Keine Bestellungen</h3>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <ShoppingBag className="mx-auto h-12 w-12 text-[var(--color-text-muted)]" />
+                    <h3 className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">Keine Bestellungen</h3>
+                    <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                       Sie haben noch keine Bestellungen aufgegeben.
                     </p>
                   </div>
@@ -434,7 +434,7 @@ export default function ProfilePage() {
                         <div className="flex justify-between items-start">
                           <div>
                             <h4 className="font-medium">Bestellung #{order.orderNumber}</h4>
-                            <p className="text-sm text-gray-300">
+                            <p className="text-sm text-[var(--color-text-secondary)]">
                               {new Date(order.createdAt).toLocaleDateString('de-DE')}
                             </p>
                           </div>
@@ -465,9 +465,9 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12">
-                  <Heart className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-white">Wunschliste ist leer</h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <Heart className="mx-auto h-12 w-12 text-[var(--color-text-muted)]" />
+                  <h3 className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">Wunschliste ist leer</h3>
+                  <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                     Fügen Sie Edelsteine zu Ihrer Wunschliste hinzu.
                   </p>
                 </div>

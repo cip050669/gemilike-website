@@ -37,12 +37,12 @@ export default function WishlistPage() {
 
   if (wishlistItems.length === 0) {
     return (
-      <div className="container py-12 md:py-20">
+      <div className="container py-12 md:py-20 text-[var(--color-text-primary)]">
         <div className="max-w-md mx-auto text-center">
           <div className="mb-8">
             <Heart className="w-24 h-24 mx-auto text-muted-foreground/50 mb-4" />
             <h1 className="text-2xl font-bold mb-2">{t('wishlistEmpty')}</h1>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-[var(--color-text-secondary)] mb-6">
               {t('wishlistEmptyDescription')}
             </p>
           </div>
@@ -68,12 +68,12 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="container py-12 md:py-20">
+    <div className="container py-12 md:py-20 text-[var(--color-text-primary)]">
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">{t('wishlist')}</h1>
-            <p className="text-muted-foreground">
+            <p className="text-[var(--color-text-secondary)]">
               {t('wishlistCount', { count: wishlistItems.length })}
             </p>
           </div>
@@ -81,7 +81,7 @@ export default function WishlistPage() {
           <Button 
             variant="outline" 
             onClick={clearWishlist}
-            className="text-red-600 hover:text-red-700"
+            className="text-red-400 hover:text-red-300"
           >
             {t('clearWishlist')}
           </Button>

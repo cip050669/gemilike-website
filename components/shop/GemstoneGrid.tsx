@@ -25,7 +25,6 @@ import {
   Star,
   Tag
 } from 'lucide-react';
-import navStyles from '@/components/layout/HeaderNav.module.css';
 import { cn } from '@/lib/utils';
 import type { ShopGemstone } from '@/lib/services/shop/types';
 
@@ -53,6 +52,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
   const [cardPosition, setCardPosition] = useState({ x: 100, y: 100 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
   const cardRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -166,11 +166,25 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
+  useEffect(() => {
+    const updateIsMobile = () => {
+      if (typeof window === 'undefined') return;
+      setIsMobile(window.innerWidth < 768);
+    };
+    updateIsMobile();
+    window.addEventListener('resize', updateIsMobile);
+    return () => window.removeEventListener('resize', updateIsMobile);
+  }, []);
+
   return (
     <>
       <div
-        className="grid gap-[16px]"
-        style={{ gridTemplateColumns: 'repeat(5, 240px)', justifyContent: 'center', maxHeight: 'calc(6 * 340px + 5 * 16px)', overflowY: 'auto', paddingBottom: '16px' }}
+        className="grid gap-3 sm:gap-4 text-[var(--color-text-primary)]"
+        style={{
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          justifyContent: 'center',
+          paddingBottom: '12px',
+        }}
       >
         {displayGemstones.map((gem) => {
           const previewImage = gem.images[0] ?? PLACEHOLDER_IMAGE;
@@ -180,7 +194,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
           return (
             <article
               key={gem.id}
-              className="gem-card group flex min-w-[240px] max-w-[240px] flex-col gap-3 rounded-[18px] p-4 transition-all duration-300"
+              className="gem-card group flex min-w-[180px] max-w-[240px] flex-col gap-3 rounded-[18px] p-3 sm:p-4 transition-all duration-300 text-[color:rgba(255,255,255,0.7)]"
             >
               <button
                 type="button"
@@ -211,20 +225,20 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                 )}
               </button>
 
-              <div className="space-y-3 text-sm text-white/75">
+              <div className="space-y-3 text-sm text-[var(--color-text-secondary)]">
                 <div className="space-y-1">
-                  <span className="text-[11px] uppercase tracking-[0.3em] text-white/45">
+                  <span className="text-[11px] uppercase tracking-[0.3em] text-[var(--color-text-muted)]">
                     {gem.category}
                   </span>
                   <button
                     type="button"
                     onClick={() => openGemstone(gem)}
-                    className="block text-left text-lg font-semibold text-white line-clamp-2 hover:text-primary cursor-pointer"
+                    className="block text-left text-lg font-semibold text-[var(--color-text-primary)] line-clamp-2 hover:text-[var(--color-accent)] cursor-pointer"
                   >
                     {gem.name}
                   </button>
                 </div>
-                <div className="space-y-1 text-xs text-white/60">
+                <div className="space-y-1 text-xs text-[var(--color-text-muted)]">
                   <p>{priceLabel}</p>
                   {weightLabel && <p>Gewicht {weightLabel}</p>}
                   {gem.origin && <p>Herkunft {gem.origin}</p>}
@@ -239,18 +253,14 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                   />
                   <WishlistButton item={toCartItem(gem)} className="border border-white/10" />
                 </div>
-                <button
-                  type="button"
-                  className={cn(
-                    navStyles.navButton,
-                    navStyles.navButtonTight,
-                    'w-full justify-center text-sm'
-                  )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center text-[var(--font-button-size)] font-semibold"
                   onClick={() => openGemstone(gem)}
                 >
-                  <span className={navStyles.navLabel}>Details öffnen</span>
-                  <span className={navStyles.navGlow} />
-                </button>
+                  Details öffnen
+                </Button>
               </div>
             </article>
           );
@@ -264,50 +274,83 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9998]"
             onClick={closeGemstone}
           />
-          {/* Draggable Card - NO CONTAINER LIMITS */}
+          {/* Draggable Card - desktop, Bottom Sheet - mobile */}
           <div
             ref={cardRef}
-            className="gem-card z-[9999] cursor-move select-none"
-            style={{
-              position: 'fixed',
-              left: `${cardPosition.x}px`,
-              top: `${cardPosition.y}px`,
-              cursor: isDragging ? 'grabbing' : 'grab',
-              margin: 0,
-              transform: 'none',
-              padding: '1.5rem',
-              width: '450px',
-              maxWidth: '450px',
-              minWidth: '450px',
-              maxHeight: '90vh',
-              boxSizing: 'border-box',
-            }}
+            className={cn(
+              'gem-card z-[9999] select-none',
+              isMobile ? 'cursor-default' : isDragging ? 'cursor-grabbing' : 'cursor-move'
+            )}
+            style={
+              isMobile
+                ? {
+                    position: 'fixed',
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    top: 'auto',
+                    margin: 0,
+                    padding: '1.25rem',
+                    width: '100%',
+                    maxWidth: '100%',
+                    minWidth: '100%',
+                    height: '85vh',
+                    maxHeight: '85vh',
+                    boxSizing: 'border-box',
+                    borderTopLeftRadius: '18px',
+                    borderTopRightRadius: '18px',
+                  }
+                : {
+                    position: 'fixed',
+                    left: `${cardPosition.x}px`,
+                    top: `${cardPosition.y}px`,
+                    cursor: isDragging ? 'grabbing' : 'grab',
+                    margin: 0,
+                    transform: 'none',
+                    padding: '1.5rem',
+                    width: '450px',
+                    maxWidth: '450px',
+                    minWidth: '450px',
+                    maxHeight: '90vh',
+                    boxSizing: 'border-box',
+                  }
+            }
             role="dialog"
             aria-modal="true"
             aria-label={`Details für ${selectedGemstone.name}`}
-            onMouseDown={handleMouseDown}
+            onMouseDown={isMobile ? undefined : handleMouseDown}
           >
-            <div className="overflow-y-auto space-y-6 w-full" style={{ maxHeight: 'calc(90vh - 3rem)', boxSizing: 'border-box', width: '100%' }}>
+            <div
+              className="overflow-y-auto space-y-6 w-full"
+              style={{
+                maxHeight: isMobile ? 'calc(85vh - 2.5rem)' : 'calc(90vh - 3rem)',
+                boxSizing: 'border-box',
+                width: '100%',
+              }}
+            >
               {/* Header with Close Button - Draggable area */}
               <div 
-                className="flex justify-between items-start mb-4 cursor-move"
+                className={cn(
+                  'flex justify-between items-start mb-4',
+                  isMobile ? 'cursor-default' : 'cursor-move'
+                )}
                 onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
                   // Allow dragging from header, but not from close button
-                  if ((e.target as HTMLElement).closest('button')) {
+                  if ((e.target as HTMLElement).closest('button') || isMobile) {
                     e.stopPropagation();
                     return;
                   }
                   handleMouseDown(e);
                 }}
               >
-                <h2 className="text-2xl font-semibold text-white flex-1 pr-4 select-none">
+                <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] flex-1 pr-4 select-none">
                   {selectedGemstone.name}
                 </h2>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={closeGemstone}
-                  className="text-white hover:bg-white/20 rounded-full flex-shrink-0"
+                  className="text-[var(--color-text-primary)] hover:bg-[var(--color-surface-soft)] rounded-full flex-shrink-0"
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   <X className="h-5 w-5" />
@@ -417,39 +460,39 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                           )}
                         </div>
                       {(selectedGemstone.shortDescription || selectedGemstone.description) && (
-                        <p className="text-sm text-white/80 leading-relaxed">
+                        <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
                           {selectedGemstone.shortDescription ?? selectedGemstone.description}
                         </p>
                       )}
 
                       {/* Details */}
-                      <div className="grid grid-cols-1 gap-3 text-sm" onMouseDown={(e) => e.stopPropagation()}>
+                      <div className="grid grid-cols-1 gap-3 text-sm text-[var(--color-text-secondary)]" onMouseDown={(e) => e.stopPropagation()}>
                         <DetailRow label="Edelsteinart">
-                          <span className="text-white">{selectedGemstone.category}</span>
+                          <span className="text-[var(--color-text-primary)]">{selectedGemstone.category}</span>
                         </DetailRow>
                         <DetailRow label="Preis">
-                          <span className="text-white font-semibold">
+                          <span className="text-[var(--color-text-primary)] font-semibold">
                             {formatPrice(selectedGemstone.price, selectedGemstone.currency)}
                           </span>
                         </DetailRow>
                         <DetailRow label="Bestand">
-                          <span className="text-white">{selectedGemstone.stock} Stück</span>
+                          <span className="text-[var(--color-text-primary)]">{selectedGemstone.stock} Stück</span>
                         </DetailRow>
                         {detailWeightLabel && (
                           <DetailRow label="Gewicht">
-                            <span className="text-white">{detailWeightLabel}</span>
+                            <span className="text-[var(--color-text-primary)]">{detailWeightLabel}</span>
                           </DetailRow>
                         )}
                         {selectedGemstone.origin && (
                           <DetailRow label="Herkunft">
-                            <span className="text-white">{selectedGemstone.origin}</span>
+                            <span className="text-[var(--color-text-primary)]">{selectedGemstone.origin}</span>
                           </DetailRow>
                         )}
                         {(selectedGemstone.dimensions?.length != null ||
                           selectedGemstone.dimensions?.width != null ||
                           selectedGemstone.dimensions?.height != null) && (
                           <DetailRow label="Abmessungen">
-                            <span className="text-white">
+                            <span className="text-[var(--color-text-primary)]">
                               {[
                                 selectedGemstone.dimensions?.length != null
                                   ? `${Number(selectedGemstone.dimensions.length).toFixed(2)} mm`
@@ -466,50 +509,50 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                         )}
                         {selectedGemstone.color && (
                           <DetailRow label="Farbe">
-                            <span className="text-white">{selectedGemstone.color}</span>
+                            <span className="text-[var(--color-text-primary)]">{selectedGemstone.color}</span>
                           </DetailRow>
                         )}
                         {selectedGemstone.colorSaturation && (
                           <DetailRow label="Farbsättigung">
-                            <span className="text-white">
+                            <span className="text-[var(--color-text-primary)]">
                               {selectedGemstone.colorSaturation}
                             </span>
                           </DetailRow>
                         )}
                         {selectedGemstone.clarity && (
                           <DetailRow label="Klarheit">
-                            <span className="text-white">{selectedGemstone.clarity}</span>
+                            <span className="text-[var(--color-text-primary)]">{selectedGemstone.clarity}</span>
                           </DetailRow>
                         )}
                         {selectedGemstone.cut && (
                           <DetailRow label="Schliff">
-                            <span className="text-white">{selectedGemstone.cut}</span>
+                            <span className="text-[var(--color-text-primary)]">{selectedGemstone.cut}</span>
                           </DetailRow>
                         )}
                         {selectedGemstone.cutForm && (
                           <DetailRow label="Schliffform">
-                            <span className="text-white">{selectedGemstone.cutForm}</span>
+                            <span className="text-[var(--color-text-primary)]">{selectedGemstone.cutForm}</span>
                           </DetailRow>
                         )}
                         {selectedGemstone.treatment && (
                           <DetailRow label="Behandlung">
-                            <span className="text-white">{selectedGemstone.treatment}</span>
+                            <span className="text-[var(--color-text-primary)]">{selectedGemstone.treatment}</span>
                           </DetailRow>
                         )}
                         {selectedGemstone.certification && (
                           <DetailRow label="Zertifizierung">
-                            <span className="text-white">{selectedGemstone.certification}</span>
+                            <span className="text-[var(--color-text-primary)]">{selectedGemstone.certification}</span>
                           </DetailRow>
                         )}
                         {selectedGemstone.rarity && (
                           <DetailRow label="Seltenheit">
-                            <span className="text-white">{selectedGemstone.rarity}</span>
+                            <span className="text-[var(--color-text-primary)]">{selectedGemstone.rarity}</span>
                           </DetailRow>
                         )}
                       </div>
 
                       {/* Actions */}
-                      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10" onMouseDown={(e) => e.stopPropagation()}>
+                      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--color-border)]" onMouseDown={(e) => e.stopPropagation()}>
                         <AddToCartButton
                           item={toCartItem(selectedGemstone)}
                           disabled={!selectedGemstone.inStock || selectedGemstone.isSold}
@@ -650,11 +693,11 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
   const { icon: IconComponent, style } = getIconAndStyle(label);
 
   return (
-    <div className="flex items-center gap-2 rounded-lg bg-gray-800/60 border border-white/20 p-3 backdrop-blur">
+    <div className="flex items-center gap-2 rounded-lg bg-gray-800/60 border border-[var(--color-border)] p-3 backdrop-blur text-[var(--color-text-primary)]">
       <IconComponent className="h-4 w-4 flex-shrink-0" style={style} />
       <div className="flex items-center gap-2 flex-1">
-        <span className="text-xs uppercase tracking-wide text-white/70">{label}:</span>
-        <span className="text-sm text-white font-medium">{children}</span>
+        <span className="text-xs uppercase tracking-wide text-[var(--color-text-muted)]">{label}:</span>
+        <span className="text-sm text-[var(--color-text-primary)] font-medium">{children}</span>
       </div>
     </div>
   );

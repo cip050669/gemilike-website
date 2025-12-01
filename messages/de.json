@@ -230,7 +230,14 @@
     "priceOnRequest": "Preis auf Anfrage"
   },
   "shop": {
-    "viewDetails": "Details anzeigen"
+    "viewDetails": "Details anzeigen",
+    "wishlist": "Wunschliste",
+    "wishlistCount": "{count, plural, one {# Artikel auf deiner Wunschliste} other {# Artikel auf deiner Wunschliste}}",
+    "wishlistEmpty": "Deine Wunschliste ist leer",
+    "wishlistEmptyDescription": "Speichere deine Lieblingsstücke mit dem Herzsymbol, um sie hier schnell wiederzufinden.",
+    "goToShop": "Zum Shop",
+    "backToHome": "Zur Startseite",
+    "clearWishlist": "Wunschliste leeren"
   },
   "blog": {
     "title": "Blog",

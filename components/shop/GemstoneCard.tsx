@@ -89,7 +89,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
             </div>
           </div>
           <CardDescription 
-            className="text-xs text-gem-text2"
+            className="text-xs text-[color:rgba(255,255,255,0.55)]"
             aria-describedby={`gemstone-title-${gemstone.id}`}
           >
             {gemstone.category}
@@ -98,14 +98,14 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
 
         {/* Beschreibung */}
         <p 
-          className="text-xs text-gem-text2 mb-3 line-clamp-2 flex-shrink-0"
+          className="text-xs text-[color:rgba(255,255,255,0.55)] mb-3 line-clamp-2 flex-shrink-0"
           id={`gemstone-description-${gemstone.id}`}
         >
           {gemstone.description}
         </p>
 
         {/* Spezifikationen */}
-        <div className="space-y-1.5 text-xs" role="list" aria-label="Edelstein-Spezifikationen">
+        <div className="space-y-1.5 text-xs text-[color:rgba(255,255,255,0.7)]" role="list" aria-label="Edelstein-Spezifikationen">
           {/* Raritäten */}
           {gemstone.rarity && gemstone.rarity !== 'none' && (
             <div className="flex items-center gap-2" role="listitem">
@@ -113,7 +113,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
               {gemstone.rarity === 'außergewöhnliches' && <PictogramWithTooltip iconName="Sparkles" className="text-purple-500" />}
               {gemstone.rarity === 'großes' && <PictogramWithTooltip iconName="Sparkles" className="text-orange-500" />}
               {gemstone.rarity === 'besonders schön' && <PictogramWithTooltip iconName="Sparkles" className="text-amber-500" />}
-              <span className="text-muted-foreground">Rarität:</span>
+              <span className="text-[color:rgba(255,255,255,0.6)]">Rarität:</span>
               <Badge 
                 className={`text-[10px] px-2 py-0.5 border ${
                   gemstone.rarity === 'seltenes' ? 'bg-blue-100 text-blue-800 border-blue-200' :
@@ -132,8 +132,8 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {/* Kategorie */}
           <div className="flex items-center gap-2" role="listitem">
             <PictogramWithTooltip iconName="Tag" />
-            <span className="text-muted-foreground">{t('category')}:</span>
-            <span className="font-medium">{gemstone.category}</span>
+            <span className="text-[color:rgba(255,255,255,0.6)]">{t('category')}:</span>
+            <span className="font-medium text-[color:rgba(255,255,255,0.8)]">{gemstone.category}</span>
           </div>
 
           {/* Entstehung */}

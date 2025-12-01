@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,10 +51,18 @@ export function ShopFilters({ gemstones, onFilter }: ShopFiltersProps) {
       gemstones.filter(isCutGemstone).map((g) => g.cutForm).filter(Boolean)
     )
   ).sort();
-  const maxPrice = Math.max(...gemstones.map(g => g.price));
-  const maxWeight = Math.max(...gemstones.map(g => 
-    'caratWeight' in g ? g.caratWeight : g.gramWeight
-  ));
+  const maxPrice = Math.max(
+    0,
+    ...gemstones
+      .map((g) => Number(g.price))
+      .filter((value) => Number.isFinite(value))
+  );
+  const maxWeight = Math.max(
+    0,
+    ...gemstones
+      .map((g) => ('caratWeight' in g ? g.caratWeight : g.gramWeight))
+      .filter((value) => typeof value === 'number' && Number.isFinite(value))
+  );
 
   const applyFilters = () => {
     let filtered = gemstones;
@@ -82,9 +90,11 @@ export function ShopFilters({ gemstones, onFilter }: ShopFiltersProps) {
     }
 
     // Price range
-    filtered = filtered.filter(gemstone => 
-      gemstone.price >= priceRange[0] && gemstone.price <= priceRange[1]
-    );
+    filtered = filtered.filter((gemstone) => {
+      const price = Number(gemstone.price);
+      if (!Number.isFinite(price)) return false;
+      return price >= priceRange[0] && price <= priceRange[1];
+    });
 
     // Weight range
     filtered = filtered.filter(gemstone => {
@@ -170,6 +180,24 @@ export function ShopFilters({ gemstones, onFilter }: ShopFiltersProps) {
   };
 
   const activeFiltersCount = getActiveFiltersCount();
+
+  // Auto-apply on filter changes for immediate feedback
+  useEffect(() => {
+    applyFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    searchTerm,
+    selectedCategory,
+    selectedOrigin,
+    selectedType,
+    priceRange,
+    weightRange,
+    selectedTreatment,
+    selectedCertification,
+    selectedCut,
+    selectedForm,
+    inStockOnly,
+  ]);
 
   return (
     <div className="mb-6">

@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
-import { SkipToContent } from '@/components/accessibility/SkipToContent';
 import { Inter } from 'next/font/google';
 import clsx from 'clsx';
 
@@ -52,7 +51,6 @@ export default async function LocaleLayout({
         <link rel="preload" href="/logo.png" as="image" type="image/png" />
       </head>
       <body className={clsx('public-page-bg', 'font-inter')} suppressHydrationWarning>
-        <SkipToContent />
         <ServiceWorkerRegistration />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>
