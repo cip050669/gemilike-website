@@ -1,6 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 import { locales } from './lib/i18n/config';
-import { NextResponse, NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 
 const intlMiddleware = createMiddleware({
   // A list of all locales that are supported
@@ -41,6 +41,8 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match only internationalized pathnames
-  matcher: ['/', '/(de|en)/:path*']
+  // Match only internationalized pathnames, but exclude API routes
+  matcher: [
+    '/((?!api|_next|_vercel|.*\\..*).*)'
+  ]
 };

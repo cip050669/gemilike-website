@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { getBlogs } from '@/lib/services/blog.service';
-import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 import { getNewstickerItems } from '@/lib/services/newsticker.service';
 import { Newsticker } from '@/components/ui/Newsticker';
 import { loadHeroSettings } from '@/lib/data/hero-settings';
@@ -13,6 +12,7 @@ import { cn } from '@/lib/utils';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { NewGemstonesCarousel } from '@/components/home/NewGemstonesCarousel';
 import { ScrollAnimated } from '@/components/ui/ScrollAnimated';
+import { DEFAULT_CONTAINER_CONTENT, getContainerContent } from '@/lib/services/containerContent';
 
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
@@ -29,13 +29,50 @@ export default async function HomePage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
-  const blogs = await getBlogs(locale, true); // Get only published blogs for this locale
-  const blogSettings = await loadBlogSectionSettings();
-  const activeNewstickerItems = await getNewstickerItems(true);
-  const shopGemstones = await loadShopGemstones();
-  const newGemstones = shopGemstones.filter((gem) => gem.isNew).slice(0, 12);
-  const heroSettings = await loadHeroSettings();
+  try {
+    const { locale } = await params;
+    const blogs = await getBlogs(locale, true).catch(() => []); // Get only published blogs for this locale
+    const containerContent = await getContainerContent(
+      [
+        'home.blog.heading',
+        'home.blog.subheading',
+        'home.newGemstones.description',
+      ],
+      locale
+    ).catch(() => []);
+
+    const blogHeading =
+      containerContent.find((item) => item.key === 'home.blog.heading')?.title ||
+      DEFAULT_CONTAINER_CONTENT['home.blog.heading'].title ||
+      'GESCHICHTEN UM EDELSTEINE';
+    const blogSubheading =
+      containerContent.find((item) => item.key === 'home.blog.subheading')?.body ||
+      DEFAULT_CONTAINER_CONTENT['home.blog.subheading'].body ||
+      'Entdecken Sie die faszinierenden Geschichten und Mythen hinter unseren Edelsteinen';
+    const newGemstonesDescription =
+      containerContent.find((item) => item.key === 'home.newGemstones.description')?.body ||
+      DEFAULT_CONTAINER_CONTENT['home.newGemstones.description'].body ||
+      'Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar.';
+    const blogSettings = {
+      heading: blogHeading,
+      subheading: blogSubheading,
+      headingColor: '#ffffff',
+      subheadingColor: '#d1d5db',
+    };
+    const activeNewstickerItems = await getNewstickerItems(true).catch(() => []);
+    const shopGemstones = await loadShopGemstones().catch(() => []);
+    const newGemstones = shopGemstones.filter((gem) => gem.isNew).slice(0, 12);
+    const heroSettings = await loadHeroSettings().catch(() => ({
+      title: 'Einfach nur Gemilike',
+      titleLine2: 'Heroes in Gems------',
+      subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
+      subtitleColor: '#F4F4FF',
+      backgroundImage: '/images/hero/default-hero.jpg',
+      ctaText: 'Sortiment entdecken',
+      ctaLink: '/shop',
+      secondaryCtaText: null,
+      secondaryCtaLink: null,
+    }));
   const stories = blogs
     .sort((a, b) => {
       const aTime = new Date(a.publishedAt ?? a.updatedAt ?? a.createdAt).getTime();
@@ -181,11 +218,29 @@ export default async function HomePage({
         <NewGemstonesCarousel
           gemstones={newGemstones}
           locale={locale}
-          description="Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar."
+          description={newGemstonesDescription}
         />
       </ScrollAnimated>
       </div>
     </div>
     </PublicLayout>
   );
+  } catch (error) {
+    console.error('Error in HomePage:', error);
+    return (
+      <PublicLayout>
+        <div className="min-h-screen public-page-bg text-white pb-16 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Fehler beim Laden der Seite</h1>
+            <p className="text-gray-300">Bitte versuchen Sie es später erneut.</p>
+            {process.env.NODE_ENV === 'development' && (
+              <pre className="mt-4 text-xs text-left bg-gray-900 p-4 rounded overflow-auto max-w-2xl">
+                {error instanceof Error ? error.message : String(error)}
+              </pre>
+            )}
+          </div>
+        </div>
+      </PublicLayout>
+    );
+  }
 }

@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function DarkModeToggle() {
+interface DarkModeToggleProps {
+  className?: string;
+}
+
+export function DarkModeToggle({ className }: DarkModeToggleProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -44,11 +48,11 @@ export function DarkModeToggle() {
   if (!mounted) {
     return (
       <Button
-        variant="ghost"
-        size="icon"
-        className="h-9 w-9"
-        aria-label="Dark Mode umschalten"
-        disabled
+      variant="ghost"
+      size="icon"
+      className="h-9 w-9"
+      aria-label="Dark Mode umschalten"
+      disabled
       >
         <Sun className="h-4 w-4" />
       </Button>
@@ -61,7 +65,7 @@ export function DarkModeToggle() {
       size="icon"
       onClick={toggleDarkMode}
       aria-label={darkMode ? 'Light Mode aktivieren' : 'Dark Mode aktivieren'}
-      className="h-9 w-9"
+      className={className}
     >
       {darkMode ? (
         <Sun className="h-4 w-4" aria-hidden="true" />
@@ -71,4 +75,3 @@ export function DarkModeToggle() {
     </Button>
   );
 }
-

@@ -1,7 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.5.0  
-**Stand:** November 2025  
+**Version:** 2.5.1  
+**Stand:** Dezember 2025  
+**Letzte Aktualisierung:** 13. Dezember 2025 - PostgreSQL-Konfiguration aktualisiert  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -389,9 +390,10 @@ module.exports = {
 **Funktionalität:**
 
 - Übersicht aller verfügbaren Edelsteine
-- Filterung nach mehreren Kriterien (siehe unten)
-- Sortierung nach verschiedenen Kriterien
-- Detailansicht einzelner Edelsteine als modale Karte (nicht als separate Seite)
+- Semantische Vektorsuche mit natürlicher Sprache (ersetzt klassische Dropdown-Filter)
+- Deep-Linking zu einzelnen Edelsteinen über `?gem={id}` inklusive Auto-Öffnung der Detailkarte
+- Warenkorb- und Wishlist-Aktionen direkt aus Grid und Detailkarte
+- Lazy Loading in 15er-Schritten inkl. Statusanzeige ("Zeigt X von Y Edelsteinen")
 
 **Datenquellen:**
 
@@ -403,61 +405,48 @@ module.exports = {
 
 **Layout:**
 
-- **Grid-Layout:** 5 Thumbnails pro Zeile, linksbündig ausgerichtet
-- **Thumbnail-Größe:** 240×240px pro Karte
-- **Responsive:** Automatische Anpassung für kleinere Bildschirme
+- **Grid-Layout:** Responsive `auto-fit` Grid (min. 180px pro Karte, skaliert zwischen 3-5 Spalten)
+- **Thumbnail-Größe:** 240×240px Fokusbereich (Image-Komponente mit Hover-Zoom)
+- **Responsive:** Automatische Umstellung auf 2 Spalten bzw. 1 Spalte bei kleineren Breakpoints
+- **Sektionen:** Hero/Intro-Card -> Semantische Suche -> Grid + Load-More -> leere-State-Card
 
-**Filter-System:**
+#### Semantische Vektorsuche (seit 27.11.2025)
 
-Die Filter sind in einer Zeile angeordnet und haben eine reduzierte Breite (max. 33,333% der Containerbreite):
+- **Eingabe:** Freitextfeld ("Beschreibe Farbe, Herkunft, Zertifikat ...") + `Vektor-Suche`-Button
+- **Reset:** Separater Button blendet alle Edelsteine wieder ein und löscht die Suchphrase
+- **Heuristische Vorfilterung (Client):**
+  - **Preisangaben:** Zahlen aus dem Text werden erkannt (z. B. "zwischen 2000 und 5000") und als Mindest-/Höchstpreis interpretiert
+  - **Zertifizierungs-Hinweise:** Schlüsselwörter wie "zertifiziert", "GIA", "ohne Zertifikat" filtern sofort passende Einträge
+  - **Keywords:** Tokenisierte Suche über Name, Kategorie, Herkunft, Farbe, Behandlung, Zertifikat
+- **Fallback:** Wenn keine heuristischen Treffer gefunden werden, erfolgt ein Request an `/api/shop/vector-search` (Semantische Vektorsuche auf dem Server)
+- **Statusmeldungen:** Treffer-Anzahl, Ladezustand und Fehlertexte ("Keine Edelsteine entsprechen dieser Beschreibung") werden direkt unter dem Formular angezeigt
+- **Hinweis:** Alle bisherigen Dropdown-/Checkbox-Filter wurden entfernt; jede Filteranforderung läuft jetzt über die semantische Suche
 
-1. **Suche:** Freitext-Suche nach Name, Art, Herkunft, Beschreibung
-2. **Edelsteinart** (ehemals "Kategorie"): Dropdown mit allen verfügbaren Edelsteinarten
-3. **Herkunft:** Dropdown mit allen verfügbaren Herkunftsangaben (neben "Edelsteinart" platziert)
-4. **Farbe:** Dropdown mit allen verfügbaren Farben
-5. **Klarheit:** Dropdown mit allen verfügbaren Klarheitsgraden
-6. **Behandlung:** Dropdown mit allen verfügbaren Behandlungen
-   - "Keine Behandlung" steht am Anfang der Liste (falls vorhanden)
-7. **Zertifizierung:** Dropdown mit Zertifizierungen
-   - "Alle Zertifizierungen" (Standard)
-   - "Keine Zertifizierungen" (am Anfang, filtert nach Edelsteinen ohne Zertifizierung)
-   - Alle vorhandenen Zertifizierungen (alphabetisch sortiert)
-8. **Sortierung:** 
-   - Neuheiten zuerst
-   - Preis (aufsteigend/absteigend)
-   - Gewicht (aufsteigend/absteigend)
+#### Pagination & Sichtbarkeit
 
-**Weitere Optionen:**
+- `LOAD_STEP = 15`: Erst 15 Karten, anschließend "Weitere Edelsteine laden" (Button + Statusangabe)
+- **Auto-Sichtbarkeit:** Falls eine Route mit `?gem={id}` aufgerufen wird, erhöht die Seite automatisch den sichtbaren Bereich, bis der Edelstein geladen ist
+- **Statusbanderole:** Zeigt an, ob noch weitere Edelsteine existieren oder bereits alle angezeigt werden
 
-- **Filter zurücksetzen:** Setzt alle Filter auf Standardwerte zurück
-- **Verkauft-Status ausblenden:** Checkbox 20px rechts vom "Filter zurücksetzen"-Button
-  - Standard: aktiviert (verkaufte Edelsteine werden ausgeblendet)
+#### Detailansicht & Interaktionen
 
-**Detailansicht (GemstoneCard):**
-
-- **Öffnung:** Klick auf Thumbnail oder Edelstein-Name öffnet eine modale, verschiebbare Karte
-- **Position:** Karte kann frei auf dem Bildschirm verschoben werden
-- **Größe:** 450px Breite, max. 90vh Höhe
-- **Badges:** Farbcodierte Badges mit gleichen Farben wie die Piktogramme:
-  - Edelsteinart: Orange (#FF9447)
-  - Typ (Geschliffen/Roh): Purple (#6A1B9A)
-  - Neu: Gold (#FFC107)
-  - Verkauft/Nicht verfügbar: Rot (#FF7B7B)
-  - Seltenheit: Amber (#D45E00)
-- **MediaGallery:** 
-  - Bilder und Videos in einer Galerie
-  - Keine Nummerierung der Bilder
-  - Thumbnail-Navigation ohne Nummern
-- **Details:** Farbcodierte Piktogramme für alle Attribute (Edelsteinart, Preis, Bestand, Gewicht, Herkunft, etc.)
-- **Aktionen:** Warenkorb hinzufügen, Wishlist, Details schließen
+- **Öffnung:** Klick auf Thumbnail oder Name öffnet eine schwebende Detailkarte
+- **Desktop:** 450px breite, frei verschiebbare Karte (Drag & Drop via Header/Leere Bereiche)
+- **Mobile:** Vollflächiges Bottom Sheet (85% Höhe), kein Dragging nötig
+- **Deep-Linking:** Der geöffnete Edelstein schreibt `?gem={id}` in die URL; ein Reload oder geteilter Link öffnet dieselbe Karte erneut
+- **Media Gallery:** Voll integrierte Bilder/Videos mit Verfügbarkeits-Badge und Zertifikatsstatus
+- **Status-Badges:** Kategorie, Typ (geschliffen/roh), Neu, Verkauft/Nicht verfügbar, Seltenheit - mit Farbcodes identisch zur Grid-Darstellung
+- **Detailzeilen:** Iconisierte Reihen (Preis, Gewicht, Herkunft, Abmessungen, Farbe, Behandlung, Zertifizierung, Seltenheit ...)
+- **Aktionen:** `AddToCartButton` (deaktiviert bei `isSold`/`!inStock`) + `WishlistButton` direkt aus Grid und Detailkarte
 
 **Features:**
 
-- Erweiterte Suche mit mehreren Filtern
-- Warenkorb-Integration
-- Wishlist-Funktion
-- Responsive Grid-Layout (5 Spalten)
-- Modale Detailansicht ohne Seitenwechsel
+- Semantische Suche mit Preis-, Zertifizierungs- und Keyword-Heuristiken + serverseitiger Vector-Fallback
+- Deep-Linking über `?gem={id}` inklusive Auto-Scroll & Auto-Open
+- Responsive Auto-Fit Grid mit Hover-Effekten, Status-Badges und CTA-Leiste
+- Draggable Detailkarte (Desktop) bzw. Bottom Sheet (Mobile)
+- Warenkorb- und Wishlist-Verknüpfung ohne Seitenwechsel
+- Leerzustand inkl. CTA, falls keine Edelsteine gefunden wurden
 
 ---
 
@@ -850,6 +839,15 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Rechnungen
 - Wishlist-Verwaltung
 
+#### Wunschliste (`/wishlist`)
+
+- Synchronisiert sich beim Seitenaufruf automatisch über `useWishlistStore.fetchWishlist()` (Ladezustand, Fehlermeldungen und Retry-Button werden angezeigt)
+- Leerzustand mit CTA-Buttons ("Zum Shop", "Zur Startseite") inklusive Icon und erklärendem Text
+- Kartenlayout mit Produktbild (Square, Hover-Zoom), Kategorie-/Status-Badges und detaillierten Attributen (Preis, Gewicht, Herkunft, Farbe, Behandlung)
+- Behandlung wird zusätzlich durch Emoji-Badges (z. B. 🔥 für heated, 💧 für oiled, 💎 für none) und farbcodierte Texte hervorgehoben
+- Schnellaktionen pro Karte: Details ansehen (`/shop/{slug}`), "In den Warenkorb", Entfernen
+- Seitenweite Aktionen: Teilen (Web Share API mit Clipboard-Fallback) und "Alle löschen"
+
 #### Warenkorb (`/cart`)
 
 - Artikel-Übersicht
@@ -889,6 +887,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - NextAuth.js mit Credentials-Provider
 - Session-basiert
 - Middleware-Schutz für Admin-Routen
+- Fallback-Admin-Login möglich über ENV (`NEXT_PUBLIC_ADMIN_EMAIL`/`NEXT_PUBLIC_ADMIN_PASSWORD` oder `ADMIN_EMAIL`/`ADMIN_PASSWORD`); Default-Demo `admin@gemilike.com` / `admin123`, falls DB-User fehlt
 
 ---
 
@@ -1285,6 +1284,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Navigation
 - Social Media Links
 - Suchfunktion ein/aus
+- Fallback-Navigation enthält immer „Wissenswertes“ und „Download“, auch wenn DB-Navigation leer ist
 
 **Datenbank-Model:** `HeaderData`
 
@@ -1303,6 +1303,17 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Bild-URL
 
 **Datenbank-Model:** `HeroSettings`
+
+#### Container-Texte Startseite (`/admin/container-content`)
+
+- Bearbeitet die Texte zentraler Startseiten-Container
+  - Blog-Sektion: Überschrift (`home.blog.heading`), Untertitel (`home.blog.subheading`)
+  - Neue Edelsteine: Beschreibung (`home.newGemstones.description`)
+- Lokalisierbar pro `locale`
+- Fallback-Defaults, falls keine Daten vorhanden sind
+
+**API:** `GET/PUT /api/admin/container-content`  
+**Datenbank-Model:** `ContainerContent` (Schlüssel + Locale + Titel/Body)
 
 #### Kontaktdaten (`/admin/contact-data`)
 
@@ -1478,7 +1489,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 ### 5.1 Übersicht
 
-Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
+Die Datenbank besteht aus **28 Haupt-Models** mit umfangreichen Relations:
 
 #### Benutzer & Authentifizierung
 
@@ -1521,6 +1532,7 @@ Die Datenbank besteht aus **27 Haupt-Models** mit umfangreichen Relations:
 - `Story` - Stories
 - `KnowledgeBase` - Wissenswertes
 - `LegalPage` - Rechtliche Seiten
+- `ContainerContent` - Texte für Startseiten-Container (lokalisierbar)
 
 #### System
 
@@ -1879,6 +1891,8 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - `GET /api/admin/dashboard` - Dashboard-Statistiken
 - `GET /api/admin/header` - Header-Daten
 - `PUT /api/admin/header` - Header aktualisieren
+- `GET /api/admin/container-content` - Container-Texte für Startseite abrufen (keys, locale)
+- `PUT /api/admin/container-content` - Container-Texte für Startseite speichern
 - `GET /api/admin/settings` - Einstellungen
 - `PUT /api/admin/settings` - Einstellungen aktualisieren
 
@@ -3013,8 +3027,12 @@ Diese Anleitung erklärt, wie Sie die Gemilike-Website mit Docker ausführen.
 
 #### Aktualisierungen (2025)
 
-Die Docker-Konfiguration wurde aktualisiert mit:
-- ✅ Dockerfile Syntax 1.7 (neueste Version)
+Die Docker-Konfiguration wurde am 01.12.2025 aktualisiert mit:
+- ✅ Dockerfile Syntax 1.8 (aktuelle docker/dockerfile Version)
+- ✅ Durchgängige Node 22 Alpine Basis (deps, builder, runner)
+- ✅ PostgreSQL 16 Images als Standard (`docker-compose.yml` und `.dev`) - Kompatibilität mit vorhandenen Datenbanken
+- ✅ MailHog fest auf `mailhog/mailhog:v1.0.1` für reproduzierbare Dev-E-Mails
+- ✅ Prisma CLI/Client Version 6.18.0 in Dockerfile, Compose und `package.json`
 - ✅ Cache Mounts für schnellere Builds (npm & Prisma)
 - ✅ Verbesserte Health Checks (wget + curl Fallback)
 - ✅ Resource Limits für Production
@@ -3046,8 +3064,8 @@ Die Docker-Konfiguration wurde aktualisiert mit:
 - ✅ `gemilike-app`: Healthy, läuft auf Port 3002
 - ✅ `gemilike-postgres`: Healthy, läuft auf Port 5433
 - ✅ Alle Migrationen erfolgreich angewendet
-- ✅ Next.js 15.5.6 läuft korrekt
-- ✅ Prisma Client generiert (v6.19.0)
+- ✅ Next.js 15.5.4 läuft korrekt
+- ✅ Prisma Client generiert (v6.18.0, identisch zu `package.json`)
 
 #### Schnellstart
 
@@ -3066,7 +3084,8 @@ Wichtige Variablen, die Sie anpassen müssen:
 POSTGRES_USER=gemilike
 POSTGRES_PASSWORD=ihr-sicheres-passwort
 POSTGRES_DB=gemilike
-POSTGRES_PORT=5432
+POSTGRES_PORT=5433
+# Hinweis: Port 5433 wird verwendet, wenn Port 5432 bereits belegt ist
 
 # Application
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -3132,6 +3151,45 @@ docker-compose -f docker-compose.dev.yml logs -f app
 # Stoppen
 docker-compose -f docker-compose.dev.yml down
 ```
+
+**4. Lokale Entwicklung (ohne Docker für App)**
+
+Wenn Sie die Next.js-Anwendung lokal entwickeln möchten, während PostgreSQL in Docker läuft:
+
+1. **Stellen Sie sicher, dass PostgreSQL-Container läuft:**
+   ```bash
+   docker compose up -d postgres
+   # Oder mit strato-compose.yml:
+   docker compose -f deploy/strato-compose.yml up -d postgres
+   ```
+
+2. **Erstellen Sie eine `.env.local` Datei im Projektroot:**
+   ```env
+   # Datenbank-Verbindung (PostgreSQL in Docker, Port 5433)
+   DATABASE_URL="postgresql://gemilike:change-me-in-production@localhost:5433/gemilike?schema=public"
+   SHADOW_DATABASE_URL="postgresql://gemilike:change-me-in-production@localhost:5433/gemilike_shadow?schema=public"
+
+   # NextAuth
+   NEXTAUTH_URL="http://localhost:3000"
+   NEXTAUTH_SECRET="your-secret-key-here-change-in-production"
+
+   # Weitere Umgebungsvariablen...
+   ```
+
+3. **Prüfen Sie die Datenbank-Verbindung:**
+   ```bash
+   # Testen Sie die Verbindung
+   PGPASSWORD=change-me-in-production psql -h localhost -p 5433 -U gemilike -d gemilike -c "SELECT version();"
+   ```
+
+4. **Starten Sie die lokale Entwicklung:**
+   ```bash
+   npm install
+   npx prisma generate
+   npm run dev
+   ```
+
+**Wichtig:** Stellen Sie sicher, dass der PostgreSQL-Container einen Port nach außen gemappt hat (siehe Troubleshooting-Abschnitt).
 
 #### Datenbank-Migrationen
 
@@ -3290,6 +3348,34 @@ POSTGRES_PORT=5433
 APP_PORT=3001
 ```
 
+**Lokale Anwendung kann Datenbank nicht erreichen:**
+
+Wenn Ihre Next.js-Anwendung lokal (außerhalb von Docker) läuft und die PostgreSQL-Datenbank nicht erreichen kann:
+
+1. **Prüfen Sie, ob der PostgreSQL-Container einen Port nach außen gemappt hat:**
+   ```bash
+   docker ps | grep postgres
+   # Sollte zeigen: 0.0.0.0:5433->5432/tcp
+   ```
+
+2. **Stellen Sie sicher, dass Ihre `.env.local` die korrekte DATABASE_URL enthält:**
+   ```env
+   DATABASE_URL="postgresql://gemilike:change-me-in-production@localhost:5433/gemilike?schema=public"
+   ```
+
+3. **Testen Sie die Verbindung:**
+   ```bash
+   PGPASSWORD=change-me-in-production psql -h localhost -p 5433 -U gemilike -d gemilike -c "SELECT version();"
+   ```
+
+4. **Falls der Port nicht gemappt ist, fügen Sie Port-Mapping in `deploy/strato-compose.yml` hinzu:**
+   ```yaml
+   postgres:
+     ports:
+       - "${POSTGRES_PORT:-5433}:5432"
+   ```
+   Dann Container neu starten: `docker compose -f deploy/strato-compose.yml up -d postgres`
+
 **Build-Fehler:**
 
 ```bash
@@ -3301,6 +3387,7 @@ docker-compose build --no-cache --pull
 
 In der Development-Umgebung läuft MailHog, um E-Mails zu testen:
 
+- **Version:** `mailhog/mailhog:v1.0.1` (fixiert seit 01.12.2025)
 - **SMTP**: `localhost:1025`
 - **Web UI**: `http://localhost:8025`
 
@@ -3316,6 +3403,9 @@ npx prisma migrate deploy
 
 # Prisma Client generieren
 npx prisma generate
+
+# Letzte Migration (Stand Dez 2025)
+# 20251213190826_add_container_content – neues Model ContainerContent + Admin-API
 ```
 
 ---
@@ -3343,6 +3433,7 @@ Das Projekt verwendet mehrere automatisierte Security-Scans:
 - **Zeitplan:** Wöchentlich (Sonntags um 2:00 UTC)
 - **Trigger:** Push, Pull Request, manuell
 - **Status:** ✅ Aktiv
+- **Hinweis (12/2025):** Der zuvor doppelte CodeQL-Workflow wurde entfernt, sodass nur noch dieser Workflow aktiv ist
 
 **2. Security Audit (npm audit)**
 - **Workflow:** `.github/workflows/security-audit.yml`
@@ -3368,8 +3459,9 @@ Das Projekt verwendet mehrere automatisierte Security-Scans:
 - **Workflow:** `.github/workflows/secret-scanning.yml`
 - **Zweck:** Erkennung von exponierten Secrets
 - **Status:** ✅ Aktiv
+- **Hinweis (12/2025):** Der Workflow nutzt wieder das korrekte Gitleaks-Setup (fix des `config-path`)
 
-#### 10.4.2 Aktuelle Security-Ergebnisse (Stand: November 2025)
+#### 10.4.2 Aktuelle Security-Ergebnisse (Stand: Dezember 2025)
 
 **npm audit Ergebnisse (nach Build & Docker-Update):**
 
@@ -3385,7 +3477,10 @@ found 0 vulnerabilities
 - **Info:** 0
 - **Gesamt:** 0 Schwachstellen ✅
 
-**Letzte Prüfung:** November 2025 (nach Docker-Update)
+**Letzte Prüfung:** 01. Dezember 2025 (npm audit fix nach Docker-/Dependency-Update)
+
+**Aktuelle Maßnahmen (01. Dezember 2025):**
+- `npm audit fix` hat die letzten `glob`- und `js-yaml`-Warnungen behoben (0 verbleibend)
 
 **Durchgeführte Security-Fixes:**
 
@@ -3416,6 +3511,11 @@ found 0 vulnerabilities
 2. ✅ **Development-Mode Authentication Bypass entfernt**
    - Betroffene Datei: `app/api/admin/audit-logs/route.ts`
    - Lösung: Authentifizierung wird immer geprüft
+
+3. ✅ **npm audit fix (glob/js-yaml)**
+   - Ausgeführt am 01.12.2025 (`npm audit fix --omit=dev`)
+   - Betroffene Pakete: `glob`, `js-yaml` (transitive Dependencies)
+   - Ergebnis: 0 verbleibende Schwachstellen
 
 #### 10.4.4 Security-Best-Practices
 
@@ -3645,12 +3745,12 @@ Alle Dokumentationen sind jetzt vollständig in diesem Handbuch integriert:
 
 Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
-- **27 Datenbank-Models** für verschiedene Entitäten
+- **46 Datenbank-Models** für verschiedene Entitäten
 - **50+ öffentliche Seiten** für Benutzer
-- **40+ Admin-Funktionen** für Verwaltung
+- **46+ Admin-Funktionen** für Verwaltung
 - **100+ API-Endpunkte** für Backend-Funktionalität
 - **12.182 Zeilen Code** für Farbtafeln und Farbanalyse
-- **105.373 Zeilen Code** gesamt (573 Dateien)
+- **TypeScript/TSX:** 565+ Dateien für moderne, typsichere Entwicklung
 
 ### 13.2 Hauptfunktionen
 
@@ -3664,33 +3764,45 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
 #### Admin-Bereiche
 
-1. **Produktverwaltung:** Edelsteine, Attribute, Preise, Inventar
-2. **Kundenverwaltung:** Kunden, Adressen, Bestellungen
-3. **Rechnungsverwaltung:** Rechnungen, Bankverbindungen, PDF
-4. **Content-Management:** Blog, Stories, Knowledge Base
-5. **System-Verwaltung:** Einstellungen, Header, Footer, Hero
-6. **Analytics:** Dashboard, Reports, Checkout-Analytics, Audit-Log
-7. **Spezial-Features:** Farbtafeln, Farbanalysen
+1. **Produktverwaltung:** Edelsteine, Attribute, Preise, Inventar, Tags
+2. **Kundenverwaltung:** Kunden, Adressen, Bestellungen, Warenkörbe
+3. **Rechnungsverwaltung:** Rechnungen, Bankverbindungen, PDF-Generierung
+4. **Content-Management:** Blog, Stories, Knowledge Base, About Content
+5. **System-Verwaltung:** Einstellungen, Header, Footer, Hero, Navigation
+6. **Analytics:** Dashboard, Reports, Checkout-Analytics, Audit-Log, Cart-Analytics
+7. **Spezial-Features:** Farbtafeln, Farbanalysen, Weltkarte, Reviews, Wishlists
+8. **Rechtliches:** Legal Pages (Impressum, Datenschutz, AGB, etc.)
 
 ### 13.3 Technologie-Highlights
 
-- **Next.js 15.5.4** - Modernes React-Framework
-- **PostgreSQL + Prisma** - Type-safe Datenbankzugriff
-- **NextAuth.js** - Sichere Authentifizierung
-- **next-intl** - Mehrsprachigkeit
-- **CIEDE2000** - Präzise Farbanalyse
-- **Docker** - Containerisierung für Deployment
+- **Next.js 15.5.6** - Modernes React-Framework mit App Router
+- **PostgreSQL 16 + Prisma** - Type-safe Datenbankzugriff (Port 5433 für lokale Entwicklung)
+- **NextAuth.js 4.24.11** - Sichere Authentifizierung
+- **next-intl 4.3.9** - Mehrsprachigkeit (Deutsch/Englisch)
+- **CIEDE2000** - Präzise Farbanalyse mit DeltaE2000-Metrik
+- **Docker** - Containerisierung für Deployment (PostgreSQL 16, Node.js 22)
+- **Tailwind CSS 4** - Utility-first CSS Framework
+- **Radix UI** - Accessible UI-Komponenten
 
-### 12.4 Datenbank-Statistik
+### 13.4 Datenbank-Statistik
 
-- **27 Haupt-Models**
-- **15 Enums** für typsichere Werte
-- **50+ Relations** zwischen Models
-- **100+ Indexes** für Performance
+**Stand: Dezember 2025**
+
+- **46 Datenbank-Models** für verschiedene Entitäten:
+  - E-Commerce: Gemstone, Cart, Order, Customer, Invoice (10 Models)
+  - Content: Blog, Story, KnowledgeBase, AboutContent (4 Models)
+  - System: User, Session, CompanySettings, HeaderData, FooterLink (8 Models)
+  - Features: ColorChart, GemstoneAnalysis, Location, Review, Wishlist (10 Models)
+  - Weitere: Newsletter, Tag, SelectOption, LegalPage, etc. (14 Models)
+- **15 Enums** für typsichere Werte (UserRole, OrderStatus, PaymentStatus, etc.)
+- **50+ Relations** zwischen Models für Datenintegrität
+- **100+ Indexes** für Performance-Optimierung
+- **PostgreSQL 16** als Datenbank-Engine (kompatibel mit vorhandenen Daten)
+- **Port 5433** für lokale Entwicklung (wenn Port 5432 belegt ist)
 
 ### 13.5 Code-Statistik
 
-**Stand: November 2025**
+**Stand: Dezember 2025**
 
 #### 13.5.1 Gesamt-Übersicht nach Dateitypen
 
@@ -4239,3 +4351,11 @@ Das Dokument enthält:
 
 - Initiale Dokumentation
 - Basis-Funktionalitäten dokumentiert
+Was ich gemacht habe:
+Port-Mapping hinzugefügt: In deploy/strato-compose.yml wurde Port 5433 nach außen gemappt.
+PostgreSQL-Version angepasst: In docker-compose.yml von Version 17 auf 16 geändert (kompatibel mit vorhandenen Daten).
+Datenbank neu initialisiert: Das Volume wurde neu erstellt, damit der Benutzer korrekt angelegt wird.
+Aktueller Status:
+PostgreSQL läuft auf Port 5433
+Verbindung funktioniert: postgresql://gemilike:change-me-in-production@localhost:5433/gemilike
+Container ist gesund und erreichbar

@@ -22,19 +22,29 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
+      console.log('Attempting login for:', email);
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
       });
 
+      console.log('Login result:', result);
+
       if (result?.error) {
+        console.error('Login error:', result.error);
         setError('Ungültige Anmeldedaten. Bitte überprüfen Sie Ihre E-Mail und Ihr Passwort.');
         setIsLoading(false);
       } else if (result?.ok) {
+        console.log('Login successful, redirecting...');
         // Erfolgreich eingeloggt - weiterleiten zum Admin-Dashboard
-        router.push('/de/admin');
+        const locale = window.location.pathname.split('/')[1] || 'de';
+        router.push(`/${locale}/admin/dashboard`);
         router.refresh();
+      } else {
+        console.warn('Login result was neither error nor ok:', result);
+        setError('Unerwartete Antwort vom Server. Bitte versuchen Sie es erneut.');
+        setIsLoading(false);
       }
     } catch (err) {
       console.error('Login error:', err);

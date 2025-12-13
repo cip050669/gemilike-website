@@ -37,6 +37,7 @@ export default function AdminLayout({
     { href: '/de/admin/gemstone-analyses', label: '🔬 Farbanalysen' },
     { href: '/de/admin/header', label: '🔝 Header' },
     { href: '/de/admin/hero-image', label: '🖼️ Hero-Bild' },
+    { href: '/de/admin/container-content', label: '🧾 Container-Texte' },
     { href: '/de/admin/legal-pages', label: '⚖️ Rechtliches' },
     { href: '/de/admin/newsletter', label: '📧 Newsletter' },
     { href: '/de/admin/newsticker', label: '📰 Newsticker' },

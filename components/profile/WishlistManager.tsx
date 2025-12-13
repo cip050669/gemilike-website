@@ -76,6 +76,21 @@ export default function WishlistManager() {
     void fetchWishlist();
   }, [fetchWishlist]);
 
+  // Debug: Log wishlist items (only in development)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      if (wishlistItems.length > 0) {
+        console.log('Wishlist items loaded:', wishlistItems.length, wishlistItems);
+      } else {
+        console.log('Wishlist is empty or loading:', { 
+          items: wishlistItems.length, 
+          loading: wishlistLoading, 
+          error: wishlistError 
+        });
+      }
+    }
+  }, [wishlistItems, wishlistLoading, wishlistError]);
+
   const handleRemoveFromWishlist = (gemstoneId: string) => {
     void removeItem(gemstoneId);
   };
@@ -132,7 +147,10 @@ export default function WishlistManager() {
     return (
       <Card>
         <CardContent className="py-8">
-          <div className="text-center">Lädt Merkliste...</div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p>Lädt Merkliste...</p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -142,7 +160,10 @@ export default function WishlistManager() {
     return (
       <Card>
         <CardContent className="py-8">
-          <div className="text-center text-red-400">{wishlistError}</div>
+          <div className="text-center">
+            <p className="text-red-400 mb-4">{wishlistError}</p>
+            <Button onClick={() => fetchWishlist()}>Erneut versuchen</Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -177,7 +198,7 @@ export default function WishlistManager() {
         </div>
       </div>
 
-      {wishlistItems.length === 0 ? (
+      {wishlistItems.length === 0 && !wishlistLoading ? (
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
@@ -193,15 +214,16 @@ export default function WishlistManager() {
             </div>
           </CardContent>
         </Card>
-      ) : (
+      ) : wishlistItems.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {wishlistItems.map((item) => {
             const gemstone = item.gemstone;
-            const image = gemstone?.images[0] ?? GEM_IMAGE_PLACEHOLDER;
+            const image = item.image ?? gemstone?.images?.[0] ?? GEM_IMAGE_PLACEHOLDER;
             const treatment = gemstone?.treatment ?? 'none';
             const weightLabel = gemstone?.weight != null
               ? `${gemstone.weight.toFixed(2)} ${gemstone.weightUnit}`
               : '—';
+            const itemName = gemstone?.name ?? item.name ?? 'Edelstein';
 
             return (
               <Card key={item.id} className="group hover:shadow-lg transition-shadow">
@@ -210,60 +232,72 @@ export default function WishlistManager() {
                     <div className="aspect-square bg-muted rounded-lg overflow-hidden mb-3 relative">
                       <Image
                         src={image}
-                        alt={gemstone?.name ?? 'Edelstein'}
+                        alt={itemName}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                     <CardTitle className="text-xl">
-                      {gemstone?.name ?? 'Edelstein'}
+                      {itemName}
                     </CardTitle>
                     <CardDescription className="flex items-center gap-2">
                       <Badge variant="outline">{gemstone?.category ?? 'Unbekannt'}</Badge>
                       {gemstone?.isNew && <Badge variant="secondary">Neu</Badge>}
-                      {gemstone?.isSold && <Badge variant="destructive">Verkauft</Badge>}
+                      {(gemstone?.isSold ?? item.isSold) && <Badge variant="destructive">Verkauft</Badge>}
                     </CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Badge variant="outline" className="text-lg p-2">
-                      {getTreatmentIcon(treatment)}
-                    </Badge>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Preis</p>
-                      <p className="text-2xl font-semibold">
-                        {formatPrice(gemstone?.price ?? 0, gemstone?.currency ?? 'EUR')}
-                      </p>
+                  {gemstone ? (
+                    <>
+                      <div className="flex items-center gap-4">
+                        <Badge variant="outline" className="text-lg p-2">
+                          {getTreatmentIcon(treatment)}
+                        </Badge>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Preis</p>
+                          <p className="text-2xl font-semibold">
+                            {formatPrice(gemstone.price ?? 0, gemstone.currency ?? 'EUR')}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Gewicht</p>
+                          <p className="text-lg">{weightLabel}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Herkunft</p>
+                          <p>{gemstone.origin ?? 'Unbekannt'}</p>
+                        </div>
+                      </div>
+                      <Separator />
+                      <div className="grid gap-2 text-sm">
+                        <p>
+                          <span className="font-medium">Farbe:</span> {gemstone.color ?? 'Unbekannt'}
+                        </p>
+                        <p className={getTreatmentColor(treatment)}>
+                          <span className="font-medium">Behandlung:</span> {gemstone.treatment ?? 'Keine Angabe'}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <p>Edelstein-Daten werden geladen...</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Gewicht</p>
-                      <p className="text-lg">{weightLabel}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Herkunft</p>
-                      <p>{gemstone?.origin ?? 'Unbekannt'}</p>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="grid gap-2 text-sm">
-                    <p>
-                      <span className="font-medium">Farbe:</span> {gemstone?.color ?? 'Unbekannt'}
-                    </p>
-                    <p className={getTreatmentColor(treatment)}>
-                      <span className="font-medium">Behandlung:</span> {gemstone?.treatment ?? 'Keine Angabe'}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button variant="outline" onClick={() => handleViewDetails(item)}>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Details ansehen
-                    </Button>
-                    <Button onClick={() => handleAddToCart(item)} disabled={gemstone?.isSold}>
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      In den Warenkorb
-                    </Button>
+                  )}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {item.slug && (
+                      <Button variant="outline" onClick={() => handleViewDetails(item)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Details ansehen
+                      </Button>
+                    )}
+                    {gemstone && !gemstone.isSold && (
+                      <Button onClick={() => handleAddToCart(item)}>
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        In den Warenkorb
+                      </Button>
+                    )}
                     <Button variant="destructive" onClick={() => handleRemoveFromWishlist(item.gemstoneId)}>
                       <Trash2 className="h-4 w-4 mr-2" />
                       Entfernen
@@ -274,7 +308,7 @@ export default function WishlistManager() {
             );
           })}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

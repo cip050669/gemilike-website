@@ -50,6 +50,7 @@ jobs:
           name: dependency-check-report
           path: reports
           retention-days: 30
+          if-no-files-found: ignore
       
       - name: Check for known vulnerabilities
         run: |

@@ -47,7 +47,8 @@ export async function GET() {
           { id: '1', text: 'Startseite', url: '/' },
           { id: '2', text: 'Shop', url: '/shop' },
           { id: '3', text: 'Über uns', url: '/about' },
-          { id: '4', text: 'Kontakt', url: '/contact' }
+          { id: '4', text: 'Wissenswertes', url: '/wissenswertes' },
+          { id: '5', text: 'Kontakt', url: '/contact' }
         ]
       },
       searchSettings: {

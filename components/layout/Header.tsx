@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon, LogInIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Cart } from '@/components/cart/Cart';
@@ -30,17 +31,16 @@ const FALLBACK_NAV: NavigationItem[] = [
 ];
 
 export function Header() {
-  const [/* searchQuery */, /* setSearchQuery */] = useState('');
   const [isMounted, setIsMounted] = useState(false);
   const [navItems, setNavItems] = useState<NavigationItem[]>(FALLBACK_NAV);
-  const actionButtonClass =
-    'relative h-10 w-10 rounded-full border border-white/40 bg-white/30 text-white hover:bg-white/45 hover:border-white/60 hover:text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-white/80';
+  const { data: session, status } = useSession();
   const [headerSettings, setHeaderSettings] = useState({
     cartEnabled: true,
     cartShowCount: true,
     wishlistEnabled: true,
     wishlistShowCount: true,
   });
+  
   const toggleCart = useCartStore((state) => state.toggleCart);
   const getTotalItems = useCartStore((state) => state.getTotalItems);
   const fetchCart = useCartStore((state) => state.fetchCart);
@@ -49,6 +49,7 @@ export function Header() {
   const wishlistSummary = useWishlistStore((state) => state.summary);
   const wishlistCount = useWishlistStore((state) => state.totalItems);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
@@ -70,7 +71,10 @@ export function Header() {
     void (async () => {
       try {
         const response = await fetch('/api/admin/header');
-        if (!response.ok) return;
+        if (!response.ok) {
+          console.log('Header API not ok, using fallback');
+          return;
+        }
         const data = await response.json();
         if (data?.navigation?.items?.length) {
           const mapped = data.navigation.items
@@ -86,7 +90,8 @@ export function Header() {
             })
             .filter(Boolean) as NavigationItem[];
 
-          const ensureDefaults = ['/downloads'];
+          // Ensure important default links stay present even if DB omits them
+          const ensureDefaults = ['/downloads', '/wissenswertes'];
           ensureDefaults.forEach((path) => {
             if (!mapped.some((item) => item.href === path)) {
               const fallbackMatch = FALLBACK_NAV.find((item) => item.href === path);
@@ -97,8 +102,15 @@ export function Header() {
           });
 
           if (mapped.length) {
+            console.log('Setting navItems:', mapped);
             setNavItems(mapped);
+          } else {
+            console.log('No mapped items, using fallback');
+            setNavItems(FALLBACK_NAV);
           }
+        } else {
+          console.log('No navigation items in API response, using fallback');
+          setNavItems(FALLBACK_NAV);
         }
         setHeaderSettings({
           cartEnabled: data?.cartSettings?.enabled ?? true,
@@ -108,6 +120,7 @@ export function Header() {
         });
       } catch (error) {
         console.warn('Header navigation fetch failed, using fallback.', error);
+        setNavItems(FALLBACK_NAV);
       }
     })();
   }, []);
@@ -134,16 +147,23 @@ export function Header() {
     return `${localePrefix}${href}`;
   };
 
+  const handleUserClick = () => {
+    if (status === 'authenticated' && session) {
+      router.push(buildHref('/profile'));
+    } else {
+      router.push(buildHref('/auth/signin'));
+    }
+  };
+
   return (
     <header 
       data-header-fixed
-      className="sticky top-0 h-16 z-[9999] header-gradient-bg"
+      className="sticky top-0 h-16 z-[9999] header-gradient-bg border-b border-white/10"
     >
-      {/* Header Content - zentriert im Container */}
-      <div className="flex items-center justify-between w-full h-full px-4 sm:px-6 gap-3 sm:gap-4 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between w-full h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         {/* Logo - Links */}
         <div className="flex-shrink-0">
-          <Link href="/" className="inline-flex items-center transition-transform duration-200 hover:scale-[1.08]">
+          <Link href={buildHref('/')} className="inline-flex items-center transition-transform duration-200 hover:scale-[1.05]">
             <Image
               src="/logo.png"
               alt="Gemilike - Heroes in Gems"
@@ -156,152 +176,169 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Hauptnavigation */}
-        <nav 
-          className="flex items-center justify-start flex-1 gap-3 sm:gap-5 ml-4 sm:ml-6 overflow-x-auto sm:overflow-visible px-2"
-          aria-label="Hauptnavigation"
-        >
-          {navItems.map(({ href, label, id }) => {
-            const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
-            return (
-              <Link
-                key={id}
-                href={buildHref(href)}
-                className={cn(styles.navButton, isActive && 'shadow-[0_0_32px_rgba(0,0,0,0.35)]')}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <span className={styles.navLabel}>{label}</span>
-                <span className={styles.navGlow} />
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Hauptnavigation - Desktop */}
+        {navItems.length > 0 && (
+          <nav 
+            className="flex items-center justify-center flex-1 gap-2 xl:gap-4 px-4 min-w-0"
+            aria-label="Hauptnavigation"
+            style={{ display: 'flex' }}
+          >
+            {navItems.map(({ href, label, id }) => {
+              const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
+              return (
+                <Link
+                  key={id}
+                  href={buildHref(href)}
+                  className={cn(styles.navButton, isActive && 'shadow-[0_0_32px_rgba(0,0,0,0.35)]')}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <span className={styles.navLabel}>{label}</span>
+                  <span className={styles.navGlow} />
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
-        {/* Right Side Actions - Rechts */}
-        <div className="hidden md:flex items-center justify-end space-x-3 lg:space-x-4 flex-shrink-0">
-          {/* Action Buttons */}
+        {/* Action Buttons - Desktop */}
+        <div className="hidden md:flex items-center gap-2 lg:gap-3 flex-shrink-0">
           <DarkModeToggle />
+          
+          {headerSettings.wishlistEnabled && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => router.push(buildHref('/wishlist'))}
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
+              aria-label={`Wunschliste${isMounted && wishlistCount > 0 ? `, ${wishlistCount} Artikel` : ''}`}
+            >
+              <HeartIcon className="h-4 w-4" />
+              {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                  {wishlistCount}
+                </span>
+              )}
+            </Button>
+          )}
+          
+          {headerSettings.cartEnabled && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleCart}
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
+              aria-label={`Warenkorb${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel` : ''}`}
+            >
+              <ShoppingCartIcon className="h-4 w-4" />
+              {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                  {getTotalItems()}
+                </span>
+              )}
+            </Button>
+          )}
+          
           <Button 
             variant="ghost" 
             size="icon" 
-            className={actionButtonClass}
-            aria-label="Benutzerprofil öffnen"
+            onClick={handleUserClick}
+            className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
+            aria-label={status === 'authenticated' ? 'Profil öffnen' : 'Anmelden'}
           >
-            <UserIcon className="h-4 w-4" aria-hidden="true" />
+            {status === 'authenticated' ? (
+              <UserIcon className="h-4 w-4" />
+            ) : (
+              <LogInIcon className="h-4 w-4" />
+            )}
           </Button>
-          {headerSettings.wishlistEnabled && (
-            <Button
-              asChild
-              variant="ghost"
-              size="icon"
-              className={actionButtonClass}
-              aria-label={`Wunschliste öffnen${isMounted && wishlistCount > 0 ? `, ${wishlistCount} Artikel gemerkt` : ''}`}
-            >
-              <Link href={buildHref('/wishlist')}>
-                <HeartIcon className="h-4 w-4" aria-hidden="true" />
-                {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
-                  <span
-                    className="absolute -top-2 -right-2 bg-gem-purple text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                    aria-hidden="true"
-                  >
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
-            </Button>
-          )}
-          {headerSettings.cartEnabled && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleCart}
-              className={actionButtonClass}
-              aria-label={`Warenkorb öffnen${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel im Warenkorb` : ''}`}
-              aria-expanded={false}
-            >
-              <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
-              {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
-                <span 
-                  className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                  aria-hidden="true"
-                >
-                  {getTotalItems()}
-                </span>
-              )}
-            </Button>
-          )}
         </div>
 
         {/* Mobile Menu */}
-        <div className="flex items-center space-x-2 md:hidden">
-          <DarkModeToggle />
+        <div className="flex items-center gap-2 md:hidden">
           {headerSettings.wishlistEnabled && (
-            <Button
-              asChild
-              variant="ghost"
-              size="icon"
-              className={actionButtonClass}
-              aria-label={`Wunschliste öffnen${isMounted && wishlistCount > 0 ? `, ${wishlistCount} Artikel gemerkt` : ''}`}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => router.push(buildHref('/wishlist'))}
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
+              aria-label="Wunschliste"
             >
-              <Link href={buildHref('/wishlist')}>
-                <HeartIcon className="h-4 w-4" aria-hidden="true" />
-                {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
-                  <span
-                    className="absolute -top-2 -right-2 bg-gem-purple text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                    aria-hidden="true"
-                  >
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
+              <HeartIcon className="h-4 w-4" />
+              {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                  {wishlistCount}
+                </span>
+              )}
             </Button>
           )}
+          
           {headerSettings.cartEnabled && (
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={toggleCart}
-              className={actionButtonClass}
-              aria-label={`Warenkorb öffnen${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel im Warenkorb` : ''}`}
-              aria-expanded={false}
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
+              aria-label="Warenkorb"
             >
-              <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
+              <ShoppingCartIcon className="h-4 w-4" />
               {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
-                <span 
-                  className="absolute -top-2 -right-2 bg-gem-fire text-gem-bgDark text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                  aria-hidden="true"
-                >
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                   {getTotalItems()}
                 </span>
               )}
             </Button>
           )}
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleUserClick}
+            className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
+            aria-label={status === 'authenticated' ? 'Profil' : 'Anmelden'}
+          >
+            {status === 'authenticated' ? (
+              <UserIcon className="h-4 w-4" />
+            ) : (
+              <LogInIcon className="h-4 w-4" />
+            )}
+          </Button>
+          
           <Sheet>
             <SheetTrigger asChild>
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="icon" 
-                className="border-gem-ice/30 text-gem-text hover:bg-gem-ice/10 hover:border-gem-ice/50"
+                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
                 aria-label="Navigation öffnen"
-                aria-expanded={false}
+                type="button"
               >
-                <MenuIcon className="h-6 w-6" aria-hidden="true" />
+                <MenuIcon className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
-              <SheetTitle>Navigation</SheetTitle>
-              <nav className="flex flex-col gap-3 mt-6" aria-label="Mobile Navigation">
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetTitle className="text-xl font-bold mb-6">Navigation</SheetTitle>
+              <nav className="flex flex-col gap-2" aria-label="Mobile Navigation">
                 {navItems.map(({ href, label, id }) => {
                   const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
                   return (
                     <Link
                       key={id}
                       href={buildHref(href)}
-                      className={cn(styles.navButton, styles.navButtonCompact, 'justify-between px-3 py-2 text-sm', isActive && 'shadow-[0_0_28px_rgba(0,0,0,0.35)]')}
+                      onClick={() => {
+                        // Close sheet when link is clicked
+                        const sheetClose = document.querySelector('[data-state="open"]');
+                        if (sheetClose) {
+                          (sheetClose as HTMLElement).click();
+                        }
+                      }}
+                      className={cn(
+                        'px-4 py-3 rounded-lg transition-colors',
+                        isActive 
+                          ? 'bg-primary/20 text-primary font-semibold' 
+                          : 'hover:bg-gray-800/50 text-gray-200'
+                      )}
                     >
-                      <span className={styles.navLabel}>{label}</span>
-                      <span className={cn(styles.navLabel, styles.navLabelSecondary)}>Entdecken</span>
-                      <span className={styles.navGlow} />
+                      {label}
                     </Link>
                   );
                 })}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import WishlistManager from '@/components/profile/WishlistManager';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,6 @@ import {
   User, 
   MapPin, 
   ShoppingBag, 
-  Heart, 
   Plus,
   Edit,
   Trash2,
@@ -45,12 +45,24 @@ interface Order {
 }
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingAddress, setEditingAddress] = useState<string | null>(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    firstName: '',
+    lastName: '',
+    company: '',
+    preferredLanguage: 'de',
+    marketingOptIn: false,
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
   const [newAddress, setNewAddress] = useState<Partial<Address>>({
     type: 'shipping',
     country: 'Deutschland'
@@ -66,18 +78,28 @@ export default function ProfilePage() {
     
     if (session) {
       fetchUserData();
+      // Initialize profile data from session
+      if (session.user) {
+        setProfileData(prev => ({
+          ...prev,
+          name: session.user?.name || prev.name,
+          email: session.user?.email || prev.email,
+        }));
+      }
     }
   }, [session, status, router]);
 
   const fetchUserData = async () => {
     try {
-      const [addressesRes, ordersRes] = await Promise.all([
+      const [addressesRes, ordersRes, profileRes] = await Promise.all([
         fetch('/api/user/addresses'),
-        fetch('/api/user/orders')
+        fetch('/api/user/orders'),
+        fetch('/api/user/profile')
       ]);
       
       const addressesData = await addressesRes.json();
       const ordersData = await ordersRes.json();
+      const profileData = await profileRes.json();
       
       if (addressesData.success) {
         setAddresses(addressesData.addresses);
@@ -86,10 +108,55 @@ export default function ProfilePage() {
       if (ordersData.success) {
         setOrders(ordersData.orders);
       }
+
+      if (profileData.success && profileData.user) {
+        setProfileData({
+          name: profileData.user.name || '',
+          email: profileData.user.email || '',
+          phone: profileData.user.phone || '',
+          firstName: profileData.user.firstName || '',
+          lastName: profileData.user.lastName || '',
+          company: profileData.user.company || '',
+          preferredLanguage: profileData.user.preferredLanguage || 'de',
+          marketingOptIn: profileData.user.marketingOptIn || false,
+        });
+      }
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update session
+        await updateSession({
+          ...session,
+          user: {
+            ...session?.user,
+            name: profileData.name,
+            email: profileData.email,
+          },
+        });
+        setIsEditingProfile(false);
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -167,13 +234,28 @@ export default function ProfilePage() {
           <TabsContent value="profile" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Persönliche Daten
-                </CardTitle>
-                <CardDescription>
-                  Ihre grundlegenden Kontaktinformationen
-                </CardDescription>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Persönliche Daten
+                    </CardTitle>
+                    <CardDescription>
+                      Ihre grundlegenden Kontaktinformationen
+                    </CardDescription>
+                  </div>
+                  {!isEditingProfile && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditingProfile(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Bearbeiten
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -181,8 +263,9 @@ export default function ProfilePage() {
                     <Label htmlFor="name">Name</Label>
                     <Input
                       id="name"
-                      value={session.user?.name || ''}
-                      disabled
+                      value={profileData.name}
+                      onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                      disabled={!isEditingProfile}
                       className="public-page-bg"
                     />
                   </div>
@@ -190,8 +273,51 @@ export default function ProfilePage() {
                     <Label htmlFor="email">E-Mail</Label>
                     <Input
                       id="email"
-                      value={session.user?.email || ''}
-                      disabled
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                      disabled={!isEditingProfile}
+                      className="public-page-bg"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Telefon</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                      disabled={!isEditingProfile}
+                      className="public-page-bg"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="firstName">Vorname</Label>
+                    <Input
+                      id="firstName"
+                      value={profileData.firstName}
+                      onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                      disabled={!isEditingProfile}
+                      className="public-page-bg"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Nachname</Label>
+                    <Input
+                      id="lastName"
+                      value={profileData.lastName}
+                      onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                      disabled={!isEditingProfile}
+                      className="public-page-bg"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="company">Firma (optional)</Label>
+                    <Input
+                      id="company"
+                      value={profileData.company}
+                      onChange={(e) => setProfileData({ ...profileData, company: e.target.value })}
+                      disabled={!isEditingProfile}
                       className="public-page-bg"
                     />
                   </div>
@@ -201,6 +327,39 @@ export default function ProfilePage() {
                     {userRole}
                   </Badge>
                 </div>
+                {isEditingProfile && (
+                  <div className="flex gap-2 pt-4">
+                    <Button
+                      onClick={handleSaveProfile}
+                      disabled={savingProfile}
+                      className="flex items-center gap-2"
+                    >
+                      <Check className="h-4 w-4" />
+                      {savingProfile ? 'Speichern...' : 'Speichern'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditingProfile(false);
+                        // Reset to original values
+                        if (session?.user) {
+                          setProfileData({
+                            name: session.user.name || '',
+                            email: session.user.email || '',
+                            phone: '',
+                            firstName: '',
+                            lastName: '',
+                            company: '',
+                            preferredLanguage: 'de',
+                            marketingOptIn: false,
+                          });
+                        }
+                      }}
+                    >
+                      Abbrechen
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -453,26 +612,7 @@ export default function ProfilePage() {
 
           {/* Wishlist Tab */}
           <TabsContent value="wishlist" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="h-5 w-5" />
-                  Meine Wunschliste
-                </CardTitle>
-                <CardDescription>
-                  Ihre gespeicherten Edelsteine
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Heart className="mx-auto h-12 w-12 text-[var(--color-text-muted)]" />
-                  <h3 className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">Wunschliste ist leer</h3>
-                  <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                    Fügen Sie Edelsteine zu Ihrer Wunschliste hinzu.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <WishlistManager />
           </TabsContent>
         </Tabs>
       </div>
