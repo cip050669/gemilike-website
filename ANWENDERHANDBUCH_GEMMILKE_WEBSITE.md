@@ -1827,6 +1827,15 @@ Die Datenbank besteht aus **28 Haupt-Models** mit umfangreichen Relations:
     - `pleochroism` (optional)
     - `whitepoint` (optional, Standard: 'D65')
     - `kValue` (optional, Int)
+**Felder:**
+
+- `section` - Sektions-Identifier
+- `title` - Titel der Sektion
+- `content` - Markdown-Content
+- `image` - Bild-URL
+- `order` - Reihenfolge
+- `locale` - Sprache
+- `isActive` - Aktivierung
     - `maskingOptions` (optional, JSON)
     - `customPalette` (optional, string[])
     - `paletteComparisons` (optional, JSON)
@@ -2135,7 +2144,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
   - Explizite Suche nach Zertifikaten ("mit/ohne Zertifikat")
   - Explizite Suche nach Behandlung ("mit/ohne Behandlung")
   - Mehrsprachige Benutzeroberfläche (Deutsch/Englisch)
-  
+
 - **Internationalisierung:**
   - Shop-Seite vollständig übersetzt
   - Alle UI-Texte, Fehlermeldungen und Statusmeldungen mehrsprachig
@@ -3492,7 +3501,7 @@ Das Projekt verwendet mehrere automatisierte Security-Scans:
 **3. Dependabot**
 - **Konfiguration:** `.github/dependabot.yml`
 - **Zweck:** Automatische Updates für Dependencies
-- **Zeitplan:** 
+- **Zeitplan:**
   - npm: Wöchentlich (Montags um 9:00)
   - GitHub Actions: Monatlich
 - **Status:** ✅ Aktiv
