@@ -43,15 +43,15 @@ export default async function HomePage({
 
     const blogHeading =
       containerContent.find((item) => item.key === 'home.blog.heading')?.title ||
-      DEFAULT_CONTAINER_CONTENT['home.blog.heading'].title ||
+      DEFAULT_CONTAINER_CONTENT['home.blog.heading']?.title ||
       'GESCHICHTEN UM EDELSTEINE';
     const blogSubheading =
       containerContent.find((item) => item.key === 'home.blog.subheading')?.body ||
-      DEFAULT_CONTAINER_CONTENT['home.blog.subheading'].body ||
+      DEFAULT_CONTAINER_CONTENT['home.blog.subheading']?.body ||
       'Entdecken Sie die faszinierenden Geschichten und Mythen hinter unseren Edelsteinen';
     const newGemstonesDescription =
       containerContent.find((item) => item.key === 'home.newGemstones.description')?.body ||
-      DEFAULT_CONTAINER_CONTENT['home.newGemstones.description'].body ||
+      DEFAULT_CONTAINER_CONTENT['home.newGemstones.description']?.body ||
       'Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar.';
     const blogSettings = {
       heading: blogHeading,
@@ -63,7 +63,7 @@ export default async function HomePage({
     const shopGemstones = await loadShopGemstones().catch(() => []);
     const newGemstones = shopGemstones.filter((gem) => gem.isNew).slice(0, 12);
     const heroSettings = await loadHeroSettings().catch(() => ({
-      title: 'Einfach nur Gemilike',
+      title: 'Einfach nur GemILike',
       titleLine2: 'Heroes in Gems------',
       subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
       subtitleColor: '#F4F4FF',
@@ -80,7 +80,7 @@ export default async function HomePage({
       return bTime - aTime;
     })
     .map((blog) => {
-      const baseText = blog.excerpt?.trim() || stripMarkdown(blog.content);
+      const baseText = blog.excerpt?.trim() || (blog.content ? stripMarkdown(blog.content) : '');
       const excerpt =
         baseText.length > 220
           ? `${baseText.slice(0, 220).trimEnd()} …`
@@ -99,6 +99,7 @@ export default async function HomePage({
         excerpt,
       };
     });
+  const hasStories = stories.length > 0;
 
   return (
     <PublicLayout>
@@ -117,8 +118,8 @@ export default async function HomePage({
       {/* Container 1: Geschichten um Edelsteine */}
       <ScrollAnimated direction="fade" delay={0}>
         <section className="main-container">
-          <div className="story-card space-y-4 p-6 md:p-8">
-            <div className="space-y-4 text-center">
+          <div className="story-card space-y-4 p-6 md:p-8 text-center">
+            <div className="space-y-4">
               <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4">
                 <span className="gemilike-text-gradient">{blogSettings.heading}</span>
               </h2>
@@ -126,13 +127,31 @@ export default async function HomePage({
                 {blogSettings.subheading}
               </p>
             </div>
+            {!hasStories && (
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold gemilike-text-gradient">
+                  Noch keine Geschichten veröffentlicht
+                </h3>
+                <p className="text-gray-200 text-base leading-relaxed">
+                  Sobald Blog-Beiträge veröffentlicht sind, erscheinen sie hier als
+                  Inspiration rund um Edelsteine.
+                </p>
+                <Button
+                  variant="outline"
+                  className="mt-4 border-white/40 text-white hover:bg-gray-800/30/10"
+                  asChild
+                >
+                  <Link href={`/${locale}/blog`}>Zum Blog</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </section>
       </ScrollAnimated>
 
-      <ScrollAnimated direction="up" delay={100}>
-        <section className="main-container">
-        {stories.length > 0 ? (
+      {hasStories && (
+        <ScrollAnimated direction="up" delay={100}>
+          <section className="main-container">
           <div className="max-h-[620px] overflow-y-auto pr-3 scrollbar-thin">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[75px]">
               {stories.map((story) => (
@@ -192,26 +211,9 @@ export default async function HomePage({
               ))}
             </div>
           </div>
-        ) : (
-          <div className="story-card text-center">
-            <h3 className="text-2xl font-bold mb-4 gemilike-text-gradient">
-              Noch keine Geschichten veröffentlicht
-            </h3>
-            <p className="text-gray-200 text-base leading-relaxed">
-              Sobald Blog-Beiträge veröffentlicht sind, erscheinen sie hier als
-              Inspiration rund um Edelsteine.
-            </p>
-            <Button
-              variant="outline"
-              className="mt-6 border-white/40 text-white hover:bg-gray-800/30/10"
-              asChild
-            >
-              <Link href={`/${locale}/blog`}>Zum Blog</Link>
-            </Button>
-          </div>
-        )}
-        </section>
-      </ScrollAnimated>
+          </section>
+        </ScrollAnimated>
+      )}
 
       {/* Container 2: Neue Edelsteine */}
       <ScrollAnimated direction="up" delay={200}>

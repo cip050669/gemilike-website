@@ -22,7 +22,7 @@ interface HeroImageSettings {
 
 const INITIAL_SETTINGS: HeroImageSettings = {
   imageUrl: '/uploads/hero/hero-default.jpg',
-  title: 'Einfach nur Gemilike',
+  title: 'Einfach nur GemILike',
   titleLine2: 'Heroes in Gems',
   subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
   subtitleColor: '#F4F4FF',
@@ -57,9 +57,14 @@ export function HeroImageManager() {
             secondaryCtaText?: string;
             secondaryCtaLink?: string;
           };
+          // Korrigiere "Gemilike" zu "GemILike" wenn vorhanden
+          let correctedTitle = apiSettings.title ?? INITIAL_SETTINGS.title;
+          if (correctedTitle.includes('Gemilike') && !correctedTitle.includes('GemILike')) {
+            correctedTitle = correctedTitle.replace(/Gemilike/g, 'GemILike');
+          }
           return {
             imageUrl: apiSettings.backgroundImage ?? INITIAL_SETTINGS.imageUrl,
-            title: apiSettings.title ?? INITIAL_SETTINGS.title,
+            title: correctedTitle,
             titleLine2: apiSettings.titleLine2 ?? INITIAL_SETTINGS.titleLine2,
             subtitle: apiSettings.subtitle ?? INITIAL_SETTINGS.subtitle,
             subtitleColor: apiSettings.subtitleColor ?? INITIAL_SETTINGS.subtitleColor,
@@ -303,7 +308,7 @@ export function HeroImageManager() {
               id="title"
               value={settings.title}
               onChange={(e) => setSettings(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="Einfach nur Gemilike"
+              placeholder="Einfach nur GemILike"
             />
           </div>
 

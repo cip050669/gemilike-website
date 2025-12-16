@@ -37,6 +37,19 @@ const splitName = (name?: string | null) => {
 };
 
 const ensureCustomerForUser = async (userId: string, session: Session | null) => {
+  // First, verify that the user exists in the database
+  const userExists = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true },
+  });
+
+  if (!userExists) {
+    // In development the session can contain placeholder ids (e.g. env-admin).
+    // Skip customer creation but keep session-based cart/wishlist working.
+    console.warn(`User with id ${userId} does not exist in database. Skipping customer creation.`);
+    return null;
+  }
+
   const existing = await prisma.customer.findUnique({
     where: { userId },
   });
@@ -47,15 +60,24 @@ const ensureCustomerForUser = async (userId: string, session: Session | null) =>
 
   const nameParts = splitName(session?.user?.name);
 
-  return prisma.customer.create({
-    data: {
-      userId,
-      customerNumber: generateCustomerNumber(),
-      firstName: nameParts.firstName,
-      lastName: nameParts.lastName,
-      email: session?.user?.email ?? null,
-    },
-  });
+  try {
+    return await prisma.customer.create({
+      data: {
+        userId,
+        customerNumber: generateCustomerNumber(),
+        firstName: nameParts.firstName,
+        lastName: nameParts.lastName,
+        email: session?.user?.email ?? null,
+      },
+    });
+  } catch (error) {
+    // If there's a foreign key constraint error, log it and re-throw with a clearer message
+    if (error instanceof Error && error.message.includes('Foreign key constraint')) {
+      console.error(`Foreign key constraint error when creating customer for userId ${userId}:`, error);
+      throw new Error(`Cannot create customer: User with id ${userId} does not exist. Please log in again.`);
+    }
+    throw error;
+  }
 };
 
 export interface ShopIdentity {
@@ -86,8 +108,15 @@ export const resolveShopIdentity = async (): Promise<ShopIdentity> => {
   let customerId: string | null = null;
 
   if (userId) {
-    const customer = await ensureCustomerForUser(userId, session);
-    customerId = customer.id;
+    try {
+      const customer = await ensureCustomerForUser(userId, session);
+      customerId = customer?.id ?? null;
+    } catch (error) {
+      // Log the error but don't break the entire shop functionality
+      // The user can still use the shop with session-based cart/wishlist
+      console.error('Failed to ensure customer for user:', error);
+      // customerId remains null, which is acceptable for session-based operations
+    }
   }
 
   return {

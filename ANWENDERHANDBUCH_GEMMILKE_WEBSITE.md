@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.5.1  
+**Version:** 2.5.2  
 **Stand:** Dezember 2025  
-**Letzte Aktualisierung:** 13. Dezember 2025 - PostgreSQL-Konfiguration aktualisiert  
+**Letzte Aktualisierung:** 20. Dezember 2025 - Vektorsuche erweitert, Internationalisierung für Shop-Seite  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -410,16 +410,26 @@ module.exports = {
 - **Responsive:** Automatische Umstellung auf 2 Spalten bzw. 1 Spalte bei kleineren Breakpoints
 - **Sektionen:** Hero/Intro-Card -> Semantische Suche -> Grid + Load-More -> leere-State-Card
 
-#### Semantische Vektorsuche (seit 27.11.2025)
+#### Semantische Vektorsuche (seit 27.11.2025, erweitert 20.12.2025)
 
 - **Eingabe:** Freitextfeld ("Beschreibe Farbe, Herkunft, Zertifikat ...") + `Vektor-Suche`-Button
 - **Reset:** Separater Button blendet alle Edelsteine wieder ein und löscht die Suchphrase
 - **Heuristische Vorfilterung (Client):**
   - **Preisangaben:** Zahlen aus dem Text werden erkannt (z. B. "zwischen 2000 und 5000") und als Mindest-/Höchstpreis interpretiert
-  - **Zertifizierungs-Hinweise:** Schlüsselwörter wie "zertifiziert", "GIA", "ohne Zertifikat" filtern sofort passende Einträge
-  - **Keywords:** Tokenisierte Suche über Name, Kategorie, Herkunft, Farbe, Behandlung, Zertifikat
+  - **Zertifizierungs-Hinweise:** Schlüsselwörter wie "zertifiziert", "GIA", "ohne Zertifikat", "mit Zertifikat", "alle steine mit Zertifizierung" filtern sofort passende Einträge
+  - **Behandlungs-Hinweise:** Schlüsselwörter wie "mit Behandlung", "ohne Behandlung", "behandelt", "unbehandelt" filtern sofort passende Einträge
+  - **Keywords:** Tokenisierte Suche über alle Edelstein-Attribute:
+    - **Basis-Attribute:** Name, Kategorie, Herkunft, Farbe, Typ
+    - **Erweiterte Attribute:** Farbsättigung (mit Synonymen: vivid/lebhaft, intense/intensiv, etc.), Klarheit, Schliff, Schliffform, Behandlung, Seltenheit
+    - **Zertifizierung:** Zertifikats-Lab (GIA, IGI, etc.) und Zertifikatsstatus
+    - **Beschreibungen:** Volltext-Suche in Beschreibung und Kurzbeschreibung
+    - **Gewicht & Abmessungen:** Gewicht mit Einheit (z. B. "2.5 ct") und Abmessungen (z. B. "10x8x6")
+- **Synonym-Unterstützung:**
+  - **Farbsättigung:** "vivid" = "lebhaft", "kräftig"; "intense" = "intensiv", "stark"; "pale" = "blass", "hell"; etc.
+  - **Schliff:** "brillant" = "rund", "round"; "princess" = "quadratisch"; "emerald" = "rechteckig"; etc.
+  - **Seltenheit:** "gewöhnlich" = "common"; "selten" = "rare"; "außergewöhnlich" = "exceptional"; etc.
 - **Fallback:** Wenn keine heuristischen Treffer gefunden werden, erfolgt ein Request an `/api/shop/vector-search` (Semantische Vektorsuche auf dem Server)
-- **Statusmeldungen:** Treffer-Anzahl, Ladezustand und Fehlertexte ("Keine Edelsteine entsprechen dieser Beschreibung") werden direkt unter dem Formular angezeigt
+- **Statusmeldungen:** Treffer-Anzahl, Ladezustand und Fehlertexte werden direkt unter dem Formular angezeigt (mehrsprachig)
 - **Hinweis:** Alle bisherigen Dropdown-/Checkbox-Filter wurden entfernt; jede Filteranforderung läuft jetzt über die semantische Suche
 
 #### Pagination & Sichtbarkeit
@@ -2117,6 +2127,20 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 ### 7.3 E-Commerce-Funktionen
 
+**Shop-Suche und Filterung (Stand: 20.12.2025):**
+
+- **Semantische Vektorsuche:**
+  - Vollständige Integration aller Edelstein-Attribute in die Suche
+  - Synonym-Unterstützung für natürliche Sprache (z. B. "vivid" findet auch "lebhaft")
+  - Explizite Suche nach Zertifikaten ("mit/ohne Zertifikat")
+  - Explizite Suche nach Behandlung ("mit/ohne Behandlung")
+  - Mehrsprachige Benutzeroberfläche (Deutsch/Englisch)
+  
+- **Internationalisierung:**
+  - Shop-Seite vollständig übersetzt
+  - Alle UI-Texte, Fehlermeldungen und Statusmeldungen mehrsprachig
+  - Dynamische Locale-Erkennung über URL-Parameter (`/de/shop` oder `/en/shop`)
+
 #### Warenkorb
 
 - Session-basierter Warenkorb
@@ -2946,7 +2970,30 @@ Fehlerbehandlung:
 - Mehrsprachigkeit (de, en)
 - Locale-basierte Routen (`/[locale]/...`)
 - Übersetzungen in `messages/` Verzeichnis
+  - `messages/de.json` - Deutsche Übersetzungen
+  - `messages/en.json` - Englische Übersetzungen
 - Dynamische Locale-Erkennung
+
+**Vollständig übersetzte Bereiche (Stand: 20.12.2025):**
+
+- ✅ **Shop-Seite (`/shop`):**
+  - Titel und Untertitel
+  - Semantische Vektorsuche (Titel, Beschreibung, Platzhalter, Buttons, Statusmeldungen)
+  - Fehlermeldungen (keine Treffer, Preisbereich, Zertifikat, Behandlung)
+  - Lade-Status und Anzeige-Informationen
+- ✅ **Homepage:**
+  - Neue Edelsteine Karussell (Titel, Fehlermeldungen)
+- ✅ **Gemeinsame Komponenten:**
+  - Sortier-Optionen
+  - Filter-Komponenten
+  - GemstoneCard
+  - Wunschliste
+
+**Verwendung in Komponenten:**
+
+- `useTranslations('shop')` - Shop-spezifische Übersetzungen
+- `useTranslations('home')` - Homepage-spezifische Übersetzungen
+- `useTranslations('common')` - Gemeinsame Übersetzungen
 
 ---
 
@@ -4289,6 +4336,42 @@ Das Dokument enthält:
   - `SecondaryColorAnalysis` Interface erweitert um `lab` und `cieHue`
   - `enhancedColorExtraction.ts` mit Fallback-Mechanismus erweitert
 
+### Version 2.5.2 (20. Dezember 2025)
+
+- **Vektorsuche erweitert:**
+  - **Alle Edelstein-Attribute integriert:** Die Vektorsuche durchsucht jetzt alle Attribute aus der GemstoneCard:
+    - Farbsättigung (colorSaturation) mit Synonym-Unterstützung
+    - Klarheit (clarity)
+    - Schliff (cut) und Schliffform (cutForm) mit Synonym-Unterstützung
+    - Behandlung (treatment)
+    - Seltenheit (rarity) mit Synonym-Unterstützung
+    - Beschreibung (description) und Kurzbeschreibung (shortDescription)
+    - Typ (type)
+    - Gewicht mit Einheit (z. B. "2.5 ct")
+    - Abmessungen (z. B. "10x8x6")
+  - **Synonym-Unterstützung:**
+    - Farbsättigung: "vivid" = "lebhaft", "kräftig"; "intense" = "intensiv", "stark"; etc.
+    - Schliff: "brillant" = "rund", "round"; "princess" = "quadratisch"; etc.
+    - Seltenheit: "gewöhnlich" = "common"; "selten" = "rare"; etc.
+  - **Explizite Zertifikats-Suche:**
+    - "mit Zertifikat" / "mit Zertifizierung" / "alle steine mit Zertifizierung"
+    - "ohne Zertifikat" / "ohne Zertifizierung"
+    - Erkennt sowohl String- als auch Objekt-basierte Zertifikatsdaten
+  - **Explizite Behandlungs-Suche:**
+    - "mit Behandlung" / "mit treatment" / "behandelt"
+    - "ohne Behandlung" / "ohne treatment" / "unbehandelt" / "untreated"
+    - Erkennt sowohl String- als auch Objekt-basierte Behandlungsdaten
+- **Internationalisierung für Shop-Seite:**
+  - Alle Texte auf der Shop-Seite sind jetzt vollständig übersetzt (Deutsch/Englisch)
+  - Vektorsuche-UI komplett übersetzt (Titel, Beschreibung, Platzhalter, Buttons, Statusmeldungen)
+  - Fehlermeldungen mehrsprachig
+  - Neue Edelsteine Karussell auf der Homepage übersetzt
+  - Übersetzungsdateien erweitert: `messages/de.json` und `messages/en.json`
+- **Technische Verbesserungen:**
+  - `ShopShowcase` Komponente verwendet jetzt `useTranslations('shop')`
+  - `NewGemstonesCarousel` Komponente verwendet jetzt `useTranslations('home')`
+  - Alle hardcodierten deutschen Texte durch Übersetzungsschlüssel ersetzt
+
 ### Version 2.1.0 (Dezember 2025)
 
 - **Shop-Seite Verbesserungen:**
@@ -4356,6 +4439,7 @@ Port-Mapping hinzugefügt: In deploy/strato-compose.yml wurde Port 5433 nach au�
 PostgreSQL-Version angepasst: In docker-compose.yml von Version 17 auf 16 geändert (kompatibel mit vorhandenen Daten).
 Datenbank neu initialisiert: Das Volume wurde neu erstellt, damit der Benutzer korrekt angelegt wird.
 Aktueller Status:
+
 PostgreSQL läuft auf Port 5433
 Verbindung funktioniert: postgresql://gemilike:change-me-in-production@localhost:5433/gemilike
 Container ist gesund und erreichbar

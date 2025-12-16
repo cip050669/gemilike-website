@@ -82,6 +82,23 @@ export default function AdminPage() {
               </form>
             </div>
           </div>
+
+          <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-4">Wissenswertes</h3>
+            <p className="text-gray-300 mb-4">Verwalten Sie Wissensartikel rund um Edelsteine</p>
+            <div className="flex gap-2">
+              <form action="/de/admin/wissenswertes/new" method="get">
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                  Neuer Artikel
+                </button>
+              </form>
+              <form action="/de/admin/wissenswertes" method="get">
+                <button type="submit" className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">
+                  Alle anzeigen
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
 
         {/* Recent Activity */}

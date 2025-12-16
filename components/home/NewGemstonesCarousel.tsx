@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { ShopGemstone } from '@/lib/services/shop/types';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { WishlistButton } from '@/components/cart/WishlistButton';
@@ -46,18 +47,15 @@ export function NewGemstonesCarousel({
   locale,
   description,
 }: NewGemstonesCarouselProps) {
+  const t = useTranslations('home');
   const items = useMemo(() => gemstones ?? [], [gemstones]);
-
-  if (items.length === 0) {
-    return null;
-  }
 
   return (
     <section className="main-container">
       <div className="story-card space-y-6">
         <div className="space-y-4 text-center">
           <h2 className="text-3xl md:text-4xl font-impact font-weight-impact">
-            <span className="gemilike-text-gradient">Neue Edelsteine</span>
+            <span className="gemilike-text-gradient">{t('newGemstonesTitle')}</span>
           </h2>
           {description && (
             <p className="mx-auto max-w-3xl text-base md:text-lg text-white/80">
@@ -66,11 +64,18 @@ export function NewGemstonesCarousel({
           )}
         </div>
 
-        <div
-          className="flex gap-[6px] overflow-x-auto px-[6px]"
-          style={{ scrollSnapType: 'x mandatory', paddingBottom: '10px' }}
-        >
-          {items.map((gemstone) => {
+        {items.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-white/60 text-base">
+              {t('noNewGemstones')}
+            </p>
+          </div>
+        ) : (
+          <div
+            className="flex gap-[6px] overflow-x-auto px-[6px]"
+            style={{ scrollSnapType: 'x mandatory', paddingBottom: '10px' }}
+          >
+            {items.map((gemstone) => {
             const priceLabel = formatPrice(gemstone.price, gemstone.currency);
             const weightLabel = formatWeight(gemstone);
             const cartItem = toCartItem(gemstone);
@@ -135,7 +140,8 @@ export function NewGemstonesCarousel({
               </article>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

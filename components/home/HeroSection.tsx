@@ -10,7 +10,7 @@ interface HeroSectionProps {
 }
 
 const defaultHeroImage = '/uploads/hero/hero-default.jpg';
-const defaultTitle = 'Einfach nur Gemilike';
+const defaultTitle = 'Einfach nur GemILike';
 const defaultSubtitle = 'Ihr Spezialist für rohe und geschliffene Edelsteine.';
 const defaultPrimaryCtaLabel = 'Sortiment entdecken';
 const defaultPrimaryCtaLink = '/shop';
@@ -25,9 +25,10 @@ const renderGemLikeTitle = (title: string) => {
   };
 
   const lowercaseTitle = title.toLowerCase();
-  const targetIndex = lowercaseTitle.indexOf('gemilike');
+  const gemIndex = lowercaseTitle.indexOf('gem');
 
-  if (targetIndex === -1) {
+  // Wenn "gem" nicht gefunden wird, zeige den Titel normal an
+  if (gemIndex === -1) {
     return (
       <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
         {title}
@@ -35,20 +36,11 @@ const renderGemLikeTitle = (title: string) => {
     );
   }
 
-  const prefix = title.slice(0, targetIndex);
-  const highlightedWord = title.slice(targetIndex, targetIndex + 'gemilike'.length);
-  const suffix = title.slice(targetIndex + 'gemilike'.length);
-
-  const gemWordLower = highlightedWord.toLowerCase();
-  const firstIIndex = gemWordLower.indexOf('i');
-
-  if (firstIIndex === -1) {
-    return <span className="gradient-text animate-glow">{title}</span>;
-  }
-
-  const beforeI = highlightedWord.slice(0, firstIIndex);
-  const iLetter = highlightedWord[firstIIndex];
-  const afterI = highlightedWord.slice(firstIIndex + 1);
+  // Teile den Titel: "Einfach nur " + "Gem" + "I" + "Like"
+  const prefix = title.slice(0, gemIndex); // "Einfach nur "
+  const gemPart = title.slice(gemIndex, gemIndex + 3); // "Gem"
+  const iLetter = title[gemIndex + 3]; // Das "I" nach "Gem"
+  const afterI = title.slice(gemIndex + 4); // "Like"
 
   return (
     <>
@@ -57,22 +49,24 @@ const renderGemLikeTitle = (title: string) => {
           {prefix}
         </span>
       )}
-      {beforeI && (
-        <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
-          {beforeI}
+      <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
+        {gemPart}
+      </span>
+      {iLetter && iLetter.toLowerCase() === 'i' && (
+        <span 
+          className="animate-glow drop-shadow-2xl" 
+          style={{ 
+            color: '#FF7B7B',
+            fontWeight: 'bold',
+            display: 'inline-block'
+          }}
+        >
+          {iLetter}
         </span>
       )}
-      <span className="animate-glow drop-shadow-2xl" style={{ color: '#FF7B7B' }}>
-        {iLetter}
-      </span>
       {afterI && (
         <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
           {afterI}
-        </span>
-      )}
-      {suffix && (
-        <span className="bg-clip-text text-transparent animate-glow" style={gemGradientStyle}>
-          {suffix}
         </span>
       )}
     </>

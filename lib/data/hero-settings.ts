@@ -45,7 +45,7 @@ const fallbackHeroImage = (): string => {
 };
 
 const DEFAULT_SETTINGS: HeroSettingsData = {
-  title: 'Einfach nur Gemilike',
+  title: 'Einfach nur GemILike',
   titleLine2: 'Heroes in Gems------',
   subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
   subtitleColor: '#F4F4FF',
@@ -80,8 +80,14 @@ const normalizeSettings = (settings?: Partial<HeroSettingsData>): HeroSettingsDa
         ? backgroundImageTrimmed
         : fallbackHeroImage();
 
+  // Korrigiere "Gemilike" zu "GemILike" im Titel
+  let normalizedTitle = normalizeText(settings?.title, DEFAULT_SETTINGS.title);
+  if (normalizedTitle.includes('Gemilike') && !normalizedTitle.includes('GemILike')) {
+    normalizedTitle = normalizedTitle.replace(/Gemilike/g, 'GemILike');
+  }
+
   return {
-    title: normalizeText(settings?.title, DEFAULT_SETTINGS.title),
+    title: normalizedTitle,
     titleLine2: normalizeOptionalText(settings?.titleLine2, DEFAULT_SETTINGS.titleLine2),
     subtitle: normalizeText(settings?.subtitle, DEFAULT_SETTINGS.subtitle),
     subtitleColor: normalizeText(settings?.subtitleColor, DEFAULT_SETTINGS.subtitleColor),

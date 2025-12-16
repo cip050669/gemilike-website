@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 const defaultSettings = {
-  title: 'Einfach nur Gemilike',
+  title: 'Einfach nur GemILike',
   subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
   backgroundImage: '/uploads/hero/hero-default.jpg',
   ctaText: 'Sortiment entdecken',

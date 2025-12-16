@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon, LogInIcon } from 'lucide-react';
+import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon, LogInIcon, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Cart } from '@/components/cart/Cart';
@@ -167,9 +167,9 @@ export function Header() {
             <Image
               src="/logo.png"
               alt="Gemilike - Heroes in Gems"
-              width={140}
-              height={64}
-              className="h-12 w-auto sm:h-14"
+              width={190}
+              height={114}
+              className="h-[98px] w-auto sm:h-[106px]"
               style={{ width: 'auto' }}
               priority
             />
@@ -202,6 +202,23 @@ export function Header() {
 
         {/* Action Buttons - Desktop */}
         <div className="hidden md:flex items-center gap-2 lg:gap-3 flex-shrink-0">
+          {/* Language Switcher */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              const currentLocale = localePrefix.replace('/', '') || 'de';
+              const newLocale = currentLocale === 'de' ? 'en' : 'de';
+              const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
+              router.push(newPath);
+            }}
+            className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
+            aria-label="Sprache wechseln"
+            title={localePrefix === '/de' || !localePrefix ? 'Switch to English' : 'Zu Deutsch wechseln'}
+          >
+            <Languages className="h-4 w-4" />
+          </Button>
+          
           <DarkModeToggle />
           
           {headerSettings.wishlistEnabled && (
@@ -255,6 +272,23 @@ export function Header() {
 
         {/* Mobile Menu */}
         <div className="flex items-center gap-2 md:hidden">
+          {/* Language Switcher - Mobile */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              const currentLocale = localePrefix.replace('/', '') || 'de';
+              const newLocale = currentLocale === 'de' ? 'en' : 'de';
+              const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
+              router.push(newPath);
+            }}
+            className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
+            aria-label="Sprache wechseln"
+            title={localePrefix === '/de' || !localePrefix ? 'Switch to English' : 'Zu Deutsch wechseln'}
+          >
+            <Languages className="h-4 w-4" />
+          </Button>
+          
           {headerSettings.wishlistEnabled && (
             <Button 
               variant="ghost" 

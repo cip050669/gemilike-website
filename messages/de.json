@@ -221,6 +221,7 @@
     "storiesDescription": "Entdecken Sie die faszinierenden Geschichten hinter unseren Edelsteinen",
     "newGemstonesTitle": "Neue Edelsteine",
     "newGemstonesDesc": "Entdecken Sie unsere neuesten Edelstein-Kollektionen",
+    "noNewGemstones": "Derzeit sind keine neuen Edelsteine verfügbar. Schauen Sie später wieder vorbei!",
     "loadingGemstones": "Lade Edelsteine...",
     "of": "von",
     "noGemstones": "Keine Edelsteine verfügbar",
@@ -230,6 +231,8 @@
     "priceOnRequest": "Preis auf Anfrage"
   },
   "shop": {
+    "title": "Unsere Auswahl an Edelsteinen",
+    "subtitle": "Entdecken Sie neue Funde, einzigartige Einzelstücke und zertifizierte Qualitäten. Jede Kachel zeigt Gewicht, Herkunft, Preis und Status auf einen Blick.",
     "viewDetails": "Details anzeigen",
     "wishlist": "Wunschliste",
     "wishlistCount": "{count, plural, one {# Artikel auf deiner Wunschliste} other {# Artikel auf deiner Wunschliste}}",
@@ -237,7 +240,30 @@
     "wishlistEmptyDescription": "Speichere deine Lieblingsstücke mit dem Herzsymbol, um sie hier schnell wiederzufinden.",
     "goToShop": "Zum Shop",
     "backToHome": "Zur Startseite",
-    "clearWishlist": "Wunschliste leeren"
+    "clearWishlist": "Wunschliste leeren",
+    "loadMore": "Weitere Edelsteine laden",
+    "showingCount": "Zeigt {shown} von {total} Edelsteinen",
+    "showingAll": "Alle {total} Edelsteine werden angezeigt",
+    "noResults": "Keine Edelsteine gefunden. Passen Sie die Filter oder die Suche an.",
+    "vectorSearch": {
+      "title": "Semantische Vektorsuche",
+      "description": "Beschreibe in natürlicher Sprache, was Sie suchen, z. B. \"intensiv grüner Smaragd aus Kolumbien\".",
+      "label": "Semantische Vektorsuche",
+      "placeholder": "Beschreibe Farbe, Herkunft, Zertifikat …",
+      "button": "Vektor-Suche",
+      "searching": "Suche …",
+      "reset": "Zurücksetzen",
+      "hint": "Beschreibe natürliche Sprache, z. B. \"intensiv grüner Smaragd aus Kolumbien\", um ähnliche Stücke zu finden.",
+      "matches": "{count} semantische Treffer für \"{query}\" – alle anderen Edelsteine werden ausgeblendet.",
+      "noPriceMatches": "Keine Edelsteine entsprechen diesem Preisbereich.",
+      "noUncertifiedMatches": "Keine Edelsteine ohne Zertifikat gefunden.",
+      "noCertifiedMatches": "Keine Edelsteine mit Zertifikat gefunden.",
+      "noTreatedMatches": "Keine Edelsteine mit Behandlung gefunden.",
+      "noUntreatedMatches": "Keine unbehandelten Edelsteine gefunden.",
+      "noMatches": "Keine Edelsteine entsprechen dieser Beschreibung.",
+      "error": "Die Vektorsuche konnte nicht ausgeführt werden.",
+      "unknownError": "Unbekannter Fehler bei der Vektorsuche. Bitte versuche es erneut."
+    }
   },
   "blog": {
     "title": "Blog",
