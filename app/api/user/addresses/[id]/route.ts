@@ -106,10 +106,24 @@ export async function PUT(
       );
     }
 
+    // Convert type to uppercase enum value
+    let addressType: 'BILLING' | 'SHIPPING' | 'OTHER' | null = null;
+    if (type) {
+      const upperType = type.toUpperCase();
+      if (upperType === 'BILLING' || upperType === 'SHIPPING' || upperType === 'OTHER') {
+        addressType = upperType as 'BILLING' | 'SHIPPING' | 'OTHER';
+      } else {
+        // Default to SHIPPING if invalid type provided
+        addressType = 'SHIPPING';
+      }
+    } else {
+      addressType = existingAddress.type;
+    }
+
     // If this is set as default, unset other defaults of the same type
-    if (isDefault) {
+    if (isDefault && addressType) {
       await prisma.address.updateMany({
-        where: { customerId: customer.id, type, id: { not: id } },
+        where: { customerId: customer.id, type: addressType, id: { not: id } },
         data: {
           isDefault: false
         }
@@ -119,17 +133,17 @@ export async function PUT(
     const address = await prisma.address.update({
       where: { id },
       data: {
-        type,
-        firstName,
-        lastName,
-        company,
-        street: address1,
-        street2: address2,
-        city,
-        state,
-        postalCode,
-        country,
-        phone,
+        type: addressType,
+        firstName: firstName?.trim() || null,
+        lastName: lastName?.trim() || null,
+        company: company?.trim() || null,
+        street: address1?.trim() || null,
+        street2: address2?.trim() || null,
+        city: city?.trim() || null,
+        state: state?.trim() || null,
+        postalCode: postalCode?.trim() || null,
+        country: country?.trim() || 'DE',
+        phone: phone?.trim() || null,
         isDefault: Boolean(isDefault)
       }
     });

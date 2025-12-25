@@ -33,6 +33,7 @@ const FALLBACK_NAV: NavigationItem[] = [
 export function Header() {
   const [isMounted, setIsMounted] = useState(false);
   const [navItems, setNavItems] = useState<NavigationItem[]>(FALLBACK_NAV);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const [headerSettings, setHeaderSettings] = useState({
     cartEnabled: true,
@@ -201,184 +202,215 @@ export function Header() {
         )}
 
         {/* Action Buttons - Desktop */}
-        <div className="hidden md:flex items-center gap-2 lg:gap-3 flex-shrink-0">
-          {/* Language Switcher */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              const currentLocale = localePrefix.replace('/', '') || 'de';
-              const newLocale = currentLocale === 'de' ? 'en' : 'de';
-              const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
-              router.push(newPath);
-            }}
-            className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
-            aria-label="Sprache wechseln"
-            title={localePrefix === '/de' || !localePrefix ? 'Switch to English' : 'Zu Deutsch wechseln'}
-          >
-            <Languages className="h-4 w-4" />
-          </Button>
-          
-          <DarkModeToggle />
-          
-          {headerSettings.wishlistEnabled && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => router.push(buildHref('/wishlist'))}
+        <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0">
+          <div className="flex items-center gap-2 lg:gap-3">
+            {/* Language Switcher */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                const currentLocale = localePrefix.replace('/', '') || 'de';
+                const newLocale = currentLocale === 'de' ? 'en' : 'de';
+                const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
+                router.push(newPath);
+              }}
               className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
-              aria-label={`Wunschliste${isMounted && wishlistCount > 0 ? `, ${wishlistCount} Artikel` : ''}`}
+              aria-label="Sprache wechseln"
+              title={localePrefix === '/de' || !localePrefix ? 'Sprache wechseln: Zu Englisch' : 'Sprache wechseln: Zu Deutsch'}
             >
-              <HeartIcon className="h-4 w-4" />
-              {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                  {wishlistCount}
-                </span>
-              )}
+              <Languages className="h-4 w-4" />
             </Button>
-          )}
-          
-          {headerSettings.cartEnabled && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleCart}
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
-              aria-label={`Warenkorb${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel` : ''}`}
-            >
-              <ShoppingCartIcon className="h-4 w-4" />
-              {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                  {getTotalItems()}
-                </span>
-              )}
-            </Button>
-          )}
-          
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleUserClick}
-            className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
-            aria-label={status === 'authenticated' ? 'Profil öffnen' : 'Anmelden'}
-          >
-            {status === 'authenticated' ? (
-              <UserIcon className="h-4 w-4" />
-            ) : (
-              <LogInIcon className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-
-        {/* Mobile Menu */}
-        <div className="flex items-center gap-2 md:hidden">
-          {/* Language Switcher - Mobile */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              const currentLocale = localePrefix.replace('/', '') || 'de';
-              const newLocale = currentLocale === 'de' ? 'en' : 'de';
-              const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
-              router.push(newPath);
-            }}
-            className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
-            aria-label="Sprache wechseln"
-            title={localePrefix === '/de' || !localePrefix ? 'Switch to English' : 'Zu Deutsch wechseln'}
-          >
-            <Languages className="h-4 w-4" />
-          </Button>
-          
-          {headerSettings.wishlistEnabled && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => router.push(buildHref('/wishlist'))}
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
-              aria-label="Wunschliste"
-            >
-              <HeartIcon className="h-4 w-4" />
-              {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                  {wishlistCount}
-                </span>
-              )}
-            </Button>
-          )}
-          
-          {headerSettings.cartEnabled && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleCart}
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
-              aria-label="Warenkorb"
-            >
-              <ShoppingCartIcon className="h-4 w-4" />
-              {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                  {getTotalItems()}
-                </span>
-              )}
-            </Button>
-          )}
-          
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleUserClick}
-            className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
-            aria-label={status === 'authenticated' ? 'Profil' : 'Anmelden'}
-          >
-            {status === 'authenticated' ? (
-              <UserIcon className="h-4 w-4" />
-            ) : (
-              <LogInIcon className="h-4 w-4" />
-            )}
-          </Button>
-          
-          <Sheet>
-            <SheetTrigger asChild>
+            
+            <DarkModeToggle />
+            
+            {headerSettings.wishlistEnabled && (
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
-                aria-label="Navigation öffnen"
-                type="button"
+                onClick={() => router.push(buildHref('/wishlist'))}
+                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all relative"
+                aria-label={`Wunschliste${isMounted && wishlistCount > 0 ? `, ${wishlistCount} Artikel` : ''}`}
+                title={isMounted && wishlistCount > 0 
+                  ? `Wunschliste öffnen (${wishlistCount} ${wishlistCount === 1 ? 'Artikel' : 'Artikel'})` 
+                  : 'Wunschliste öffnen - Gespeicherte Edelsteine anzeigen'}
               >
-                <MenuIcon className="h-5 w-5" />
+                <HeartIcon className="h-4 w-4" />
+                {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                    {wishlistCount}
+                  </span>
+                )}
               </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <SheetTitle className="text-xl font-bold mb-6">Navigation</SheetTitle>
-              <nav className="flex flex-col gap-2" aria-label="Mobile Navigation">
-                {navItems.map(({ href, label, id }) => {
-                  const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
-                  return (
-                    <Link
-                      key={id}
-                      href={buildHref(href)}
-                      onClick={() => {
-                        // Close sheet when link is clicked
-                        const sheetClose = document.querySelector('[data-state="open"]');
-                        if (sheetClose) {
-                          (sheetClose as HTMLElement).click();
-                        }
-                      }}
-                      className={cn(
-                        'px-4 py-3 rounded-lg transition-colors',
-                        isActive 
-                          ? 'bg-primary/20 text-primary font-semibold' 
-                          : 'hover:bg-gray-800/50 text-gray-200'
-                      )}
-                    >
-                      {label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </SheetContent>
-          </Sheet>
+            )}
+            
+            {headerSettings.cartEnabled && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleCart}
+                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all relative"
+                aria-label={`Warenkorb${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel` : ''}`}
+                title={isMounted && getTotalItems() > 0 
+                  ? `Warenkorb öffnen (${getTotalItems()} ${getTotalItems() === 1 ? 'Artikel' : 'Artikel'})` 
+                  : 'Warenkorb öffnen - Ihre ausgewählten Edelsteine anzeigen'}
+              >
+                <ShoppingCartIcon className="h-4 w-4" />
+                {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </Button>
+            )}
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleUserClick}
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
+              aria-label={status === 'authenticated' ? 'Profil öffnen' : 'Anmelden'}
+              title={status === 'authenticated' 
+                ? 'Profil öffnen - Ihre Kontoinformationen und Bestellungen anzeigen' 
+                : 'Anmelden - Melden Sie sich an, um auf Ihr Konto zuzugreifen'}
+            >
+              {status === 'authenticated' ? (
+                <UserIcon className="h-4 w-4" />
+              ) : (
+                <LogInIcon className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {/* Welcome Message - Desktop */}
+          {status === 'authenticated' && session?.user?.name && (
+            <div className="text-xs text-white/90 font-medium px-1">
+              Willkommen {session.user.name}
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Menu */}
+        <div className="flex flex-col items-end gap-1 md:hidden">
+          <div className="flex items-center gap-2">
+            {/* Language Switcher - Mobile */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                const currentLocale = localePrefix.replace('/', '') || 'de';
+                const newLocale = currentLocale === 'de' ? 'en' : 'de';
+                const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
+                router.push(newPath);
+              }}
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
+              aria-label="Sprache wechseln"
+              title={localePrefix === '/de' || !localePrefix ? 'Sprache wechseln: Zu Englisch' : 'Sprache wechseln: Zu Deutsch'}
+            >
+              <Languages className="h-4 w-4" />
+            </Button>
+            
+            {headerSettings.wishlistEnabled && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => router.push(buildHref('/wishlist'))}
+                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white relative"
+                aria-label="Wunschliste"
+                title={isMounted && wishlistCount > 0 
+                  ? `Wunschliste öffnen (${wishlistCount} ${wishlistCount === 1 ? 'Artikel' : 'Artikel'})` 
+                  : 'Wunschliste öffnen - Gespeicherte Edelsteine anzeigen'}
+              >
+                <HeartIcon className="h-4 w-4" />
+                {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Button>
+            )}
+            
+            {headerSettings.cartEnabled && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleCart}
+                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white relative"
+                aria-label="Warenkorb"
+                title={isMounted && getTotalItems() > 0 
+                  ? `Warenkorb öffnen (${getTotalItems()} ${getTotalItems() === 1 ? 'Artikel' : 'Artikel'})` 
+                  : 'Warenkorb öffnen - Ihre ausgewählten Edelsteine anzeigen'}
+              >
+                <ShoppingCartIcon className="h-4 w-4" />
+                {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </Button>
+            )}
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleUserClick}
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
+              aria-label={status === 'authenticated' ? 'Profil' : 'Anmelden'}
+              title={status === 'authenticated' 
+                ? 'Profil öffnen - Ihre Kontoinformationen und Bestellungen anzeigen' 
+                : 'Anmelden - Melden Sie sich an, um auf Ihr Konto zuzugreifen'}
+            >
+              {status === 'authenticated' ? (
+                <UserIcon className="h-4 w-4" />
+              ) : (
+                <LogInIcon className="h-4 w-4" />
+              )}
+            </Button>
+            
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
+                  aria-label="Navigation öffnen"
+                  title="Menü öffnen - Zeigt die Navigation und alle Seiten an"
+                  type="button"
+                >
+                  <MenuIcon className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] z-[10000] bg-gray-900 text-white">
+                <SheetTitle className="text-xl font-bold mb-6 text-white">Navigation</SheetTitle>
+                <nav className="flex flex-col gap-2" aria-label="Mobile Navigation">
+                  {navItems.map(({ href, label, id }) => {
+                    const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
+                    return (
+                      <Link
+                        key={id}
+                        href={buildHref(href)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                        }}
+                        className={cn(
+                          'px-4 py-3 rounded-lg transition-colors',
+                          isActive 
+                            ? 'bg-primary/20 text-primary font-semibold' 
+                            : 'hover:bg-gray-800/50 text-gray-200'
+                        )}
+                      >
+                        {label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+          {/* Welcome Message - Mobile */}
+          {status === 'authenticated' && session?.user?.name && (
+            <div className="text-xs text-white/90 font-medium px-1">
+              Willkommen {session.user.name}
+            </div>
+          )}
         </div>
       </div>
       

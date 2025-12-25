@@ -12,6 +12,8 @@ export type GemstoneFormValues = {
   cutForm: string;
   rarity: string;
   origin: string;
+  originType?: string; // Entstehung: natürlich, synthetisch, Imitation
+  quality?: string; // Qualität: sehr gut, gut, zufriedenstellend, ausreichend
   price: string;
   weight: string;
   dimensions: {
@@ -44,98 +46,26 @@ type OptionItem = {
   group?: string;
 };
 
-const GEMSTONE_TYPE_OPTIONS: OptionItem[] = [
-  'Diamant',
-  'Smaragd',
-  'Rubin',
-  'Saphir',
-  'Aquamarin',
-  'Tansanit',
-  'Turmalin',
-  'Opal',
-  'Amethyst',
-  'Topas',
-  'Morganit',
-  'Spinell',
-  'Zirkon',
-  'Peridot',
-  'Alexandrit',
-  'Granat',
-  'Kunzit',
-  'Mondstein',
-].map((value) => ({ value }));
+import { 
+  GEMSTONE_CATEGORIES, 
+  CUT_STYLE_OPTIONS as CUT_STYLES, 
+  CUT_FORM_OPTIONS as CUT_FORMS,
+  UN_COUNTRIES,
+  GEMSTONE_COLORS,
+  CLARITY_OPTIONS as CLARITY_OPTS,
+  QUALITY_OPTIONS,
+  ORIGIN_TYPE_OPTIONS,
+} from '@/lib/constants/gemstone-options';
 
-const CUT_STYLE_OPTIONS: OptionItem[] = [
-  'Brillant',
-  'Princess',
-  'Emerald',
-  'Oval',
-  'Radiant',
-  'Asscher',
-  'Marquise',
-  'Herz',
-  'Tropfen',
-  'Baguette',
-  'Cushion',
-  'Trillion',
-].map((value) => ({ value }));
+const GEMSTONE_TYPE_OPTIONS: OptionItem[] = GEMSTONE_CATEGORIES.map((value) => ({ value }));
 
-const CUT_FORM_OPTIONS: OptionItem[] = [
-  'Rund',
-  'Oval',
-  'Kissen',
-  'Herz',
-  'Tropfen',
-  'Marquise',
-  'Princess',
-  'Brillant',
-  'Smaragd',
-  'Baguette',
-  'Asscher',
-  'Trillion',
-].map((value) => ({ value }));
+const CUT_STYLE_OPTIONS: OptionItem[] = CUT_STYLES.map((value) => ({ value }));
 
-const ORIGIN_OPTIONS: OptionItem[] = [
-  'Kolumbien',
-  'Myanmar',
-  'Sri Lanka',
-  'Thailand',
-  'Indien',
-  'Tansania',
-  'Sambia',
-  'Brasilien',
-  'Südafrika',
-  'Madagaskar',
-  'Australien',
-  'Pakistan',
-  'Afghanistan',
-  'USA',
-  'Kanada',
-  'China',
-  'Russland',
-  'Äthiopien',
-  'Kenia',
-  'Mosambik',
-].map((value) => ({ value }));
+const CUT_FORM_OPTIONS: OptionItem[] = CUT_FORMS.map((value) => ({ value }));
 
-const COLOR_OPTIONS: OptionItem[] = [
-  'Farblos',
-  'Weiß',
-  'Gelb',
-  'Champagner',
-  'Orange',
-  'Rot',
-  'Pink',
-  'Violett',
-  'Blau',
-  'Türkis',
-  'Grün',
-  'Olivgrün',
-  'Teal',
-  'Braun',
-  'Grau',
-  'Schwarz',
-].map((value) => ({ value }));
+const ORIGIN_OPTIONS: OptionItem[] = UN_COUNTRIES.map((value) => ({ value }));
+
+const COLOR_OPTIONS: OptionItem[] = GEMSTONE_COLORS.map((value) => ({ value }));
 
 const SATURATION_OPTIONS: OptionItem[] = [
   { value: 'Pale', label: 'Pale (sehr hell)' },
@@ -147,20 +77,7 @@ const SATURATION_OPTIONS: OptionItem[] = [
   { value: 'Rich', label: 'Rich (satt)' },
 ];
 
-const CLARITY_OPTIONS: OptionItem[] = [
-  { value: 'FL', label: 'FL - Flawless' },
-  { value: 'IF', label: 'IF - Internally Flawless' },
-  { value: 'VVS1', label: 'VVS1 - Very Very Slightly Included 1' },
-  { value: 'VVS2', label: 'VVS2 - Very Very Slightly Included 2' },
-  { value: 'VS1', label: 'VS1 - Very Slightly Included 1' },
-  { value: 'VS2', label: 'VS2 - Very Slightly Included 2' },
-  { value: 'SI1', label: 'SI1 - Slightly Included 1' },
-  { value: 'SI2', label: 'SI2 - Slightly Included 2' },
-  { value: 'SI3', label: 'SI3 - Slightly Included 3' },
-  { value: 'I1', label: 'I1 - Included 1' },
-  { value: 'I2', label: 'I2 - Included 2' },
-  { value: 'I3', label: 'I3 - Included 3' },
-];
+const CLARITY_OPTIONS: OptionItem[] = CLARITY_OPTS;
 
 const TREATMENT_OPTIONS: OptionItem[] = [
   'Keine Behandlung',
@@ -205,6 +122,8 @@ const EMPTY_FORM: GemstoneFormValues = {
   cutForm: '',
   rarity: '',
   origin: '',
+  originType: '',
+  quality: '',
   price: '',
   weight: '',
   dimensions: {
@@ -486,10 +405,28 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                 </div>
               </div>
 
-              {/* Schliff */}
+              {/* Qualität */}
+              <div className="flex flex-col">
+                <label htmlFor="quality" className="block text-sm font-medium text-gray-200 mb-2">
+                  Qualität
+                </label>
+                <select
+                  id="quality"
+                  value={formValues.quality || ''}
+                  onChange={(e) => handleChange('quality', e.target.value)}
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                >
+                  <option value="">Qualität wählen</option>
+                  {QUALITY_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Schliffart */}
               <div className="flex flex-col">
                 <label htmlFor="cut" className="block text-sm font-medium text-gray-200 mb-2">
-                  Schliff
+                  Schliffart
                 </label>
                 <select
                   id="cut"
@@ -497,7 +434,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   onChange={(e) => handleChange('cut', e.target.value)}
                   className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                 >
-                  <option value="">Schliff wählen</option>
+                  <option value="">Schliffart wählen</option>
                   {CUT_STYLE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.value}</option>
                   ))}
@@ -572,6 +509,24 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   <option value="">Herkunft wählen</option>
                   {ORIGIN_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.value}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Entstehung */}
+              <div className="flex flex-col">
+                <label htmlFor="originType" className="block text-sm font-medium text-gray-200 mb-2">
+                  Entstehung
+                </label>
+                <select
+                  id="originType"
+                  value={formValues.originType || ''}
+                  onChange={(e) => handleChange('originType', e.target.value)}
+                  className="w-1/4 px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
+                >
+                  <option value="">Entstehung wählen</option>
+                  {ORIGIN_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
                   ))}
                 </select>
               </div>

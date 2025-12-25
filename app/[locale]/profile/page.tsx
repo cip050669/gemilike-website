@@ -22,7 +22,7 @@ import {
 
 interface Address {
   id: string;
-  type: 'billing' | 'shipping';
+  type: 'billing' | 'shipping' | 'BILLING' | 'SHIPPING' | 'OTHER' | null;
   firstName: string;
   lastName: string;
   company?: string;
@@ -63,6 +63,8 @@ export default function ProfilePage() {
     marketingOptIn: false,
   });
   const [savingProfile, setSavingProfile] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [addressError, setAddressError] = useState<string | null>(null);
   const [newAddress, setNewAddress] = useState<Partial<Address>>({
     type: 'shipping',
     country: 'Deutschland'
@@ -161,28 +163,151 @@ export default function ProfilePage() {
   };
 
   const handleSaveAddress = async (address: Partial<Address>) => {
+    setSavingAddress(true);
+    setAddressError(null);
+    
+    // Validation
+    if (!address.firstName?.trim() || !address.lastName?.trim() || !address.address1?.trim() || !address.city?.trim() || !address.postalCode?.trim() || !address.country?.trim()) {
+      setAddressError('Bitte füllen Sie alle Pflichtfelder aus (Vorname, Nachname, Straße, Stadt, PLZ, Land).');
+      setSavingAddress(false);
+      return;
+    }
+    
     try {
+      // Prepare address data for API
+      const addressData = {
+        type: address.type || 'shipping',
+        firstName: address.firstName.trim(),
+        lastName: address.lastName.trim(),
+        company: address.company?.trim() || undefined,
+        address1: address.address1.trim(),
+        address2: address.address2?.trim() || undefined,
+        city: address.city.trim(),
+        state: address.state?.trim() || undefined,
+        postalCode: address.postalCode.trim(),
+        country: address.country.trim(),
+        phone: address.phone?.trim() || undefined,
+        isDefault: address.isDefault || false,
+      };
+      
+      console.log('Saving address:', addressData);
+      
       const response = await fetch('/api/user/addresses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(address),
+        body: JSON.stringify(addressData),
       });
       
       const data = await response.json();
+      console.log('Address save response:', data);
       
       if (data.success) {
-        setAddresses([...addresses, data.address]);
+        // Refresh addresses from server
+        await fetchUserData();
         setNewAddress({ type: 'shipping', country: 'Deutschland' });
         setEditingAddress(null);
+        setAddressError(null);
+      } else {
+        const errorMessage = data.error || 'Fehler beim Speichern der Adresse';
+        setAddressError(errorMessage);
+        console.error('Address save error:', errorMessage);
       }
     } catch (error) {
       console.error('Error saving address:', error);
+      setAddressError('Fehler beim Speichern der Adresse. Bitte versuchen Sie es erneut.');
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  const handleEditAddress = (address: Address) => {
+    setEditingAddress(address.id);
+    // Convert enum type to lowercase for form
+    const addressType = address.type?.toLowerCase() === 'billing' || address.type === 'BILLING' ? 'billing' : 'shipping';
+    setNewAddress({
+      type: addressType as 'billing' | 'shipping',
+      firstName: address.firstName || '',
+      lastName: address.lastName || '',
+      company: address.company || '',
+      address1: address.address1 || '',
+      address2: address.address2 || '',
+      city: address.city || '',
+      state: address.state || '',
+      postalCode: address.postalCode || '',
+      country: address.country || 'Deutschland',
+      phone: address.phone || '',
+      isDefault: address.isDefault || false,
+    });
+    setAddressError(null);
+  };
+
+  const handleUpdateAddress = async (addressId: string, address: Partial<Address>) => {
+    setSavingAddress(true);
+    setAddressError(null);
+    
+    // Validation
+    if (!address.firstName?.trim() || !address.lastName?.trim() || !address.address1?.trim() || !address.city?.trim() || !address.postalCode?.trim() || !address.country?.trim()) {
+      setAddressError('Bitte füllen Sie alle Pflichtfelder aus (Vorname, Nachname, Straße, Stadt, PLZ, Land).');
+      setSavingAddress(false);
+      return;
+    }
+    
+    try {
+      // Prepare address data for API
+      const addressData = {
+        type: address.type || 'shipping',
+        firstName: address.firstName.trim(),
+        lastName: address.lastName.trim(),
+        company: address.company?.trim() || undefined,
+        address1: address.address1.trim(),
+        address2: address.address2?.trim() || undefined,
+        city: address.city.trim(),
+        state: address.state?.trim() || undefined,
+        postalCode: address.postalCode.trim(),
+        country: address.country.trim(),
+        phone: address.phone?.trim() || undefined,
+        isDefault: address.isDefault || false,
+      };
+      
+      console.log('Updating address:', addressId, addressData);
+      
+      const response = await fetch(`/api/user/addresses/${addressId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(addressData),
+      });
+      
+      const data = await response.json();
+      console.log('Address update response:', data);
+      
+      if (data.success) {
+        // Refresh addresses from server
+        await fetchUserData();
+        setNewAddress({ type: 'shipping', country: 'Deutschland' });
+        setEditingAddress(null);
+        setAddressError(null);
+      } else {
+        const errorMessage = data.error || 'Fehler beim Aktualisieren der Adresse';
+        setAddressError(errorMessage);
+        console.error('Address update error:', errorMessage);
+      }
+    } catch (error) {
+      console.error('Error updating address:', error);
+      setAddressError('Fehler beim Aktualisieren der Adresse. Bitte versuchen Sie es erneut.');
+    } finally {
+      setSavingAddress(false);
     }
   };
 
   const handleDeleteAddress = async (addressId: string) => {
+    if (!confirm('Sind Sie sicher, dass Sie diese Adresse löschen möchten?')) {
+      return;
+    }
+    
     try {
       const response = await fetch(`/api/user/addresses/${addressId}`, {
         method: 'DELETE',
@@ -191,10 +316,13 @@ export default function ProfilePage() {
       const data = await response.json();
       
       if (data.success) {
-        setAddresses(addresses.filter(addr => addr.id !== addressId));
+        await fetchUserData();
+      } else {
+        alert('Fehler beim Löschen der Adresse');
       }
     } catch (error) {
       console.error('Error deleting address:', error);
+      alert('Fehler beim Löschen der Adresse');
     }
   };
 
@@ -214,20 +342,20 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 text-[var(--color-text-primary)]">
+    <div className="container mx-auto px-4 py-8 text-gray-900 dark:text-white">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Mein Profil</h1>
-          <p className="mt-2 text-[var(--color-text-secondary)]">Verwalten Sie Ihre persönlichen Daten und Einstellungen</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Mein Profil</h1>
+          <p className="mt-2 text-gray-700 dark:text-gray-300">Verwalten Sie Ihre persönlichen Daten und Einstellungen</p>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile">Profil</TabsTrigger>
-            <TabsTrigger value="addresses">Adressen</TabsTrigger>
-            <TabsTrigger value="orders">Bestellungen</TabsTrigger>
-            <TabsTrigger value="wishlist">Wunschliste</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-gray-100 dark:bg-gray-800">
+            <TabsTrigger value="profile" className="text-gray-900 dark:text-white data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">Profil</TabsTrigger>
+            <TabsTrigger value="addresses" className="text-gray-900 dark:text-white data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">Adressen</TabsTrigger>
+            <TabsTrigger value="orders" className="text-gray-900 dark:text-white data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">Bestellungen</TabsTrigger>
+            <TabsTrigger value="wishlist" className="text-gray-900 dark:text-white data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">Wunschliste</TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
@@ -236,11 +364,11 @@ export default function ProfilePage() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                       <User className="h-5 w-5" />
                       Persönliche Daten
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-gray-700 dark:text-gray-300">
                       Ihre grundlegenden Kontaktinformationen
                     </CardDescription>
                   </div>
@@ -260,65 +388,75 @@ export default function ProfilePage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Name</Label>
-                    <Input
+                    <Label htmlFor="name" className="text-gray-900 dark:text-white">Name</Label>
+                    <input
                       id="name"
+                      type="text"
                       value={profileData.name}
                       onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                       disabled={!isEditingProfile}
-                      className="public-page-bg"
+                      className="h-9 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1 text-sm text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      style={{ color: '#111827' }}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">E-Mail</Label>
-                    <Input
+                    <Label htmlFor="email" className="text-gray-900 dark:text-white">E-Mail</Label>
+                    <input
                       id="email"
                       type="email"
                       value={profileData.email}
                       onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                       disabled={!isEditingProfile}
-                      className="public-page-bg"
+                      className="h-9 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1 text-sm text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      style={{ color: '#111827' }}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone">Telefon</Label>
-                    <Input
+                    <Label htmlFor="phone" className="text-gray-900 dark:text-white">Telefon</Label>
+                    <input
                       id="phone"
                       type="tel"
                       value={profileData.phone}
                       onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                       disabled={!isEditingProfile}
-                      className="public-page-bg"
+                      className="h-9 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1 text-sm text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      style={{ color: '#111827' }}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="firstName">Vorname</Label>
-                    <Input
+                    <Label htmlFor="firstName" className="text-gray-900 dark:text-white">Vorname</Label>
+                    <input
                       id="firstName"
+                      type="text"
                       value={profileData.firstName}
                       onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                       disabled={!isEditingProfile}
-                      className="public-page-bg"
+                      className="h-9 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1 text-sm text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      style={{ color: '#111827' }}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName">Nachname</Label>
-                    <Input
+                    <Label htmlFor="lastName" className="text-gray-900 dark:text-white">Nachname</Label>
+                    <input
                       id="lastName"
+                      type="text"
                       value={profileData.lastName}
                       onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
                       disabled={!isEditingProfile}
-                      className="public-page-bg"
+                      className="h-9 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1 text-sm text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      style={{ color: '#111827' }}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="company">Firma (optional)</Label>
-                    <Input
+                    <Label htmlFor="company" className="text-gray-900 dark:text-white">Firma (optional)</Label>
+                    <input
                       id="company"
+                      type="text"
                       value={profileData.company}
                       onChange={(e) => setProfileData({ ...profileData, company: e.target.value })}
                       disabled={!isEditingProfile}
-                      className="public-page-bg"
+                      className="h-9 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1 text-sm text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      style={{ color: '#111827' }}
                     />
                   </div>
                 </div>
@@ -367,7 +505,7 @@ export default function ProfilePage() {
           {/* Addresses Tab */}
           <TabsContent value="addresses" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Meine Adressen</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Meine Adressen</h2>
               <Button
                 onClick={() => setEditingAddress('new')}
                 className="flex items-center gap-2"
@@ -377,16 +515,23 @@ export default function ProfilePage() {
               </Button>
             </div>
 
-            {/* New Address Form */}
-            {editingAddress === 'new' && (
+            {/* New/Edit Address Form */}
+            {(editingAddress === 'new' || (editingAddress && editingAddress !== 'new')) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Neue Adresse hinzufügen</CardTitle>
+                  <CardTitle className="text-gray-900 dark:text-white">
+                    {editingAddress === 'new' ? 'Neue Adresse hinzufügen' : 'Adresse bearbeiten'}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {addressError && (
+                    <div className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-md">
+                      <p className="text-sm text-red-800 dark:text-red-200">{addressError}</p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="type">Typ</Label>
+                      <Label htmlFor="type" className="text-gray-900 dark:text-white">Typ</Label>
                       <select
                         id="type"
                         value={newAddress.type}
@@ -398,7 +543,7 @@ export default function ProfilePage() {
                       </select>
                     </div>
                     <div>
-                      <Label htmlFor="isDefault">Standard-Adresse</Label>
+                      <Label htmlFor="isDefault" className="text-gray-900 dark:text-white">Standard-Adresse</Label>
                       <input
                         type="checkbox"
                         id="isDefault"
@@ -411,83 +556,108 @@ export default function ProfilePage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="firstName">Vorname</Label>
+                      <Label htmlFor="firstName" className="text-gray-900 dark:text-white">Vorname</Label>
                       <Input
                         id="firstName"
                         value={newAddress.firstName || ''}
                         onChange={(e) => setNewAddress({...newAddress, firstName: e.target.value})}
+                        className="text-gray-900 dark:text-white"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="lastName">Nachname</Label>
+                      <Label htmlFor="lastName" className="text-gray-900 dark:text-white">Nachname</Label>
                       <Input
                         id="lastName"
                         value={newAddress.lastName || ''}
                         onChange={(e) => setNewAddress({...newAddress, lastName: e.target.value})}
+                        className="text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="company">Firma (optional)</Label>
+                    <Label htmlFor="company" className="text-gray-900 dark:text-white">Firma (optional)</Label>
                     <Input
                       id="company"
                       value={newAddress.company || ''}
                       onChange={(e) => setNewAddress({...newAddress, company: e.target.value})}
+                      className="text-gray-900 dark:text-white"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="address1">Straße und Hausnummer</Label>
+                    <Label htmlFor="address1" className="text-gray-900 dark:text-white">Straße und Hausnummer</Label>
                     <Input
                       id="address1"
                       value={newAddress.address1 || ''}
                       onChange={(e) => setNewAddress({...newAddress, address1: e.target.value})}
+                      className="text-gray-900 dark:text-white"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="address2">Adresszusatz (optional)</Label>
+                    <Label htmlFor="address2" className="text-gray-900 dark:text-white">Adresszusatz (optional)</Label>
                     <Input
                       id="address2"
                       value={newAddress.address2 || ''}
                       onChange={(e) => setNewAddress({...newAddress, address2: e.target.value})}
+                      className="text-gray-900 dark:text-white"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="postalCode">PLZ</Label>
+                      <Label htmlFor="postalCode" className="text-gray-900 dark:text-white">PLZ</Label>
                       <Input
                         id="postalCode"
                         value={newAddress.postalCode || ''}
                         onChange={(e) => setNewAddress({...newAddress, postalCode: e.target.value})}
+                        className="text-gray-900 dark:text-white"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="city">Stadt</Label>
+                      <Label htmlFor="city" className="text-gray-900 dark:text-white">Stadt</Label>
                       <Input
                         id="city"
                         value={newAddress.city || ''}
                         onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
+                        className="text-gray-900 dark:text-white"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="country">Land</Label>
+                      <Label htmlFor="country" className="text-gray-900 dark:text-white">Land</Label>
                       <Input
                         id="country"
                         value={newAddress.country || ''}
                         onChange={(e) => setNewAddress({...newAddress, country: e.target.value})}
+                        className="text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={() => handleSaveAddress(newAddress)}>
+                    <Button 
+                      onClick={() => {
+                        if (editingAddress === 'new') {
+                          handleSaveAddress(newAddress);
+                        } else if (editingAddress) {
+                          handleUpdateAddress(editingAddress, newAddress);
+                        }
+                      }}
+                      disabled={savingAddress}
+                    >
                       <Check className="h-4 w-4 mr-2" />
-                      Speichern
+                      {savingAddress ? 'Speichern...' : 'Speichern'}
                     </Button>
-                    <Button variant="outline" onClick={() => setEditingAddress(null)}>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setEditingAddress(null);
+                        setAddressError(null);
+                        setNewAddress({ type: 'shipping', country: 'Deutschland' });
+                      }}
+                      disabled={savingAddress}
+                    >
                       Abbrechen
                     </Button>
                   </div>
@@ -496,62 +666,68 @@ export default function ProfilePage() {
             )}
 
             {/* Address List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {addresses.map((address) => (
-                <Card key={address.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">
-                          {address.type === 'billing' ? 'Rechnungsadresse' : 'Lieferadresse'}
-                          {address.isDefault && (
-                            <Badge variant="default" className="ml-2">Standard</Badge>
-                          )}
-                        </CardTitle>
+            {!editingAddress && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {addresses.map((address) => (
+                  <Card key={address.id}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg text-gray-900 dark:text-white">
+                            {address.type === 'billing' || address.type === 'BILLING' ? 'Rechnungsadresse' : 'Lieferadresse'}
+                            {address.isDefault && (
+                              <Badge variant="default" className="ml-2">Standard</Badge>
+                            )}
+                          </CardTitle>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEditAddress(address)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDeleteAddress(address.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleDeleteAddress(address.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-1 text-sm text-gray-900 dark:text-white">
+                        <p className="font-medium">
+                          {address.firstName} {address.lastName}
+                        </p>
+                        {address.company && (
+                          <p>{address.company}</p>
+                        )}
+                        <p>{address.address1}</p>
+                        {address.address2 && (
+                          <p>{address.address2}</p>
+                        )}
+                        <p>{address.postalCode} {address.city}</p>
+                        <p>{address.country}</p>
+                        {address.phone && (
+                          <p>Tel: {address.phone}</p>
+                        )}
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1 text-sm">
-                      <p className="font-medium">
-                        {address.firstName} {address.lastName}
-                      </p>
-                      {address.company && (
-                        <p>{address.company}</p>
-                      )}
-                      <p>{address.address1}</p>
-                      {address.address2 && (
-                        <p>{address.address2}</p>
-                      )}
-                      <p>{address.postalCode} {address.city}</p>
-                      <p>{address.country}</p>
-                      {address.phone && (
-                        <p>Tel: {address.phone}</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
 
             {addresses.length === 0 && (
               <Card>
                 <CardContent className="text-center py-12">
-                  <MapPin className="mx-auto h-12 w-12 text-[var(--color-text-muted)]" />
-                  <h3 className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">Keine Adressen</h3>
-                  <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                  <MapPin className="mx-auto h-12 w-12 text-gray-500 dark:text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Keine Adressen</h3>
+                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
                     Fügen Sie Ihre erste Adresse hinzu.
                   </p>
                   <div className="mt-6">
@@ -569,37 +745,37 @@ export default function ProfilePage() {
           <TabsContent value="orders" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                   <ShoppingBag className="h-5 w-5" />
                   Meine Bestellungen
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-700 dark:text-gray-300">
                   Übersicht Ihrer Bestellungen und deren Status
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {orders.length === 0 ? (
                   <div className="text-center py-12">
-                    <ShoppingBag className="mx-auto h-12 w-12 text-[var(--color-text-muted)]" />
-                    <h3 className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">Keine Bestellungen</h3>
-                    <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                    <ShoppingBag className="mx-auto h-12 w-12 text-gray-500 dark:text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Keine Bestellungen</h3>
+                    <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
                       Sie haben noch keine Bestellungen aufgegeben.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {orders.map((order) => (
-                      <div key={order.id} className="border rounded-lg p-4">
+                      <div key={order.id} className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="font-medium">Bestellung #{order.orderNumber}</h4>
-                            <p className="text-sm text-[var(--color-text-secondary)]">
+                            <h4 className="font-medium text-gray-900 dark:text-white">Bestellung #{order.orderNumber}</h4>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
                               {new Date(order.createdAt).toLocaleDateString('de-DE')}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium">{order.total.toFixed(2)} €</p>
-                            <Badge variant="outline">{order.status}</Badge>
+                            <p className="font-medium text-gray-900 dark:text-white">{order.total.toFixed(2)} €</p>
+                            <Badge variant="outline" className="text-gray-900 dark:text-white">{order.status}</Badge>
                           </div>
                         </div>
                       </div>

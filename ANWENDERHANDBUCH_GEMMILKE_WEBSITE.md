@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.5.2  
+**Version:** 2.5.4  
 **Stand:** Dezember 2025  
-**Letzte Aktualisierung:** 20. Dezember 2025 - Vektorsuche erweitert, Internationalisierung für Shop-Seite  
+**Letzte Aktualisierung:** 22. Dezember 2025 - Erweiterte Edelstein-Attribute, UN-Länderliste, erweiterte Farb- und Kategorieauswahl  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -108,7 +108,28 @@ gemilike-website/
 └── public/                       # Statische Dateien
 ```
 
-### 2.3 Datenbank
+### 2.3 Code-Statistiken
+
+**Stand:** Dezember 2025
+
+Das Projekt umfasst insgesamt **110.134 Zeilen Code** (ohne `node_modules`, `.next` und `.git`):
+
+| Dateityp | Zeilen | Beschreibung |
+|----------|--------|--------------|
+| **TSX** | 62.764 | React-Komponenten mit TypeScript (UI-Komponenten, Seiten) |
+| **TS** | 37.080 | TypeScript-Dateien (Services, Utilities, API-Routen, Server Actions) |
+| **JS** | 8.108 | JavaScript-Dateien (Konfigurationen, Skripte, Legacy-Code) |
+| **CSS** | 1.275 | Stylesheets (globale Styles, Tailwind-Erweiterungen) |
+| **HTML** | 907 | HTML-Templates und statische Seiten |
+| **Gesamt** | **110.134** | Gesamter Quellcode des Projekts |
+
+**Hinweise:**
+- Die größte Codebasis liegt in **TSX-Dateien** (57%), was die React-basierte Architektur widerspiegelt
+- **TypeScript-Dateien** (34%) enthalten hauptsächlich Business-Logik, Server Actions und API-Routen
+- Die relativ geringe Anzahl an **CSS-Zeilen** (1%) zeigt die effiziente Nutzung von Tailwind CSS
+- **HTML-Dateien** sind minimal, da die meisten Seiten als React-Komponenten gerendert werden
+
+### 2.4 Datenbank
 
 **PostgreSQL** mit **Prisma ORM**:
 
@@ -117,7 +138,7 @@ gemilike-website/
 - **Indexes** für Performance-Optimierung
 - **Enums** für typsichere Werte
 
-### 2.4 Design & Layout-System
+### 2.5 Design & Layout-System
 
 #### 2.4.1 Design-Vorlage: Shop-Seite
 
@@ -353,7 +374,45 @@ module.exports = {
 
 ## 3. Öffentliche Website
 
-### 3.1 Startseite (`/` oder `/de`)
+### 3.1 Header und Navigation
+
+**Komponenten:**
+
+- **Logo:** Klick führt zur Startseite
+- **Hauptnavigation:** Dynamische Navigation aus Datenbank
+- **Sprachauswahl (DE/EN):** Wechsel zwischen Deutsch und Englisch
+- **Dark Mode Toggle:** Wechsel zwischen Hell- und Dunkelmodus
+- **Warenkorb:** Anzeige der Artikelanzahl, Öffnung des Warenkorbs
+- **Wunschliste:** Anzeige der Anzahl gespeicherter Edelsteine
+- **Benutzer-Menü:** 
+  - Nicht angemeldet: Führt zur Anmeldeseite
+  - Angemeldet: Führt zum Profil
+
+**Neue Funktionen (Version 2.5.3):**
+
+1. **Willkommensnachricht:**
+   - Für angemeldete Benutzer wird unter den Header-Buttons "Willkommen [Kundenname]" angezeigt
+   - Erscheint sowohl auf Desktop als auch Mobile
+   - Zeigt den Namen des angemeldeten Benutzers an
+
+2. **Tooltips (Mouse-Over-Beschreibungen):**
+   - Alle Header-Buttons haben beschreibende Tooltips:
+     - **Sprachauswahl:** "Sprache wechseln: Zu Englisch/Deutsch"
+     - **Wunschliste:** "Wunschliste öffnen - Gespeicherte Edelsteine anzeigen" (mit Artikelanzahl)
+     - **Warenkorb:** "Warenkorb öffnen - Ihre ausgewählten Edelsteine anzeigen" (mit Artikelanzahl)
+     - **Benutzer/Login:** "Profil öffnen" oder "Anmelden - Melden Sie sich an"
+     - **Mobile Menü:** "Menü öffnen - Zeigt die Navigation und alle Seiten an"
+   - Tooltips erscheinen beim Hovern über die Buttons
+
+3. **Mobile Navigation:**
+   - Hamburger-Menü für mobile Geräte
+   - Slide-in-Navigation von rechts
+   - Enthält alle Navigationslinks
+   - Automatisches Schließen nach Link-Klick
+
+---
+
+### 3.2 Startseite (`/` oder `/de`)
 
 **Route:** `app/[locale]/page.tsx`
 
@@ -383,7 +442,7 @@ module.exports = {
 
 ---
 
-### 3.2 Shop (`/shop`)
+### 3.3 Shop (`/shop`)
 
 **Route:** `app/[locale]/shop/page.tsx`
 
@@ -460,7 +519,7 @@ module.exports = {
 
 ---
 
-### 3.3 Blog (`/blog`)
+### 3.4 Blog (`/blog`)
 
 **Route:** `app/[locale]/blog/page.tsx`
 
@@ -485,7 +544,7 @@ module.exports = {
 
 ---
 
-### 3.4 Wissenswertes (`/wissenswertes`)
+### 3.5 Wissenswertes (`/wissenswertes`)
 
 **Route:** `app/[locale]/wissenswertes/page.tsx`
 
@@ -508,7 +567,7 @@ module.exports = {
 
 ---
 
-### 3.5 Weltkarte (`/worldmap`)
+### 3.6 Weltkarte (`/worldmap`)
 
 **Route:** `app/[locale]/worldmap/page.tsx`
 
@@ -570,7 +629,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 ---
 
-### 3.6 Downloads (`/downloads`)
+### 3.7 Downloads (`/downloads`)
 
 **Route:** `app/[locale]/downloads/page.tsx`
 
@@ -691,7 +750,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 ---
 
-### 3.7 Über uns (`/about`)
+### 3.8 Über uns (`/about`)
 
 **Route:** `app/[locale]/about/page.tsx`
 
@@ -714,7 +773,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 ---
 
-### 3.8 Leistungen (`/services`)
+### 3.9 Leistungen (`/services`)
 
 **Route:** `app/[locale]/services/page.tsx`
 
@@ -744,7 +803,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 ---
 
-### 3.9 Kontakt (`/contact`)
+### 3.10 Kontakt (`/contact`)
 
 **Route:** `app/[locale]/contact/page.tsx`
 
@@ -777,7 +836,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 ---
 
-### 3.10 Footer-Struktur
+### 3.11 Footer-Struktur
 
 **Komponente:** `components/layout/Footer.tsx`
 
@@ -810,7 +869,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 ---
 
-### 3.11 Rechtliche Seiten
+### 3.12 Rechtliche Seiten
 
 #### Impressum (`/impressum` oder `/imprint`)
 
@@ -840,14 +899,58 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 ---
 
-### 3.12 Benutzer-Bereiche
+### 3.13 Benutzer-Bereiche
 
 #### Profil (`/profile`)
 
-- Kundeninformationen
-- Bestellhistorie
-- Rechnungen
-- Wishlist-Verwaltung
+**Zugriff:** Über den Benutzer-Button im Header (nur für angemeldete Benutzer)
+
+**Funktionen:**
+
+1. **Persönliche Daten:**
+   - Name, E-Mail, Telefon
+   - Vorname, Nachname
+   - Firma (optional)
+   - Bearbeitung über "Bearbeiten"-Button
+   - Alle Eingabefelder haben schwarze Schrift für bessere Lesbarkeit
+
+2. **Adressverwaltung:**
+   - **Adressen anzeigen:** Liste aller gespeicherten Adressen
+   - **Neue Adresse hinzufügen:**
+     - Typ: Lieferadresse oder Rechnungsadresse
+     - Vorname, Nachname, Firma
+     - Straße, Hausnummer, Adresszusatz
+     - PLZ, Stadt, Land
+     - Telefon (optional)
+     - Als Standard-Adresse markieren
+   - **Adresse bearbeiten:**
+     - Klick auf Bearbeiten-Button (Stift-Icon)
+     - Formular wird mit vorhandenen Daten gefüllt
+     - Änderungen speichern
+   - **Adresse löschen:**
+     - Klick auf Löschen-Button (Papierkorb-Icon)
+     - Bestätigungsdialog
+   - **Validierung:** Alle Pflichtfelder müssen ausgefüllt sein
+   - **Fehlerbehandlung:** Fehlermeldungen werden bei Problemen angezeigt
+
+3. **Bestellhistorie:**
+   - Übersicht aller Bestellungen
+   - Bestellnummer, Datum, Status
+   - Gesamtbetrag
+   - Detailansicht für jede Bestellung
+
+4. **Wunschliste:**
+   - Gespeicherte Edelsteine
+   - Entfernen von Artikeln
+   - Direkt zum Warenkorb hinzufügen
+   - Details ansehen
+
+**UI-Verbesserungen (Version 2.5.3):**
+
+- **Textfarben:** Alle Texte, Labels und Eingabefelder haben schwarze Schrift (Light Mode) / weiße Schrift (Dark Mode) für optimale Lesbarkeit
+- **Tab-Navigation:** Tab-Beschriftungen sind gut lesbar
+- **Formularfelder:** Eingabefelder haben kontrastreiche Textfarben
+- **Responsive Design:** Funktioniert auf Desktop und Mobile
 
 #### Wunschliste (`/wishlist`)
 
@@ -948,6 +1051,129 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Media-Verwaltung
 - Status-Änderung
 - Veröffentlichung
+
+#### CSV-Import für Edelsteine
+
+**Funktion:** Bulk-Import von Edelsteinen über CSV-Dateien
+
+**Zugriff:** Über den Button "CSV Import" auf der Edelstein-Verwaltungsseite (`/admin/gemstones`)
+
+**Verwendung:**
+
+1. **CSV-Vorlage herunterladen:**
+   - Die CSV-Vorlage befindet sich unter `/public/templates/edelsteine-upload-vorlage.csv`
+   - Enthält alle erforderlichen Spaltenüberschriften
+
+2. **CSV-Datei vorbereiten:**
+   - Verwenden Sie die Vorlage oder das HTML-Formular (`/templates/edelsteine-upload-formular.html`)
+   - Alle Pflichtfelder müssen ausgefüllt sein:
+     - Stein (Name)
+     - Farbe
+     - Cut/Rough
+     - Karat
+     - Preis
+     - Kategorie
+     - Währung
+
+3. **CSV-Import durchführen:**
+   - Klicken Sie auf "CSV Import" in der Edelstein-Verwaltung
+   - Wählen Sie eine der drei Optionen:
+     - **Datei hochladen:** CSV-Datei vom Computer auswählen
+     - **CSV-Daten eingeben:** CSV-Inhalt direkt in das Textfeld einfügen
+     - **Medien-Upload:** Bilder und Videos separat hochladen
+
+4. **Datenvorschau:**
+   - Die ersten Zeilen werden als Vorschau angezeigt
+   - Überprüfen Sie die Daten vor dem Import
+
+5. **Import starten:**
+   - Klicken Sie auf "Import starten"
+   - Der Import-Prozess wird mit Fortschrittsanzeige durchgeführt
+   - Erfolgreich importierte Edelsteine werden angezeigt
+   - Fehler werden detailliert aufgelistet
+
+**CSV-Spalten (vollständige Liste):**
+
+- `Stein` - Name des Edelsteins (Pflichtfeld)
+- `Herkunft` - Herkunftsland (UN-Länderliste mit 193+ Ländern, alphabetisch sortiert)
+- `Besonderheit` - Besondere Merkmale
+- `Qualität` - Qualitätsbezeichnung (Dropdown: sehr gut, gut, zufriedenstellend, ausreichend)
+- `Farbe` - Farbe (Pflichtfeld, Dropdown mit 100+ Edelsteinfarben, alphabetisch sortiert)
+- `transparent` - Transparenz (Transparent, Transluzent, Opak)
+- `Schliffart` - Schliffart (Dropdown: Brillant-Schliff, Stufen-Schliff, Konkav-Schliff, Portugiesischer Schliff, Treppen-Schliff, Rosen-Schliff, Schachbrett-Schliff, Mischschliff, Cabochon)
+- `Cut/Rough` - Typ (cut/rough, Pflichtfeld)
+- `Karat` - Gewicht in Karat
+- `Länge_mm`, `Breite_mm`, `Höhe_mm` - Abmessungen
+- `Preis` - Preis (Pflichtfeld)
+- `Kategorie` - Edelstein-Kategorie (Pflichtfeld, Dropdown mit 60+ Edelsteinarten, alphabetisch sortiert)
+- `Entstehung` - Entstehung (Dropdown: natürlich, synthetisch, Imitation)
+- `Mine` - Minenname
+- `Schliffform` - Form des Schliffs (Dropdown: Rund, Oval, Kissen, Herz, Tropfen, Marquise, Princess, Brillant, Smaragd, Baguette, Asscher, Trillion)
+- `Schliffqualität` - Qualität (Excellent, Very Good, Good, Fair, Poor)
+- `Reinheitsgrad` - Klarheit (vereinfacht: FL - Flawless, VVS - Very Very Slightly Included, VS - Very Slightly Included, SI - Slightly Included, I - Included, jeweils mit Erläuterungen)
+- `Farbsättigung` - Sättigung (Pale, Light, Medium, Intense, Vivid, Rich)
+- `Farbsättigung_1_10` - Numerische Sättigung (1-10)
+- `Helligkeit` - Helligkeit (1-10)
+- `Farbgrad` - Farbgrad (z.B. D, E, F)
+- `Symmetrie` - Symmetrie (Excellent, Very Good, Good, Fair, Poor)
+- `Politur` - Politur (Excellent, Very Good, Good, Fair, Poor)
+- `Kristallqualität` - Qualität des Kristalls
+- `Kristallform` - Form des Kristalls
+- `Geschätzte_Karat_Ausbeute` - Geschätzte Ausbeute
+- `Geeignet_für` - Verwendungszweck
+- `Behandelt` - Ja/Nein
+- `Behandlungsart` - Art der Behandlung (Dropdown)
+- `Behandlungsbeschreibung` - Beschreibung der Behandlung
+- `Zertifiziert` - Ja/Nein
+- `Zertifizierungs_Labor` - Labor (GIA, IGI, HRD, etc.)
+- `Zertifikatsnummer` - Zertifikatsnummer
+- `Zertifikats_URL` - URL zum Zertifikat
+- `Rarität` - Seltenheit (Dropdown)
+- `Verfügbar` - Verfügbarkeit (Ja/Nein)
+- `Anzahl` - Anzahl verfügbarer Steine
+- `SKU` - Stock Keeping Unit
+- `Währung` - Währung (EUR, USD, GBP, CHF, Pflichtfeld)
+- `Kurzbeschreibung` - Kurze Beschreibung
+- `Langbeschreibung` - Ausführliche Beschreibung
+- `Bilder` - Bild-URLs (kommagetrennt)
+- `Videos` - Video-URLs (kommagetrennt)
+- `Neu` - Als neu markieren (true/false)
+- `Featured` - Als Featured markieren (true/false)
+- `Verkauft` - Als verkauft markieren (true/false)
+
+**Medien-Upload:**
+
+- Bilder und Videos können separat hochgeladen werden
+- Dateien werden automatisch dem entsprechenden Edelstein zugeordnet
+- Unterstützte Formate: JPG, PNG, GIF, MP4, WebM
+
+**Hinweise:**
+
+- Die CSV-Datei muss UTF-8 kodiert sein
+- Spaltenüberschriften müssen exakt der Vorlage entsprechen
+- Leere Felder werden als optional behandelt
+- Boolean-Werte: `true`/`false` oder `1`/`0`
+- Mehrere Bilder/Videos: Kommagetrennte URLs
+
+**Erweiterte Auswahlmöglichkeiten (Version 2.5.4):**
+
+- **Herkunft:** Vollständige UN-Länderliste mit allen 193 UN-Mitgliedsstaaten plus Vatikanstadt, alphabetisch sortiert
+- **Qualität:** Vierstufige Qualitätsbewertung (sehr gut, gut, zufriedenstellend, ausreichend)
+- **Farbe:** Über 100 Edelsteinfarben, alphabetisch sortiert, inklusive Nuancen und Kombinationen (z.B. Blau-Grün, Dunkelblau, Pastellblau)
+- **Schliffart:** Neun verschiedene Schliffarten, inklusive traditioneller und moderner Schlifftechniken
+- **Kategorie:** Über 60 verschiedene Edelsteinarten, von Achat bis Zoisit, alphabetisch sortiert
+- **Entstehung:** Drei Optionen (natürlich, synthetisch, Imitation) - "behandelt" wurde entfernt, da Behandlung ein separates Feld ist
+- **Reinheitsgrad:** Vereinfachte fünfstufige Skala mit ausführlichen Erläuterungen für bessere Verständlichkeit
+
+**HTML-Upload-Formular:**
+
+Ein interaktives HTML-Formular ist verfügbar unter `/templates/edelsteine-upload-formular.html`:
+
+- **Dropdown-Auswahlfelder** für alle Attribute mit festen Werten
+- **Mehrere Datensätze** können nacheinander eingegeben werden
+- **Datensatz-Verwaltung:** Hinzufügen, Bearbeiten, Löschen
+- **CSV-Generierung:** Alle Datensätze werden am Ende als eine CSV-Datei exportiert
+- **Validierung:** Pflichtfelder werden automatisch geprüft
 
 **Datenbank-Models:**
 
@@ -4198,11 +4424,205 @@ Das Dokument enthält:
 
 **Ende des Anwenderhandbuchs**
 
-*Letzte Aktualisierung: November 2025*  
-*Version: 2.5.0*  
-*Gesamt: 4.000+ Zeilen Dokumentation*
+*Letzte Aktualisierung: 22. Dezember 2025*  
+*Version: 2.5.4*  
+*Gesamt: 4.600+ Zeilen Dokumentation*
 
 ## Änderungsprotokoll
+
+### Version 2.5.4 (22. Dezember 2025)
+
+#### Erweiterte Edelstein-Attribute
+
+**Herkunft - UN-Länderliste:**
+- Vollständige Integration aller 193 UN-Mitgliedsstaaten plus Vatikanstadt
+- Alphabetisch sortierte Liste für einfache Auswahl
+- Verfügbar in Admin-Editor, HTML-Upload-Formular und CSV-Import
+- Verbesserte Datenqualität durch standardisierte Ländernamen
+
+**Qualität - Vierstufige Bewertung:**
+- Neue Dropdown-Auswahl mit vier Qualitätsstufen:
+  - sehr gut
+  - gut
+  - zufriedenstellend
+  - ausreichend
+- Ersetzt freies Textfeld für bessere Konsistenz
+- Verfügbar in allen Eingabeformularen
+
+**Farbe - Erweiterte Farbpalette:**
+- Über 100 Edelsteinfarben hinzugefügt
+- Alphabetisch sortiert für einfache Navigation
+- Inklusive Nuancen und Farbkombinationen:
+  - Grundfarben (Blau, Rot, Grün, etc.)
+  - Helligkeitsvarianten (Dunkelblau, Blassblau, etc.)
+  - Kombinationen (Blau-Grün, Rot-Orange, etc.)
+  - Spezielle Edelsteinfarben (Smaragdgrün, Rubinrot, etc.)
+- Verfügbar in Admin-Editor, HTML-Upload-Formular und CSV-Import
+
+**Schliff → Schliffart - Umbenennung und Erweiterung:**
+- Feld umbenannt von "Schliff" zu "Schliffart" für bessere Klarheit
+- Neun verschiedene Schliffarten verfügbar:
+  - Brillant-Schliff
+  - Stufen-Schliff
+  - Konkav-Schliff
+  - Portugiesischer Schliff
+  - Treppen-Schliff
+  - Rosen-Schliff
+  - Schachbrett-Schliff
+  - Mischschliff
+  - Cabochon
+- Änderung in Admin-Editor, GemstoneCard, HTML-Formular und CSV-Vorlage
+
+**Kategorie - Erweiterte Edelsteinarten:**
+- Von 18 auf über 60 Edelsteinarten erweitert
+- Neue Kategorien inklusive:
+  - Achat, Apatit, Aventurin, Beryll, Beryllonit, Brazilianit
+  - Calcit, Chalcedon, Chrysoberyll, Chrysopras, Citrin, Danburit
+  - Demantoid, Diopsid, Epidot, Fluorit, Goshenit, Grossular
+  - Hämatit, Heliodor, Hessonit, Hiddenit, Iolith, Jade, Jaspis
+  - Korund, Labradorit, Lapis Lazuli, Moldavit, Obsidian
+  - Padparadscha, Prehnit, Pyrit, Quarz, Rhodolith, Sardonyx
+  - Schörl, Spessartin, Spodumen, Sunstone, Tigerauge, Tsavorit
+  - Uvarovit, Vesuvianit, Zoisit
+- Alphabetisch sortiert für einfache Auswahl
+
+**Schliffform - Smaragd bestätigt:**
+- Smaragd bereits in der Liste vorhanden
+- Vollständige Liste: Rund, Oval, Kissen, Herz, Tropfen, Marquise, Princess, Brillant, Smaragd, Baguette, Asscher, Trillion
+
+**Entstehung - Erweiterte Optionen:**
+- "Imitation" als neue Option hinzugefügt
+- "behandelt" entfernt (Behandlung ist ein separates Feld)
+- Neue Optionen:
+  - natürlich
+  - synthetisch
+  - Imitation
+- Klarere Unterscheidung zwischen natürlichen, synthetischen und imitierten Edelsteinen
+
+**Reinheitsgrad - Vereinfachte Skala:**
+- Von 12 auf 5 Hauptkategorien vereinfacht
+- Neue Struktur mit ausführlichen Erläuterungen:
+  - **FL** - Flawless (Lupenrein, keine Einschlüsse)
+  - **VVS** - Very Very Slightly Included (Sehr, sehr kleine Einschlüsse, nur unter 10-facher Vergrößerung erkennbar)
+  - **VS** - Very Slightly Included (Sehr kleine Einschlüsse, unter 10-facher Vergrößerung erkennbar, nicht mit bloßem Auge)
+  - **SI** - Slightly Included (Kleine Einschlüsse, unter 10-facher Vergrößerung leicht erkennbar, manchmal mit bloßem Auge sichtbar)
+  - **I** - Included (Einschlüsse mit bloßem Auge deutlich sichtbar, können Brillanz beeinträchtigen)
+- Verbesserte Benutzerfreundlichkeit durch klare Erläuterungen
+
+**Technische Umsetzung:**
+- Neue zentrale Konstante-Datei: `lib/constants/gemstone-options.ts`
+- Alle Optionen zentral verwaltet für einfache Wartung
+- Konsistente Implementierung in:
+  - `components/admin/GemstoneEditor.tsx`
+  - `components/shop/GemstoneCard.tsx`
+  - `public/templates/edelsteine-upload-formular.html`
+  - `public/templates/edelsteine-upload-vorlage.csv`
+
+---
+
+### Version 2.5.3 (22. Dezember 2025)
+
+#### CSV-Import für Edelsteine
+
+**Neue Funktion:** Bulk-Import von Edelsteinen über CSV-Dateien
+
+**Features:**
+- CSV-Datei-Upload oder direkte Eingabe
+- Datenvorschau vor dem Import
+- Automatische Validierung
+- Medien-Upload (Bilder/Videos) separat möglich
+- Detaillierte Fehlerberichte
+- Fortschrittsanzeige während des Imports
+
+**Zugriff:** `/admin/gemstones` → Button "CSV Import"
+
+**CSV-Vorlage:** `/public/templates/edelsteine-upload-vorlage.csv`
+
+**Dokumentation:** Siehe Abschnitt 4.3 "Edelstein-Verwaltung" → "CSV-Import für Edelsteine"
+
+#### HTML-Upload-Formular
+
+**Neue Funktion:** Interaktives HTML-Formular für Edelstein-Datenerfassung
+
+**Features:**
+- Dropdown-Auswahlfelder für alle Attribute mit festen Werten
+- Mehrere Datensätze können nacheinander eingegeben werden
+- Datensatz-Verwaltung (Hinzufügen, Bearbeiten, Löschen)
+- CSV-Generierung am Ende mit allen Datensätzen
+- Automatische Validierung der Pflichtfelder
+- Benutzerfreundliche Oberfläche
+
+**Zugriff:** `/templates/edelsteine-upload-formular.html`
+
+**Verwendung:**
+1. Formular im Browser öffnen
+2. Mehrere Edelsteine nacheinander eingeben
+3. Jeden Datensatz mit "Datensatz hinzufügen" speichern
+4. Am Ende "CSV generieren und herunterladen" klicken
+5. CSV-Datei enthält alle eingegebenen Datensätze
+
+#### Profilseite-Verbesserungen
+
+**Textfarben-Optimierung:**
+- Alle Texte, Labels und Eingabefelder haben jetzt schwarze Schrift (Light Mode) / weiße Schrift (Dark Mode)
+- Verbesserte Lesbarkeit auf allen Geräten
+- Kontrastreiche Formularfelder
+
+**Adressverwaltung:**
+- **Bearbeitungsfunktion:** Adressen können jetzt bearbeitet werden
+  - Bearbeiten-Button (Stift-Icon) bei jeder Adresse
+  - Formular wird mit vorhandenen Daten gefüllt
+  - Änderungen speichern
+- **Löschfunktion:** Bestätigungsdialog beim Löschen
+- **Validierung:** Alle Pflichtfelder müssen ausgefüllt sein
+- **Fehlerbehandlung:** Detaillierte Fehlermeldungen bei Problemen
+- **Automatische Customer-Erstellung:** Customer wird automatisch erstellt, falls noch nicht vorhanden
+
+**UI-Verbesserungen:**
+- Tab-Navigation mit besserer Lesbarkeit
+- Erfolgsmeldungen nach Aktionen
+- Ladezustände während Speichervorgängen
+
+#### Header-Verbesserungen
+
+**Willkommensnachricht:**
+- Für angemeldete Benutzer wird "Willkommen [Kundenname]" unter den Header-Buttons angezeigt
+- Funktioniert auf Desktop und Mobile
+- Zeigt den Namen aus der Session an
+
+**Tooltips:**
+- Alle Header-Buttons haben jetzt beschreibende Tooltips:
+  - Sprachauswahl
+  - Wunschliste (mit Artikelanzahl)
+  - Warenkorb (mit Artikelanzahl)
+  - Benutzer/Login-Button
+  - Mobile Menü-Button
+- Tooltips erscheinen beim Hovern über die Buttons
+- Verbesserte Benutzerführung und Accessibility
+
+**Mobile Navigation:**
+- Verbesserte Funktionalität des Hamburger-Menüs
+- Automatisches Schließen nach Link-Klick
+- Bessere z-index-Verwaltung für korrekte Darstellung
+
+#### Technische Verbesserungen
+
+**API-Verbesserungen:**
+- Adress-API erstellt automatisch Customer-Einträge, falls nicht vorhanden
+- Verbesserte Fehlerbehandlung und Logging
+- Korrekte Konvertierung von AddressType (Kleinbuchstaben → Großbuchstaben)
+
+**Datenvalidierung:**
+- Umfassende Validierung für Adressen
+- Detaillierte Fehlermeldungen
+- Automatische Datenbereinigung (Trim, etc.)
+
+**Code-Qualität:**
+- Verbesserte Fehlerbehandlung
+- Konsistente UI-Komponenten
+- Bessere Accessibility-Features
+
+---
 
 ### Version 2.5.0 (November 2025)
 
@@ -4243,7 +4663,7 @@ Das Dokument enthält:
   - ✅ Alle Parsing-Fehler behoben
   - ✅ Ungenutzte Parameter entfernt
 
-**Detaillierte Dokumentation:** Siehe Abschnitt [2.4](#24-design--layout-system)
+**Detaillierte Dokumentation:** Siehe Abschnitt [2.5](#25-design--layout-system)
 
 ### Version 2.4.0 (November 2025)
 
@@ -4380,6 +4800,9 @@ Das Dokument enthält:
   - `ShopShowcase` Komponente verwendet jetzt `useTranslations('shop')`
   - `NewGemstonesCarousel` Komponente verwendet jetzt `useTranslations('home')`
   - Alle hardcodierten deutschen Texte durch Übersetzungsschlüssel ersetzt
+- **Dokumentation:**
+  - Code-Statistiken hinzugefügt: Projekt umfasst 110.134 Zeilen Code (aufgeteilt nach TSX, TS, JS, CSS, HTML)
+  - Neuer Abschnitt "2.3 Code-Statistiken" im Anwenderhandbuch
 
 ### Version 2.1.0 (Dezember 2025)
 
@@ -4416,6 +4839,110 @@ Das Dokument enthält:
   - Borderline-Erkennung mit zirkulärer Statistik und Soft Category Classification
   - Hue Histogram Peak Detection für Pleochroismus-Analyse
   - Erweiterte Export-Funktionen (CSV, PDF v4)
+
+---
+
+## 15. Änderungsprotokoll Version 2.5.3 (Dezember 2025)
+
+### 15.1 CSV-Import für Edelsteine
+
+**Neue Funktion:** Bulk-Import von Edelsteinen über CSV-Dateien
+
+**Features:**
+- CSV-Datei-Upload oder direkte Eingabe
+- Datenvorschau vor dem Import
+- Automatische Validierung
+- Medien-Upload (Bilder/Videos) separat möglich
+- Detaillierte Fehlerberichte
+- Fortschrittsanzeige während des Imports
+
+**Zugriff:** `/admin/gemstones` → Button "CSV Import"
+
+**CSV-Vorlage:** `/public/templates/edelsteine-upload-vorlage.csv`
+
+**Dokumentation:** Siehe Abschnitt 4.3 "Edelstein-Verwaltung" → "CSV-Import für Edelsteine"
+
+### 15.2 HTML-Upload-Formular
+
+**Neue Funktion:** Interaktives HTML-Formular für Edelstein-Datenerfassung
+
+**Features:**
+- Dropdown-Auswahlfelder für alle Attribute mit festen Werten
+- Mehrere Datensätze können nacheinander eingegeben werden
+- Datensatz-Verwaltung (Hinzufügen, Bearbeiten, Löschen)
+- CSV-Generierung am Ende mit allen Datensätzen
+- Automatische Validierung der Pflichtfelder
+- Benutzerfreundliche Oberfläche
+
+**Zugriff:** `/templates/edelsteine-upload-formular.html`
+
+**Verwendung:**
+1. Formular im Browser öffnen
+2. Mehrere Edelsteine nacheinander eingeben
+3. Jeden Datensatz mit "Datensatz hinzufügen" speichern
+4. Am Ende "CSV generieren und herunterladen" klicken
+5. CSV-Datei enthält alle eingegebenen Datensätze
+
+### 15.3 Profilseite-Verbesserungen
+
+**Textfarben-Optimierung:**
+- Alle Texte, Labels und Eingabefelder haben jetzt schwarze Schrift (Light Mode) / weiße Schrift (Dark Mode)
+- Verbesserte Lesbarkeit auf allen Geräten
+- Kontrastreiche Formularfelder
+
+**Adressverwaltung:**
+- **Bearbeitungsfunktion:** Adressen können jetzt bearbeitet werden
+  - Bearbeiten-Button (Stift-Icon) bei jeder Adresse
+  - Formular wird mit vorhandenen Daten gefüllt
+  - Änderungen speichern
+- **Löschfunktion:** Bestätigungsdialog beim Löschen
+- **Validierung:** Alle Pflichtfelder müssen ausgefüllt sein
+- **Fehlerbehandlung:** Detaillierte Fehlermeldungen bei Problemen
+- **Automatische Customer-Erstellung:** Customer wird automatisch erstellt, falls noch nicht vorhanden
+
+**UI-Verbesserungen:**
+- Tab-Navigation mit besserer Lesbarkeit
+- Erfolgsmeldungen nach Aktionen
+- Ladezustände während Speichervorgängen
+
+### 15.4 Header-Verbesserungen
+
+**Willkommensnachricht:**
+- Für angemeldete Benutzer wird "Willkommen [Kundenname]" unter den Header-Buttons angezeigt
+- Funktioniert auf Desktop und Mobile
+- Zeigt den Namen aus der Session an
+
+**Tooltips:**
+- Alle Header-Buttons haben jetzt beschreibende Tooltips:
+  - Sprachauswahl
+  - Wunschliste (mit Artikelanzahl)
+  - Warenkorb (mit Artikelanzahl)
+  - Benutzer/Login-Button
+  - Mobile Menü-Button
+- Tooltips erscheinen beim Hovern über die Buttons
+- Verbesserte Benutzerführung und Accessibility
+
+**Mobile Navigation:**
+- Verbesserte Funktionalität des Hamburger-Menüs
+- Automatisches Schließen nach Link-Klick
+- Bessere z-index-Verwaltung für korrekte Darstellung
+
+### 15.5 Technische Verbesserungen
+
+**API-Verbesserungen:**
+- Adress-API erstellt automatisch Customer-Einträge, falls nicht vorhanden
+- Verbesserte Fehlerbehandlung und Logging
+- Korrekte Konvertierung von AddressType (Kleinbuchstaben → Großbuchstaben)
+
+**Datenvalidierung:**
+- Umfassende Validierung für Adressen
+- Detaillierte Fehlermeldungen
+- Automatische Datenbereinigung (Trim, etc.)
+
+**Code-Qualität:**
+- Verbesserte Fehlerbehandlung
+- Konsistente UI-Komponenten
+- Bessere Accessibility-Features
 - **Mathematische Dokumentation:**
   - Umfassende Erklärung aller verwendeten Algorithmen
   - Mathematische Formeln und physikalische Hintergründe

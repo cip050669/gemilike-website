@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edelstein-Upload-Formular</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        select,
+        textarea {
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .csv-output {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .csv-output h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        textarea#csvOutput {
+            width: 100%;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: white;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .records-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 3px solid #667eea;
+        }
+        
+        .records-list {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .record-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .record-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        .record-info {
+            flex: 1;
+        }
+        
+        .record-info strong {
+            color: #667eea;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .record-info span {
+            color: #666;
+            font-size: 13px;
+            margin-right: 15px;
+        }
+        
+        .record-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-edit {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: #218838;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edelstein-Upload-Formular</h1>
+        <p class="subtitle">Füllen Sie das Formular aus und fügen Sie mehrere Edelsteine hinzu. Am Ende können Sie alle zusammen als CSV exportieren.</p>
+        
+        <div class="success-message" id="successMessage">
+            ✓ Datensatz erfolgreich hinzugefügt!
+        </div>
+        
+        <form id="gemstoneForm">
+            <div class="section-title">Grundinformationen</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="stein">Stein *</label>
+                    <input type="text" id="stein" name="stein" required placeholder="z.B. Santa Maria blauer Aquamarin">
+                </div>
+                
+                <div class="form-group">
+                    <label for="herkunft">Herkunft</label>
+                    <select id="herkunft" name="herkunft">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Afghanistan">Afghanistan</option>
+                        <option value="Ägypten">Ägypten</option>
+                        <option value="Albanien">Albanien</option>
+                        <option value="Algerien">Algerien</option>
+                        <option value="Andorra">Andorra</option>
+                        <option value="Angola">Angola</option>
+                        <option value="Antigua und Barbuda">Antigua und Barbuda</option>
+                        <option value="Äquatorialguinea">Äquatorialguinea</option>
+                        <option value="Argentinien">Argentinien</option>
+                        <option value="Armenien">Armenien</option>
+                        <option value="Aserbaidschan">Aserbaidschan</option>
+                        <option value="Äthiopien">Äthiopien</option>
+                        <option value="Australien">Australien</option>
+                        <option value="Bahamas">Bahamas</option>
+                        <option value="Bahrain">Bahrain</option>
+                        <option value="Bangladesch">Bangladesch</option>
+                        <option value="Barbados">Barbados</option>
+                        <option value="Belarus">Belarus</option>
+                        <option value="Belgien">Belgien</option>
+                        <option value="Belize">Belize</option>
+                        <option value="Benin">Benin</option>
+                        <option value="Bhutan">Bhutan</option>
+                        <option value="Bolivien">Bolivien</option>
+                        <option value="Bosnien und Herzegowina">Bosnien und Herzegowina</option>
+                        <option value="Botswana">Botswana</option>
+                        <option value="Brasilien">Brasilien</option>
+                        <option value="Brunei">Brunei</option>
+                        <option value="Bulgarien">Bulgarien</option>
+                        <option value="Burkina Faso">Burkina Faso</option>
+                        <option value="Burundi">Burundi</option>
+                        <option value="Chile">Chile</option>
+                        <option value="China">China</option>
+                        <option value="Costa Rica">Costa Rica</option>
+                        <option value="Dänemark">Dänemark</option>
+                        <option value="Deutschland">Deutschland</option>
+                        <option value="Dominica">Dominica</option>
+                        <option value="Dominikanische Republik">Dominikanische Republik</option>
+                        <option value="Dschibuti">Dschibuti</option>
+                        <option value="Ecuador">Ecuador</option>
+                        <option value="El Salvador">El Salvador</option>
+                        <option value="Elfenbeinküste">Elfenbeinküste</option>
+                        <option value="Eritrea">Eritrea</option>
+                        <option value="Estland">Estland</option>
+                        <option value="Eswatini">Eswatini</option>
+                        <option value="Fidschi">Fidschi</option>
+                        <option value="Finnland">Finnland</option>
+                        <option value="Frankreich">Frankreich</option>
+                        <option value="Gabun">Gabun</option>
+                        <option value="Gambia">Gambia</option>
+                        <option value="Georgien">Georgien</option>
+                        <option value="Ghana">Ghana</option>
+                        <option value="Grenada">Grenada</option>
+                        <option value="Griechenland">Griechenland</option>
+                        <option value="Guatemala">Guatemala</option>
+                        <option value="Guinea">Guinea</option>
+                        <option value="Guinea-Bissau">Guinea-Bissau</option>
+                        <option value="Guyana">Guyana</option>
+                        <option value="Haiti">Haiti</option>
+                        <option value="Honduras">Honduras</option>
+                        <option value="Indien">Indien</option>
+                        <option value="Indonesien">Indonesien</option>
+                        <option value="Irak">Irak</option>
+                        <option value="Iran">Iran</option>
+                        <option value="Irland">Irland</option>
+                        <option value="Island">Island</option>
+                        <option value="Israel">Israel</option>
+                        <option value="Italien">Italien</option>
+                        <option value="Jamaika">Jamaika</option>
+                        <option value="Japan">Japan</option>
+                        <option value="Jemen">Jemen</option>
+                        <option value="Jordanien">Jordanien</option>
+                        <option value="Kambodscha">Kambodscha</option>
+                        <option value="Kamerun">Kamerun</option>
+                        <option value="Kanada">Kanada</option>
+                        <option value="Kap Verde">Kap Verde</option>
+                        <option value="Kasachstan">Kasachstan</option>
+                        <option value="Katar">Katar</option>
+                        <option value="Kenia">Kenia</option>
+                        <option value="Kirgisistan">Kirgisistan</option>
+                        <option value="Kiribati">Kiribati</option>
+                        <option value="Kolumbien">Kolumbien</option>
+                        <option value="Komoren">Komoren</option>
+                        <option value="Kongo">Kongo</option>
+                        <option value="Demokratische Republik Kongo">Demokratische Republik Kongo</option>
+                        <option value="Kroatien">Kroatien</option>
+                        <option value="Kuba">Kuba</option>
+                        <option value="Kuwait">Kuwait</option>
+                        <option value="Laos">Laos</option>
+                        <option value="Lesotho">Lesotho</option>
+                        <option value="Lettland">Lettland</option>
+                        <option value="Libanon">Libanon</option>
+                        <option value="Liberia">Liberia</option>
+                        <option value="Libyen">Libyen</option>
+                        <option value="Liechtenstein">Liechtenstein</option>
+                        <option value="Litauen">Litauen</option>
+                        <option value="Luxemburg">Luxemburg</option>
+                        <option value="Madagaskar">Madagaskar</option>
+                        <option value="Malawi">Malawi</option>
+                        <option value="Malaysia">Malaysia</option>
+                        <option value="Malediven">Malediven</option>
+                        <option value="Mali">Mali</option>
+                        <option value="Malta">Malta</option>
+                        <option value="Marokko">Marokko</option>
+                        <option value="Marshallinseln">Marshallinseln</option>
+                        <option value="Mauretanien">Mauretanien</option>
+                        <option value="Mauritius">Mauritius</option>
+                        <option value="Mexiko">Mexiko</option>
+                        <option value="Mikronesien">Mikronesien</option>
+                        <option value="Moldau">Moldau</option>
+                        <option value="Monaco">Monaco</option>
+                        <option value="Mongolei">Mongolei</option>
+                        <option value="Montenegro">Montenegro</option>
+                        <option value="Mosambik">Mosambik</option>
+                        <option value="Myanmar">Myanmar</option>
+                        <option value="Namibia">Namibia</option>
+                        <option value="Nauru">Nauru</option>
+                        <option value="Nepal">Nepal</option>
+                        <option value="Neuseeland">Neuseeland</option>
+                        <option value="Nicaragua">Nicaragua</option>
+                        <option value="Niederlande">Niederlande</option>
+                        <option value="Niger">Niger</option>
+                        <option value="Nigeria">Nigeria</option>
+                        <option value="Nordkorea">Nordkorea</option>
+                        <option value="Nordmazedonien">Nordmazedonien</option>
+                        <option value="Norwegen">Norwegen</option>
+                        <option value="Oman">Oman</option>
+                        <option value="Österreich">Österreich</option>
+                        <option value="Pakistan">Pakistan</option>
+                        <option value="Palau">Palau</option>
+                        <option value="Panama">Panama</option>
+                        <option value="Papua-Neuguinea">Papua-Neuguinea</option>
+                        <option value="Paraguay">Paraguay</option>
+                        <option value="Peru">Peru</option>
+                        <option value="Philippinen">Philippinen</option>
+                        <option value="Polen">Polen</option>
+                        <option value="Portugal">Portugal</option>
+                        <option value="Ruanda">Ruanda</option>
+                        <option value="Rumänien">Rumänien</option>
+                        <option value="Russland">Russland</option>
+                        <option value="Salomonen">Salomonen</option>
+                        <option value="Sambia">Sambia</option>
+                        <option value="Samoa">Samoa</option>
+                        <option value="San Marino">San Marino</option>
+                        <option value="São Tomé und Príncipe">São Tomé und Príncipe</option>
+                        <option value="Saudi-Arabien">Saudi-Arabien</option>
+                        <option value="Schweden">Schweden</option>
+                        <option value="Schweiz">Schweiz</option>
+                        <option value="Senegal">Senegal</option>
+                        <option value="Serbien">Serbien</option>
+                        <option value="Seychellen">Seychellen</option>
+                        <option value="Sierra Leone">Sierra Leone</option>
+                        <option value="Simbabwe">Simbabwe</option>
+                        <option value="Singapur">Singapur</option>
+                        <option value="Slowakei">Slowakei</option>
+                        <option value="Slowenien">Slowenien</option>
+                        <option value="Somalia">Somalia</option>
+                        <option value="Spanien">Spanien</option>
+                        <option value="Sri Lanka">Sri Lanka</option>
+                        <option value="St. Kitts und Nevis">St. Kitts und Nevis</option>
+                        <option value="St. Lucia">St. Lucia</option>
+                        <option value="St. Vincent und die Grenadinen">St. Vincent und die Grenadinen</option>
+                        <option value="Südafrika">Südafrika</option>
+                        <option value="Sudan">Sudan</option>
+                        <option value="Südkorea">Südkorea</option>
+                        <option value="Südsudan">Südsudan</option>
+                        <option value="Suriname">Suriname</option>
+                        <option value="Syrien">Syrien</option>
+                        <option value="Tadschikistan">Tadschikistan</option>
+                        <option value="Taiwan">Taiwan</option>
+                        <option value="Tansania">Tansania</option>
+                        <option value="Thailand">Thailand</option>
+                        <option value="Timor-Leste">Timor-Leste</option>
+                        <option value="Togo">Togo</option>
+                        <option value="Tonga">Tonga</option>
+                        <option value="Trinidad und Tobago">Trinidad und Tobago</option>
+                        <option value="Tschad">Tschad</option>
+                        <option value="Tschechien">Tschechien</option>
+                        <option value="Tunesien">Tunesien</option>
+                        <option value="Türkei">Türkei</option>
+                        <option value="Turkmenistan">Turkmenistan</option>
+                        <option value="Tuvalu">Tuvalu</option>
+                        <option value="Uganda">Uganda</option>
+                        <option value="Ukraine">Ukraine</option>
+                        <option value="Ungarn">Ungarn</option>
+                        <option value="Uruguay">Uruguay</option>
+                        <option value="USA">USA</option>
+                        <option value="Usbekistan">Usbekistan</option>
+                        <option value="Vanuatu">Vanuatu</option>
+                        <option value="Vatikanstadt">Vatikanstadt</option>
+                        <option value="Venezuela">Venezuela</option>
+                        <option value="Vereinigte Arabische Emirate">Vereinigte Arabische Emirate</option>
+                        <option value="Vietnam">Vietnam</option>
+                        <option value="Weißrussland">Weißrussland</option>
+                        <option value="Zentralafrikanische Republik">Zentralafrikanische Republik</option>
+                        <option value="Zypern">Zypern</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="besonderheit">Besonderheit</label>
+                    <input type="text" id="besonderheit" name="besonderheit" placeholder="z.B. herausragendes blau erhitzt farbstabil">
+                </div>
+                
+                <div class="form-group">
+                    <label for="qualitaet">Qualität</label>
+                    <select id="qualitaet" name="qualitaet">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="sehr gut">sehr gut</option>
+                        <option value="gut">gut</option>
+                        <option value="zufriedenstellend">zufriedenstellend</option>
+                        <option value="ausreichend">ausreichend</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="farbe">Farbe *</label>
+                    <select id="farbe" name="farbe" required>
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Achatgrau">Achatgrau</option>
+                        <option value="Aprikose">Aprikose</option>
+                        <option value="Aquamarinblau">Aquamarinblau</option>
+                        <option value="Aschgrau">Aschgrau</option>
+                        <option value="Beige">Beige</option>
+                        <option value="Bernstein">Bernstein</option>
+                        <option value="Bisquit">Bisquit</option>
+                        <option value="Blassblau">Blassblau</option>
+                        <option value="Blassgelb">Blassgelb</option>
+                        <option value="Blassgrün">Blassgrün</option>
+                        <option value="Blasslila">Blasslila</option>
+                        <option value="Blassrosa">Blassrosa</option>
+                        <option value="Blau">Blau</option>
+                        <option value="Blau-Grün">Blau-Grün</option>
+                        <option value="Blau-Violett">Blau-Violett</option>
+                        <option value="Bläulich">Bläulich</option>
+                        <option value="Bläulich-Grün">Bläulich-Grün</option>
+                        <option value="Bläulich-Violett">Bläulich-Violett</option>
+                        <option value="Braun">Braun</option>
+                        <option value="Braun-Gelb">Braun-Gelb</option>
+                        <option value="Braun-Rot">Braun-Rot</option>
+                        <option value="Bronze">Bronze</option>
+                        <option value="Champagner">Champagner</option>
+                        <option value="Chromgrün">Chromgrün</option>
+                        <option value="Cognac">Cognac</option>
+                        <option value="Cyan">Cyan</option>
+                        <option value="Dunkelblau">Dunkelblau</option>
+                        <option value="Dunkelbraun">Dunkelbraun</option>
+                        <option value="Dunkelgelb">Dunkelgelb</option>
+                        <option value="Dunkelgrau">Dunkelgrau</option>
+                        <option value="Dunkelgrün">Dunkelgrün</option>
+                        <option value="Dunkellila">Dunkellila</option>
+                        <option value="Dunkelorange">Dunkelorange</option>
+                        <option value="Dunkelrosa">Dunkelrosa</option>
+                        <option value="Dunkelrot">Dunkelrot</option>
+                        <option value="Dunkeltürkis">Dunkeltürkis</option>
+                        <option value="Dunkelviolett">Dunkelviolett</option>
+                        <option value="Eisblau">Eisblau</option>
+                        <option value="Elfenbein">Elfenbein</option>
+                        <option value="Emeraldgrün">Emeraldgrün</option>
+                        <option value="Farblos">Farblos</option>
+                        <option value="Feuerrot">Feuerrot</option>
+                        <option value="Flieder">Flieder</option>
+                        <option value="Gelb">Gelb</option>
+                        <option value="Gelb-Grün">Gelb-Grün</option>
+                        <option value="Gelb-Orange">Gelb-Orange</option>
+                        <option value="Gelblich">Gelblich</option>
+                        <option value="Gelblich-Grün">Gelblich-Grün</option>
+                        <option value="Gold">Gold</option>
+                        <option value="Goldgelb">Goldgelb</option>
+                        <option value="Grau">Grau</option>
+                        <option value="Grau-Blau">Grau-Blau</option>
+                        <option value="Grau-Grün">Grau-Grün</option>
+                        <option value="Grün">Grün</option>
+                        <option value="Grün-Blau">Grün-Blau</option>
+                        <option value="Grün-Gelb">Grün-Gelb</option>
+                        <option value="Grünlich">Grünlich</option>
+                        <option value="Grünlich-Blau">Grünlich-Blau</option>
+                        <option value="Himmelblau">Himmelblau</option>
+                        <option value="Honiggelb">Honiggelb</option>
+                        <option value="Indigo">Indigo</option>
+                        <option value="Jadegrün">Jadegrün</option>
+                        <option value="Kamel">Kamel</option>
+                        <option value="Karminrot">Karminrot</option>
+                        <option value="Kastanienbraun">Kastanienbraun</option>
+                        <option value="Kobaltblau">Kobaltblau</option>
+                        <option value="Koralle">Koralle</option>
+                        <option value="Kupfer">Kupfer</option>
+                        <option value="Lachs">Lachs</option>
+                        <option value="Lavendel">Lavendel</option>
+                        <option value="Lemon">Lemon</option>
+                        <option value="Lila">Lila</option>
+                        <option value="Lila-Blau">Lila-Blau</option>
+                        <option value="Lila-Rot">Lila-Rot</option>
+                        <option value="Magenta">Magenta</option>
+                        <option value="Mahagoni">Mahagoni</option>
+                        <option value="Marineblau">Marineblau</option>
+                        <option value="Mint">Mint</option>
+                        <option value="Moosgrün">Moosgrün</option>
+                        <option value="Navy">Navy</option>
+                        <option value="Ocker">Ocker</option>
+                        <option value="Oliv">Oliv</option>
+                        <option value="Olivgrün">Olivgrün</option>
+                        <option value="Orange">Orange</option>
+                        <option value="Orange-Gelb">Orange-Gelb</option>
+                        <option value="Orange-Rot">Orange-Rot</option>
+                        <option value="Orchidee">Orchidee</option>
+                        <option value="Pastellblau">Pastellblau</option>
+                        <option value="Pastellgelb">Pastellgelb</option>
+                        <option value="Pastellgrün">Pastellgrün</option>
+                        <option value="Pastelllila">Pastelllila</option>
+                        <option value="Pastellrosa">Pastellrosa</option>
+                        <option value="Perlmutt">Perlmutt</option>
+                        <option value="Pfirsich">Pfirsich</option>
+                        <option value="Pink">Pink</option>
+                        <option value="Pink-Rot">Pink-Rot</option>
+                        <option value="Platin">Platin</option>
+                        <option value="Purpur">Purpur</option>
+                        <option value="Rosa">Rosa</option>
+                        <option value="Rosa-Lila">Rosa-Lila</option>
+                        <option value="Rosa-Rot">Rosa-Rot</option>
+                        <option value="Rot">Rot</option>
+                        <option value="Rot-Orange">Rot-Orange</option>
+                        <option value="Rot-Violett">Rot-Violett</option>
+                        <option value="Rötlich">Rötlich</option>
+                        <option value="Rötlich-Orange">Rötlich-Orange</option>
+                        <option value="Rötlich-Violett">Rötlich-Violett</option>
+                        <option value="Rubinrot">Rubinrot</option>
+                        <option value="Safrangelb">Safrangelb</option>
+                        <option value="Salmon">Salmon</option>
+                        <option value="Scharlachrot">Scharlachrot</option>
+                        <option value="Schwarz">Schwarz</option>
+                        <option value="Schwarz-Blau">Schwarz-Blau</option>
+                        <option value="Schwarz-Grün">Schwarz-Grün</option>
+                        <option value="Schwarz-Rot">Schwarz-Rot</option>
+                        <option value="Schwarz-Violett">Schwarz-Violett</option>
+                        <option value="Silber">Silber</option>
+                        <option value="Smaragdgrün">Smaragdgrün</option>
+                        <option value="Tannengrün">Tannengrün</option>
+                        <option value="Taupe">Taupe</option>
+                        <option value="Teal">Teal</option>
+                        <option value="Tiefblau">Tiefblau</option>
+                        <option value="Tiefgrün">Tiefgrün</option>
+                        <option value="Tiefrot">Tiefrot</option>
+                        <option value="Tiefviolett">Tiefviolett</option>
+                        <option value="Türkis">Türkis</option>
+                        <option value="Türkis-Blau">Türkis-Blau</option>
+                        <option value="Türkis-Grün">Türkis-Grün</option>
+                        <option value="Ultramarin">Ultramarin</option>
+                        <option value="Vanille">Vanille</option>
+                        <option value="Violett">Violett</option>
+                        <option value="Violett-Blau">Violett-Blau</option>
+                        <option value="Violett-Rot">Violett-Rot</option>
+                        <option value="Violettlich">Violettlich</option>
+                        <option value="Weiß">Weiß</option>
+                        <option value="Weiß-Gelb">Weiß-Gelb</option>
+                        <option value="Weiß-Grün">Weiß-Grün</option>
+                        <option value="Weißlich">Weißlich</option>
+                        <option value="Weißlich-Blau">Weißlich-Blau</option>
+                        <option value="Weißlich-Grün">Weißlich-Grün</option>
+                        <option value="Zitronengelb">Zitronengelb</option>
+                        <option value="Zitronengrün">Zitronengrün</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="transparent">Transparent</label>
+                    <select id="transparent" name="transparent">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Transparent">Transparent</option>
+                        <option value="Transluzent">Transluzent</option>
+                        <option value="Opak">Opak</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="schliffart">Schliffart</label>
+                    <select id="schliffart" name="schliffart">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Brillant-Schliff">Brillant-Schliff</option>
+                        <option value="Stufen-Schliff">Stufen-Schliff</option>
+                        <option value="Konkav-Schliff">Konkav-Schliff</option>
+                        <option value="Portugiesischer Schliff">Portugiesischer Schliff</option>
+                        <option value="Treppen-Schliff">Treppen-Schliff</option>
+                        <option value="Rosen-Schliff">Rosen-Schliff</option>
+                        <option value="Schachbrett-Schliff">Schachbrett-Schliff</option>
+                        <option value="Mischschliff">Mischschliff</option>
+                        <option value="Cabochon">Cabochon</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cutRough">Cut/Rough *</label>
+                    <select id="cutRough" name="cutRough" required>
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="cut">Cut</option>
+                        <option value="rough">Rough</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="kategorie">Kategorie *</label>
+                    <select id="kategorie" name="kategorie" required>
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Achat">Achat</option>
+                        <option value="Alexandrit">Alexandrit</option>
+                        <option value="Amethyst">Amethyst</option>
+                        <option value="Apatit">Apatit</option>
+                        <option value="Aquamarin">Aquamarin</option>
+                        <option value="Aventurin">Aventurin</option>
+                        <option value="Beryll">Beryll</option>
+                        <option value="Beryllonit">Beryllonit</option>
+                        <option value="Brasilianit">Brasilianit</option>
+                        <option value="Calcit">Calcit</option>
+                        <option value="Chalcedon">Chalcedon</option>
+                        <option value="Chrysoberyll">Chrysoberyll</option>
+                        <option value="Chrysopras">Chrysopras</option>
+                        <option value="Citrin">Citrin</option>
+                        <option value="Danburit">Danburit</option>
+                        <option value="Demantoid">Demantoid</option>
+                        <option value="Diamant">Diamant</option>
+                        <option value="Diopsid">Diopsid</option>
+                        <option value="Epidot">Epidot</option>
+                        <option value="Fluorit">Fluorit</option>
+                        <option value="Garnet">Garnet</option>
+                        <option value="Goshenit">Goshenit</option>
+                        <option value="Grossular">Grossular</option>
+                        <option value="Hämatit">Hämatit</option>
+                        <option value="Heliodor">Heliodor</option>
+                        <option value="Hessonit">Hessonit</option>
+                        <option value="Hiddenit">Hiddenit</option>
+                        <option value="Iolith">Iolith</option>
+                        <option value="Jade">Jade</option>
+                        <option value="Jaspis">Jaspis</option>
+                        <option value="Korund">Korund</option>
+                        <option value="Kunzit">Kunzit</option>
+                        <option value="Labradorit">Labradorit</option>
+                        <option value="Lapis Lazuli">Lapis Lazuli</option>
+                        <option value="Moldavit">Moldavit</option>
+                        <option value="Mondstein">Mondstein</option>
+                        <option value="Morganit">Morganit</option>
+                        <option value="Obsidian">Obsidian</option>
+                        <option value="Opal">Opal</option>
+                        <option value="Padparadscha">Padparadscha</option>
+                        <option value="Peridot">Peridot</option>
+                        <option value="Prehnit">Prehnit</option>
+                        <option value="Pyrit">Pyrit</option>
+                        <option value="Quarz">Quarz</option>
+                        <option value="Rhodolith">Rhodolith</option>
+                        <option value="Rubin">Rubin</option>
+                        <option value="Saphir">Saphir</option>
+                        <option value="Sardonyx">Sardonyx</option>
+                        <option value="Schörl">Schörl</option>
+                        <option value="Smaragd">Smaragd</option>
+                        <option value="Spessartin">Spessartin</option>
+                        <option value="Spinell">Spinell</option>
+                        <option value="Spodumen">Spodumen</option>
+                        <option value="Sunstone">Sunstone</option>
+                        <option value="Tansanit">Tansanit</option>
+                        <option value="Tigerauge">Tigerauge</option>
+                        <option value="Topas">Topas</option>
+                        <option value="Tourmalin">Tourmalin</option>
+                        <option value="Tsavorit">Tsavorit</option>
+                        <option value="Turmalin">Turmalin</option>
+                        <option value="Uvarovit">Uvarovit</option>
+                        <option value="Vesuvianit">Vesuvianit</option>
+                        <option value="Zirkon">Zirkon</option>
+                        <option value="Zoisit">Zoisit</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-title">Gewicht und Abmessungen</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="karat">Karat</label>
+                    <input type="number" id="karat" name="karat" step="0.01" placeholder="z.B. 6.96">
+                </div>
+                
+                <div class="form-group">
+                    <label for="laenge_mm">Länge (mm)</label>
+                    <input type="number" id="laenge_mm" name="laenge_mm" step="0.01" placeholder="z.B. 12.12">
+                </div>
+                
+                <div class="form-group">
+                    <label for="breite_mm">Breite (mm)</label>
+                    <input type="number" id="breite_mm" name="breite_mm" step="0.01" placeholder="z.B. 10.38">
+                </div>
+                
+                <div class="form-group">
+                    <label for="hoehe_mm">Höhe (mm)</label>
+                    <input type="number" id="hoehe_mm" name="hoehe_mm" step="0.01" placeholder="z.B. 7.62">
+                </div>
+                
+                <div class="form-group">
+                    <label for="preis">Preis *</label>
+                    <input type="number" id="preis" name="preis" step="0.01" required placeholder="z.B. 1600">
+                </div>
+                
+                <div class="form-group">
+                    <label for="waehrung">Währung *</label>
+                    <select id="waehrung" name="waehrung" required>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                        <option value="GBP">GBP</option>
+                        <option value="CHF">CHF</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-title">Zusätzliche Informationen</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="entstehung">Entstehung</label>
+                    <select id="entstehung" name="entstehung">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="natürlich">natürlich</option>
+                        <option value="synthetisch">synthetisch</option>
+                        <option value="Imitation">Imitation</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mine">Mine</label>
+                    <input type="text" id="mine" name="mine" placeholder="z.B. Santa Maria">
+                </div>
+                
+                <div class="form-group">
+                    <label for="schliffform">Schliffform</label>
+                    <select id="schliffform" name="schliffform">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Rund">Rund</option>
+                        <option value="Oval">Oval</option>
+                        <option value="Kissen">Kissen</option>
+                        <option value="Herz">Herz</option>
+                        <option value="Tropfen">Tropfen</option>
+                        <option value="Marquise">Marquise</option>
+                        <option value="Princess">Princess</option>
+                        <option value="Brillant">Brillant</option>
+                        <option value="Smaragd">Smaragd</option>
+                        <option value="Baguette">Baguette</option>
+                        <option value="Asscher">Asscher</option>
+                        <option value="Trillion">Trillion</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="schliffqualitaet">Schliffqualität</label>
+                    <select id="schliffqualitaet" name="schliffqualitaet">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Very Good">Very Good</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Poor">Poor</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reinheitsgrad">Reinheitsgrad</label>
+                    <select id="reinheitsgrad" name="reinheitsgrad">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="FL">FL - Flawless (Lupenrein, keine Einschlüsse)</option>
+                        <option value="VVS">VVS - Very Very Slightly Included (Sehr, sehr kleine Einschlüsse, nur unter 10-facher Vergrößerung erkennbar)</option>
+                        <option value="VS">VS - Very Slightly Included (Sehr kleine Einschlüsse, unter 10-facher Vergrößerung erkennbar, nicht mit bloßem Auge)</option>
+                        <option value="SI">SI - Slightly Included (Kleine Einschlüsse, unter 10-facher Vergrößerung leicht erkennbar, manchmal mit bloßem Auge sichtbar)</option>
+                        <option value="I">I - Included (Einschlüsse mit bloßem Auge deutlich sichtbar, können Brillanz beeinträchtigen)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="farbsaettigung">Farbsättigung</label>
+                    <select id="farbsaettigung" name="farbsaettigung">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Pale">Pale (sehr hell)</option>
+                        <option value="Light">Light (hell)</option>
+                        <option value="Medium">Medium (mittel)</option>
+                        <option value="Intense">Intense (intensiv)</option>
+                        <option value="Vivid">Vivid (sehr intensiv)</option>
+                        <option value="Rich">Rich (satt)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="farbsaettigung_1_10">Farbsättigung (1-10)</label>
+                    <input type="number" id="farbsaettigung_1_10" name="farbsaettigung_1_10" min="1" max="10" placeholder="z.B. 8">
+                </div>
+                
+                <div class="form-group">
+                    <label for="helligkeit">Helligkeit</label>
+                    <input type="number" id="helligkeit" name="helligkeit" min="1" max="10" placeholder="1-10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="farbgrad">Farbgrad</label>
+                    <input type="text" id="farbgrad" name="farbgrad" placeholder="z.B. D">
+                </div>
+                
+                <div class="form-group">
+                    <label for="symmetrie">Symmetrie</label>
+                    <select id="symmetrie" name="symmetrie">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Very Good">Very Good</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Poor">Poor</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="politur">Politur</label>
+                    <select id="politur" name="politur">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Very Good">Very Good</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Poor">Poor</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="kristallqualitaet">Kristallqualität</label>
+                    <input type="text" id="kristallqualitaet" name="kristallqualitaet" placeholder="z.B. Excellent">
+                </div>
+                
+                <div class="form-group">
+                    <label for="kristallform">Kristallform</label>
+                    <input type="text" id="kristallform" name="kristallform">
+                </div>
+                
+                <div class="form-group">
+                    <label for="geschaetzte_karat_ausbeute">Geschätzte Karat-Ausbeute</label>
+                    <input type="number" id="geschaetzte_karat_ausbeute" name="geschaetzte_karat_ausbeute" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="geeignet_fuer">Geeignet für</label>
+                    <input type="text" id="geeignet_fuer" name="geeignet_fuer" placeholder="z.B. Schmuck, Sammlung">
+                </div>
+            </div>
+            
+            <div class="section-title">Behandlung</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="behandelt">Behandelt</label>
+                    <select id="behandelt" name="behandelt">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="false">Nein</option>
+                        <option value="true">Ja</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="behandlungsart">Behandlungsart</label>
+                    <select id="behandlungsart" name="behandlungsart">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="none">Keine Behandlung</option>
+                        <option value="heated">Erhitzt</option>
+                        <option value="oiled">Geölt</option>
+                        <option value="irradiated">Bestrahlt</option>
+                        <option value="diffused">Diffusionsbehandlung</option>
+                        <option value="coated">Beschichtet</option>
+                        <option value="bleached">Gebleicht</option>
+                        <option value="filled">Gefüllt (Fracture Filling)</option>
+                        <option value="stabilized">Stabilisiert</option>
+                    </select>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="behandlungsbeschreibung">Behandlungsbeschreibung</label>
+                    <textarea id="behandlungsbeschreibung" name="behandlungsbeschreibung" placeholder="z.B. traditionelle Erhitzung"></textarea>
+                </div>
+            </div>
+            
+            <div class="section-title">Zertifizierung</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="zertifiziert">Zertifiziert</label>
+                    <select id="zertifiziert" name="zertifiziert">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="false">Nein</option>
+                        <option value="true">Ja</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="zertifizierungs_labor">Zertifizierungs-Labor</label>
+                    <select id="zertifizierungs_labor" name="zertifizierungs_labor">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="GIA">GIA</option>
+                        <option value="IGI">IGI</option>
+                        <option value="HRD">HRD</option>
+                        <option value="SSEF">SSEF</option>
+                        <option value="Gübelin">Gübelin</option>
+                        <option value="DSEF">DSEF</option>
+                        <option value="AIGS">AIGS</option>
+                        <option value="GRS">GRS</option>
+                        <option value="GemResearch Swisslab">GemResearch Swisslab</option>
+                        <option value="ICI">ICI</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="zertifikatsnummer">Zertifikatsnummer</label>
+                    <input type="text" id="zertifikatsnummer" name="zertifikatsnummer" placeholder="z.B. ICI-2024-001">
+                </div>
+                
+                <div class="form-group">
+                    <label for="zertifikats_url">Zertifikats-URL</label>
+                    <input type="url" id="zertifikats_url" name="zertifikats_url" placeholder="https://...">
+                </div>
+            </div>
+            
+            <div class="section-title">Weitere Informationen</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="raritaet">Rarität</label>
+                    <select id="raritaet" name="raritaet">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Gewöhnlich">Gewöhnlich</option>
+                        <option value="Häufig">Häufig</option>
+                        <option value="Selten">Selten</option>
+                        <option value="Sehr selten">Sehr selten</option>
+                        <option value="außergewöhnliches">Außergewöhnlich</option>
+                        <option value="Einzigartig">Einzigartig</option>
+                        <option value="Museumsqualität">Museumsqualität</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="verfuegbar">Verfügbar</label>
+                    <select id="verfuegbar" name="verfuegbar">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="true">Ja</option>
+                        <option value="false">Nein</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="anzahl">Anzahl</label>
+                    <input type="number" id="anzahl" name="anzahl" min="1" value="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sku">SKU</label>
+                    <input type="text" id="sku" name="sku" placeholder="Stock Keeping Unit">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="kurzbeschreibung">Kurzbeschreibung</label>
+                    <textarea id="kurzbeschreibung" name="kurzbeschreibung" placeholder="z.B. herausragendes blau"></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="langbeschreibung">Langbeschreibung</label>
+                    <textarea id="langbeschreibung" name="langbeschreibung" placeholder="Ausführliche Beschreibung des Edelsteins"></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="bilder">Bilder (URLs, durch Komma getrennt)</label>
+                    <textarea id="bilder" name="bilder" placeholder="/products/696_Aqua-1.jpg,/products/696_Aqua-2.jpg"></textarea>
+                    <div class="help-text">Mehrere URLs durch Komma trennen</div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="videos">Videos (URLs, durch Komma getrennt)</label>
+                    <textarea id="videos" name="videos" placeholder="/products/video1.mp4"></textarea>
+                    <div class="help-text">Mehrere URLs durch Komma trennen</div>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="neu" name="neu" value="true">
+                    <label for="neu" style="margin: 0;">Neu</label>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="featured" name="featured" value="true">
+                    <label for="featured" style="margin: 0;">Featured</label>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="verkauft" name="verkauft" value="true">
+                    <label for="verkauft" style="margin: 0;">Verkauft</label>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" class="btn-primary" onclick="addRecord()">Datensatz hinzufügen</button>
+                <button type="button" class="btn-secondary" onclick="clearForm()">Formular zurücksetzen</button>
+            </div>
+        </form>
+        
+        <div class="records-section" id="recordsSection" style="display: none;">
+            <div class="section-title">Gespeicherte Datensätze (<span id="recordCount">0</span>)</div>
+            <div id="recordsList" class="records-list"></div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button type="button" class="btn-primary" onclick="generateCSV()">CSV generieren und herunterladen</button>
+                <button type="button" class="btn-secondary" onclick="clearAllRecords()">Alle Datensätze löschen</button>
+            </div>
+        </div>
+        
+        <div class="csv-output" id="csvOutput" style="display: none;">
+            <h3>Generierte CSV-Daten</h3>
+            <textarea id="csvOutputText" readonly></textarea>
+            <div class="button-group" style="margin-top: 15px;">
+                <button type="button" class="btn-primary" onclick="downloadCSV()">CSV herunterladen</button>
+                <button type="button" class="btn-secondary" onclick="copyToClipboard()">In Zwischenablage kopieren</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // CSV Header (entspricht der Vorlage)
+        const CSV_HEADER = 'Stein,Herkunft,Besonderheit,Qualität,Farbe,transparent,Schliffart,Cut/Rough,Karat,Länge_mm,Breite_mm,Höhe_mm,Preis,Kategorie,Entstehung,Mine,Schliffform,Schliffqualität,Reinheitsgrad,Farbsättigung,Farbsättigung_1_10,Helligkeit,Farbgrad,Symmetrie,Politur,Kristallqualität,Kristallform,Geschätzte_Karat_Ausbeute,Geeignet_für,Behandelt,Behandlungsart,Behandlungsbeschreibung,Zertifiziert,Zertifizierungs_Labor,Zertifikatsnummer,Zertifikats_URL,Rarität,Verfügbar,Anzahl,SKU,Währung,Kurzbeschreibung,Langbeschreibung,Bilder,Videos,Neu,Featured,Verkauft';
+        
+        // Array zum Speichern aller Datensätze
+        let records = [];
+        let editingIndex = -1;
+        
+        function escapeCSV(value) {
+            if (value === null || value === undefined || value === '') {
+                return '';
+            }
+            const stringValue = String(value);
+            // Wenn Komma, Anführungszeichen oder Zeilenumbruch enthalten, in Anführungszeichen setzen
+            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                return '"' + stringValue.replace(/"/g, '""') + '"';
+            }
+            return stringValue;
+        }
+        
+        function getFormValue(id) {
+            const element = document.getElementById(id);
+            if (!element) return '';
+            
+            if (element.type === 'checkbox') {
+                return element.checked ? 'true' : 'false';
+            }
+            
+            return element.value || '';
+        }
+        
+        function getAllFormValues() {
+            return {
+                stein: getFormValue('stein'),
+                herkunft: getFormValue('herkunft'),
+                besonderheit: getFormValue('besonderheit'),
+                qualitaet: getFormValue('qualitaet'),
+                farbe: getFormValue('farbe'),
+                transparent: getFormValue('transparent'),
+                Schliffart: getFormValue('schliffart'),
+                cutRough: getFormValue('cutRough'),
+                karat: getFormValue('karat'),
+                laenge_mm: getFormValue('laenge_mm'),
+                breite_mm: getFormValue('breite_mm'),
+                hoehe_mm: getFormValue('hoehe_mm'),
+                preis: getFormValue('preis'),
+                kategorie: getFormValue('kategorie'),
+                entstehung: getFormValue('entstehung'),
+                mine: getFormValue('mine'),
+                schliffform: getFormValue('schliffform'),
+                schliffqualitaet: getFormValue('schliffqualitaet'),
+                reinheitsgrad: getFormValue('reinheitsgrad'),
+                farbsaettigung: getFormValue('farbsaettigung'),
+                farbsaettigung_1_10: getFormValue('farbsaettigung_1_10'),
+                helligkeit: getFormValue('helligkeit'),
+                farbgrad: getFormValue('farbgrad'),
+                symmetrie: getFormValue('symmetrie'),
+                politur: getFormValue('politur'),
+                kristallqualitaet: getFormValue('kristallqualitaet'),
+                kristallform: getFormValue('kristallform'),
+                geschaetzte_karat_ausbeute: getFormValue('geschaetzte_karat_ausbeute'),
+                geeignet_fuer: getFormValue('geeignet_fuer'),
+                behandelt: getFormValue('behandelt'),
+                behandlungsart: getFormValue('behandlungsart'),
+                behandlungsbeschreibung: getFormValue('behandlungsbeschreibung'),
+                zertifiziert: getFormValue('zertifiziert'),
+                zertifizierungs_labor: getFormValue('zertifizierungs_labor'),
+                zertifikatsnummer: getFormValue('zertifikatsnummer'),
+                zertifikats_url: getFormValue('zertifikats_url'),
+                raritaet: getFormValue('raritaet'),
+                verfuegbar: getFormValue('verfuegbar'),
+                anzahl: getFormValue('anzahl'),
+                sku: getFormValue('sku'),
+                waehrung: getFormValue('waehrung'),
+                kurzbeschreibung: getFormValue('kurzbeschreibung'),
+                langbeschreibung: getFormValue('langbeschreibung'),
+                bilder: getFormValue('bilder'),
+                videos: getFormValue('videos'),
+                neu: getFormValue('neu'),
+                featured: getFormValue('featured'),
+                verkauft: getFormValue('verkauft')
+            };
+        }
+        
+        function setFormValues(values) {
+            Object.keys(values).forEach(key => {
+                const element = document.getElementById(key);
+                if (!element) return;
+                
+                if (element.type === 'checkbox') {
+                    element.checked = values[key] === 'true';
+                } else {
+                    element.value = values[key] || '';
+                }
+            });
+        }
+        
+        function addRecord() {
+            const form = document.getElementById('gemstoneForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const values = getAllFormValues();
+            
+            if (editingIndex >= 0) {
+                // Bearbeiten bestehenden Datensatz
+                records[editingIndex] = values;
+                editingIndex = -1;
+            } else {
+                // Neuen Datensatz hinzufügen
+                records.push(values);
+            }
+            
+            updateRecordsList();
+            clearForm();
+            showSuccessMessage();
+        }
+        
+        function updateRecordsList() {
+            const recordsList = document.getElementById('recordsList');
+            const recordsSection = document.getElementById('recordsSection');
+            const recordCount = document.getElementById('recordCount');
+            
+            if (records.length === 0) {
+                recordsSection.style.display = 'none';
+                return;
+            }
+            
+            recordsSection.style.display = 'block';
+            recordCount.textContent = records.length;
+            
+            recordsList.innerHTML = '';
+            records.forEach((record, index) => {
+                const recordItem = document.createElement('div');
+                recordItem.className = 'record-item';
+                recordItem.innerHTML = `
+                    <div class="record-info">
+                        <strong>${record.stein || 'Unbenannt'}</strong>
+                        <span>Kategorie: ${record.kategorie || '-'}</span>
+                        <span>Farbe: ${record.farbe || '-'}</span>
+                        <span>Preis: ${record.preis || '-'} ${record.waehrung || 'EUR'}</span>
+                    </div>
+                    <div class="record-actions">
+                        <button type="button" class="btn-edit btn-small" onclick="editRecord(${index})">Bearbeiten</button>
+                        <button type="button" class="btn-danger btn-small" onclick="deleteRecord(${index})">Löschen</button>
+                    </div>
+                `;
+                recordsList.appendChild(recordItem);
+            });
+        }
+        
+        function editRecord(index) {
+            editingIndex = index;
+            const record = records[index];
+            setFormValues(record);
+            
+            // Scroll zum Formular
+            document.getElementById('gemstoneForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        function deleteRecord(index) {
+            if (confirm('Möchten Sie diesen Datensatz wirklich löschen?')) {
+                records.splice(index, 1);
+                updateRecordsList();
+            }
+        }
+        
+        function clearAllRecords() {
+            if (records.length === 0) return;
+            if (confirm('Möchten Sie wirklich alle ' + records.length + ' Datensätze löschen?')) {
+                records = [];
+                updateRecordsList();
+            }
+        }
+        
+        function showSuccessMessage() {
+            const message = document.getElementById('successMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+        
+        function generateCSV() {
+            if (records.length === 0) {
+                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
+                return;
+            }
+            
+            const csvRows = records.map(record => {
+                return [
+                    escapeCSV(record.stein),
+                    escapeCSV(record.herkunft),
+                    escapeCSV(record.besonderheit),
+                    escapeCSV(record.qualitaet),
+                    escapeCSV(record.farbe),
+                    escapeCSV(record.transparent),
+                    escapeCSV(record.Schliffart),
+                    escapeCSV(record.cutRough),
+                    escapeCSV(record.karat),
+                    escapeCSV(record.laenge_mm),
+                    escapeCSV(record.breite_mm),
+                    escapeCSV(record.hoehe_mm),
+                    escapeCSV(record.preis),
+                    escapeCSV(record.kategorie),
+                    escapeCSV(record.entstehung),
+                    escapeCSV(record.mine),
+                    escapeCSV(record.schliffform),
+                    escapeCSV(record.schliffqualitaet),
+                    escapeCSV(record.reinheitsgrad),
+                    escapeCSV(record.farbsaettigung),
+                    escapeCSV(record.farbsaettigung_1_10),
+                    escapeCSV(record.helligkeit),
+                    escapeCSV(record.farbgrad),
+                    escapeCSV(record.symmetrie),
+                    escapeCSV(record.politur),
+                    escapeCSV(record.kristallqualitaet),
+                    escapeCSV(record.kristallform),
+                    escapeCSV(record.geschaetzte_karat_ausbeute),
+                    escapeCSV(record.geeignet_fuer),
+                    escapeCSV(record.behandelt),
+                    escapeCSV(record.behandlungsart),
+                    escapeCSV(record.behandlungsbeschreibung),
+                    escapeCSV(record.zertifiziert),
+                    escapeCSV(record.zertifizierungs_labor),
+                    escapeCSV(record.zertifikatsnummer),
+                    escapeCSV(record.zertifikats_url),
+                    escapeCSV(record.raritaet),
+                    escapeCSV(record.verfuegbar),
+                    escapeCSV(record.anzahl),
+                    escapeCSV(record.sku),
+                    escapeCSV(record.waehrung),
+                    escapeCSV(record.kurzbeschreibung),
+                    escapeCSV(record.langbeschreibung),
+                    escapeCSV(record.bilder),
+                    escapeCSV(record.videos),
+                    escapeCSV(record.neu),
+                    escapeCSV(record.featured),
+                    escapeCSV(record.verkauft)
+                ].join(',');
+            });
+            
+            const fullCSV = CSV_HEADER + '\n' + csvRows.join('\n');
+            
+            document.getElementById('csvOutput').style.display = 'block';
+            document.getElementById('csvOutputText').value = fullCSV;
+            
+            // Automatisch herunterladen
+            downloadCSV();
+            
+            // Scroll to output
+            document.getElementById('csvOutput').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function clearForm() {
+            document.getElementById('gemstoneForm').reset();
+            editingIndex = -1;
+        }
+        
+        function downloadCSV() {
+            const csvText = document.getElementById('csvOutputText').value;
+            if (!csvText) {
+                alert('Bitte generieren Sie zuerst die CSV-Daten.');
+                return;
+            }
+            
+            const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'edelsteine-upload.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function copyToClipboard() {
+            const csvText = document.getElementById('csvOutputText').value;
+            if (!csvText) {
+                alert('Bitte generieren Sie zuerst die CSV-Daten.');
+                return;
+            }
+            
+            navigator.clipboard.writeText(csvText).then(() => {
+                alert('CSV-Daten wurden in die Zwischenablage kopiert!');
+            }).catch(err => {
+                alert('Fehler beim Kopieren: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
+

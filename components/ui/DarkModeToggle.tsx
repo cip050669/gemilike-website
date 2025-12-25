@@ -65,6 +65,7 @@ export function DarkModeToggle({ className }: DarkModeToggleProps) {
       size="icon"
       onClick={toggleDarkMode}
       aria-label={darkMode ? 'Light Mode aktivieren' : 'Dark Mode aktivieren'}
+      title={darkMode ? 'Hellmodus aktivieren - Wechseln Sie zum hellen Farbschema' : 'Dunkelmodus aktivieren - Wechseln Sie zum dunklen Farbschema'}
       className={className}
     >
       {darkMode ? (
