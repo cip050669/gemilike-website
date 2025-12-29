@@ -3,6 +3,16 @@ import { Cart } from '@/components/cart/Cart'
 import { useCartStore } from '@/lib/store/cart'
 import { createMockCartItem } from '../../utils/mock-data.helper'
 
+jest.mock('next/image', () => {
+  const NextImageMock = (props: any) => {
+    const { alt, ...rest } = props
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img alt={alt} {...rest} />
+  }
+  NextImageMock.displayName = 'NextImageMock'
+  return NextImageMock
+})
+
 // Mock cart store
 jest.mock('@/lib/store/cart')
 const mockedUseCartStore = useCartStore as jest.MockedFunction<typeof useCartStore>
@@ -131,7 +141,7 @@ describe('Cart Component', () => {
     render(<Cart />)
     expect(screen.getByText('Gemstone 1')).toBeInTheDocument()
     expect(screen.getByText('Gemstone 2')).toBeInTheDocument()
-    expect(screen.getByText(/EUR 300\.00/)).toBeInTheDocument()
+    expect(screen.getByText(/300,00/)).toBeInTheDocument()
   })
 
   it('should call toggleCart when close button is clicked', () => {

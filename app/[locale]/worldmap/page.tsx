@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { prisma, withRetry } from '@/lib/prisma';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { WorldMapClient } from '@/components/worldmap/WorldMapClient';
 
@@ -10,21 +10,25 @@ export default async function WorldMapPage({ params }: { params: Promise<{ local
     ? 'Entdecken Sie die wichtigsten Fundorte der 20 bedeutendsten Edelsteine auf unserer interaktiven Weltkarte'
     : 'Discover the key deposits of the 20 most significant gemstones on our interactive world map.';
 
-  // Lade alle aktiven Fundorte mit ihren Daten
-  const locationRecords = await prisma.location.findMany({
-    where: { isActive: true },
-    include: {
-      country: true,
-      gemType: true
-    },
-    orderBy: { name: 'asc' }
-  });
+  // Lade alle aktiven Fundorte mit ihren Daten (mit Retry-Logik für Verbindungsfehler)
+  const locationRecords = await withRetry(() =>
+    prisma.location.findMany({
+      where: { isActive: true },
+      include: {
+        country: true,
+        gemType: true
+      },
+      orderBy: { name: 'asc' }
+    })
+  );
 
-  // Lade alle Edelstein-Typen für die Legende
-  const gemTypeRecords = await prisma.gemType.findMany({
-    where: { isActive: true },
-    orderBy: { name: 'asc' }
-  });
+  // Lade alle Edelstein-Typen für die Legende (mit Retry-Logik für Verbindungsfehler)
+  const gemTypeRecords = await withRetry(() =>
+    prisma.gemType.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' }
+    })
+  );
 
   const locations = locationRecords.map((location) => ({
     ...location,

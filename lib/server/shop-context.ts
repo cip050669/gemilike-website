@@ -46,7 +46,15 @@ const ensureCustomerForUser = async (userId: string, session: Session | null) =>
   if (!userExists) {
     // In development the session can contain placeholder ids (e.g. env-admin).
     // Skip customer creation but keep session-based cart/wishlist working.
-    console.warn(`User with id ${userId} does not exist in database. Skipping customer creation.`);
+    // Only log in development mode and only once per session to avoid spam
+    if (process.env.NODE_ENV === 'development' && userId === 'env-admin') {
+      // This is expected in development - no need to log every time
+      return null;
+    }
+    // For other cases, log as debug
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(`User with id ${userId} does not exist in database. Skipping customer creation.`);
+    }
     return null;
   }
 

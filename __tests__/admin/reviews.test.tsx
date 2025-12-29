@@ -3,7 +3,7 @@
  * Tests all CRUD operations, filtering, and verification for reviews
  */
 
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import AdminReviewsPage from '@/app/[locale]/admin/reviews/page';
 
 // Mock fetch
@@ -68,6 +68,17 @@ const mockReviews = [
   },
 ];
 
+const renderReviewsPage = async () => {
+  let utils: ReturnType<typeof render> | undefined;
+  await act(async () => {
+    utils = render(<AdminReviewsPage />);
+  });
+  await act(async () => {
+    await Promise.resolve();
+  });
+  return utils!;
+};
+
 describe('Admin Reviews Management', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -82,7 +93,7 @@ describe('Admin Reviews Management', () => {
 
   describe('Page Rendering', () => {
     it('should render reviews page with title and description', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Bewertungen')).toBeInTheDocument();
@@ -96,17 +107,17 @@ describe('Admin Reviews Management', () => {
     });
 
     it('should fetch reviews on mount', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith('/api/admin/reviews?');
+        expect(global.fetch).toHaveBeenCalledWith('/api/admin/reviews?', expect.any(Object));
       });
     });
   });
 
   describe('Review Display', () => {
     it('should display all reviews', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Ausgezeichneter Edelstein')).toBeInTheDocument();
@@ -116,7 +127,7 @@ describe('Admin Reviews Management', () => {
     });
 
     it('should display review ratings with stars', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         // Star icons are SVG elements without role="img"
@@ -127,7 +138,7 @@ describe('Admin Reviews Management', () => {
     });
 
     it('should display customer information', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText(/Max Mustermann/)).toBeInTheDocument();
@@ -137,7 +148,7 @@ describe('Admin Reviews Management', () => {
     });
 
     it('should display gemstone links when available', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Smaragd')).toBeInTheDocument();
@@ -149,7 +160,7 @@ describe('Admin Reviews Management', () => {
     });
 
     it('should display formatted dates', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         // German date format should be present
@@ -159,7 +170,7 @@ describe('Admin Reviews Management', () => {
     });
 
     it('should show verification badges', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         // There should be badges for verified and unverified reviews
@@ -173,7 +184,7 @@ describe('Admin Reviews Management', () => {
 
   describe('Filtering', () => {
     it('should filter reviews by all status', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Alle (3)')).toBeInTheDocument();
@@ -183,12 +194,12 @@ describe('Admin Reviews Management', () => {
       fireEvent.click(allButton);
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith('/api/admin/reviews?');
+        expect(global.fetch).toHaveBeenCalledWith('/api/admin/reviews?', expect.any(Object));
       });
     });
 
     it('should filter reviews by verified status', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Verifiziert (1)')).toBeInTheDocument();
@@ -198,12 +209,12 @@ describe('Admin Reviews Management', () => {
       fireEvent.click(verifiedButton);
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith('/api/admin/reviews?status=verified');
+        expect(global.fetch).toHaveBeenCalledWith('/api/admin/reviews?status=verified', expect.any(Object));
       });
     });
 
     it('should filter reviews by unverified status', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Nicht verifiziert (2)')).toBeInTheDocument();
@@ -213,12 +224,12 @@ describe('Admin Reviews Management', () => {
       fireEvent.click(unverifiedButton);
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith('/api/admin/reviews?status=unverified');
+        expect(global.fetch).toHaveBeenCalledWith('/api/admin/reviews?status=unverified', expect.any(Object));
       });
     });
 
     it('should update filter counts correctly', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Alle (3)')).toBeInTheDocument();
@@ -262,7 +273,7 @@ describe('Admin Reviews Management', () => {
         }
       });
 
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getAllByText('Verifizieren').length).toBeGreaterThan(0);
@@ -281,7 +292,7 @@ describe('Admin Reviews Management', () => {
     });
 
     it('should unverify a verified review', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Verifizierung entfernen')).toBeInTheDocument();
@@ -330,7 +341,7 @@ describe('Admin Reviews Management', () => {
         }
       });
 
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getAllByText('Verifizieren').length).toBeGreaterThan(0);
@@ -351,7 +362,7 @@ describe('Admin Reviews Management', () => {
       const confirmMock = jest.fn(() => true);
       (window as any).confirm = confirmMock;
 
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getAllByLabelText(/Bewertung löschen/i).length).toBeGreaterThan(0);
@@ -396,7 +407,7 @@ describe('Admin Reviews Management', () => {
         }
       });
 
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getAllByLabelText(/Bewertung löschen/i).length).toBeGreaterThan(0);
@@ -417,7 +428,7 @@ describe('Admin Reviews Management', () => {
       const confirmMock = jest.fn(() => false);
       (window as any).confirm = confirmMock;
 
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getAllByLabelText(/Bewertung löschen/i).length).toBeGreaterThan(0);
@@ -440,12 +451,12 @@ describe('Admin Reviews Management', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         json: async () => ({
           success: true,
-          reviews: [],
-        }),
-        ok: true,
-      });
+        reviews: [],
+      }),
+      ok: true,
+    });
 
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Keine Bewertungen gefunden.')).toBeInTheDocument();
@@ -459,7 +470,7 @@ describe('Admin Reviews Management', () => {
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(consoleSpy).toHaveBeenCalled();
@@ -472,12 +483,12 @@ describe('Admin Reviews Management', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         json: async () => ({
           success: false,
-          error: 'Failed to fetch reviews',
-        }),
-        ok: false,
-      });
+        error: 'Failed to fetch reviews',
+      }),
+      ok: false,
+    });
 
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         // Should still render page, even if data is empty
@@ -488,7 +499,7 @@ describe('Admin Reviews Management', () => {
 
   describe('Reviews without Gemstone', () => {
     it('should display review even if gemstone is null', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         // Review with null gemstone should still be displayed
@@ -502,7 +513,7 @@ describe('Admin Reviews Management', () => {
 
   describe('Reviews without Title', () => {
     it('should display review even if title is null', async () => {
-      render(<AdminReviewsPage />);
+      await renderReviewsPage();
 
       await waitFor(() => {
         expect(screen.getByText('Ok, aber könnte besser sein.')).toBeInTheDocument();

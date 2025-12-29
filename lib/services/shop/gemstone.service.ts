@@ -67,6 +67,17 @@ export const toShopGemstone = (gem: GemstoneWithRelations): ShopGemstone => {
   const imageMedia = gem.media.filter((media) => media.type === 'IMAGE');
   const videoMedia = gem.media.filter((media) => media.type === 'VIDEO');
 
+  // Ensure currency is a valid string
+  let currency = 'EUR';
+  if (priceBook?.currency) {
+    if (typeof priceBook.currency === 'string' && priceBook.currency.length === 3) {
+      currency = priceBook.currency.toUpperCase();
+    } else if (typeof priceBook.currency === 'boolean') {
+      // Handle boolean values (fallback to EUR)
+      currency = 'EUR';
+    }
+  }
+
   return {
     id: gem.id,
     slug: gem.slug ?? undefined,
@@ -74,7 +85,7 @@ export const toShopGemstone = (gem: GemstoneWithRelations): ShopGemstone => {
     category: gem.category,
     type: condition === 'ROUGH' ? 'rough' : 'cut',
     price: decimalToNumber(priceBook?.priceGross) ?? 0,
-    currency: priceBook?.currency ?? 'EUR',
+    currency,
     weight,
     weightUnit,
     origin: gem.origin ?? null,

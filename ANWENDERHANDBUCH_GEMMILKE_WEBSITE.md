@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.5.4  
+**Version:** 2.5.5  
 **Stand:** Dezember 2025  
-**Letzte Aktualisierung:** 22. Dezember 2025 - Erweiterte Edelstein-Attribute, UN-Länderliste, erweiterte Farb- und Kategorieauswahl  
+**Letzte Aktualisierung:** 23. Dezember 2025 - Verbesserter CSV-Import-Dialog, Bulk-Delete-Funktionalität, Edelstein-Statistiken  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -1035,7 +1035,9 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Tabelle aller Edelsteine
 - Filterung nach Status, Kategorie
 - Suche
-- Bulk-Aktionen
+- **Statistiken:** Anzeige der Gesamtanzahl, Neu, Featured und Verkauft
+- **Bulk-Delete:** Mehrfachauswahl über Checkboxes mit zentralem Lösch-Button
+- CSV-Import für Bulk-Upload
 
 #### Neuer Edelstein (`/admin/gemstones/new`)
 
@@ -1077,7 +1079,9 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 3. **CSV-Import durchführen:**
    - Klicken Sie auf "CSV Import" in der Edelstein-Verwaltung
-   - Wählen Sie eine der drei Optionen:
+   - Das Import-Dialog-Fenster öffnet sich zentriert auf dem Bildschirm
+   - **Fenster verschieben:** Ziehen Sie die Titelleiste, um das Fenster zu bewegen
+   - Wählen Sie eine der Optionen:
      - **Datei hochladen:** CSV-Datei vom Computer auswählen
      - **CSV-Daten eingeben:** CSV-Inhalt direkt in das Textfeld einfügen
      - **Medien-Upload:** Bilder und Videos separat hochladen
@@ -1085,12 +1089,15 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 4. **Datenvorschau:**
    - Die ersten Zeilen werden als Vorschau angezeigt
    - Überprüfen Sie die Daten vor dem Import
+   - Der Inhalt ist scrollbar, falls die Vorschau zu lang ist
 
 5. **Import starten:**
+   - Scrollen Sie bei Bedarf nach unten, um den "Import starten"-Button zu erreichen
    - Klicken Sie auf "Import starten"
    - Der Import-Prozess wird mit Fortschrittsanzeige durchgeführt
    - Erfolgreich importierte Edelsteine werden angezeigt
-   - Fehler werden detailliert aufgelistet
+   - **Fehler und Warnungen:** Werden vollständig angezeigt mit Scroll-Funktion
+   - Das Dialog-Fenster passt sich automatisch an die Bildschirmgröße an (85% der Bildschirmhöhe)
 
 **CSV-Spalten (vollständige Liste):**
 
@@ -1154,6 +1161,9 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Leere Felder werden als optional behandelt
 - Boolean-Werte: `true`/`false` oder `1`/`0`
 - Mehrere Bilder/Videos: Kommagetrennte URLs
+- **Zahlenformate:** Unterstützung für Punkt (.) und Komma (,) als Dezimaltrennzeichen bei allen numerischen Feldern (Karat, Preis, Länge, Breite, Höhe, etc.)
+  - Beispiele: `1.5`, `1,5`, `27.03`, `27,03` werden alle korrekt erkannt
+  - Tausendertrennzeichen werden automatisch entfernt
 
 **Erweiterte Auswahlmöglichkeiten (Version 2.5.4):**
 
@@ -1164,6 +1174,15 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - **Kategorie:** Über 60 verschiedene Edelsteinarten, von Achat bis Zoisit, alphabetisch sortiert
 - **Entstehung:** Drei Optionen (natürlich, synthetisch, Imitation) - "behandelt" wurde entfernt, da Behandlung ein separates Feld ist
 - **Reinheitsgrad:** Vereinfachte fünfstufige Skala mit ausführlichen Erläuterungen für bessere Verständlichkeit
+
+**Bulk-Delete-Funktionalität:**
+
+- **Mehrfachauswahl:** Aktivieren Sie Checkboxes neben den Edelsteinen, die gelöscht werden sollen
+- **"Alle auswählen":** Checkbox im Tabellenkopf wählt alle sichtbaren Edelsteine aus
+- **Bulk-Delete-Button:** Erscheint automatisch, wenn mindestens ein Edelstein ausgewählt ist
+- **Löschvorgang:** Alle ausgewählten Edelsteine werden sequenziell gelöscht
+- **Fehlerbehandlung:** Detaillierte Fehlermeldungen bei fehlgeschlagenen Löschvorgängen
+- **Erfolgsmeldung:** Bestätigung der erfolgreich gelöschten Edelsteine
 
 **HTML-Upload-Formular:**
 
@@ -4520,6 +4539,51 @@ Das Dokument enthält:
 
 ---
 
+### Version 2.5.5 (23. Dezember 2025)
+
+#### Verbesserter CSV-Import-Dialog
+
+**Neue Features:**
+- **Drag-and-Drop-Funktionalität:** Das Dialog-Fenster kann durch Ziehen der Titelleiste verschoben werden
+- **Responsives Layout:** Das Fenster passt sich automatisch an die Bildschirmgröße an (85% der Bildschirmhöhe)
+- **Scrollbares Layout:** Alle Inhalte sind scrollbar, sodass auch bei vielen Fehlermeldungen alle Informationen sichtbar sind
+- **Verbesserte Fehleranzeige:** Fehler- und Warnmeldungen werden vollständig angezeigt mit Scroll-Funktion
+- **Zentrierte Position:** Das Fenster öffnet sich standardmäßig zentriert auf dem Bildschirm
+
+**Technische Verbesserungen:**
+- Unterstützung für Punkt (.) und Komma (,) als Dezimaltrennzeichen bei allen numerischen Feldern
+- Verbesserte CSV-Parsing-Logik für verschiedene Zeilenenden (`\n`, `\r\n`)
+- Robuste Behandlung leerer Zeilen
+- Optimierte Fehlerbehandlung und Logging
+
+#### Bulk-Delete-Funktionalität
+
+**Neue Funktion:** Mehrfachauswahl und Löschung von Edelsteinen
+
+**Features:**
+- **Checkbox-Auswahl:** Einzelne Edelsteine können über Checkboxes ausgewählt werden
+- **"Alle auswählen":** Checkbox im Tabellenkopf wählt alle sichtbaren Edelsteine aus
+- **Bulk-Delete-Button:** Erscheint automatisch, wenn mindestens ein Edelstein ausgewählt ist
+- **Sequenzielle Löschung:** Alle ausgewählten Edelsteine werden nacheinander gelöscht
+- **Detaillierte Fehlerbehandlung:** Jeder Löschvorgang wird einzeln protokolliert
+- **Erfolgsmeldungen:** Bestätigung der erfolgreich gelöschten Edelsteine
+
+**Zugriff:** `/admin/gemstones` → Checkboxes aktivieren → "Ausgewählte löschen" Button
+
+#### Edelstein-Statistiken
+
+**Neue Funktion:** Übersichtliche Anzeige von Edelstein-Statistiken
+
+**Angezeigte Statistiken:**
+- **Gesamt:** Anzahl aller Edelsteine in der Datenbank
+- **Neu:** Anzahl der als "neu" markierten Edelsteine
+- **Featured:** Anzahl der als "Featured" markierten Edelsteine
+- **Verkauft:** Anzahl der als "verkauft" markierten Edelsteine
+
+**Zugriff:** `/admin/gemstones` → Statistiken werden oben auf der Seite angezeigt
+
+---
+
 ### Version 2.5.3 (22. Dezember 2025)
 
 #### CSV-Import für Edelsteine
@@ -4842,7 +4906,33 @@ Das Dokument enthält:
 
 ---
 
-## 15. Änderungsprotokoll Version 2.5.3 (Dezember 2025)
+## 15. Änderungsprotokoll
+
+### Version 2.5.5 (23. Dezember 2025)
+
+#### Verbesserter CSV-Import-Dialog
+- Drag-and-Drop-Funktionalität für Dialog-Fenster (verschiebbar durch Ziehen der Titelleiste)
+- Responsives Layout (85% Bildschirmhöhe, passt sich automatisch an)
+- Scrollbares Layout für alle Inhalte (Vorschau, Fehlermeldungen, Buttons)
+- Verbesserte Fehleranzeige mit vollständiger Sichtbarkeit aller Fehler und Warnungen
+- Unterstützung für Punkt (.) und Komma (,) als Dezimaltrennzeichen bei allen numerischen Feldern
+- Verbesserte CSV-Parsing-Logik für verschiedene Zeilenenden
+- Zentrierte Standard-Position beim Öffnen
+
+#### Bulk-Delete-Funktionalität
+- Checkbox-Auswahl für einzelne Edelsteine
+- "Alle auswählen" Funktion im Tabellenkopf
+- Automatischer Bulk-Delete-Button (erscheint bei Auswahl)
+- Sequenzielle Löschung mit detaillierter Fehlerbehandlung
+- Erfolgsmeldungen für erfolgreich gelöschte Edelsteine
+
+#### Edelstein-Statistiken
+- Anzeige von Gesamt, Neu, Featured und Verkauft auf der Edelstein-Verwaltungsseite
+- Übersichtliche Darstellung in Statistik-Karten
+
+---
+
+### Version 2.5.3 (Dezember 2025)
 
 ### 15.1 CSV-Import für Edelsteine
 

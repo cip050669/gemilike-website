@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { DragDropUpload } from './DragDropUpload';
+import { 
+  GEMSTONE_CATEGORIES, 
+  CUT_STYLE_OPTIONS as CUT_STYLES, 
+  CUT_FORM_OPTIONS as CUT_FORMS,
+  UN_COUNTRIES,
+  GEMSTONE_COLORS,
+  CLARITY_OPTIONS as CLARITY_OPTS,
+  QUALITY_OPTIONS,
+  ORIGIN_TYPE_OPTIONS,
+} from '@/lib/constants/gemstone-options';
 
 export type GemstoneFormValues = {
   id?: string;
@@ -45,17 +55,6 @@ type OptionItem = {
   label?: string;
   group?: string;
 };
-
-import { 
-  GEMSTONE_CATEGORIES, 
-  CUT_STYLE_OPTIONS as CUT_STYLES, 
-  CUT_FORM_OPTIONS as CUT_FORMS,
-  UN_COUNTRIES,
-  GEMSTONE_COLORS,
-  CLARITY_OPTIONS as CLARITY_OPTS,
-  QUALITY_OPTIONS,
-  ORIGIN_TYPE_OPTIONS,
-} from '@/lib/constants/gemstone-options';
 
 const GEMSTONE_TYPE_OPTIONS: OptionItem[] = GEMSTONE_CATEGORIES.map((value) => ({ value }));
 

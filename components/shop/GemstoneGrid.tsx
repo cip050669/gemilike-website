@@ -33,12 +33,22 @@ export interface GemstoneGridProps {
 }
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
-const formatPrice = (value: number, currency = 'EUR') =>
-  new Intl.NumberFormat('de-DE', {
+const formatPrice = (value: number, currency: string | boolean | undefined = 'EUR') => {
+  // Ensure currency is a valid string
+  let validCurrency = 'EUR';
+  if (typeof currency === 'string' && currency.length === 3) {
+    validCurrency = currency.toUpperCase();
+  } else if (currency === true || currency === false) {
+    // Handle boolean values (fallback to EUR)
+    validCurrency = 'EUR';
+  }
+  
+  return new Intl.NumberFormat('de-DE', {
     style: 'currency',
-    currency,
+    currency: validCurrency,
     minimumFractionDigits: 2,
   }).format(value);
+};
 
 const formatWeight = (weight?: number | null, unit?: 'ct' | 'g') => {
   if (typeof weight !== 'number') {

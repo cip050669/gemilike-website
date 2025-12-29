@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useId, useState, useTransition } from 'react';
 import { useCartStore } from '@/lib/store/cart';
 import { Button } from '@/components/ui/button';
 import { RippleButton } from '@/components/ui/RippleButton';
@@ -26,6 +26,7 @@ export function AddToCartButton({ item, disabled = false }: AddToCartButtonProps
   const isStoreLoading = useCartStore((state) => state.isLoading);
   const [isAdded, setIsAdded] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const helperId = useId();
 
   const handleAddToCart = () => {
     if (disabled || isPending || isStoreLoading) {
@@ -66,13 +67,13 @@ export function AddToCartButton({ item, disabled = false }: AddToCartButtonProps
             : 'bg-primary hover:bg-primary/90'
         } text-primary-foreground transition-colors duration-300`}
         aria-label={
-          isAdded 
-            ? `${item.name} wurde zum Warenkorb hinzugefügt`
+          isAdded
+            ? 'Hinzugefügt'
             : disabled
-            ? `${item.name} ist nicht verfügbar`
-            : `${item.name} zum Warenkorb hinzufügen`
+            ? 'Nicht verfügbar'
+            : 'In den Warenkorb'
         }
-        aria-describedby="cart-button-help"
+        aria-describedby={helperId}
       >
         {isAdded ? (
           <>
@@ -91,7 +92,7 @@ export function AddToCartButton({ item, disabled = false }: AddToCartButtonProps
           </>
         )}
       </RippleButton>
-      <span id="cart-button-help" className="sr-only">
+      <span id={helperId} className="sr-only">
         Fügt {item.name} zum Warenkorb hinzu
       </span>
 

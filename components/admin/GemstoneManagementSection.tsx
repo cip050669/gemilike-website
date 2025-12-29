@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GemstoneEditor, GemstoneFormValues } from '@/components/admin/GemstoneEditor';
 import { Gemstone, isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
+import { GemstoneBulkImportDialog } from './GemstoneBulkImportDialog';
 
 const PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
 
@@ -33,6 +34,7 @@ type DisplayGemstone = {
   description?: string;
   isNew: boolean;
   isSold: boolean;
+  featured: boolean;
   images: string[];
   videos: string[];
   wishlistCount?: number;
@@ -75,6 +77,7 @@ const convertLibraryGemstone = (gem: Gemstone): DisplayGemstone => {
   const mainImage = gem.mainImage || gem.images?.[0] || PLACEHOLDER_IMAGE;
   const cut = isCutGemstone(gem) ? gem.cut ?? undefined : undefined;
   const cutForm = isCutGemstone(gem) ? gem.cutForm ?? undefined : undefined;
+  const featured = (gem as Gemstone & { featured?: boolean }).featured ?? false;
 
   return {
     id: gem.id,
@@ -94,6 +97,7 @@ const convertLibraryGemstone = (gem: Gemstone): DisplayGemstone => {
     certification: gem.certification?.lab ?? '–',
     description: gem.description ?? '',
     isNew: gem.isNew ?? false,
+    featured,
     isSold: gem.inStock === false,
     images: gem.images ?? (mainImage ? [mainImage] : []),
     videos: gem.videos ?? [],
@@ -134,6 +138,7 @@ export function GemstoneManagementSection() {
   });
   const [metrics, setMetrics] = useState<ShopMetrics | null>(null);
   const [metricsError, setMetricsError] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const mapApiGemstone = useCallback((gem: Record<string, unknown>): DisplayGemstone => {
     // Extract images from media relation if available, otherwise from images field
@@ -203,6 +208,7 @@ export function GemstoneManagementSection() {
       description: (typeof gem.description === 'string' ? gem.description : (typeof gem.longDescription === 'string' ? gem.longDescription : (typeof gem.shortDescription === 'string' ? gem.shortDescription : ''))),
       isNew: Boolean(gem.isNew),
       isSold: gem.inStock === false,
+      featured: Boolean((gem as { featured?: unknown }).featured),
       images: images.length ? images : [PLACEHOLDER_IMAGE],
       videos,
       wishlistCount,
@@ -386,30 +392,89 @@ export function GemstoneManagementSection() {
       });
   };
 
-  const handleDelete = (gemstone: DisplayGemstone) => {
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(gemstones.map((g) => g.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    console.log('[DELETE] Function called');
+    
     if (usingFallback) {
       alert('Aktion nicht möglich: Datenbankverbindung erforderlich.');
       return;
     }
-    if (!window.confirm(`Soll der Edelstein „${gemstone.name}“ wirklich entfernt werden?`)) {
+    
+    if (selectedIds.size === 0) {
+      alert('Bitte wählen Sie mindestens einen Edelstein zum Löschen aus.');
       return;
     }
-    fetch(`/api/admin/gemstones/${gemstone.id}`, { method: 'DELETE' })
-      .then(async (response) => {
-        const result = await response.json();
-        if (!response.ok || !result.success) {
-          throw new Error(result.error || 'Löschen fehlgeschlagen');
+
+    const idsArray = Array.from(selectedIds);
+    console.log('[DELETE] Starting deletion of', idsArray.length, 'gemstones');
+    setError(null);
+    setIsLoading(true);
+    const idsToDelete = [...idsArray];
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of idsToDelete) {
+      console.log(`[DELETE] Deleting ID: ${id}`);
+      try {
+        const url = `/api/admin/gemstones/${id}`;
+        console.log(`[DELETE] Fetching: ${url}`);
+        const res = await fetch(url, { method: 'DELETE' });
+        console.log(`[DELETE] Response status: ${res.status}`);
+        const data = await res.json();
+        console.log(`[DELETE] Response data:`, data);
+        
+        if (res.ok && data.success) {
+          successCount++;
+          console.log(`[DELETE] Successfully deleted: ${id}`);
+        } else {
+          failCount++;
+          const errorMsg = `${id}: ${data.error || 'Fehler'}`;
+          console.error(`[DELETE] Failed: ${errorMsg}`);
+          setError(prev => (prev ? prev + '\n' : '') + errorMsg);
         }
-      })
-      .then(() => {
-        loadGemstones();
-        if (detailGemstone?.id === gemstone.id) {
-          setDetailGemstone(null);
-        }
-      })
-      .catch((err: Error) => {
-        setError(err.message);
-      });
+      } catch (err) {
+        failCount++;
+        const errorMsg = `${id}: ${err instanceof Error ? err.message : 'Fehler'}`;
+        console.error(`[DELETE] Exception: ${errorMsg}`, err);
+        setError(prev => (prev ? prev + '\n' : '') + errorMsg);
+      }
+    }
+
+    console.log(`[DELETE] Complete. Success: ${successCount}, Failed: ${failCount}`);
+    setSelectedIds(new Set());
+    if (detailGemstone && idsToDelete.includes(detailGemstone.id)) {
+      setDetailGemstone(null);
+    }
+
+    await loadGemstones();
+    setIsLoading(false);
+
+    if (failCount === 0) {
+      alert(`${successCount} Edelstein(e) erfolgreich gelöscht.`);
+    } else {
+      alert(`${successCount} gelöscht, ${failCount} Fehler.`);
+    }
   };
 
   const handleToggleNew = (gemstone: DisplayGemstone, value: boolean) => {
@@ -505,15 +570,68 @@ export function GemstoneManagementSection() {
             </div>
           )}
       </div>
-      <AdminButton
-        type="button"
-        className="w-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong sm:w-auto"
-        onClick={() => handleOpenEditor()}
-        disabled={actionsDisabled}
-      >
-        Edelsteineditor
-      </AdminButton>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <AdminButton
+          type="button"
+          className="w-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong sm:w-auto"
+          onClick={() => handleOpenEditor()}
+          disabled={actionsDisabled}
+        >
+          Edelsteineditor
+        </AdminButton>
+        <GemstoneBulkImportDialog onImportComplete={loadGemstones} />
+        {selectedIds.size > 0 && (
+          <AdminButton
+            type="button"
+            className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 sm:w-auto"
+            onClick={async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Delete button clicked');
+              console.log('Selected IDs:', Array.from(selectedIds));
+              console.log('Using fallback:', usingFallback);
+              console.log('Actions disabled:', actionsDisabled);
+              console.log('Is loading:', isLoading);
+              await handleBulkDelete();
+            }}
+            disabled={actionsDisabled || isLoading}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            {selectedIds.size} ausgewählte löschen
+          </AdminButton>
+        )}
+      </div>
     </div>
+
+      {/* Gemstone Statistics */}
+      <div className="grid gap-4 sm:grid-cols-4">
+        <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4 shadow-lg shadow-black/30">
+          <p className="text-xs uppercase tracking-[0.3em] text-white/50">Gesamt</p>
+          <p className="mt-2 text-3xl font-semibold text-white">{gemstones.length}</p>
+          <p className="mt-1 text-xs text-white/60">Edelsteine</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4 shadow-lg shadow-black/30">
+          <p className="text-xs uppercase tracking-[0.3em] text-white/50">Neu</p>
+          <p className="mt-2 text-3xl font-semibold text-emerald-400">
+            {gemstones.filter((g) => g.isNew).length}
+          </p>
+          <p className="mt-1 text-xs text-white/60">Markiert als neu</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4 shadow-lg shadow-black/30">
+          <p className="text-xs uppercase tracking-[0.3em] text-white/50">Featured</p>
+          <p className="mt-2 text-3xl font-semibold text-purple-400">
+            {gemstones.filter((g) => g.featured).length}
+          </p>
+          <p className="mt-1 text-xs text-white/60">Hervorgehoben</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4 shadow-lg shadow-black/30">
+          <p className="text-xs uppercase tracking-[0.3em] text-white/50">Verkauft</p>
+          <p className="mt-2 text-3xl font-semibold text-red-400">
+            {gemstones.filter((g) => g.isSold).length}
+          </p>
+          <p className="mt-1 text-xs text-white/60">Nicht verfügbar</p>
+        </div>
+      </div>
 
       {metricsError && (
         <div className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
@@ -582,6 +700,22 @@ export function GemstoneManagementSection() {
       )}
 
       <Card className="border-white/10 bg-gray-700/50/50 p-0">
+        {gemstones.length > 0 && (
+          <div className="p-4 border-b border-white/5 flex items-center gap-3 bg-gray-800/30">
+            <input
+              type="checkbox"
+              checked={selectedIds.size === gemstones.length && gemstones.length > 0}
+              onChange={(e) => handleSelectAll(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-2 focus:ring-primary"
+              disabled={actionsDisabled}
+            />
+            <label className="text-sm text-white/70">
+              {selectedIds.size > 0
+                ? `${selectedIds.size} von ${gemstones.length} ausgewählt`
+                : 'Alle auswählen'}
+            </label>
+          </div>
+        )}
         <div className="divide-y divide-white/5">
           {gemstones.map((gemstone) => (
             <div
@@ -589,6 +723,13 @@ export function GemstoneManagementSection() {
               className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex flex-1 items-center gap-4">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(gemstone.id)}
+                  onChange={() => handleToggleSelect(gemstone.id)}
+                  className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-2 focus:ring-primary flex-shrink-0"
+                  disabled={actionsDisabled}
+                />
                 <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-white/15 bg-gray-700/50/40">
                   <Image
                     src={gemstone.mainImage}
@@ -597,11 +738,8 @@ export function GemstoneManagementSection() {
                     sizes="80px"
                     className="object-cover"
                     onError={(e) => {
-                      console.error('Admin thumbnail failed to load:', gemstone.name, gemstone.mainImage);
+                      // Silently fallback to placeholder on error
                       e.currentTarget.src = PLACEHOLDER_IMAGE;
-                    }}
-                    onLoad={() => {
-                      console.log('Admin thumbnail loaded successfully:', gemstone.name, gemstone.mainImage);
                     }}
                   />
                 </div>
@@ -671,17 +809,6 @@ export function GemstoneManagementSection() {
                   disabled={actionsDisabled}
                 >
                   <PenSquare className="h-4 w-4" />
-                </AdminButton>
-                <AdminButton
-                  type="button"
-                  size="icon"
-                  variant="outline"
-                  className="h-9 w-9 border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20"
-                  onClick={() => handleDelete(gemstone)}
-                  aria-label={`${gemstone.name} löschen`}
-                  disabled={actionsDisabled}
-                >
-                  <Trash2 className="h-4 w-4" />
                 </AdminButton>
               </div>
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Star, Trash2, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,29 +29,40 @@ export default function AdminReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'verified' | 'unverified'>('all');
 
-  useEffect(() => {
-    fetchReviews();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+  const fetchReviews = useCallback(
+    async (abortSignal?: AbortSignal) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (filter === 'verified') params.append('status', 'verified');
+        if (filter === 'unverified') params.append('status', 'unverified');
 
-  const fetchReviews = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (filter === 'verified') params.append('status', 'verified');
-      if (filter === 'unverified') params.append('status', 'unverified');
+        const response = await fetch(`/api/admin/reviews?${params}`, {
+          signal: abortSignal,
+        });
+        const data = await response.json();
 
-      const response = await fetch(`/api/admin/reviews?${params}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setReviews(data.reviews);
+        if (data.success && !abortSignal?.aborted) {
+          setReviews(data.reviews);
+        }
+      } catch (error) {
+        if (!abortSignal?.aborted) {
+          console.error('Error fetching reviews:', error);
+        }
+      } finally {
+        if (!abortSignal?.aborted) {
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [filter]
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetchReviews(controller.signal);
+    return () => controller.abort();
+  }, [fetchReviews]);
 
   const handleVerify = async (reviewId: string, verified: boolean) => {
     try {

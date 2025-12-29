@@ -137,30 +137,61 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    console.log(`[DELETE] Attempting to delete gemstone with id: ${id}`);
+    
+    if (!id || id.trim() === '') {
+      console.error('[DELETE] Invalid ID provided');
+      return NextResponse.json(
+        { success: false, error: 'Ungültige ID' },
+        { status: 400 }
+      );
+    }
+
     const existing = await prisma.gemstone.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, name: true },
     });
 
     if (!existing) {
+      console.warn(`[DELETE] Gemstone with id ${id} not found`);
       return NextResponse.json(
         { success: false, error: 'Edelstein nicht gefunden' },
         { status: 404 }
       );
     }
 
+    console.log(`[DELETE] Found gemstone: ${existing.name} (${existing.id}), proceeding with deletion...`);
+
     await prisma.gemstone.delete({
       where: { id }
     });
+
+    console.log(`[DELETE] Successfully deleted gemstone: ${id}`);
 
     return NextResponse.json({
       success: true,
       message: 'Edelstein erfolgreich gelöscht'
     });
   } catch (error) {
-    console.error('Error deleting gemstone:', error);
+    console.error('[DELETE] Error deleting gemstone:', error);
+    
+    // Handle Prisma-specific errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      const prismaError = error as { code?: string; meta?: unknown };
+      console.error('[DELETE] Prisma error code:', prismaError.code);
+      console.error('[DELETE] Prisma error meta:', prismaError.meta);
+      
+      if (prismaError.code === 'P2025') {
+        return NextResponse.json(
+          { success: false, error: 'Edelstein nicht gefunden' },
+          { status: 404 }
+        );
+      }
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
     return NextResponse.json(
-      { success: false, error: 'Failed to delete gemstone' },
+      { success: false, error: `Fehler beim Löschen: ${errorMessage}` },
       { status: 500 }
     );
   }

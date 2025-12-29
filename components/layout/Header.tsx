@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon, LogInIcon, Languages } from 'lucide-react';
+import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon, LogInIcon, Languages, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+// Removed Sheet import - using custom modal instead
 import { Cart } from '@/components/cart/Cart';
 import { useCartStore } from '@/lib/store/cart';
 import { useWishlistStore } from '@/lib/store/wishlist';
@@ -57,6 +57,35 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
     if (!cartSummary) {
       void fetchCart();
     }
@@ -91,20 +120,22 @@ export function Header() {
             })
             .filter(Boolean) as NavigationItem[];
 
-          // Ensure important default links stay present even if DB omits them
-          const ensureDefaults = ['/downloads', '/wissenswertes'];
-          ensureDefaults.forEach((path) => {
-            if (!mapped.some((item) => item.href === path)) {
-              const fallbackMatch = FALLBACK_NAV.find((item) => item.href === path);
-              if (fallbackMatch) {
-                mapped.push({ ...fallbackMatch, id: `fallback-${path}` });
-              }
+          // Zusammenführen: Basis sind immer die Fallback-Links, API-Links kommen ergänzend hinzu
+          const normalizeHref = (href: string) =>
+            href.replace(/^\/[a-z]{2}(?=\/|$)/, '') || '/';
+
+          const merged = [...FALLBACK_NAV];
+          mapped.forEach((item) => {
+            const normalized = normalizeHref(item.href);
+            const exists = merged.some((fallback) => normalizeHref(fallback.href) === normalized);
+            if (!exists) {
+              merged.push(item);
             }
           });
 
-          if (mapped.length) {
-            console.log('Setting navItems:', mapped);
-            setNavItems(mapped);
+          if (merged.length) {
+            console.log('Setting navItems:', merged);
+            setNavItems(merged);
           } else {
             console.log('No mapped items, using fallback');
             setNavItems(FALLBACK_NAV);
@@ -125,6 +156,10 @@ export function Header() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   const localePrefix = (() => {
     if (!pathname) return '';
@@ -182,7 +217,6 @@ export function Header() {
           <nav 
             className="flex items-center justify-center flex-1 gap-2 xl:gap-4 px-4 min-w-0"
             aria-label="Hauptnavigation"
-            style={{ display: 'flex' }}
           >
             {navItems.map(({ href, label, id }) => {
               const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
@@ -365,45 +399,109 @@ export function Header() {
               )}
             </Button>
             
-            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-              <SheetTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
-                  aria-label="Navigation öffnen"
-                  title="Menü öffnen - Zeigt die Navigation und alle Seiten an"
-                  type="button"
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white flex-shrink-0"
+              aria-label={isMenuOpen ? 'Navigation schließen' : 'Navigation öffnen'}
+              title={isMenuOpen ? 'Menü schließen' : 'Menü öffnen - Zeigt die Navigation und alle Seiten an'}
+              type="button"
+              aria-expanded={isMenuOpen}
+              aria-haspopup="true"
+              aria-controls="mobile-navigation"
+              onClick={() => {
+                setIsMenuOpen((prev) => !prev);
+              }}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+            </Button>
+            
+            {/* Custom Mobile Menu Modal */}
+            {isMenuOpen && (
+              <>
+                {/* Overlay */}
+                <div
+                  className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm"
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-hidden="true"
+                  style={{ pointerEvents: 'auto' }}
+                />
+                {/* Menu Panel */}
+                <div
+                  className="fixed right-0 top-0 h-full w-[300px] sm:w-[400px] z-[10001] bg-[#0a0a0a] border-l border-gray-800 shadow-2xl"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="mobile-menu-title"
+                  style={{ pointerEvents: 'auto' }}
                 >
-                  <MenuIcon className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px] z-[10000] bg-gray-900 text-white">
-                <SheetTitle className="text-xl font-bold mb-6 text-white">Navigation</SheetTitle>
-                <nav className="flex flex-col gap-2" aria-label="Mobile Navigation">
-                  {navItems.map(({ href, label, id }) => {
-                    const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
-                    return (
-                      <Link
-                        key={id}
-                        href={buildHref(href)}
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                        }}
-                        className={cn(
-                          'px-4 py-3 rounded-lg transition-colors',
-                          isActive 
-                            ? 'bg-primary/20 text-primary font-semibold' 
-                            : 'hover:bg-gray-800/50 text-gray-200'
-                        )}
+                  <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6 border-b border-gray-800 bg-[#111111]">
+                      <h2 id="mobile-menu-title" className="text-xl font-bold text-[#ffffff]">
+                        Navigation
+                      </h2>
+                      <button
+                        onClick={() => setIsMenuOpen(false)}
+                        className="h-8 w-8 rounded-full hover:bg-gray-800 text-[#ffffff] flex items-center justify-center transition-colors"
+                        aria-label="Menü schließen"
                       >
-                        {label}
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </SheetContent>
-            </Sheet>
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                    {/* Navigation */}
+                    <nav
+                      id="mobile-navigation"
+                      className="flex flex-col gap-1 flex-1 overflow-y-auto p-4"
+                      aria-label="Mobile Navigation"
+                    >
+                      {navItems.length > 0 ? (
+                        navItems.map(({ href, label, id }) => {
+                          const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
+                          // Use the same buildHref function as desktop navigation
+                          const fullHref = buildHref(href);
+                          
+                          // Use router.push for all links to ensure consistent behavior
+                          const handleClick = (e: React.MouseEvent) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsMenuOpen(false);
+                            // Use router.push for navigation
+                            router.push(fullHref);
+                          };
+                          
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={handleClick}
+                              className={cn(
+                                'px-4 py-3 rounded-lg transition-all text-base font-medium block cursor-pointer text-left w-full',
+                                isActive 
+                                  ? 'bg-[#7c3aed] text-[#ffffff] font-semibold shadow-lg' 
+                                  : 'text-[#ffffff] bg-[#1a1a1a] hover:bg-[#2a2a2a] hover:text-[#ff9447]'
+                              )}
+                              style={{ 
+                                color: '#ffffff',
+                                textDecoration: 'none',
+                                textShadow: 'none',
+                                border: 'none',
+                                background: isActive ? '#7c3aed' : '#1a1a1a'
+                              }}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="px-4 py-3 text-[#9ca4b5] text-sm">
+                          Keine Navigationselemente verfügbar
+                        </div>
+                      )}
+                    </nav>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
           {/* Welcome Message - Mobile */}
           {status === 'authenticated' && session?.user?.name && (

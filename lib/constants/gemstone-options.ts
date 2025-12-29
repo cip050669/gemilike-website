@@ -1,5 +1,5 @@
 // UN-Länderliste (alle 193 UN-Mitgliedsstaaten + Vatikanstadt)
-export const UN_COUNTRIES = [
+const UN_COUNTRIES_ARRAY = [
   'Afghanistan',
   'Ägypten',
   'Albanien',
@@ -195,7 +195,9 @@ export const UN_COUNTRIES = [
   'Weißrussland',
   'Zentralafrikanische Republik',
   'Zypern',
-].sort();
+];
+
+export const UN_COUNTRIES = [...UN_COUNTRIES_ARRAY].sort();
 
 // Qualitätsoptionen
 export const QUALITY_OPTIONS = [
@@ -206,7 +208,7 @@ export const QUALITY_OPTIONS = [
 ];
 
 // Erweiterte Edelsteinfarben (100+ Farben alphabetisch)
-export const GEMSTONE_COLORS = [
+const GEMSTONE_COLORS_ARRAY = [
   'Achatgrau',
   'Aprikose',
   'Aquamarinblau',
@@ -349,7 +351,9 @@ export const GEMSTONE_COLORS = [
   'Weißlich-Grün',
   'Zitronengelb',
   'Zitronengrün',
-].sort();
+];
+
+export const GEMSTONE_COLORS = [...GEMSTONE_COLORS_ARRAY].sort();
 
 // Schliffarten (Schliff → Schliffart)
 export const CUT_STYLE_OPTIONS = [
@@ -365,7 +369,7 @@ export const CUT_STYLE_OPTIONS = [
 ];
 
 // Erweiterte Edelstein-Kategorien (50+ zusätzliche Steine)
-export const GEMSTONE_CATEGORIES = [
+const GEMSTONE_CATEGORIES_ARRAY = [
   'Achat',
   'Alexandrit',
   'Amethyst',
@@ -430,10 +434,12 @@ export const GEMSTONE_CATEGORIES = [
   'Vesuvianit',
   'Zirkon',
   'Zoisit',
-].sort();
+];
+
+export const GEMSTONE_CATEGORIES = [...GEMSTONE_CATEGORIES_ARRAY].sort();
 
 // Schliffformen (Smaragd bereits vorhanden, aber sicherstellen)
-export const CUT_FORM_OPTIONS = [
+const CUT_FORM_OPTIONS_ARRAY = [
   'Rund',
   'Oval',
   'Kissen',
@@ -446,7 +452,9 @@ export const CUT_FORM_OPTIONS = [
   'Baguette',
   'Asscher',
   'Trillion',
-].sort();
+];
+
+export const CUT_FORM_OPTIONS = [...CUT_FORM_OPTIONS_ARRAY].sort();
 
 // Entstehung (Imitation hinzufügen, behandelt entfernen)
 export const ORIGIN_TYPE_OPTIONS = [
@@ -463,4 +471,3 @@ export const CLARITY_OPTIONS = [
   { value: 'SI', label: 'SI - Slightly Included (Kleine Einschlüsse, unter 10-facher Vergrößerung leicht erkennbar, manchmal mit bloßem Auge sichtbar)' },
   { value: 'I', label: 'I - Included (Einschlüsse mit bloßem Auge deutlich sichtbar, können Brillanz beeinträchtigen)' },
 ];
-
