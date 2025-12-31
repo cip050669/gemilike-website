@@ -24,6 +24,9 @@
   --color-border-strong: rgba(232, 237, 245, 0.18);
   --color-surface-soft: rgba(255, 255, 255, 0.06);
   --color-surface-hover: rgba(255, 255, 255, 0.08);
+
+  /* Lokaler Fallback für Inter, da keine Google Fonts genutzt werden */
+  --font-inter: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 body {

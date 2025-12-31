@@ -314,7 +314,7 @@ export function SimpleDashboardReports() {
                 </div>
               </div>
               <div>
-                <div className="font-semibold text-blue-600">Günstigster</div>
+                <div className="font-semibold text-white">Günstigster</div>
                 <div className="text-lg font-bold">
                   €{reportData.cheapestGemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                 </div>

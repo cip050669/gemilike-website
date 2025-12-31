@@ -7,6 +7,7 @@ import { PictogramWithTooltip } from './PictogramWithTooltip';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { getColorBadgeStyle } from '@/lib/utils/colorBadge';
+import { formatPrice } from '@/lib/utils/price';
 
 interface GemstoneThumbnailProps {
   gemstone: Gemstone;
@@ -78,7 +79,7 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
           
           {/* Preis Badge oben rechts */}
           <Badge className="absolute top-2 right-2 text-xs font-bold px-2 py-1 shadow-sm">
-            €{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+            {formatPrice(gemstone.price, gemstone.currency)}
           </Badge>
           
             {/* Lab Zertifizierung Badge */}
@@ -124,7 +125,7 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
         <div className="flex items-center gap-2 mb-2">
           <div className="flex items-center gap-1">
             <PictogramWithTooltip iconName="Tag" size="sm" />
-            <span className="text-xs text-muted-foreground">{gemstone.category}</span>
+            <span className="text-xs text-gray-700 dark:text-gray-300">{gemstone.category}</span>
           </div>
           {gemstone.color && colorStyle && (
             <div className="flex items-center gap-1">

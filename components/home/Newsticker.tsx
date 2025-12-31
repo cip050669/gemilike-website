@@ -40,15 +40,15 @@ export function Newsticker({ items, className = '' }: NewstickerProps) {
   const getTypeStyles = (type: string) => {
     switch (type) {
       case 'info':
-        return 'bg-primary/10 border-primary text-primary';
+        return 'bg-primary/10 border-primary text-[var(--color-text-primary)]';
       case 'warning':
-        return 'bg-secondary/10 border-secondary text-secondary';
+        return 'bg-secondary/10 border-secondary text-[var(--color-text-primary)]';
       case 'success':
-        return 'bg-accent/10 border-accent text-accent';
+        return 'bg-accent/10 border-accent text-[var(--color-text-primary)]';
       case 'announcement':
-        return 'bg-primary/20 border-primary/50 text-primary';
+        return 'bg-primary/20 border-primary/50 text-[var(--color-text-primary)]';
       default:
-        return 'bg-muted/20 border-muted text-muted-foreground';
+        return 'bg-muted/20 border-muted text-[var(--color-text-primary)]';
     }
   };
 

@@ -69,7 +69,7 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
           <div className="story-card">
             <div className="p-6 md:p-8">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <Target className="h-6 w-6 text-primary" />
+                <Target className="h-6 w-6 text-[var(--color-text-primary)]" />
               </div>
               <h2 className="text-2xl font-bold mb-4 text-gray-200">{mission}</h2>
               <p className="text-gray-300">
@@ -81,7 +81,7 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
           <div className="story-card">
             <div className="p-6 md:p-8">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <Heart className="h-6 w-6 text-primary" />
+                <Heart className="h-6 w-6 text-[var(--color-text-primary)]" />
               </div>
               <h2 className="text-2xl font-bold mb-4 text-gray-200">{values}</h2>
               <p className="text-gray-300">
@@ -93,7 +93,7 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
           <div className="story-card">
             <div className="p-6 md:p-8">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <Users className="h-6 w-6 text-primary" />
+                <Users className="h-6 w-6 text-[var(--color-text-primary)]" />
               </div>
               <h2 className="text-2xl font-bold mb-4 text-gray-200">{expertise}</h2>
               <p className="text-gray-300">
@@ -105,7 +105,7 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
           <div className="story-card">
             <div className="p-6 md:p-8">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <Award className="h-6 w-6 text-primary" />
+                <Award className="h-6 w-6 text-[var(--color-text-primary)]" />
               </div>
               <h2 className="text-2xl font-bold mb-4 text-gray-200">{quality}</h2>
               <p className="text-gray-300">
@@ -138,14 +138,14 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
                   <div key={service.id || index} className="story-card">
                     <div className="p-6 md:p-8 flex flex-col">
                       <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                        <Icon className="h-6 w-6 text-primary" />
+                        <Icon className="h-6 w-6 text-[var(--color-text-primary)]" />
                       </div>
                       <h3 className="text-xl font-bold mb-2 text-gray-200">{service.title}</h3>
                       <p className="text-gray-300 mb-4">{service.description}</p>
                       <ul className="space-y-2 flex-1">
                         {service.features.map((feature, idx) => (
                           <li key={idx} className="flex items-center text-sm text-gray-300">
-                            <span className="mr-2 h-1.5 w-1.5 rounded-full bg-primary"></span>
+                            <span className="mr-2 h-1.5 w-1.5 rounded-full bg-[var(--color-text-primary)]"></span>
                             {feature}
                           </li>
                         ))}

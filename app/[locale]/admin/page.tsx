@@ -13,7 +13,7 @@ export default function AdminPage() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
-            <h3 className="text-2xl font-bold text-blue-600">12</h3>
+            <h3 className="text-2xl font-bold text-white">12</h3>
             <p className="text-gray-300">Edelsteine</p>
           </div>
           <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
@@ -21,7 +21,7 @@ export default function AdminPage() {
             <p className="text-gray-300">Bestellungen</p>
           </div>
           <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">
-            <h3 className="text-2xl font-bold text-purple-600">24</h3>
+            <h3 className="text-2xl font-bold text-white">24</h3>
             <p className="text-gray-300">Kunden</p>
           </div>
           <div className="border-white/10 bg-gray-700/50/50 p-6 rounded-lg shadow-sm border">

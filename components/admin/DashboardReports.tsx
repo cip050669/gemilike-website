@@ -454,7 +454,7 @@ export function DashboardReports() {
             {stats.cheapestGemstone && (
               <div className="space-y-2">
                 <div className="font-semibold">{stats.cheapestGemstone.name}</div>
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-white">
                   €{stats.cheapestGemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                 </div>
                 <div className="text-sm text-muted-foreground">
@@ -488,7 +488,7 @@ export function DashboardReports() {
               <div className="text-sm text-red-700">Verkauft</div>
             </div>
             <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-3xl font-bold text-blue-600">
+              <div className="text-3xl font-bold text-white">
                 {Math.round((stats.availableGemstones / stats.totalGemstones) * 100)}%
               </div>
               <div className="text-sm text-blue-700">Verfügbarkeitsrate</div>

@@ -405,7 +405,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                             style={{ 
                               backgroundColor: 'rgba(255, 148, 71, 0.3)', 
                               borderColor: 'rgba(255, 148, 71, 0.5)',
-                              color: '#FF9447'
+                              color: '#000'
                             }}
                           >
                             {selectedGemstone.category}

@@ -377,7 +377,7 @@ export default function HeaderManagement() {
               ))}
 
               <div className="flex items-center space-x-4 p-4 rounded-xl border-2 border-dashed border-blue-300">
-                <Plus className="w-5 h-5 text-blue-500" />
+                <Plus className="w-5 h-5 text-cyan-300" />
                 <Input
                   type="text"
                   placeholder="Navigation-Text"
@@ -520,7 +520,7 @@ export default function HeaderManagement() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-center space-x-3">
-                <Facebook className="w-5 h-5 text-blue-600" />
+                <Facebook className="w-5 h-5 text-cyan-300" />
                 <Input
                   type="url"
                   placeholder="Facebook URL"
@@ -548,7 +548,7 @@ export default function HeaderManagement() {
               </div>
 
               <div className="flex items-center space-x-3">
-                <Twitter className="w-5 h-5 text-blue-400" />
+                <Twitter className="w-5 h-5 text-cyan-300" />
                 <Input
                   type="url"
                   placeholder="Twitter URL"
@@ -597,7 +597,7 @@ export default function HeaderManagement() {
                         ...prev,
                         searchSettings: { ...prev.searchSettings, enabled: e.target.checked }
                       }))}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-white rounded focus:ring-blue-500"
                     />
                     <Label htmlFor="searchEnabled" className="text-sm font-medium">
                       Suchfunktion aktivieren
@@ -631,7 +631,7 @@ export default function HeaderManagement() {
                         ...prev,
                         cartSettings: { ...prev.cartSettings, enabled: e.target.checked }
                       }))}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-white rounded focus:ring-blue-500"
                     />
                     <Label htmlFor="cartEnabled" className="text-sm font-medium">
                       Warenkorb anzeigen
@@ -646,7 +646,7 @@ export default function HeaderManagement() {
                         ...prev,
                         cartSettings: { ...prev.cartSettings, showCount: e.target.checked }
                       }))}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-white rounded focus:ring-blue-500"
                     />
                     <Label htmlFor="cartCount" className="text-sm font-medium">
                       Artikelanzahl anzeigen
@@ -671,7 +671,7 @@ export default function HeaderManagement() {
                         ...prev,
                         userAccount: { ...prev.userAccount, enabled: e.target.checked }
                       }))}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-white rounded focus:ring-blue-500"
                     />
                     <Label htmlFor="userEnabled" className="text-sm font-medium">
                       Benutzerkonto anzeigen
@@ -686,7 +686,7 @@ export default function HeaderManagement() {
                         ...prev,
                         userAccount: { ...prev.userAccount, showLogin: e.target.checked }
                       }))}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-white rounded focus:ring-blue-500"
                     />
                     <Label htmlFor="showLogin" className="text-sm font-medium">
                       Login-Button anzeigen
@@ -711,7 +711,7 @@ export default function HeaderManagement() {
                         ...prev,
                         wishlist: { ...prev.wishlist, enabled: e.target.checked }
                       }))}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-white rounded focus:ring-blue-500"
                     />
                     <Label htmlFor="wishlistEnabled" className="text-sm font-medium">
                       Wunschliste anzeigen
@@ -726,7 +726,7 @@ export default function HeaderManagement() {
                         ...prev,
                         wishlist: { ...prev.wishlist, showCount: e.target.checked }
                       }))}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-white rounded focus:ring-blue-500"
                     />
                     <Label htmlFor="wishlistCount" className="text-sm font-medium">
                       Anzahl anzeigen

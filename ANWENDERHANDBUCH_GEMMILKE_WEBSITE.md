@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.5.5  
+**Version:** 2.5.6  
 **Stand:** Dezember 2025  
-**Letzte Aktualisierung:** 23. Dezember 2025 - Verbesserter CSV-Import-Dialog, Bulk-Delete-Funktionalität, Edelstein-Statistiken  
+**Letzte Aktualisierung:** 31. Dezember 2025 - Preisformatierung, UI-Verbesserungen für Lesbarkeit, Code-Qualität  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -461,6 +461,15 @@ module.exports = {
 - `GemstoneInventory` (Lagerbestand)
 - `GemstonePrice` (Preise)
 - `GemstoneMedia` (Bilder/Videos)
+
+**Preisformatierung (seit Version 2.5.6):**
+
+- Alle Preise werden automatisch mit der korrekten Währung formatiert
+- Verwendet die `formatPrice` Utility-Funktion (`lib/utils/price.ts`)
+- Unterstützt alle ISO 4217 Währungscodes (EUR, USD, GBP, etc.)
+- Deutsche Formatierung mit `Intl.NumberFormat` (z.B. "1.234,56 €")
+- Fallback auf EUR, falls keine Währung angegeben ist
+- Konsistente Anzeige in allen Shop-Komponenten (Karten, Thumbnails, Modals, Varianten)
 
 **Layout:**
 
@@ -4536,6 +4545,85 @@ Das Dokument enthält:
   - `components/shop/GemstoneCard.tsx`
   - `public/templates/edelsteine-upload-formular.html`
   - `public/templates/edelsteine-upload-vorlage.csv`
+
+---
+
+### Version 2.5.6 (31. Dezember 2025)
+
+#### Preisformatierung
+
+**Neue Funktion:** Zentralisierte Preisformatierung mit korrekter Währungsanzeige
+
+**Features:**
+- **Gemeinsame `formatPrice` Funktion:** Neue Utility-Funktion in `lib/utils/price.ts` für konsistente Preisformatierung
+- **Währungsunterstützung:** Automatische Formatierung basierend auf dem `currency`-Feld des Edelsteins
+- **Deutsche Formatierung:** Verwendet `Intl.NumberFormat` mit `de-DE` Locale für korrekte Darstellung
+- **Konsistente Anzeige:** Alle Preisangaben im Shop verwenden jetzt die gleiche Formatierung
+
+**Aktualisierte Komponenten:**
+- `components/shop/GemstoneCard.tsx` - Edelstein-Karten
+- `components/shop/QuickViewModal.tsx` - Quick-View-Modal
+- `components/shop/GemstoneThumbnail.tsx` - Thumbnail-Ansicht
+- `components/shop/ProductVariants.tsx` - Produktvarianten
+
+**Technische Details:**
+- Unterstützt alle ISO 4217 Währungscodes (EUR, USD, GBP, etc.)
+- Fallback auf EUR, falls keine Währung angegeben ist
+- Automatische Validierung der Währungscodes (3-stellig, Großbuchstaben)
+
+#### UI-Verbesserungen für Lesbarkeit
+
+**Admin-Bereich:**
+- **Textfarben-Optimierung:** Alle blauen und violetten Texte auf Admin-Seiten wurden durch besser lesbare Farben ersetzt
+- **Statistiken:** Zahlen in Statistiken verwenden jetzt weiße Schrift für besseren Kontrast
+- **Links:** Admin-Links verwenden jetzt `text-cyan-300` oder `text-white` für bessere Sichtbarkeit
+- **Badges:** Newsticker-Badges verwenden jetzt weiße Schrift mit semi-transparenten Hintergründen
+
+**Betroffene Seiten:**
+- `/admin` - Dashboard
+- `/admin/customers` - Kundenverwaltung
+- `/admin/newsletter` - Newsletter-Verwaltung
+- `/admin/newsticker` - Newsticker-Verwaltung
+- Alle Admin-Edit- und New-Seiten
+- Komponenten: `NewstickerManager`, `GemstoneEditor`, `HeaderManagement`, `BlogTable`, `CartAnalyticsDashboard`, `KnowledgeTable`, `SimpleDashboardReports`, `FileUpload`, `DashboardReports`
+
+**Shop-Bereich:**
+- **Kategorie-Badges:** Badges mit Edelsteinart in Thumbnails verwenden jetzt schwarze Schrift (Light Mode) / weiße Schrift (Dark Mode) für bessere Lesbarkeit
+
+**Öffentliche Seiten:**
+- **Icons und Texte:** Alle blauen Icons und Texte verwenden jetzt `var(--color-text-primary)` für besseren Kontrast auf dunklen Hintergründen
+- Betroffene Seiten: Kontakt, Services, Zertifikate, About, Homepage (Newsticker, Carousel)
+
+#### Code-Qualität
+
+**Linting-Verbesserungen:**
+- **TypeScript:** Alle `@ts-ignore` Kommentare wurden durch `@ts-expect-error` ersetzt (bessere TypeScript-Praxis)
+- **ES6 Modules:** `require()` wurde durch ES6 `import` in `scripts/check-newsticker.js` ersetzt
+- **Betroffene Dateien:**
+  - `__tests__/admin/audit.test.tsx`
+  - `__tests__/admin/reviews.test.tsx`
+  - `__tests__/admin/wishlists.test.tsx`
+  - `__tests__/components/shop/AddToCartButton.test.tsx`
+  - `scripts/check-newsticker.js`
+
+**Build-Verbesserungen:**
+- Alle Linting-Fehler behoben
+- Build-Prozess läuft ohne Warnungen
+- Code-Qualität verbessert
+
+#### Docker-Container-Aktualisierung
+
+**Deployment:**
+- Docker-Container wurden neu gebaut mit allen neuesten Änderungen
+- Build-Prozess optimiert
+- Container-Status-Verwaltung verbessert
+
+**Verwendung:**
+```bash
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+```
 
 ---
 

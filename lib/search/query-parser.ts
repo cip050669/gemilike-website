@@ -49,20 +49,35 @@ export function parseVectorQuery(input: string): ParsedVectorQuery {
     return { groups: [], vectorText: '' };
   }
 
-  const normalizedConnectors = trimmed
-    .replace(/\bund\b/gi, ' AND ')
-    .replace(/\border\b/gi, ' OR ')
-    .replace(/\band\b/gi, ' AND ')
-    .replace(/\bor\b/gi, ' OR ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  // Prüfe zuerst, ob es numerische Filter gibt
+  const hasComparator = HAS_COMPARATOR_REGEX.test(trimmed);
+  
+  // Normalisiere Connectors
+  // WICHTIG: "und" zwischen Text-Terms wird als OR behandelt (z.B. "brasilien und tansania" = brasilien OR tansania)
+  // "und" wird nur bei numerischen Filtern als AND behandelt (z.B. "brasilien und preis >100" = brasilien AND preis >100)
+  let normalizedConnectors: string;
+  
+  if (hasComparator) {
+    // Wenn numerische Filter vorhanden sind, behalte AND für "und"
+    normalizedConnectors = trimmed
+      .replace(/\bund\b/gi, ' AND ')
+      .replace(/\border\b/gi, ' OR ')
+      .replace(/\band\b/gi, ' AND ')
+      .replace(/\bor\b/gi, ' OR ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  } else {
+    // Für reine Text-Terms: "und" bedeutet OR (zeigt Steine mit EINER der Herkünfte)
+    normalizedConnectors = trimmed
+      .replace(/\s+und\s+/gi, ' OR ')
+      .replace(/\s+oder\s+/gi, ' OR ')
+      .replace(/\s+and\s+/gi, ' OR ')
+      .replace(/\s+or\s+/gi, ' OR ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
 
   const hasLogic = HAS_LOGIC_REGEX.test(normalizedConnectors);
-  const hasComparator = HAS_COMPARATOR_REGEX.test(normalizedConnectors);
-
-  if (!hasLogic && !hasComparator) {
-    return { groups: [], vectorText: normalizedConnectors };
-  }
 
   const orParts = hasLogic
     ? normalizedConnectors.split(LOGIC_SPLIT_OR).map((part) => part.trim()).filter(Boolean)
@@ -167,15 +182,43 @@ export function evaluateVectorQuery<TPayload>(
 
   const normalizedText = documentText.toLowerCase();
 
+  // Gruppen werden mit OR kombiniert (wenn mehrere Gruppen vorhanden sind)
+  // Innerhalb einer Gruppe: Text-Terms mit OR, numerische Filter mit AND
   return parsed.groups.some((group) => {
+    // Text-Terms: Mindestens EINER muss vorkommen (OR-Logik)
+    // Dies ermöglicht Suchen wie "brasilien und tansania" -> zeigt Steine aus Brasilien ODER Tansania
     const textMatches =
       group.terms.length === 0 ||
-      group.terms.every((term) => normalizedText.includes(term.toLowerCase()));
+      group.terms.some((term) => {
+        const normalizedTerm = term.toLowerCase().trim();
+        if (!normalizedTerm) return false;
+        
+        // Präzise Suche: Exakte Übereinstimmung oder Wortgrenzen
+        // Suche nach ganzen Wörtern, nicht Teilstrings
+        const words = normalizedText.split(/\s+/);
+        const exactMatch = words.some(word => word === normalizedTerm);
+        if (exactMatch) return true;
+        
+        // Für zusammengesetzte Begriffe (z.B. "sri lanka") prüfe auf Teilübereinstimmung
+        if (normalizedTerm.includes(' ')) {
+          return normalizedText.includes(normalizedTerm);
+        }
+        
+        // Für einzelne Wörter: prüfe auf Wortanfang oder exakte Übereinstimmung
+        return words.some(word => 
+          word === normalizedTerm || 
+          word.startsWith(normalizedTerm) ||
+          normalizedText.includes(` ${normalizedTerm} `) ||
+          normalizedText.startsWith(`${normalizedTerm} `) ||
+          normalizedText.endsWith(` ${normalizedTerm}`)
+        );
+      });
 
     if (!textMatches) {
       return false;
     }
 
+    // Alle numerischen Filter müssen erfüllt sein (AND-Logik)
     const filtersMatch = group.filters.every((filter) => {
       const resolved = resolveField(filter.field, payload);
       if (typeof resolved !== 'number' || Number.isNaN(resolved)) {

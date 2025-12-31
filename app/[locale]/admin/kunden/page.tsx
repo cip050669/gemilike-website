@@ -151,7 +151,7 @@ export default function CustomersPage() {
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-white">
               {customers.filter(c => c.company).length}
             </div>
           </CardContent>

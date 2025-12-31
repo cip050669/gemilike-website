@@ -88,7 +88,7 @@ export default function EditNewstickerPage() {
             <h1 className="text-2xl font-bold mb-4">Nachricht nicht gefunden</h1>
             <Link
               href="/de/admin/newsticker"
-              className="text-blue-500 hover:underline"
+              className="text-cyan-300 hover:underline"
             >
               ← Zurück zur Übersicht
             </Link>

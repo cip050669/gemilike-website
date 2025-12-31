@@ -41,7 +41,7 @@ export default async function CustomersPage() {
         {/* Statistiken */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
-            <h3 className="text-2xl font-bold text-blue-600">24</h3>
+            <h3 className="text-2xl font-bold text-white">24</h3>
             <p className="text-gray-300">Gesamt Kunden</p>
           </div>
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
@@ -49,7 +49,7 @@ export default async function CustomersPage() {
             <p className="text-gray-300">Aktive Kunden</p>
           </div>
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
-            <h3 className="text-2xl font-bold text-purple-600">6</h3>
+            <h3 className="text-2xl font-bold text-white">6</h3>
             <p className="text-gray-300">Neue Kunden (30 Tage)</p>
           </div>
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
@@ -149,7 +149,7 @@ export default async function CustomersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-blue-600 font-medium">
+                          <span className="text-white font-medium">
                             {customer.firstName.charAt(0)}{customer.lastName.charAt(0)}
                           </span>
                         </div>
@@ -176,7 +176,7 @@ export default async function CustomersPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex gap-2">
                         <form action={`/de/admin/customers/view/${customer.id}`} method="get" className="inline">
-                          <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
+                          <button type="submit" className="text-white hover:text-gray-300">Anzeigen</button>
                         </form>
                         <form action={`/de/admin/customers/edit/${customer.id}`} method="get" className="inline ml-4">
                           <button type="submit" className="text-green-600 hover:text-green-900">Bearbeiten</button>

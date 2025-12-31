@@ -3,6 +3,29 @@ import { prisma } from '@/lib/prisma';
 import { extractPayload, normaliseGemstonePayload } from './utils';
 import { allGemstones } from '@/lib/data/gemstones';
 import { isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
+import { Prisma } from '@prisma/client';
+
+async function generateUniqueSlug(base: string) {
+  const safeBase =
+    base
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'gemstone';
+
+  let counter = 0;
+  // First try plain, then with -1, -2, ...; stop after reasonable attempts
+  while (counter < 2000) {
+    const candidate = counter === 0 ? safeBase : `${safeBase}-${counter}`;
+    const exists = await prisma.gemstone.findUnique({ where: { slug: candidate } });
+    if (!exists) {
+      return candidate;
+    }
+    counter += 1;
+  }
+
+  // Extreme fallback: timestamped slug
+  return `${safeBase}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -170,12 +193,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Ensure a unique slug so Batch-Imports mit gleichen Namen keine Unique-Fehler werfen
+    const baseSlug = String(payload.name ?? '').trim();
+    payload.slug = await generateUniqueSlug(baseSlug);
+
     const data = normaliseGemstonePayload(payload, uploadedImage, [], false);
     console.log('POST /api/admin/gemstones - Normalized data:', JSON.stringify(data, null, 2));
     
-    const gemstone = await prisma.gemstone.create({
-      data: data as Parameters<typeof prisma.gemstone.create>[0]['data'],
-    });
+    let lastError: unknown;
+    let gemstone;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        gemstone = await prisma.gemstone.create({
+          data: data as Parameters<typeof prisma.gemstone.create>[0]['data'],
+        });
+        break;
+      } catch (error) {
+        lastError = error;
+        // If slug unique constraint hit, regenerate and retry
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+          payload.slug = `${payload.slug}-${Date.now().toString().slice(-6)}-${Math.random().toString(36).slice(2,4)}`;
+          data.slug = payload.slug;
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    if (!gemstone) {
+      throw lastError ?? new Error('Unknown error while creating gemstone');
+    }
 
     console.log('POST /api/admin/gemstones - Created gemstone:', gemstone.id);
 
@@ -187,16 +234,18 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating gemstone:', error);
     let errorMessage = 'Failed to create gemstone';
-    if (error instanceof Error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        const target = Array.isArray(error.meta?.target)
+          ? (error.meta?.target as string[]).join(', ')
+          : (error.meta?.target as string | undefined);
+        errorMessage = `Unique constraint verletzt (${target || 'unknown target'})`;
+      } else {
+        errorMessage = `${error.code}: ${error.message}`;
+      }
+    } else if (error instanceof Error) {
       errorMessage = error.message;
-      // Log stack trace for debugging
       console.error('Error stack:', error.stack);
-    }
-    // Check for Prisma-specific errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const prismaError = error as { code?: string; meta?: unknown };
-      console.error('Prisma error code:', prismaError.code);
-      console.error('Prisma error meta:', prismaError.meta);
     }
     return NextResponse.json(
       { success: false, error: errorMessage },

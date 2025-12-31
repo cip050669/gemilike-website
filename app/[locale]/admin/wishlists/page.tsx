@@ -188,7 +188,7 @@ export default function AdminWishlistsPage() {
                       <Badge variant="secondary">#{index + 1}</Badge>
                       <Link
                         href={`/de/shop/${item.gemstone.slug}`}
-                        className="text-blue-500 hover:underline"
+                        className="text-cyan-300 hover:underline"
                       >
                         {item.gemstone.name}
                       </Link>
@@ -242,7 +242,7 @@ export default function AdminWishlistsPage() {
                           {item.gemstone ? (
                             <Link
                               href={`/de/shop/${item.gemstone.slug}`}
-                              className="text-blue-500 hover:underline"
+                              className="text-cyan-300 hover:underline"
                             >
                               {item.gemstone.name}
                             </Link>

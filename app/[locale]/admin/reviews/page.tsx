@@ -227,7 +227,7 @@ export default function AdminReviewsPage() {
                       <strong>Produkt:</strong>{' '}
                       <Link
                         href={`/de/shop/${review.gemstone.slug}`}
-                        className="text-blue-500 hover:underline"
+                        className="text-cyan-300 hover:underline"
                       >
                         {review.gemstone.name}
                       </Link>

@@ -16,6 +16,7 @@ const getCardValue = (label: string) => {
 describe('AuditLogPage', () => {
   let alertSpy: jest.SpyInstance | null = null;
   let anchorClickSpy: jest.SpyInstance | null = null;
+  const originalConsoleError = console.error;
 
   beforeEach(() => {
     mockUseSession.mockReturnValue({
@@ -28,12 +29,19 @@ describe('AuditLogPage', () => {
       .spyOn(HTMLAnchorElement.prototype, 'click')
       .mockImplementation(() => {});
 
+    jest.spyOn(console, 'error').mockImplementation((msg: unknown, ...rest: unknown[]) => {
+      if (typeof msg === 'string' && msg.includes('Missing `Description`')) return;
+      // @ts-expect-error - console.error can accept any arguments
+      originalConsoleError(msg, ...rest);
+    });
+
     jest.useFakeTimers();
   });
 
   afterEach(() => {
     alertSpy?.mockRestore();
     anchorClickSpy?.mockRestore();
+    (console.error as jest.Mock).mockRestore();
     jest.useRealTimers();
   });
 

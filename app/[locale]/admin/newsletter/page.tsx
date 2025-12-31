@@ -25,7 +25,7 @@ export default function NewsletterAdminPage() {
         {/* Newsletter Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
-            <h3 className="text-2xl font-bold text-blue-600">1,247</h3>
+            <h3 className="text-2xl font-bold text-white">1,247</h3>
             <p className="text-gray-300">Abonnenten</p>
           </div>
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
@@ -33,7 +33,7 @@ export default function NewsletterAdminPage() {
             <p className="text-gray-300">Newsletter gesendet</p>
           </div>
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
-            <h3 className="text-2xl font-bold text-purple-600">68%</h3>
+            <h3 className="text-2xl font-bold text-white">68%</h3>
             <p className="text-gray-300">Öffnungsrate</p>
           </div>
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
@@ -96,7 +96,7 @@ export default function NewsletterAdminPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">
                       <form action="/de/admin/newsletter/view/1" method="get" className="inline">
-                        <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
+                        <button type="submit" className="text-white hover:text-gray-300">Anzeigen</button>
                       </form>
                       <form action="/api/admin/newsletter/1/duplicate" method="post" className="inline ml-4">
                         <button type="submit" className="text-green-600 hover:text-green-900">Duplizieren</button>
@@ -126,7 +126,7 @@ export default function NewsletterAdminPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">
                       <form action="/de/admin/newsletter/view/1" method="get" className="inline">
-                        <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
+                        <button type="submit" className="text-white hover:text-gray-300">Anzeigen</button>
                       </form>
                       <form action="/api/admin/newsletter/1/duplicate" method="post" className="inline ml-4">
                         <button type="submit" className="text-green-600 hover:text-green-900">Duplizieren</button>
@@ -156,7 +156,7 @@ export default function NewsletterAdminPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">
                       <form action="/de/admin/newsletter/edit/1" method="get" className="inline">
-                        <button type="submit" className="text-blue-600 hover:text-blue-900">Bearbeiten</button>
+                        <button type="submit" className="text-white hover:text-gray-300">Bearbeiten</button>
                       </form>
                       <form action="/api/admin/newsletter/1/send" method="post" className="inline ml-4">
                         <button type="submit" className="text-green-600 hover:text-green-900">Senden</button>
@@ -186,7 +186,7 @@ export default function NewsletterAdminPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">
                       <form action="/de/admin/newsletter/view/1" method="get" className="inline">
-                        <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
+                        <button type="submit" className="text-white hover:text-gray-300">Anzeigen</button>
                       </form>
                       <form action="/api/admin/newsletter/1/duplicate" method="post" className="inline ml-4">
                         <button type="submit" className="text-green-600 hover:text-green-900">Duplizieren</button>

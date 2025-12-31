@@ -206,7 +206,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
                     id="marketingOptIn"
                     name="marketingOptIn"
                     defaultChecked={customer.marketingOptIn}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
+                    className="h-4 w-4 text-white focus:ring-blue-500 border-gray-600 rounded"
                   />
                   <label htmlFor="marketingOptIn" className="ml-2 block text-sm text-white">
                     Marketing-Opt-In

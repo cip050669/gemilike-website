@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { AdminButton } from './AdminButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -81,10 +81,6 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
   const [csvData, setCsvData] = useState<string>('');
   const [previewData, setPreviewData] = useState<RawCsvRow[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -537,50 +533,6 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
     }
   };
 
-  // Drag functionality
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
-      setPosition(prev => ({
-        x: prev.x + deltaX,
-        y: prev.y + deltaY
-      }));
-      setDragStart({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragStart]);
-
-  const handleDragStart = (e: React.MouseEvent) => {
-    if (dialogRef.current) {
-      const rect = dialogRef.current.getBoundingClientRect();
-      setDragStart({ x: e.clientX, y: e.clientY });
-      setPosition({ x: rect.left, y: rect.top });
-      setIsDragging(true);
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen && !isDragging) {
-      // Reset position to center when dialog opens (only if not dragging)
-      // The default DialogContent positioning will handle centering
-      setPosition({ x: 0, y: 0 });
-    }
-  }, [isOpen, isDragging]);
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -590,28 +542,14 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
         </AdminButton>
       </DialogTrigger>
       <DialogContent 
-        className="max-w-4xl h-[85vh] bg-[#1a1a1a] text-white border-gray-700 flex flex-col p-0"
-        style={isDragging || (position.x !== 0 || position.y !== 0) ? {
-          position: 'fixed',
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          transform: 'none',
-          margin: 0,
-        } : {
-          // Default centered position
-          position: 'fixed',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10001] w-[95vw] max-w-5xl max-h-[80vh] bg-[#1a1a1a] text-white border-gray-700 flex flex-col p-0 overflow-hidden overflow-y-auto rounded-xl shadow-2xl"
       >
-        <div ref={dialogRef} className="flex flex-col h-full">
+        <div className="flex flex-col h-full overflow-hidden">
           <DialogHeader 
-            className="flex-shrink-0 cursor-move select-none p-6 pb-4 border-b border-gray-600"
-            onMouseDown={handleDragStart}
+            className="flex-shrink-0 select-none p-6 pb-4 border-b border-gray-600"
           >
             <DialogTitle className="text-white text-2xl font-bold">CSV-Import für Edelsteine</DialogTitle>
-            <p className="text-xs text-gray-400 mt-1">Ziehen Sie die Titelleiste, um das Fenster zu bewegen</p>
+            <p className="text-xs text-gray-400 mt-1">Dialog bleibt zentriert – scrolle im Inhalt, um alles zu erreichen.</p>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 min-h-0">
@@ -674,7 +612,7 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
                 <CardTitle className="text-lg text-white">Datenvorschau (erste 5 Zeilen)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto max-h-64">
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-gray-600">

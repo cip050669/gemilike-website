@@ -304,7 +304,7 @@ export default function CheckoutAnalyticsPage() {
                   </span>
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-blue-400" />
+                      <Users className="h-4 w-4 text-cyan-300" />
                       <span className="text-sm text-gray-300">{trend.starts} Starts</span>
                     </div>
                     <div className="flex items-center gap-2">

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Gemstone } from '@/lib/types/gemstone';
+import { formatPrice } from '@/lib/utils/price';
 
 interface ProductVariant {
   id: string;
@@ -63,7 +64,7 @@ export function ProductVariants({
               </p>
             </div>
             <div className="text-right">
-              <p className="font-bold text-lg">€{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+              <p className="font-bold text-lg">{formatPrice(gemstone.price, gemstone.currency)}</p>
               <Badge variant={gemstone.inStock ? "default" : "secondary"}>
                 {gemstone.inStock ? "Verfügbar" : "Ausverkauft"}
               </Badge>
@@ -113,7 +114,7 @@ export function ProductVariants({
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-lg">
-                    €{variant.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                    {formatPrice(variant.price, gemstone.currency)}
                   </p>
                   <Badge variant={variant.inStock ? "default" : "secondary"}>
                     {variant.inStock ? "Verfügbar" : "Ausverkauft"}
@@ -159,7 +160,7 @@ export function ProductVariants({
               <div>
                 <p className="text-sm text-muted-foreground">Gesamtpreis:</p>
                 <p className="text-xl font-bold">
-                  €{(selectedVariant.price * quantity).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                  {formatPrice(selectedVariant.price * quantity, gemstone.currency)}
                 </p>
               </div>
               <Button

@@ -336,7 +336,7 @@ export default function EditStoryPage({
                       <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     <p className="text-sm text-gray-300">
-                      <span className="font-medium text-blue-600 hover:text-blue-500">Klicken Sie hier</span> oder ziehen Sie ein Bild hierher
+                      <span className="font-medium text-cyan-300 hover:text-cyan-200">Klicken Sie hier</span> oder ziehen Sie ein Bild hierher
                     </p>
                     <p className="text-xs text-gray-500">PNG, JPG, GIF bis zu 10MB</p>
                   </div>
@@ -367,7 +367,7 @@ export default function EditStoryPage({
                       <path d="M9 12h6m-6 4h6m2 5H7m5 5v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3m0 0H7m2 0h2m6-5v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3m0 0H7m2 0h2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     <p className="text-sm text-gray-300">
-                      <span className="font-medium text-blue-600 hover:text-blue-500">Klicken Sie hier</span> oder ziehen Sie eine Markdown-Datei hierher
+                      <span className="font-medium text-cyan-300 hover:text-cyan-200">Klicken Sie hier</span> oder ziehen Sie eine Markdown-Datei hierher
                     </p>
                     <p className="text-xs text-gray-500">.md, .txt bis zu 5MB</p>
                   </div>

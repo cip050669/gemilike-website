@@ -88,7 +88,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                     id="contact-form-heading"
                     className="text-2xl font-bold mb-6 flex items-center space-x-2 text-gray-200"
                   >
-                    <MailIcon className="h-5 w-5 text-primary" aria-hidden="true" />
+                    <MailIcon className="h-5 w-5 text-[var(--color-text-primary)]" aria-hidden="true" />
                     <span>Nachricht senden</span>
                   </h2>
                 <div>
@@ -252,11 +252,11 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
 
                   {/* Progressive Enhancement: noscript Fallback für JavaScript-freie Umgebungen */}
                   <noscript>
-                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-sm text-blue-800 mb-2">
+                    <div className="mt-4 p-4 bg-gray-800/50 border border-white/20 rounded-lg">
+                      <p className="text-sm text-[var(--color-text-primary)] mb-2">
                         <strong>Hinweis:</strong> JavaScript ist deaktiviert. Das Formular wird über einen normalen Formular-Submit gesendet.
                       </p>
-                      <p className="text-xs text-blue-700">
+                      <p className="text-xs text-[var(--color-text-secondary)]">
                         Bitte stellen Sie sicher, dass alle Felder ausgefüllt sind, bevor Sie das Formular absenden.
                       </p>
                     </div>
@@ -272,7 +272,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                 <div className="p-6 md:p-8 space-y-4">
                   <h2 className="text-2xl font-bold mb-6 text-gray-200">Kontaktinformationen</h2>
                   <div className="flex items-start space-x-3">
-                    <MapPinIcon className="h-5 w-5 text-primary mt-1" />
+                    <MapPinIcon className="h-5 w-5 text-[var(--color-text-primary)] mt-1" />
                     <div>
                       <h3 className="font-semibold text-gray-200">Adresse</h3>
                       <p className="text-gray-200">
@@ -285,7 +285,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                   </div>
 
                   <div className="flex items-start space-x-3">
-                    <PhoneIcon className="h-5 w-5 text-primary mt-1" />
+                    <PhoneIcon className="h-5 w-5 text-[var(--color-text-primary)] mt-1" />
                     <div>
                       <h3 className="font-semibold text-gray-200">Telefon</h3>
                       <p className="text-gray-200">
@@ -296,7 +296,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                   </div>
 
                   <div className="flex items-start space-x-3">
-                    <MailIcon className="h-5 w-5 text-primary mt-1" />
+                    <MailIcon className="h-5 w-5 text-[var(--color-text-primary)] mt-1" />
                     <div>
                       <h3 className="font-semibold text-gray-200">E-Mail</h3>
                       <p className="text-gray-200">
@@ -307,7 +307,7 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                   </div>
 
                   <div className="flex items-start space-x-3">
-                    <ClockIcon className="h-5 w-5 text-primary mt-1" />
+                    <ClockIcon className="h-5 w-5 text-[var(--color-text-primary)] mt-1" />
                     <div>
                       <h3 className="font-semibold text-gray-200">Öffnungszeiten</h3>
                       <p className="text-gray-200">
@@ -325,23 +325,23 @@ export default function ContactPage({ params }: { params: Promise<{ locale: stri
                   <h2 className="text-2xl font-bold mb-6 text-gray-200">Beratung & Service</h2>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                       <span className="text-sm text-gray-200">Kostenlose Edelstein-Beratung</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                       <span className="text-sm text-gray-200">Zertifikate und Gutachten</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                       <span className="text-sm text-gray-200">Individuelle Schmuckanfertigung</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                       <span className="text-sm text-gray-200">Reparaturen und Restaurierung</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                       <span className="text-sm text-gray-200">Wertgutachten und Schätzungen</span>
                     </div>
                   </div>

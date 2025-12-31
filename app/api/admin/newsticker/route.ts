@@ -48,8 +48,25 @@ const parseBody = async (request: NextRequest): Promise<NewstickerInput & { isAc
 };
 
 export async function GET() {
-  const items = await getNewstickerItems(false);
-  return NextResponse.json({ success: true, items });
+  try {
+    const items = await getNewstickerItems(false);
+    return NextResponse.json(
+      { success: true, items },
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Error fetching newsticker items:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch newsticker items', items: [] },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {

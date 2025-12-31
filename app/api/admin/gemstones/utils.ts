@@ -124,10 +124,14 @@ export const normaliseGemstonePayload = (
 
   // Generate slug from name
   const name = String(payload.name ?? '').trim();
-  const slug = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || `gemstone-${Date.now()}`;
+  // Allow caller to pre-compute a unique slug; otherwise derive from the name
+  const slug =
+    (payload.slug as string)?.trim() ||
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') ||
+    `gemstone-${Date.now()}`;
 
   // Base gemstone data (matches Prisma schema)
   // Using Record<string, unknown> for Prisma create/update objects which have dynamic structure

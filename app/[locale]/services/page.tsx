@@ -55,14 +55,14 @@ export default function ServicesPage() {
             <div key={index} className="story-card">
               <div className="p-6">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <service.icon className="h-6 w-6 text-primary" />
+                  <service.icon className="h-6 w-6 text-[var(--color-text-primary)]" />
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-gray-200">{service.title}</h3>
                 <p className="text-gray-200 mb-4">{service.description}</p>
                 <ul className="space-y-1">
                   {service.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center text-sm text-gray-200">
-                      <Sparkles className="mr-2 h-3 w-3 text-primary" />
+                      <Sparkles className="mr-2 h-3 w-3 text-[var(--color-text-primary)]" />
                       {feature}
                     </li>
                   ))}

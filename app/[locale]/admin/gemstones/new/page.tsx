@@ -256,7 +256,7 @@ export default function NewGemstonePage() {
                   />
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Weiß (0)</span>
-                    <span className="font-medium text-blue-600">{brightnessValue}</span>
+                    <span className="font-medium text-white">{brightnessValue}</span>
                     <span>Schwarz (10)</span>
                   </div>
                   <div className="text-sm text-gray-300">

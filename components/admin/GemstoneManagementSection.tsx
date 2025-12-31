@@ -619,7 +619,7 @@ export function GemstoneManagementSection() {
         </div>
         <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4 shadow-lg shadow-black/30">
           <p className="text-xs uppercase tracking-[0.3em] text-white/50">Featured</p>
-          <p className="mt-2 text-3xl font-semibold text-purple-400">
+          <p className="mt-2 text-3xl font-semibold text-white">
             {gemstones.filter((g) => g.featured).length}
           </p>
           <p className="mt-1 text-xs text-white/60">Hervorgehoben</p>

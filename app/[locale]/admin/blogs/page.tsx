@@ -113,7 +113,7 @@ export default async function BlogsAdminPage({
           </div>
           <div className="bg-gray-800/30 p-6 rounded-lg shadow-sm border">
             <h3 className="text-sm font-medium text-gray-500">Featured</h3>
-            <p className="text-3xl font-bold text-purple-600 mt-2">
+            <p className="text-3xl font-bold text-white mt-2">
               {stats.featured}
             </p>
           </div>

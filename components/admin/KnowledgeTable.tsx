@@ -103,7 +103,7 @@ export function KnowledgeTable({
                 type="checkbox"
                 checked={onlyPublished}
                 onChange={(event) => setOnlyPublished(event.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 text-white focus:ring-blue-500"
               />
               Nur veröffentlichte Artikel
             </label>
@@ -162,7 +162,7 @@ export function KnowledgeTable({
                     <div className="text-sm font-semibold text-white">
                       {article.title}
                     </div>
-                    <div className="text-xs text-blue-500 mb-1">{`/wissenswertes/${article.slug}`}</div>
+                    <div className="text-xs text-cyan-300 mb-1">{`/wissenswertes/${article.slug}`}</div>
                     <p className="text-sm text-gray-300 line-clamp-2">
                       {article.excerpt}
                     </p>
@@ -200,7 +200,7 @@ export function KnowledgeTable({
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                     <Link
                       href={`/${locale}/wissenswertes/${article.slug}`}
-                      className="text-blue-600 hover:text-blue-900"
+                      className="text-white hover:text-gray-300"
                     >
                       Anzeigen
                     </Link>

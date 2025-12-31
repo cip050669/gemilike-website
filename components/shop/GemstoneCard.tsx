@@ -10,6 +10,7 @@ import { PictogramWithTooltip } from './PictogramWithTooltip';
 import { useTranslations } from 'next-intl';
 import { getColorBadgeStyle, getColorIntensityBadgeStyle } from '@/lib/utils/colorBadge';
 import { Card3D } from '@/components/ui/Card3D';
+import { formatPrice } from '@/lib/utils/price';
 
 interface GemstoneCardProps {
   gemstone: Gemstone;
@@ -83,9 +84,9 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
             </CardTitle>
             <div 
               className="bg-gem-fire text-gem-bgDark px-2 py-1 rounded-md text-sm font-bold ml-2 flex-shrink-0"
-              aria-label={`Preis: ${gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })} Euro`}
+              aria-label={`Preis: ${formatPrice(gemstone.price, gemstone.currency)}`}
             >
-              €{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+              {formatPrice(gemstone.price, gemstone.currency)}
             </div>
           </div>
           <CardDescription 

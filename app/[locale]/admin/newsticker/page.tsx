@@ -13,13 +13,28 @@ export default function NewstickerAdminPage() {
   useEffect(() => {
     const loadItems = async () => {
       try {
-        const response = await fetch('/api/admin/newsticker');
+        const response = await fetch('/api/admin/newsticker', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         if (data.success) {
           setItems(data.items || []);
+        } else {
+          console.error('Failed to load newsticker items:', data.error);
         }
       } catch (error) {
         console.error('Error loading newsticker items:', error);
+        // Set items to empty array on error to show empty state
+        setItems([]);
       } finally {
         setLoading(false);
       }
@@ -44,10 +59,19 @@ export default function NewstickerAdminPage() {
       if (response.ok) {
         router.refresh();
         // Reload items
-        const itemsResponse = await fetch('/api/admin/newsticker');
-        const itemsData = await itemsResponse.json();
-        if (itemsData.success) {
-          setItems(itemsData.items || []);
+        const itemsResponse = await fetch('/api/admin/newsticker', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+        });
+        
+        if (itemsResponse.ok) {
+          const itemsData = await itemsResponse.json();
+          if (itemsData.success) {
+            setItems(itemsData.items || []);
+          }
         }
       } else {
         alert('Fehler beim Löschen der Nachricht');
@@ -109,7 +133,7 @@ export default function NewstickerAdminPage() {
             </div>
             <Link
               href="/de/admin/newsticker/new"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
+              className="text-white hover:text-gray-300 text-sm font-medium"
             >
               + Neue Nachricht
             </Link>
@@ -126,7 +150,7 @@ export default function NewstickerAdminPage() {
               </label>
               <input
                 type="checkbox"
-                className="rounded border-gray-600 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-600 text-white focus:ring-blue-500"
                 defaultChecked
               />
             </div>
@@ -136,7 +160,7 @@ export default function NewstickerAdminPage() {
               </label>
               <input
                 type="checkbox"
-                className="rounded border-gray-600 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-600 text-white focus:ring-blue-500"
                 defaultChecked
               />
             </div>
@@ -172,7 +196,7 @@ export default function NewstickerAdminPage() {
               <p className="text-gray-500 mb-4">Erstellen Sie Ihre erste Newsticker-Nachricht</p>
               <Link
                 href="/de/admin/newsticker/new"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                className="text-white hover:text-gray-300 text-sm font-medium"
               >
                 + Erste Nachricht erstellen
               </Link>
@@ -207,7 +231,7 @@ export default function NewstickerAdminPage() {
                       <div className="flex gap-2 ml-4">
                         <Link
                           href={`/de/admin/newsticker/edit/${item.id}`}
-                          className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                          className="text-white hover:text-gray-300 text-sm font-medium"
                         >
                           Bearbeiten
                         </Link>

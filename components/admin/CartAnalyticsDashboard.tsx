@@ -150,7 +150,7 @@ export function CartAnalyticsDashboard({ locale }: { locale: string }) {
             <CardTitle className="text-white text-lg">Aktive Warenkörbe</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-400">{data.overview.activeCarts}</p>
+            <p className="text-3xl font-bold text-white">{data.overview.activeCarts}</p>
             <p className="text-sm text-gray-400 mt-1">von {data.overview.totalCarts} insgesamt</p>
           </CardContent>
         </Card>
@@ -172,7 +172,7 @@ export function CartAnalyticsDashboard({ locale }: { locale: string }) {
             <CardTitle className="text-white text-lg">Conversion Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-purple-400">
+            <p className="text-3xl font-bold text-white">
               {data.metrics.conversionRate.toFixed(2)}%
             </p>
             <p className="text-sm text-gray-400 mt-1">
@@ -282,7 +282,7 @@ export function CartAnalyticsDashboard({ locale }: { locale: string }) {
                         {product.slug ? (
                           <Link
                             href={`/${locale}/shop/${product.slug}`}
-                            className="text-blue-400 hover:text-blue-300"
+                            className="text-cyan-300 hover:text-cyan-200"
                           >
                             {product.name}
                           </Link>

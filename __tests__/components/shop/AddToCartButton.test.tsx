@@ -27,6 +27,7 @@ jest.mock('next/image', () => ({
 }))
 
 describe('AddToCartButton', () => {
+  const originalConsoleError = console.error;
   const mockItem = {
     id: 'gem-1',
     name: 'Test Diamond',
@@ -44,12 +45,19 @@ describe('AddToCartButton', () => {
     jest.useFakeTimers()
     mockAddItem.mockResolvedValue(undefined)
     mockIsLoading.mockReturnValue(false)
+
+    jest.spyOn(console, 'error').mockImplementation((msg: unknown, ...rest: unknown[]) => {
+      if (typeof msg === 'string' && msg.includes('not wrapped in act')) return;
+      // @ts-expect-error - console.error can accept any arguments
+      originalConsoleError(msg, ...rest)
+    })
   })
 
   afterEach(() => {
     jest.clearAllTimers()
     jest.runOnlyPendingTimers()
     jest.useRealTimers()
+    ;(console.error as jest.Mock).mockRestore()
   })
 
   it('should render button with correct text', () => {

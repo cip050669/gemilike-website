@@ -151,7 +151,7 @@ export default function StoriesAdminPage() {
                         )}
                         <Link
                           href={`/de/admin/stories/edit/${story.id}`}
-                          className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                          className="text-white hover:text-gray-300 text-sm font-medium"
                         >
                           Bearbeiten
                         </Link>

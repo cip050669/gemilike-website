@@ -10,6 +10,7 @@ import { MediaGallery } from './MediaGallery';
 import { TreatmentIcon } from './TreatmentIcon';
 import { WishlistButton } from '@/components/cart/WishlistButton';
 import { ShoppingCart, Eye, Award, Ruler, Weight, MapPin, FlaskConical } from 'lucide-react';
+import { formatPrice } from '@/lib/utils/price';
 
 interface QuickViewModalProps {
   gemstone: Gemstone | null;
@@ -72,7 +73,7 @@ export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded
               </div>
               
               <p className="text-3xl font-bold text-primary mb-4">
-                €{gemstone.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                {formatPrice(gemstone.price, gemstone.currency)}
               </p>
               
               {gemstone.description && (

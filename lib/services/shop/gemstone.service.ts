@@ -127,6 +127,19 @@ export async function listPublishedGemstones(): Promise<ShopGemstone[]> {
   return gemstones.map(toShopGemstone);
 }
 
+export async function listAllGemstones(): Promise<ShopGemstone[]> {
+  const gemstones = await prisma.gemstone.findMany({
+    include: gemstoneWithRelationsInclude,
+    orderBy: [
+      { isNew: 'desc' },
+      { publishedAt: 'desc' },
+      { createdAt: 'desc' },
+    ],
+  });
+
+  return gemstones.map(toShopGemstone);
+}
+
 export async function fetchGemstoneById(id: string): Promise<ShopGemstone | null> {
   const gemstone = await prisma.gemstone.findUnique({
     where: { id },
@@ -138,6 +151,19 @@ export async function fetchGemstoneById(id: string): Promise<ShopGemstone | null
   }
 
   return toShopGemstone(gemstone);
+}
+
+export async function fetchGemstonesByIds(ids: string[]): Promise<ShopGemstone[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const gemstones = await prisma.gemstone.findMany({
+    where: { id: { in: ids } },
+    include: gemstoneWithRelationsInclude,
+  });
+
+  return gemstones.map(toShopGemstone);
 }
 
 export interface GemstoneVectorSearchResult {
@@ -183,7 +209,9 @@ const createGemstoneVectorDocument = (gem: ShopGemstone): GemstoneVectorDocument
 };
 
 async function buildGemstoneVectorDocuments() {
-  const gemstones = await listPublishedGemstones();
+  // Verwende ALLE Edelsteine für die Suche, nicht nur veröffentlichte
+  // So können auch DRAFT-Edelsteine gefunden werden
+  const gemstones = await listAllGemstones();
   return gemstones.map(createGemstoneVectorDocument);
 }
 

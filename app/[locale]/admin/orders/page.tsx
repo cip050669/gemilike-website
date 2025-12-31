@@ -200,7 +200,7 @@ export default async function OrdersPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex gap-2">
                         <form action={`/de/admin/orders/view/${order.id}`} method="get" className="inline">
-                          <button type="submit" className="text-blue-600 hover:text-blue-900">Anzeigen</button>
+                          <button type="submit" className="text-white hover:text-gray-300">Anzeigen</button>
                         </form>
                         <form action={`/de/admin/orders/edit/${order.id}`} method="get" className="inline ml-4">
                           <button type="submit" className="text-green-600 hover:text-green-900">Bearbeiten</button>

@@ -107,7 +107,7 @@ export function BlogTable({
                 type="checkbox"
                 checked={onlyPublished}
                 onChange={(event) => setOnlyPublished(event.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 text-white focus:ring-blue-500"
               />
               Nur veröffentlichte Beiträge
             </label>
@@ -166,7 +166,7 @@ export function BlogTable({
                     <div className="text-sm font-semibold text-white">
                       {blog.title}
                     </div>
-                    <div className="text-xs text-blue-500 mb-1">{`/${blog.slug}`}</div>
+                    <div className="text-xs text-cyan-300 mb-1">{`/${blog.slug}`}</div>
                     <p className="text-sm text-gray-300 line-clamp-2">
                       {blog.excerpt}
                     </p>
@@ -215,7 +215,7 @@ export function BlogTable({
                       )}
                       <Link
                         href={`/${locale}/admin/blogs/edit/${blog.id}`}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-white hover:text-gray-300"
                       >
                         Bearbeiten
                       </Link>

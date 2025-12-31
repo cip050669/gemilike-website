@@ -110,7 +110,7 @@ export default async function EditOrderPage({
               {invoice.pdfStorageKey ? (
                 <a
                   href={`/api/admin/invoices/${invoice.id}/pdf`}
-                  className="text-blue-400 underline underline-offset-4 hover:text-blue-300"
+                  className="text-cyan-300 underline underline-offset-4 hover:text-cyan-200"
                 >
                   herunterladen
                 </a>

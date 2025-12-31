@@ -241,7 +241,7 @@ export function DragDropUpload({
         <div className="flex flex-col items-center gap-4">
           {uploading ? (
             <>
-              <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+              <Loader2 className="w-12 h-12 text-cyan-300 animate-spin" />
               <p className="text-gray-300">Upload läuft...</p>
             </>
           ) : (

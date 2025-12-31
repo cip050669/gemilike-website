@@ -395,7 +395,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   />
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Weiß (0)</span>
-                    <span className="font-medium text-blue-600">{formValues.colorBrightness}</span>
+                    <span className="font-medium text-white">{formValues.colorBrightness}</span>
                     <span>Schwarz (10)</span>
                   </div>
                   <div className="text-sm text-gray-300">
@@ -682,7 +682,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                     <button
                       type="button"
                       onClick={() => addArrayField('images', 10)}
-                      className="text-sm text-blue-400 hover:text-blue-300"
+                      className="text-sm text-cyan-300 hover:text-cyan-200"
                     >
                       + Bild hinzufügen
                     </button>
@@ -742,7 +742,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                     <button
                       type="button"
                       onClick={() => addArrayField('videos', 2)}
-                      className="text-sm text-blue-400 hover:text-blue-300"
+                      className="text-sm text-cyan-300 hover:text-cyan-200"
                     >
                       + Video hinzufügen
                     </button>
@@ -759,7 +759,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   id="isNew"
                   checked={formValues.isNew}
                   onChange={(e) => handleChange('isNew', e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-white bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                 />
                 <label htmlFor="isNew" className="text-sm font-medium text-gray-200">
                   Neu im Sortiment
@@ -771,7 +771,7 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   id="isSold"
                   checked={formValues.isSold}
                   onChange={(e) => handleChange('isSold', e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-white bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                 />
                 <label htmlFor="isSold" className="text-sm font-medium text-gray-200">
                   Verkauft

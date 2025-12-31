@@ -118,7 +118,7 @@ export function NewGemstonesCarousel({
                     </span>
                     <Link
                       href={`/${locale}/shop?gem=${gemstone.id}`}
-                      className="block text-lg font-semibold text-white line-clamp-2 hover:text-primary"
+                      className="block text-lg font-semibold text-white line-clamp-2 hover:text-[var(--color-text-primary)]"
                     >
                       {gemstone.name}
                     </Link>

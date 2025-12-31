@@ -27,7 +27,7 @@ export default function CertificatesPage() {
             <div className="story-card">
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Shield className="h-8 w-8 text-primary" />
+                  <Shield className="h-8 w-8 text-[var(--color-text-primary)]" />
                   <h2 className="text-xl font-bold text-gray-200">{t('gemologicalCertificate')}</h2>
                 </div>
                 <p className="text-gray-200 mb-4">
@@ -35,15 +35,15 @@ export default function CertificatesPage() {
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('authenticity')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('quality')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('origin')}</span>
                   </li>
                 </ul>
@@ -53,7 +53,7 @@ export default function CertificatesPage() {
             <div className="story-card">
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Award className="h-8 w-8 text-primary" />
+                  <Award className="h-8 w-8 text-[var(--color-text-primary)]" />
                   <h2 className="text-xl font-bold text-gray-200">{t('qualityCertificate')}</h2>
                 </div>
                 <p className="text-gray-200 mb-4">
@@ -61,15 +61,15 @@ export default function CertificatesPage() {
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('cutQuality')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('colorGrade')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('clarity')}</span>
                   </li>
                 </ul>
@@ -79,7 +79,7 @@ export default function CertificatesPage() {
             <div className="story-card">
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <FileText className="h-8 w-8 text-primary" />
+                  <FileText className="h-8 w-8 text-[var(--color-text-primary)]" />
                   <h2 className="text-xl font-bold text-gray-200">{t('originCertificate')}</h2>
                 </div>
                 <p className="text-gray-200 mb-4">
@@ -87,15 +87,15 @@ export default function CertificatesPage() {
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('miningLocation')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('ethicalSourcing')}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-[var(--color-text-primary)]" />
                     <span className="text-gray-200">{t('traceability')}</span>
                   </li>
                 </ul>
@@ -142,23 +142,23 @@ export default function CertificatesPage() {
                 <h2 className="text-2xl font-bold mb-6 text-gray-200">{t('certificationBenefits')}</h2>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                     <span className="text-gray-200">{t('benefit1')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                     <span className="text-gray-200">{t('benefit2')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                     <span className="text-gray-200">{t('benefit3')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                     <span className="text-gray-200">{t('benefit4')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <div className="w-2 h-2 bg-[var(--color-text-primary)] rounded-full"></div>
                     <span className="text-gray-200">{t('benefit5')}</span>
                   </div>
                 </div>

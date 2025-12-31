@@ -75,11 +75,26 @@ const renderReviewsPage = async () => {
   });
   await act(async () => {
     await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
   return utils!;
 };
 
 describe('Admin Reviews Management', () => {
+  const originalConsoleError = console.error;
+  let consoleErrorSpy: jest.SpyInstance | null = null;
+  beforeAll(() => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((msg: unknown, ...rest: unknown[]) => {
+      if (typeof msg === 'string' && msg.includes('not wrapped in act')) return;
+      // @ts-expect-error - console.error can accept any arguments
+      originalConsoleError(msg, ...rest);
+    });
+  });
+
+  afterAll(() => {
+    consoleErrorSpy?.mockRestore();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     (global.fetch as jest.Mock).mockResolvedValue({

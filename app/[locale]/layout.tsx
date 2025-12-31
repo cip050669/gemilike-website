@@ -5,15 +5,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
-import { Inter } from 'next/font/google';
 import clsx from 'clsx';
-
-const inter = Inter({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-inter',
-  display: 'swap',
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-});
 
 export const metadata: Metadata = {
   title: 'Gemilike - Heroes in Gems | Edelsteinhandel',
@@ -45,7 +37,7 @@ export default async function LocaleLayout({
   }
 
   return (
-    <html lang={locale} className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Preload wichtige Ressourcen */}
         <link rel="preload" href="/logo.png" as="image" type="image/png" />

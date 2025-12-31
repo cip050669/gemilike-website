@@ -14,6 +14,10 @@ import { NewGemstonesCarousel } from '@/components/home/NewGemstonesCarousel';
 import { ScrollAnimated } from '@/components/ui/ScrollAnimated';
 import { DEFAULT_CONTAINER_CONTENT, getContainerContent } from '@/lib/services/containerContent';
 
+// Immer dynamisch rendern, damit neue Daten (z. B. frisch importierte Steine) sofort angezeigt werden
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const STORY_PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
 const stripMarkdown = (markdown: string) =>

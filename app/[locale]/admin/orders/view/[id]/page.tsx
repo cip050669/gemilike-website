@@ -108,7 +108,7 @@ export default async function ViewOrderPage({
                 <div className="pt-4">
                   <Link
                     href={`/de/admin/customers/view/${order.customer.id}`}
-                    className="text-blue-600 hover:text-blue-800 font-medium"
+                    className="text-cyan-300 hover:text-cyan-200 font-medium"
                   >
                     👤 Kundenprofil anzeigen
                   </Link>
