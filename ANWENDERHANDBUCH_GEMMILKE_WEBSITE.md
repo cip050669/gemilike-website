@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.5.6  
-**Stand:** Dezember 2025  
-**Letzte Aktualisierung:** 31. Dezember 2025 - Preisformatierung, UI-Verbesserungen für Lesbarkeit, Code-Qualität  
+**Version:** 2.5.7  
+**Stand:** Januar 2026  
+**Letzte Aktualisierung:** 6. Januar 2026 - Sicherheitsupdates, UI-Verbesserungen Shop, Navigation-Anpassungen, Sicherheit & GitHub-Verwaltung dokumentiert  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -23,6 +23,8 @@
 12. [Support & Kontakt](#12-support--kontakt)
 13. [Zusammenfassung](#13-zusammenfassung)
 14. [Schnellreferenz](#14-schnellreferenz)
+15. [Sicherheit & GitHub-Verwaltung](#15-sicherheit--github-verwaltung)
+16. [Änderungsprotokoll](#16-änderungsprotokoll)
 
 ---
 
@@ -89,54 +91,97 @@ gemilike-website/
 │   │   ├── admin/                # Admin-Bereich
 │   │   ├── shop/                 # Shop-Bereich
 │   │   ├── blog/                 # Blog-Bereich
+│   │   ├── downloads/            # Downloads-Bereich
+│   │   ├── worldmap/             # Weltkarte
+│   │   ├── wissenswertes/        # Knowledge Base
+│   │   ├── profile/              # Benutzerprofil
+│   │   ├── cart/                 # Warenkorb
+│   │   ├── checkout/             # Checkout
 │   │   └── ...                   # Weitere öffentliche Seiten
 │   └── api/                      # API-Routen
 │       ├── admin/                # Admin-APIs
 │       ├── color-charts/         # Farbtafeln-APIs
-│       └── gemstone-analyses/    # Farbanalyse-APIs
+│       ├── gemstone-analyses/    # Farbanalyse-APIs
+│       ├── shop/                 # Shop-APIs
+│       ├── cart/                 # Warenkorb-APIs
+│       ├── orders/               # Bestell-APIs
+│       └── ...                   # Weitere API-Routen
 ├── components/                   # React-Komponenten
 │   ├── admin/                    # Admin-Komponenten
 │   ├── color-charts/             # Farbtafeln-Komponenten
+│   ├── shop/                     # Shop-Komponenten
 │   ├── layout/                   # Layout-Komponenten
-│   └── ui/                       # UI-Basis-Komponenten
+│   ├── ui/                       # UI-Basis-Komponenten
+│   ├── home/                     # Homepage-Komponenten
+│   ├── profile/                  # Profil-Komponenten
+│   └── ...                       # Weitere Komponenten
 ├── lib/                          # Bibliotheken und Utilities
 │   ├── services/                 # Business-Logic-Services
 │   ├── store/                    # Zustand Stores
-│   └── utils/                    # Utility-Funktionen
+│   ├── utils/                    # Utility-Funktionen
+│   ├── hooks/                    # Custom React Hooks
+│   ├── types/                    # TypeScript-Typen
+│   └── ...                       # Weitere Utilities
 ├── prisma/                       # Datenbank-Schema
-│   └── schema.prisma             # Prisma Schema
-└── public/                       # Statische Dateien
+│   ├── schema.prisma             # Prisma Schema
+│   └── migrations/               # Datenbank-Migrationen
+├── public/                       # Statische Dateien
+│   ├── uploads/                  # Hochgeladene Dateien
+│   ├── products/                 # Produktbilder
+│   └── templates/                # CSV-Vorlagen
+├── __tests__/                    # Test-Dateien
+├── scripts/                      # Build- und Deployment-Skripte
+├── config/                       # Konfigurationsdateien
+├── i18n/                         # Internationalisierung
+├── messages/                     # Übersetzungsdateien
+├── types/                        # Globale TypeScript-Typen
+└── deploy/                       # Deployment-Konfigurationen
 ```
 
 ### 2.3 Code-Statistiken
 
-**Stand:** Dezember 2025
+**Stand:** Januar 2026
 
-Das Projekt umfasst insgesamt **110.134 Zeilen Code** (ohne `node_modules`, `.next` und `.git`):
+Das Projekt umfasst insgesamt **114.736 Zeilen Code** (ohne `node_modules`, `.next` und `.git`):
 
 | Dateityp | Zeilen | Beschreibung |
 |----------|--------|--------------|
-| **TSX** | 62.764 | React-Komponenten mit TypeScript (UI-Komponenten, Seiten) |
-| **TS** | 37.080 | TypeScript-Dateien (Services, Utilities, API-Routen, Server Actions) |
-| **JS** | 8.108 | JavaScript-Dateien (Konfigurationen, Skripte, Legacy-Code) |
-| **CSS** | 1.275 | Stylesheets (globale Styles, Tailwind-Erweiterungen) |
-| **HTML** | 907 | HTML-Templates und statische Seiten |
-| **Gesamt** | **110.134** | Gesamter Quellcode des Projekts |
+| **TSX** | 64.001 | React-Komponenten mit TypeScript (UI-Komponenten, Seiten) |
+| **TS** | 38.883 | TypeScript-Dateien (Services, Utilities, API-Routen, Server Actions) |
+| **JS** | 8.213 | JavaScript-Dateien (Konfigurationen, Skripte, Legacy-Code) |
+| **CSS** | 1.341 | Stylesheets (globale Styles, Tailwind-Erweiterungen) |
+| **HTML** | 2.298 | HTML-Templates und statische Seiten |
+| **Gesamt** | **114.736** | Gesamter Quellcode des Projekts |
 
 **Hinweise:**
-- Die größte Codebasis liegt in **TSX-Dateien** (57%), was die React-basierte Architektur widerspiegelt
+- Die größte Codebasis liegt in **TSX-Dateien** (56%), was die React-basierte Architektur widerspiegelt
 - **TypeScript-Dateien** (34%) enthalten hauptsächlich Business-Logik, Server Actions und API-Routen
 - Die relativ geringe Anzahl an **CSS-Zeilen** (1%) zeigt die effiziente Nutzung von Tailwind CSS
-- **HTML-Dateien** sind minimal, da die meisten Seiten als React-Komponenten gerendert werden
+- **HTML-Dateien** enthalten hauptsächlich Test-Dateien und Templates
 
 ### 2.4 Datenbank
 
 **PostgreSQL** mit **Prisma ORM**:
 
-- **27 Haupt-Models** für verschiedene Entitäten
-- **Relations** zwischen Models für Datenintegrität
-- **Indexes** für Performance-Optimierung
-- **Enums** für typsichere Werte
+- **52 Haupt-Models** für verschiedene Entitäten
+- **46 Relations** zwischen Models für Datenintegrität
+- **30 Indexes** für Performance-Optimierung
+- **13 Enums** für typsichere Werte
+
+**Haupt-Models (Auswahl):**
+- **E-Commerce:** `Gemstone`, `GemstoneAttributes`, `GemstoneInventory`, `GemstonePrice`, `Cart`, `CartItem`, `Order`, `OrderItem`, `Invoice`, `InvoiceItem`
+- **Benutzer & Authentifizierung:** `User`, `Account`, `Session`, `Customer`, `Address`
+- **Content-Management:** `Blog`, `Story`, `KnowledgeBase`, `AboutContent`, `Service`
+- **Farbanalyse & Farbtafeln:** `ColorChart`, `GemstoneAnalysis`
+- **Weltkarte:** `Location`, `Country`, `GemType`
+- **Newsletter & Marketing:** `NewsletterSubscriber`, `NewstickerItem`
+- **Downloads:** `DownloadGrant`
+- **Rechtliches:** `LegalPage`, `FooterLink`, `FooterSection`
+- **Konfiguration:** `HeaderData`, `HeroImage`, `HeroSettings`, `ContainerContent`, `ContactData`, `CompanySettings`, `SelectOption`, `PictogramDescription`
+- **Weitere:** `Review`, `Tag`, `GemstoneTag`, `Wishlist`, `WishlistItem`, `CheckoutEvent`, `Coupon`, `AuditLog`, `BankAccount`, `NavigationItem`, `LegalLink`
+
+**Enums:**
+- `UserRole`, `GemstoneStatus`, `GemstoneCondition`, `MediaType`, `PriceDiscountType`, `CartStatus`, `OrderStatus`, `PaymentStatus`, `PaymentMethod`, `DownloadResourceType`, `InvoiceStatus`, `AddressType`, `KycStatus`
 
 ### 2.5 Design & Layout-System
 
@@ -380,6 +425,7 @@ module.exports = {
 
 - **Logo:** Klick führt zur Startseite
 - **Hauptnavigation:** Dynamische Navigation aus Datenbank
+  - **Navigation-Items (seit Version 2.5.7):** Die Links "Über uns" und "Kontakt" wurden aus der Header-Navigation entfernt
 - **Sprachauswahl (DE/EN):** Wechsel zwischen Deutsch und Englisch
 - **Dark Mode Toggle:** Wechsel zwischen Hell- und Dunkelmodus
 - **Warenkorb:** Anzeige der Artikelanzahl, Öffnung des Warenkorbs
@@ -514,8 +560,17 @@ module.exports = {
 - **Deep-Linking:** Der geöffnete Edelstein schreibt `?gem={id}` in die URL; ein Reload oder geteilter Link öffnet dieselbe Karte erneut
 - **Media Gallery:** Voll integrierte Bilder/Videos mit Verfügbarkeits-Badge und Zertifikatsstatus
 - **Status-Badges:** Kategorie, Typ (geschliffen/roh), Neu, Verkauft/Nicht verfügbar, Seltenheit - mit Farbcodes identisch zur Grid-Darstellung
-- **Detailzeilen:** Iconisierte Reihen (Preis, Gewicht, Herkunft, Abmessungen, Farbe, Behandlung, Zertifizierung, Seltenheit ...)
+- **Detailzeilen:** Iconisierte Reihen (Preis, Gewicht, Herkunft, Abmessungen, Farbe, Behandlung, Zertifizierung, Seltenheit, Bestand)
+  - **Attributlabels:** Alle Attributlabels (z.B. "Edelsteinart:", "Preis:", "Gewicht:") werden in schwarzer Schrift angezeigt für bessere Lesbarkeit
+  - **Beschreibung:** Die Edelstein-Beschreibung wird ebenfalls in schwarzer Schrift angezeigt
+  - **Reihenfolge:** Das "Bestand"-Attribut wird immer am Ende der Detailansicht angezeigt (nach allen anderen Attributen)
 - **Aktionen:** `AddToCartButton` (deaktiviert bei `isSold`/`!inStock`) + `WishlistButton` direkt aus Grid und Detailkarte
+
+**UI-Verbesserungen (seit Version 2.5.7):**
+
+- **Thumbnail-Textfarben:** Kategorie (Edelsteinart) und Name werden in schwarzer Schrift angezeigt für besseren Kontrast auf hellen Hintergründen
+- **Detailansicht-Textfarben:** Alle Attributlabels und Beschreibungen werden in schwarzer Schrift angezeigt
+- **CSS-Optimierungen:** Spezifische CSS-Regeln für maximale Kompatibilität und Lesbarkeit
 
 **Features:**
 
@@ -4627,6 +4682,78 @@ docker compose up -d
 
 ---
 
+### Version 2.5.7 (6. Januar 2026)
+
+#### Sicherheitsupdates
+
+**jspdf Update:**
+- **Kritische Sicherheitslücke behoben:** `jspdf` wurde von Version 3.0.4 auf 4.0.0 aktualisiert
+- **Sicherheitslücke:** Local File Inclusion/Path Traversal (CVE-2024-XXXX)
+- **Advisory:** https://github.com/advisories/GHSA-f8cm-6447-x5h2
+- **Status:** 0 Sicherheitslücken (verifiziert mit `npm audit`)
+
+**Betroffene Komponenten:**
+- `components/color-charts/utils/pdfExport.ts` - PDF-Export für Edelstein-Farbanalyse
+- `components/color-charts/utils/exportAnalysis.ts` - PDF-Export für Gem Photo Color Analysis
+
+**Technische Details:**
+- Update erfolgreich durchgeführt mit `--legacy-peer-deps` Flag
+- Keine Breaking Changes in der Verwendung
+- Alle PDF-Export-Funktionen funktionieren weiterhin korrekt
+
+#### UI-Verbesserungen Shop-Bereich
+
+**Schwarze Schrift in Thumbnails:**
+- **Shop-Thumbnails:** Kategorie (Edelsteinart) und Name werden jetzt in schwarzer Schrift angezeigt
+- **GemstoneCard Detailansicht:** Attributlabels (z.B. "Edelsteinart:", "Preis:", "Gewicht:") und Beschreibung werden in schwarzer Schrift angezeigt
+- **Bessere Lesbarkeit:** Verbesserter Kontrast auf hellen Hintergründen
+
+**Attribut-Reihenfolge:**
+- **"Bestand" Attribut:** Wird jetzt immer am Ende der GemstoneCard-Detailansicht angezeigt (nach allen anderen Attributen)
+
+**Betroffene Komponenten:**
+- `components/shop/GemstoneGrid.tsx` - Shop-Grid mit Thumbnails
+- `components/shop/GemstoneThumbnail.tsx` - Thumbnail-Komponente (für zukünftige Verwendung)
+
+**CSS-Anpassungen:**
+- Spezifische CSS-Regeln in `app/globals.css` für `.gem-card` und `.gemstone-thumbnail-wrapper`
+- Verwendung von `!important` und `-webkit-text-fill-color` für maximale Kompatibilität
+
+#### Navigation-Anpassungen
+
+**Header-Navigation:**
+- **Entfernte Links:** "Über uns" und "Kontakt" wurden aus der Header-Navigation entfernt
+- **Betroffene Dateien:**
+  - `components/layout/Header.tsx` - Fallback-Navigation und API-Link-Filterung
+  - `app/api/admin/header/route.ts` - API-Route Fallback-Daten
+
+**Filterung:**
+- Automatische Filterung von "Über uns" und "Kontakt" Links aus API-basierten Navigation-Items
+- Unterstützt sowohl URL-basierte (`/about`, `/contact`) als auch Label-basierte Filterung
+
+#### Docker-Container-Aktualisierung
+
+**Container-Neubau:**
+- Docker-Container wurden komplett neu gebaut mit aktualisiertem `jspdf@4.0.0`
+- Build ohne Cache (`--no-cache`) für sauberen Build
+- Container erfolgreich gestartet und getestet
+
+**Verwendung:**
+```bash
+docker compose down
+docker compose build --no-cache app
+docker compose up -d
+```
+
+**Status:**
+- `gemilike-postgres`: läuft (healthy) auf Port 5433
+- `gemilike-app`: läuft (ready) auf Port 3002
+
+**Hinweis:**
+- Prisma-Warnung bezüglich Schema-Konfiguration (Prisma 7 Breaking Change) vorhanden, aber App startet erfolgreich
+
+---
+
 ### Version 2.5.5 (23. Dezember 2025)
 
 #### Verbesserter CSV-Import-Dialog
@@ -4994,7 +5121,249 @@ docker compose up -d
 
 ---
 
-## 15. Änderungsprotokoll
+## 15. Sicherheit & GitHub-Verwaltung
+
+### 15.1 Sicherheitsprüfung
+
+#### 15.1.1 GitHub Repository Sicherheitsprüfung
+
+**Datum:** 6. Januar 2026
+
+**Status:** ✅ Alle kritischen Probleme behoben
+
+#### Durchgeführte Prüfungen
+
+**1. npm audit - Dependency Vulnerabilities:**
+- ✅ **Status:** Keine bekannten Vulnerabilities
+- ✅ **jspdf:** Auf Version 4.0.0 aktualisiert (Sicherheitslücke behoben)
+- **Regelmäßige Prüfung:** Wöchentlich `npm audit` ausführen
+
+**2. Hardcoded Secrets:**
+- ✅ Keine API-Keys, Passwörter oder Tokens in Source-Dateien gefunden
+- ✅ Environment Variables werden korrekt verwendet
+- ✅ `.env` Dateien sind in `.gitignore` enthalten
+
+**3. Code Security:**
+- ✅ **SQL Injection:** Geschützt durch Prisma ORM
+- ✅ **XSS:** React schützt automatisch vor XSS
+- ✅ **CSRF:** NextAuth.js schützt vor CSRF-Angriffen
+- ✅ Hardcoded Credentials wurden bereits entfernt
+- ✅ Development-Mode Authentication Bypass wurde entfernt
+
+**4. Security-Dokumentation:**
+- ✅ `.github/SECURITY_FIXES.md` - Dokumentiert bereits behobene Probleme
+- ✅ `.github/CODE_SCANNING_GUIDE.md` - Code Scanning Anleitung
+- ✅ `SECURITY.md` - Security Policy vorhanden
+
+#### Empfohlene Sicherheitsmaßnahmen
+
+**GitHub Security Features aktivieren:**
+
+1. **Secret Scanning:**
+   - Repository Settings → Security → Code security and analysis
+   - Aktivieren Sie "Secret scanning"
+   - Aktivieren Sie "Secret scanning push protection"
+
+2. **Dependabot:**
+   - Aktivieren Sie "Dependabot alerts"
+   - Aktivieren Sie "Dependabot security updates"
+
+3. **Code Scanning:**
+   - CodeQL ist bereits konfiguriert (`.github/workflows/codeql.yml`)
+   - Regelmäßig ausführen lassen
+
+**Regelmäßige Sicherheitsprüfungen:**
+
+**Wöchentlich:**
+```bash
+# Dependencies prüfen
+npm audit
+
+# Outdated Packages prüfen
+npm outdated
+
+# Security Updates installieren
+npm audit fix
+```
+
+**Monatlich:**
+- GitHub Security Tab prüfen
+- Dependabot Alerts prüfen
+- Code Scanning Ergebnisse prüfen
+
+---
+
+### 15.2 SSH-Setup für GitHub
+
+#### 15.2.1 Übersicht
+
+**Status:** ✅ SSH-Setup erfolgreich abgeschlossen (6. Januar 2026)
+
+**Vorteile von SSH:**
+- ✅ Keine Tokens im Git Remote sichtbar
+- ✅ Automatische Authentifizierung
+- ✅ Bessere Sicherheit (SSH-Keys können mit Passphrase geschützt werden)
+- ✅ Einfache Verwaltung (Keys können einfach widerrufen werden)
+
+#### 15.2.2 Durchgeführte Schritte
+
+1. ✅ **SSH-Key generiert:** `~/.ssh/id_ed25519`
+2. ✅ **GitHub Host Key hinzugefügt:** `~/.ssh/known_hosts`
+3. ✅ **Git Remote auf SSH umgestellt:** `git@github.com:cip050669/gemilike-website.git`
+4. ✅ **SSH-Key zu GitHub hinzugefügt**
+
+#### 15.2.3 SSH-Key zu GitHub hinzufügen
+
+**Wichtig:** SSH Keys sind in den **persönlichen Account Settings**, nicht im Repository Settings!
+
+**Option 1: Direkter Link (Empfohlen)**
+👉 **https://github.com/settings/ssh/new**
+
+**Option 2: Über persönliche Account Settings**
+1. Klicken Sie auf Ihr Profilbild (oben rechts auf GitHub - nicht im Repository!)
+2. Klicken Sie auf "Settings" (persönliche Settings, nicht Repository Settings)
+3. Scrollen Sie nach unten im linken Menü zu "Access"
+4. Klicken Sie auf "SSH and GPG keys"
+5. Klicken Sie auf "New SSH key"
+
+**Wichtiger Unterschied:**
+- **Repository Settings:** "Deploy keys" unter Security (für CI/CD, nicht für normale Git-Operationen)
+- **Persönliche Account Settings:** "SSH and GPG keys" unter Access (für persönliche Git-Operationen)
+
+#### 15.2.4 SSH-Verbindung testen
+
+Nach dem Hinzufügen des SSH-Keys:
+
+```bash
+ssh -T git@github.com
+```
+
+**Erwartete Ausgabe:**
+```
+Hi cip050669! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+#### 15.2.5 Git-Operationen testen
+
+```bash
+# Remote-URL prüfen
+git remote -v
+
+# Sollte zeigen:
+# origin  git@github.com:cip050669/gemilike-website.git (fetch)
+# origin  git@github.com:cip050669/gemilike-website.git (push)
+
+# Fetch testen
+git fetch origin
+```
+
+#### 15.2.6 Troubleshooting
+
+**Problem: "Permission denied (publickey)"**
+
+**Lösung:**
+1. Prüfen Sie, ob der SSH-Key zu GitHub hinzugefügt wurde
+2. Testen Sie die Verbindung: `ssh -T git@github.com`
+3. Prüfen Sie die SSH-Agent-Konfiguration: `ssh-add -l`
+
+**Problem: "Host key verification failed"**
+
+**Lösung:**
+```bash
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+```
+
+**Problem: Git-Operationen funktionieren nicht**
+
+**Lösung:**
+```bash
+# Remote-URL prüfen
+git remote -v
+
+# Falls noch HTTPS: Umstellen auf SSH
+git remote set-url origin git@github.com:cip050669/gemilike-website.git
+```
+
+---
+
+### 15.3 GitHub Personal Access Token (PAT) Sicherheit
+
+#### 15.3.1 Problem: Token im Git Remote sichtbar
+
+**⚠️ WICHTIG:** Personal Access Tokens sollten NIEMALS im Git Remote gespeichert werden!
+
+**Risiko:**
+- Der Token ist in der Git-Konfiguration sichtbar
+- Jeder mit Zugriff auf das Repository kann diesen Token sehen
+- Der Token könnte in Git-Historie oder Commits sichtbar sein
+
+**Lösung:**
+1. **Token sofort widerrufen:**
+   - Gehen Sie zu: https://github.com/settings/tokens
+   - Finden Sie den betroffenen Token
+   - Klicken Sie auf "Revoke" (Widerrufen)
+
+2. **Git Remote auf SSH umstellen:**
+   ```bash
+   git remote set-url origin git@github.com:cip050669/gemilike-website.git
+   ```
+
+3. **Git-Historie prüfen:**
+   ```bash
+   # Prüfen, ob Token in Commits sichtbar ist
+   git log --all --full-history -S "ghp_..."
+   
+   # Falls gefunden: Git-Historie bereinigen (BFG Repo-Cleaner oder git filter-branch)
+   ```
+
+#### 15.3.2 Best Practices für Tokens
+
+**Wenn Sie einen Personal Access Token verwenden müssen:**
+
+1. **Minimale Berechtigungen:** Nur die notwendigen Scopes vergeben
+2. **Sicher speichern:** Token niemals in Git oder Code speichern
+3. **Regelmäßig rotieren:** Tokens regelmäßig erneuern
+4. **SSH bevorzugen:** Verwenden Sie SSH-Keys statt Tokens, wenn möglich
+
+---
+
+### 15.4 Environment Variables Sicherheit
+
+#### 15.4.1 Sichere Verwendung
+
+**Sicherstellen, dass folgende Variablen NICHT im Code hardcodiert sind:**
+- `NEXTAUTH_SECRET`
+- `DATABASE_URL`
+- `SMTP_PASSWORD`
+- `ADMIN_EMAIL`
+- Alle API-Keys
+
+**Status:** ✅ Alle werden korrekt über Environment Variables geladen
+
+#### 15.4.2 .env Dateien
+
+**Wichtig:**
+- ✅ `.env` Dateien sind in `.gitignore` enthalten
+- ✅ Niemals `.env` Dateien committen
+- ✅ Verwenden Sie `.env.example` als Vorlage
+- ✅ Setzen Sie alle Secrets in Production-Umgebungen über die Hosting-Plattform
+
+---
+
+### 15.5 Zusammenfassung Sicherheitsstatus
+
+| Kategorie | Status | Priorität |
+|-----------|--------|-----------|
+| npm audit | ✅ Keine Vulnerabilities | - |
+| Hardcoded Secrets | ✅ Keine gefunden | - |
+| Dependencies | ✅ Aktuell | - |
+| Code Security | ✅ Gut | - |
+| SSH-Setup | ✅ Abgeschlossen | - |
+| Security Docs | ✅ Vorhanden | - |
+
+---
+
+## 16. Änderungsprotokoll
 
 ### Version 2.5.5 (23. Dezember 2025)
 

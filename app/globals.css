@@ -54,6 +54,18 @@ h3 {
   color: var(--color-text-primary);
 }
 
+
+/* Thumbnail Titel und Kategorie - Schwarze Schrift - HOCHSPEZIFISCH */
+.thumbnail-card h3,
+.thumbnail-card h3.font-semibold,
+.thumbnail-card h3.font-semibold.text-sm,
+.thumbnail-card h3.font-semibold.text-sm.mb-1,
+.thumbnail-card .flex.items-center.gap-2.mb-2 span.text-xs,
+.thumbnail-card .flex.items-center.gap-2.mb-2 > div:first-child span.text-xs {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
 h4 {
   font-size: var(--font-heading-4);
   color: var(--color-text-primary);
@@ -581,7 +593,8 @@ header[class*="fixed"] {
 }
 
 .gem-card {
-  background: linear-gradient(135deg, rgba(255, 148, 71, 0.70), rgba(0, 188, 212, 0.70), rgba(138, 92, 246, 0.50)) !important;
+  /* 75% weniger Transparenz für mehr Opaqueness auf Shop-Thumbnails */
+  background: linear-gradient(135deg, rgba(255, 148, 71, 0.925), rgba(0, 188, 212, 0.925), rgba(138, 92, 246, 0.875)) !important;
   border-radius: 1rem;
   border: 1px solid rgba(0, 229, 255, 0.6);
   box-shadow: 
@@ -826,4 +839,54 @@ header[class*="fixed"] {
     font-size: 0.65rem;
     min-height: 2.1rem;
   }
+}
+
+/* FORCE SCHWARZE SCHRIFT FÜR SHOP-THUMBNAILS - NUR KATEGORIE UND NAME */
+.gem-card span.text-\[11px\].uppercase.tracking-\[0\.3em\],
+.gem-card button.text-lg.font-semibold {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  forced-color-adjust: none !important;
+}
+
+/* FORCE SCHWARZE SCHRIFT FÜR THUMBNAIL - ÜBERSCHREIBT ALLE GLOBALEN REGELN */
+.gemstone-thumbnail-wrapper * {
+  --color-text-primary: #000000 !important;
+  --color-text-secondary: #000000 !important;
+}
+
+.gemstone-thumbnail-wrapper h3,
+.gemstone-thumbnail-wrapper h3.font-semibold,
+.gemstone-thumbnail-wrapper h3.font-semibold.text-sm,
+.gemstone-thumbnail-wrapper h3.font-semibold.text-sm.mb-1,
+.gemstone-thumbnail-wrapper h3.font-semibold.text-sm.mb-1.line-clamp-1,
+.gemstone-thumbnail-wrapper > div > h3,
+.gemstone-thumbnail-wrapper > div > h3.font-semibold,
+.gemstone-thumbnail-wrapper > div > h3.font-semibold.text-sm,
+.gemstone-thumbnail-wrapper > div > h3.font-semibold.text-sm.mb-1,
+.gemstone-thumbnail-wrapper > div > h3.font-semibold.text-sm.mb-1.line-clamp-1 {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  forced-color-adjust: none !important;
+}
+
+.gemstone-thumbnail-wrapper span.text-xs,
+.gemstone-thumbnail-wrapper .flex.items-center.gap-2.mb-2 > div:first-child > span.text-xs,
+.gemstone-thumbnail-wrapper > div > div.flex.items-center.gap-2.mb-2 > div:first-child > span.text-xs {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  forced-color-adjust: none !important;
+}
+
+.gemstone-thumbnail-wrapper p,
+.gemstone-thumbnail-wrapper p.text-xs,
+.gemstone-thumbnail-wrapper p.text-xs.mb-3,
+.gemstone-thumbnail-wrapper p.text-xs.mb-3.line-clamp-2,
+.gemstone-thumbnail-wrapper > div > p,
+.gemstone-thumbnail-wrapper > div > p.text-xs,
+.gemstone-thumbnail-wrapper > div > p.text-xs.mb-3,
+.gemstone-thumbnail-wrapper > div > p.text-xs.mb-3.line-clamp-2 {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  forced-color-adjust: none !important;
 }

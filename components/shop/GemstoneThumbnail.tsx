@@ -1,4 +1,3 @@
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Eye } from 'lucide-react';
 import { Gemstone } from '@/lib/types/gemstone';
@@ -8,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { getColorBadgeStyle } from '@/lib/utils/colorBadge';
 import { formatPrice } from '@/lib/utils/price';
+import { useEffect, useRef } from 'react';
 
 interface GemstoneThumbnailProps {
   gemstone: Gemstone;
@@ -19,13 +19,117 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
   const t = useTranslations('shop');
   const adminT = useTranslations('admin');
   const colorStyle = gemstone.color ? getColorBadgeStyle(gemstone.color) : null;
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const categoryRef = useRef<HTMLSpanElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    // Aggressive Farbsetzung mit MutationObserver
+    const setColor = () => {
+      if (titleRef.current) {
+        // Entferne alle Farb-Klassen
+        titleRef.current.classList.remove('text-white', 'text-gray-400', 'text-gray-300', 'text-muted-foreground', 'text-foreground');
+        // Setze Farbe auf mehreren Wegen
+        titleRef.current.style.color = 'rgb(0, 0, 0)';
+        titleRef.current.style.setProperty('color', 'rgb(0, 0, 0)', 'important');
+        titleRef.current.style.setProperty('-webkit-text-fill-color', 'rgb(0, 0, 0)', 'important');
+        titleRef.current.style.setProperty('--color-text-primary', 'rgb(0, 0, 0)', 'important');
+        // Direktes DOM-Attribut
+        titleRef.current.setAttribute('style', titleRef.current.getAttribute('style') + '; color: rgb(0, 0, 0) !important; -webkit-text-fill-color: rgb(0, 0, 0) !important;');
+      }
+      if (categoryRef.current) {
+        categoryRef.current.classList.remove('text-white', 'text-gray-400', 'text-gray-300', 'text-muted-foreground', 'text-foreground');
+        categoryRef.current.style.color = 'rgb(0, 0, 0)';
+        categoryRef.current.style.setProperty('color', 'rgb(0, 0, 0)', 'important');
+        categoryRef.current.style.setProperty('-webkit-text-fill-color', 'rgb(0, 0, 0)', 'important');
+        categoryRef.current.style.setProperty('--color-text-primary', 'rgb(0, 0, 0)', 'important');
+        categoryRef.current.setAttribute('style', categoryRef.current.getAttribute('style') + '; color: rgb(0, 0, 0) !important; -webkit-text-fill-color: rgb(0, 0, 0) !important;');
+      }
+      if (descriptionRef.current) {
+        descriptionRef.current.classList.remove('text-white', 'text-gray-400', 'text-gray-300', 'text-muted-foreground', 'text-foreground');
+        descriptionRef.current.style.color = 'rgb(0, 0, 0)';
+        descriptionRef.current.style.setProperty('color', 'rgb(0, 0, 0)', 'important');
+        descriptionRef.current.style.setProperty('-webkit-text-fill-color', 'rgb(0, 0, 0)', 'important');
+        descriptionRef.current.style.setProperty('--color-text-primary', 'rgb(0, 0, 0)', 'important');
+        descriptionRef.current.style.setProperty('--color-text-secondary', 'rgb(0, 0, 0)', 'important');
+        descriptionRef.current.setAttribute('style', descriptionRef.current.getAttribute('style') + '; color: rgb(0, 0, 0) !important; -webkit-text-fill-color: rgb(0, 0, 0) !important;');
+      }
+    };
+    
+    // Sofort ausführen
+    setColor();
+    
+    // Mehrfach mit verschiedenen Timings
+    const timeouts = [
+      setTimeout(setColor, 0),
+      setTimeout(setColor, 10),
+      setTimeout(setColor, 50),
+      setTimeout(setColor, 100),
+      setTimeout(setColor, 200),
+      setTimeout(setColor, 500),
+    ];
+    
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setColor();
+        setTimeout(setColor, 0);
+        setTimeout(setColor, 50);
+      });
+    });
+    
+    // MutationObserver, der kontinuierlich überwacht und die Farbe setzt
+    const observer = new MutationObserver((mutations) => {
+      let shouldUpdate = false;
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && 
+            (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+          shouldUpdate = true;
+        }
+      });
+      if (shouldUpdate) {
+        // Kurze Verzögerung, damit andere Styles zuerst angewendet werden
+        setTimeout(setColor, 0);
+      }
+    });
+    
+    // Beobachte alle drei Elemente
+    [titleRef.current, categoryRef.current, descriptionRef.current].forEach((el) => {
+      if (el) {
+        observer.observe(el, {
+          attributes: true,
+          attributeFilter: ['style', 'class'],
+          childList: false,
+          subtree: false,
+        });
+      }
+    });
+    
+    // Zusätzlich: Setze die Farbe in regelmäßigen Abständen
+    const interval = setInterval(setColor, 1000);
+    
+    return () => {
+      timeouts.forEach(clearTimeout);
+      observer.disconnect();
+      clearInterval(interval);
+    };
+  }, [gemstone.id]);
   
   return (
-    <Card 
-      className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 group"
+    <div 
+      className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 group rounded-lg border border-gem-iceDark/20 bg-gem-bgDark/80 shadow-sm backdrop-blur-sm gemstone-thumbnail-wrapper"
       onClick={() => onOpenCard(gemstone)}
+      style={{ 
+        '--color-text-primary': '#000000',
+        color: '#000000'
+      } as React.CSSProperties & { '--color-text-primary': string }}
     >
-      <CardContent className="p-3">
+      <div 
+        className="p-3 gemstone-thumbnail-content" 
+        style={{ 
+          '--color-text-primary': '#000000',
+          color: '#000000'
+        } as React.CSSProperties & { '--color-text-primary': string }}
+      >
         {/* Bild */}
         <div className="relative mb-3">
           <div className="aspect-square rounded-lg overflow-hidden bg-muted">
@@ -119,13 +223,25 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
         </div>
 
         {/* Titel */}
-        <h3 className="font-semibold text-sm mb-1 line-clamp-1">{gemstone.name}</h3>
+        <h3 
+          ref={titleRef}
+          className="font-semibold text-sm mb-1 line-clamp-1 !text-black"
+          style={{ color: 'black' } as React.CSSProperties}
+        >
+          {gemstone.name}
+        </h3>
         
         {/* Kategorie und Farbe */}
         <div className="flex items-center gap-2 mb-2">
           <div className="flex items-center gap-1">
             <PictogramWithTooltip iconName="Tag" size="sm" />
-            <span className="text-xs text-gray-700 dark:text-gray-300">{gemstone.category}</span>
+            <span 
+              ref={categoryRef}
+              className="text-xs !text-black"
+              style={{ color: 'black' } as React.CSSProperties}
+            >
+              {gemstone.category}
+            </span>
           </div>
           {gemstone.color && colorStyle && (
             <div className="flex items-center gap-1">
@@ -140,7 +256,11 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
         </div>
         
         {/* Kurze Beschreibung */}
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+        <p 
+          ref={descriptionRef}
+          className="text-xs !text-black mb-3 line-clamp-2"
+          style={{ color: 'black' } as React.CSSProperties}
+        >
           {gemstone.description}
         </p>
 
@@ -165,7 +285,8 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
           </div>
         </div>
 
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
+

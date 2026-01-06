@@ -18,7 +18,7 @@ const LOAD_STEP = 15;
 
 export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
   const t = useTranslations('shop');
-  const [visibleCount, setVisibleCount] = useState(LOAD_STEP);
+  const [visibleCount, setVisibleCount] = useState(gemstones.length);
   const [vectorQuery, setVectorQuery] = useState('');
   const [vectorMatches, setVectorMatches] = useState<string[] | null>(null);
   const [vectorStatus, setVectorStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -36,7 +36,7 @@ export function ShopShowcase({ gemstones }: ShopShowcaseProps) {
   const vectorSearching = vectorStatus === 'loading';
 
   useEffect(() => {
-    setVisibleCount(LOAD_STEP);
+    setVisibleCount(gemstones.length);
   }, [
     gemstones,
     vectorMatches,

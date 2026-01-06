@@ -36,7 +36,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
         aria-labelledby={`gemstone-title-${gemstone.id}`}
         aria-describedby={`gemstone-description-${gemstone.id}`}
       >
-      <CardHeader className="p-2 sm:p-3 pb-0 flex-shrink-0">
+      <CardHeader className="p-2 sm:p-3 pb-0 flex-shrink-0 text-white/40">
         {/* Media Gallery */}
         <div className="relative mb-4 overflow-hidden">
           <MediaGallery
@@ -75,22 +75,22 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
       <CardContent className="p-2 sm:p-3 flex flex-col">
         {/* Titel, Kategorie und Preis */}
         <div className="mb-3">
-          <div className="flex justify-between items-start mb-1">
+          <div className="flex justify-between items-start mb-1 text-white/40">
             <CardTitle 
-              className="text-base line-clamp-1 flex-1"
+              className="text-base line-clamp-1 flex-1 text-white/60"
               id={`gemstone-title-${gemstone.id}`}
             >
               {gemstone.name}
             </CardTitle>
             <div 
-              className="bg-gem-fire text-gem-bgDark px-2 py-1 rounded-md text-sm font-bold ml-2 flex-shrink-0"
+              className="bg-gem-fire text-gem-bgDark px-2 py-1 rounded-md text-sm font-bold ml-2 flex-shrink-0 text-white"
               aria-label={`Preis: ${formatPrice(gemstone.price, gemstone.currency)}`}
             >
               {formatPrice(gemstone.price, gemstone.currency)}
             </div>
           </div>
           <CardDescription 
-            className="text-xs text-[color:rgba(255,255,255,0.55)]"
+            className="text-xs text-white/35"
             aria-describedby={`gemstone-title-${gemstone.id}`}
           >
             {gemstone.category}
@@ -99,14 +99,14 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
 
         {/* Beschreibung */}
         <p 
-          className="text-xs text-[color:rgba(255,255,255,0.55)] mb-3 line-clamp-2 flex-shrink-0"
+          className="text-xs text-white/35 mb-3 line-clamp-2 flex-shrink-0"
           id={`gemstone-description-${gemstone.id}`}
         >
           {gemstone.description}
         </p>
 
         {/* Spezifikationen */}
-        <div className="space-y-1.5 text-xs text-[color:rgba(255,255,255,0.7)]" role="list" aria-label="Edelstein-Spezifikationen">
+        <div className="space-y-1.5 text-xs text-white/40" role="list" aria-label="Edelstein-Spezifikationen">
           {/* Raritäten */}
           {gemstone.rarity && gemstone.rarity !== 'none' && (
             <div className="flex items-center gap-2" role="listitem">
@@ -114,7 +114,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
               {gemstone.rarity === 'außergewöhnliches' && <PictogramWithTooltip iconName="Sparkles" className="text-purple-500" />}
               {gemstone.rarity === 'großes' && <PictogramWithTooltip iconName="Sparkles" className="text-orange-500" />}
               {gemstone.rarity === 'besonders schön' && <PictogramWithTooltip iconName="Sparkles" className="text-amber-500" />}
-              <span className="text-[color:rgba(255,255,255,0.6)]">Rarität:</span>
+              <span className="text-white/35">Rarität:</span>
               <Badge 
                 className={`text-[10px] px-2 py-0.5 border ${
                   gemstone.rarity === 'seltenes' ? 'bg-blue-100 text-blue-800 border-blue-200' :
@@ -133,29 +133,29 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {/* Kategorie */}
           <div className="flex items-center gap-2" role="listitem">
             <PictogramWithTooltip iconName="Tag" />
-            <span className="text-[color:rgba(255,255,255,0.6)]">{t('category')}:</span>
-            <span className="font-medium text-[color:rgba(255,255,255,0.8)]">{gemstone.category}</span>
+            <span className="text-white/35">{t('category')}:</span>
+            <span className="font-medium text-white/55">{gemstone.category}</span>
           </div>
 
           {/* Entstehung */}
           <div className="flex items-center gap-2" role="listitem">
             <PictogramWithTooltip iconName="Award" />
-            <span className="text-muted-foreground">Entstehung:</span>
-            <span className="font-medium">{gemstone.originType || 'natürlich'}</span>
+            <span className="text-white/35">Entstehung:</span>
+            <span className="font-medium text-white/55">{gemstone.originType || 'natürlich'}</span>
           </div>
 
           {/* Herkunft */}
           <div className="flex items-center gap-2" role="listitem">
             <PictogramWithTooltip iconName="MapPin" />
-            <span className="text-muted-foreground">{t('origin')}:</span>
-            <span className="font-medium">{gemstone.origin}</span>
+            <span className="text-white/35">{t('origin')}:</span>
+            <span className="font-medium text-white/55">{gemstone.origin}</span>
           </div>
 
           {/* Gewicht */}
           <div className="flex items-center gap-2" role="listitem">
             <PictogramWithTooltip iconName="Weight" />
-            <span className="text-muted-foreground">{t('weight')}:</span>
-            <span className="font-medium">
+            <span className="text-white/35">{t('weight')}:</span>
+            <span className="font-medium text-white/55">
               {isCutGemstone(gemstone) 
                 ? `${gemstone.caratWeight} ct` 
                 : `${gemstone.gramWeight} g`}
@@ -165,8 +165,8 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {/* Abmessungen */}
           <div className="flex items-center gap-2" role="listitem">
             <PictogramWithTooltip iconName="Ruler" />
-            <span className="text-muted-foreground">{t('size')}:</span>
-            <span className="font-medium text-xs">
+            <span className="text-white/35">{t('size')}:</span>
+            <span className="font-medium text-xs text-white/55">
               {gemstone.dimensions.length} × {gemstone.dimensions.width} × {gemstone.dimensions.height} mm
             </span>
           </div>
@@ -175,8 +175,8 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {isCutGemstone(gemstone) && gemstone.clarity && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Star" />
-              <span className="text-muted-foreground">{t('clarity')}:</span>
-              <span className="font-medium">{gemstone.clarity}</span>
+              <span className="text-white/35">{t('clarity')}:</span>
+              <span className="font-medium text-white/55">{gemstone.clarity}</span>
             </div>
           )}
 
@@ -184,7 +184,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {gemstone.color && colorStyle && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Palette" />
-              <span className="text-muted-foreground">{t('color')}:</span>
+              <span className="text-white/35">{t('color')}:</span>
               <Badge
                 className={`text-[10px] px-1 py-0.5 ${colorStyle.bg} ${colorStyle.text} ${colorStyle.border} border`}
                 aria-label={`Farbe: ${gemstone.color}`}
@@ -198,7 +198,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {isCutGemstone(gemstone) && gemstone.colorIntensity && colorIntensityStyle && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="Droplets" />
-              <span className="text-muted-foreground">Farbsättigung:</span>
+              <span className="text-white/35">Farbsättigung:</span>
               <Badge
                 className={`text-[10px] px-1 py-0.5 ${colorIntensityStyle.bg} ${colorIntensityStyle.text} ${colorIntensityStyle.border} border`}
                 aria-label={`Farbsättigung: ${gemstone.colorIntensity}`}
@@ -212,7 +212,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
           {isCutGemstone(gemstone) && gemstone.colorSaturation && (
             <div className="flex items-center gap-2" role="listitem">
               <PictogramWithTooltip iconName="CircleDot" />
-              <span className="text-gem-text2">Helligkeit:</span>
+              <span className="text-white/35">Helligkeit:</span>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: 10 }, (_, i) => {
                   const level = i + 1;

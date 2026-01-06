@@ -237,13 +237,14 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
 
               <div className="space-y-3 text-sm text-[var(--color-text-secondary)]">
                 <div className="space-y-1">
-                  <span className="text-[11px] uppercase tracking-[0.3em] text-[var(--color-text-muted)]">
+                  <span className="text-[11px] uppercase tracking-[0.3em] !text-black" style={{ color: 'black' }}>
                     {gem.category}
                   </span>
                   <button
                     type="button"
                     onClick={() => openGemstone(gem)}
-                    className="block text-left text-lg font-semibold text-[var(--color-text-primary)] line-clamp-2 hover:text-[var(--color-accent)] cursor-pointer"
+                    className="block text-left text-lg font-semibold !text-black line-clamp-2 hover:!text-black cursor-pointer"
+                    style={{ color: 'black' }}
                   >
                     {gem.name}
                   </button>
@@ -470,7 +471,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                           )}
                         </div>
                       {(selectedGemstone.shortDescription || selectedGemstone.description) && (
-                        <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                        <p className="text-sm !text-black leading-relaxed" style={{ color: 'black' }}>
                           {selectedGemstone.shortDescription ?? selectedGemstone.description}
                         </p>
                       )}
@@ -484,9 +485,6 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                           <span className="text-[var(--color-text-primary)] font-semibold">
                             {formatPrice(selectedGemstone.price, selectedGemstone.currency)}
                           </span>
-                        </DetailRow>
-                        <DetailRow label="Bestand">
-                          <span className="text-[var(--color-text-primary)]">{selectedGemstone.stock} Stück</span>
                         </DetailRow>
                         {detailWeightLabel && (
                           <DetailRow label="Gewicht">
@@ -559,6 +557,9 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                             <span className="text-[var(--color-text-primary)]">{selectedGemstone.rarity}</span>
                           </DetailRow>
                         )}
+                        <DetailRow label="Bestand">
+                          <span className="text-[var(--color-text-primary)]">{selectedGemstone.stock} Stück</span>
+                        </DetailRow>
                       </div>
 
                       {/* Actions */}
@@ -706,7 +707,7 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
     <div className="flex items-center gap-2 rounded-lg bg-gray-800/60 border border-[var(--color-border)] p-3 backdrop-blur text-[var(--color-text-primary)]">
       <IconComponent className="h-4 w-4 flex-shrink-0" style={style} />
       <div className="flex items-center gap-2 flex-1">
-        <span className="text-xs uppercase tracking-wide text-[var(--color-text-muted)]">{label}:</span>
+        <span className="text-xs uppercase tracking-wide !text-black" style={{ color: 'black' }}>{label}:</span>
         <span className="text-sm text-[var(--color-text-primary)] font-medium">{children}</span>
       </div>
     </div>

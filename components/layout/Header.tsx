@@ -26,7 +26,6 @@ const FALLBACK_NAV: NavigationItem[] = [
   { href: '/shop', label: 'Shop', id: 'fallback-2' },
   { href: '/wissenswertes', label: 'Wissenswertes', id: 'fallback-3' },
   { href: '/worldmap', label: 'Fundorte', id: 'fallback-4' },
-  { href: '/contact', label: 'Kontakt', id: 'fallback-5' },
   { href: '/downloads', label: 'Download', id: 'fallback-6' },
 ];
 
@@ -124,8 +123,18 @@ export function Header() {
           const normalizeHref = (href: string) =>
             href.replace(/^\/[a-z]{2}(?=\/|$)/, '') || '/';
 
+          // Filtere "Über uns" und "Kontakt" aus den API-Links heraus
+          const filteredMapped = mapped.filter((item) => {
+            const normalized = normalizeHref(item.href);
+            const labelLower = item.label.toLowerCase();
+            return normalized !== '/about' && 
+                   normalized !== '/contact' && 
+                   labelLower !== 'über uns' && 
+                   labelLower !== 'kontakt';
+          });
+
           const merged = [...FALLBACK_NAV];
-          mapped.forEach((item) => {
+          filteredMapped.forEach((item) => {
             const normalized = normalizeHref(item.href);
             const exists = merged.some((fallback) => normalizeHref(fallback.href) === normalized);
             if (!exists) {
@@ -194,7 +203,7 @@ export function Header() {
   return (
     <header 
       data-header-fixed
-      className="sticky top-0 h-16 z-[9999] header-gradient-bg border-b border-white/10"
+      className="sticky top-0 h-16 z-[10000] header-gradient-bg border-b border-white/10"
     >
       <div className="flex items-center justify-between w-full h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         {/* Logo - Links */}
@@ -402,16 +411,18 @@ export function Header() {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white flex-shrink-0"
+              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white flex-shrink-0 relative z-[10000]"
               aria-label={isMenuOpen ? 'Navigation schließen' : 'Navigation öffnen'}
               title={isMenuOpen ? 'Menü schließen' : 'Menü öffnen - Zeigt die Navigation und alle Seiten an'}
               type="button"
               aria-expanded={isMenuOpen}
               aria-haspopup="true"
               aria-controls="mobile-navigation"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setIsMenuOpen((prev) => !prev);
               }}
+              style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
             </Button>
@@ -421,84 +432,177 @@ export function Header() {
               <>
                 {/* Overlay */}
                 <div
-                  className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm"
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    backdropFilter: 'blur(4px)',
+                    zIndex: 99998
+                  }}
                   onClick={() => setIsMenuOpen(false)}
                   aria-hidden="true"
-                  style={{ pointerEvents: 'auto' }}
                 />
+                
                 {/* Menu Panel */}
                 <div
-                  className="fixed right-0 top-0 h-full w-[300px] sm:w-[400px] z-[10001] bg-[#0a0a0a] border-l border-gray-800 shadow-2xl"
+                  style={{
+                    position: 'fixed',
+                    left: 0,
+                    top: 0,
+                    width: '100%',
+                    maxWidth: '400px',
+                    height: '100vh',
+                    backgroundColor: '#0a0a0a',
+                    borderRight: '1px solid #1f2937',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                    zIndex: 99999,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
+                  }}
                   role="dialog"
                   aria-modal="true"
                   aria-labelledby="mobile-menu-title"
-                  style={{ pointerEvents: 'auto' }}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="flex flex-col h-full">
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-gray-800 bg-[#111111]">
-                      <h2 id="mobile-menu-title" className="text-xl font-bold text-[#ffffff]">
-                        Navigation
-                      </h2>
-                      <button
-                        onClick={() => setIsMenuOpen(false)}
-                        className="h-8 w-8 rounded-full hover:bg-gray-800 text-[#ffffff] flex items-center justify-center transition-colors"
-                        aria-label="Menü schließen"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </div>
-                    {/* Navigation */}
-                    <nav
-                      id="mobile-navigation"
-                      className="flex flex-col gap-1 flex-1 overflow-y-auto p-4"
-                      aria-label="Mobile Navigation"
+                  {/* Header */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '1rem 1.5rem',
+                      borderBottom: '1px solid #1f2937',
+                      backgroundColor: '#111111',
+                      flexShrink: 0,
+                      minHeight: '60px'
+                    }}
+                  >
+                    <h2
+                      id="mobile-menu-title"
+                      style={{
+                        fontSize: '1.25rem',
+                        fontWeight: 'bold',
+                        color: '#ffffff',
+                        margin: 0,
+                        lineHeight: '1.5'
+                      }}
                     >
-                      {navItems.length > 0 ? (
-                        navItems.map(({ href, label, id }) => {
-                          const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
-                          // Use the same buildHref function as desktop navigation
-                          const fullHref = buildHref(href);
-                          
-                          // Use router.push for all links to ensure consistent behavior
-                          const handleClick = (e: React.MouseEvent) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setIsMenuOpen(false);
-                            // Use router.push for navigation
-                            router.push(fullHref);
-                          };
-                          
-                          return (
-                            <button
-                              key={id}
-                              type="button"
-                              onClick={handleClick}
-                              className={cn(
-                                'px-4 py-3 rounded-lg transition-all text-base font-medium block cursor-pointer text-left w-full',
-                                isActive 
-                                  ? 'bg-[#7c3aed] text-[#ffffff] font-semibold shadow-lg' 
-                                  : 'text-[#ffffff] bg-[#1a1a1a] hover:bg-[#2a2a2a] hover:text-[#ff9447]'
-                              )}
-                              style={{ 
-                                color: '#ffffff',
-                                textDecoration: 'none',
-                                textShadow: 'none',
-                                border: 'none',
-                                background: isActive ? '#7c3aed' : '#1a1a1a'
-                              }}
-                            >
-                              {label}
-                            </button>
-                          );
-                        })
-                      ) : (
-                        <div className="px-4 py-3 text-[#9ca4b5] text-sm">
-                          Keine Navigationselemente verfügbar
-                        </div>
-                      )}
-                    </nav>
+                      Navigation ({navItems?.length || 0} Einträge)
+                    </h2>
+                    <button
+                      onClick={() => setIsMenuOpen(false)}
+                      style={{
+                        width: '2rem',
+                        height: '2rem',
+                        borderRadius: '50%',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        color: '#ffffff',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(31, 41, 55, 1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                      aria-label="Menü schließen"
+                    >
+                      <X style={{ width: '1.25rem', height: '1.25rem' }} />
+                    </button>
                   </div>
+                  
+                  {/* Navigation */}
+                  <nav
+                    id="mobile-navigation"
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem',
+                      padding: '1rem 1.5rem',
+                      overflowY: 'auto',
+                      overflowX: 'hidden',
+                      WebkitOverflowScrolling: 'touch',
+                      minHeight: 0
+                    }}
+                    aria-label="Mobile Navigation"
+                  >
+                    {navItems && navItems.length > 0 ? (
+                      navItems.map(({ href, label, id }) => {
+                        const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
+                        const fullHref = buildHref(href);
+                        
+                        const handleClick = (e: React.MouseEvent) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsMenuOpen(false);
+                          router.push(fullHref);
+                        };
+                        
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={handleClick}
+                            style={{
+                              padding: '1rem',
+                              borderRadius: '0.5rem',
+                              border: 'none',
+                              backgroundColor: isActive ? '#7c3aed' : '#1a1a1a',
+                              color: '#ffffff',
+                              fontSize: '1rem',
+                              fontWeight: isActive ? '600' : '500',
+                              textAlign: 'left',
+                              width: '100%',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              boxShadow: isActive ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isActive) {
+                                e.currentTarget.style.backgroundColor = '#2a2a2a';
+                                e.currentTarget.style.color = '#ff9447';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isActive) {
+                                e.currentTarget.style.backgroundColor = '#1a1a1a';
+                                e.currentTarget.style.color = '#ffffff';
+                              }
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div style={{ padding: '0.75rem 1rem', color: '#9ca4b5', fontSize: '0.875rem' }}>
+                        Keine Navigationselemente verfügbar
+                      </div>
+                    )}
+                  </nav>
+                  
+                  {/* Footer */}
+                  {status === 'authenticated' && session?.user?.name && (
+                    <div
+                      style={{
+                        padding: '1rem',
+                        borderTop: '1px solid #1f2937',
+                        backgroundColor: '#111111',
+                        flexShrink: 0
+                      }}
+                    >
+                      <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
+                        Willkommen, {session.user.name}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}

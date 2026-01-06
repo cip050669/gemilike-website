@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -42,6 +42,105 @@ const toCartItem = (gem: ShopGemstone) => ({
   origin: gem.origin ?? undefined,
 });
 
+// Separate Komponente für jedes Thumbnail mit schwarzer Schrift
+function CarouselThumbnail({ gemstone, locale, priceLabel, weightLabel, cartItem }: {
+  gemstone: ShopGemstone;
+  locale: string;
+  priceLabel: string;
+  weightLabel: string | null;
+  cartItem: ReturnType<typeof toCartItem>;
+}) {
+  const categoryRef = useRef<HTMLSpanElement>(null);
+  const nameRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    // Einfache, einmalige Farbsetzung ohne MutationObserver
+    const setColor = () => {
+      if (categoryRef.current) {
+        categoryRef.current.style.setProperty('color', 'black', 'important');
+        categoryRef.current.style.setProperty('-webkit-text-fill-color', 'black', 'important');
+      }
+      if (nameRef.current) {
+        nameRef.current.style.setProperty('color', 'black', 'important');
+        nameRef.current.style.setProperty('-webkit-text-fill-color', 'black', 'important');
+      }
+    };
+
+    // Einmal nach dem Rendern ausführen
+    const timeout = setTimeout(setColor, 0);
+    
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [gemstone.id]);
+
+  return (
+    <article
+      key={gemstone.id}
+      className="gem-card group flex min-w-[250px] max-w-[250px] snap-center flex-col gap-3 rounded-[18px] p-4 transition-all duration-300 text-white/40"
+    >
+      <Link
+        href={`/${locale}/shop?gem=${gemstone.id}`}
+        className="group relative block h-[230px] w-full overflow-hidden rounded-[18px]"
+      >
+        <Image
+          src={gemstone.images[0] ?? PLACEHOLDER_IMAGE}
+          alt={gemstone.name}
+          fill
+          sizes="(max-width: 768px) 50vw, 250px"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+        />
+        {gemstone.isSold && (
+          <div className="absolute left-3 top-3">
+            <Badge variant="destructive">Verkauft</Badge>
+          </div>
+        )}
+        {gemstone.isNew && (
+          <div className="absolute right-3 top-3">
+            <Badge variant="accent">Neu</Badge>
+          </div>
+        )}
+      </Link>
+
+      <div className="space-y-3 text-sm text-white/40">
+        <div className="space-y-1">
+          <span
+            ref={categoryRef}
+            className="text-[11px] uppercase tracking-[0.3em] !text-black"
+            style={{ color: 'black' } as React.CSSProperties}
+          >
+            {gemstone.category}
+          </span>
+          <Link
+            ref={nameRef}
+            href={`/${locale}/shop?gem=${gemstone.id}`}
+            className="block text-lg font-semibold !text-black line-clamp-2 transition-colors hover:!text-black"
+            style={{ color: 'black' } as React.CSSProperties}
+          >
+            {gemstone.name}
+          </Link>
+        </div>
+        <div className="space-y-1 text-xs text-white/28">
+          <p>{priceLabel}</p>
+          {weightLabel && <p>Gewicht {weightLabel}</p>}
+          {gemstone.origin && <p>Herkunft {gemstone.origin}</p>}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-2">
+        <AddToCartButton
+          item={cartItem}
+          disabled={!gemstone.inStock || gemstone.isSold}
+        />
+        <WishlistButton item={cartItem} className="border border-white/10" />
+      </div>
+    </article>
+  );
+}
+
 export function NewGemstonesCarousel({
   gemstones,
   locale,
@@ -81,63 +180,14 @@ export function NewGemstonesCarousel({
             const cartItem = toCartItem(gemstone);
 
             return (
-              <article
+              <CarouselThumbnail
                 key={gemstone.id}
-                className="gem-card group flex min-w-[250px] max-w-[250px] snap-center flex-col gap-3 rounded-[18px] p-4 transition-all duration-300"
-              >
-                <Link
-                  href={`/${locale}/shop?gem=${gemstone.id}`}
-                  className="group relative block h-[230px] w-full overflow-hidden rounded-[18px]"
-                >
-                  <Image
-                    src={gemstone.images[0] ?? PLACEHOLDER_IMAGE}
-                    alt={gemstone.name}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 250px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                  />
-                  {gemstone.isSold && (
-                    <div className="absolute left-3 top-3">
-                      <Badge variant="destructive">Verkauft</Badge>
-                    </div>
-                  )}
-                  {gemstone.isNew && (
-                    <div className="absolute right-3 top-3">
-                      <Badge variant="accent">Neu</Badge>
-                    </div>
-                  )}
-                </Link>
-
-                <div className="space-y-3 text-sm text-white/75">
-                  <div className="space-y-1">
-                    <span className="text-[11px] uppercase tracking-[0.3em] text-white/45">
-                      {gemstone.category}
-                    </span>
-                    <Link
-                      href={`/${locale}/shop?gem=${gemstone.id}`}
-                      className="block text-lg font-semibold text-white line-clamp-2 hover:text-[var(--color-text-primary)]"
-                    >
-                      {gemstone.name}
-                    </Link>
-                  </div>
-                  <div className="space-y-1 text-xs text-white/60">
-                    <p>{priceLabel}</p>
-                    {weightLabel && <p>Gewicht {weightLabel}</p>}
-                    {gemstone.origin && <p>Herkunft {gemstone.origin}</p>}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-2">
-                  <AddToCartButton
-                    item={cartItem}
-                    disabled={!gemstone.inStock || gemstone.isSold}
-                  />
-                  <WishlistButton item={cartItem} className="border border-white/10" />
-                </div>
-              </article>
+                gemstone={gemstone}
+                locale={locale}
+                priceLabel={priceLabel}
+                weightLabel={weightLabel}
+                cartItem={cartItem}
+              />
             );
           })}
           </div>

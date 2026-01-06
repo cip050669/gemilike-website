@@ -39,16 +39,21 @@ export async function GET() {
         youtube: headerData?.youtube || 'https://youtube.com/gemilike'
       },
       navigation: {
-        items: navigationItems.length > 0 ? navigationItems.map(item => ({
-          id: item.id,
-          text: item.text,
-          url: item.url
-        })) : [
+        items: navigationItems.length > 0 ? navigationItems
+          .filter(item => {
+            const url = item.url.toLowerCase();
+            const text = item.text.toLowerCase();
+            return url !== '/about' && url !== '/contact' && 
+                   text !== 'über uns' && text !== 'kontakt';
+          })
+          .map(item => ({
+            id: item.id,
+            text: item.text,
+            url: item.url
+          })) : [
           { id: '1', text: 'Startseite', url: '/' },
           { id: '2', text: 'Shop', url: '/shop' },
-          { id: '3', text: 'Über uns', url: '/about' },
-          { id: '4', text: 'Wissenswertes', url: '/wissenswertes' },
-          { id: '5', text: 'Kontakt', url: '/contact' }
+          { id: '4', text: 'Wissenswertes', url: '/wissenswertes' }
         ]
       },
       searchSettings: {
