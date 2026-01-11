@@ -556,6 +556,14 @@ export function GemstoneManagementSection() {
 
   return (
     <div className="space-y-8 text-white">
+      {editorState.open && (
+        <GemstoneEditor
+          initialValues={editorState.initial}
+          onCancel={() => setEditorState({ open: false, initial: null })}
+          onSubmit={handleSaveGemstone}
+        />
+      )}
+      
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.42em] text-white/40">Inventar</p>
@@ -730,6 +738,29 @@ export function GemstoneManagementSection() {
                   className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-2 focus:ring-primary flex-shrink-0"
                   disabled={actionsDisabled}
                 />
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <AdminButton
+                    type="button"
+                    variant="outline"
+                    className="border-white/20 text-white hover:bg-gray-800/30/10"
+                    onClick={() => setDetailGemstone(gemstone)}
+                    aria-label={`${gemstone.name} anzeigen`}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Anzeigen
+                  </AdminButton>
+                  <AdminButton
+                    type="button"
+                    variant="outline"
+                    className="border-white/20 text-white hover:bg-gray-800/30/10"
+                    onClick={() => handleOpenEditor(gemstone)}
+                    aria-label={`${gemstone.name} bearbeiten`}
+                    disabled={actionsDisabled}
+                  >
+                    <PenSquare className="h-4 w-4 mr-2" />
+                    Bearbeiten
+                  </AdminButton>
+                </div>
                 <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-white/15 bg-gray-700/50/40">
                   <Image
                     src={gemstone.mainImage}
@@ -787,29 +818,6 @@ export function GemstoneManagementSection() {
                     {gemstone.certification && <span>Zertifizierung: <span className="text-white/80">{gemstone.certification}</span></span>}
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 self-start sm:self-center">
-                <AdminButton
-                  type="button"
-                  size="icon"
-                  variant="outline"
-                  className="h-9 w-9 border-white/15 bg-gray-700/30/10 text-white hover:bg-gray-700/30/20"
-                  onClick={() => setDetailGemstone(gemstone)}
-                  aria-label={`${gemstone.name} anzeigen`}
-                >
-                  <Eye className="h-4 w-4" />
-                </AdminButton>
-                <AdminButton
-                  type="button"
-                  size="icon"
-                  variant="outline"
-                  className="h-9 w-9 border-white/15 bg-gray-700/30/10 text-white hover:bg-gray-700/30/20"
-                  onClick={() => handleOpenEditor(gemstone)}
-                  aria-label={`${gemstone.name} bearbeiten`}
-                  disabled={actionsDisabled}
-                >
-                  <PenSquare className="h-4 w-4" />
-                </AdminButton>
               </div>
             </div>
           ))}
@@ -980,14 +988,6 @@ export function GemstoneManagementSection() {
             </div>
           </div>
         </div>
-      )}
-
-      {editorState.open && (
-        <GemstoneEditor
-          initialValues={editorState.initial}
-          onCancel={() => setEditorState({ open: false, initial: null })}
-          onSubmit={handleSaveGemstone}
-        />
       )}
     </div>
   );

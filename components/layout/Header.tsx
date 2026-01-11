@@ -203,7 +203,7 @@ export function Header() {
   return (
     <header 
       data-header-fixed
-      className="sticky top-0 h-16 z-[10000] header-gradient-bg border-b border-white/10"
+      className="sticky top-0 h-[104px] z-[10000] header-gradient-bg border-b border-white/10"
     >
       <div className="flex items-center justify-between w-full h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         {/* Logo - Links */}
@@ -214,7 +214,7 @@ export function Header() {
               alt="Gemilike - Heroes in Gems"
               width={190}
               height={114}
-              className="h-[98px] w-auto sm:h-[106px]"
+              className="h-[104px] w-auto"
               style={{ width: 'auto' }}
               priority
             />
@@ -225,6 +225,7 @@ export function Header() {
         {navItems.length > 0 && (
           <nav 
             className="flex items-center justify-center flex-1 gap-2 xl:gap-4 px-4 min-w-0"
+            style={{ transform: 'translateX(-375px)' }}
             aria-label="Hauptnavigation"
           >
             {navItems.map(({ href, label, id }) => {
@@ -245,7 +246,7 @@ export function Header() {
         )}
 
         {/* Action Buttons - Desktop */}
-        <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0">
+        <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0" style={{ transform: 'translateX(-375px)' }}>
           <div className="flex items-center gap-2 lg:gap-3">
             {/* Language Switcher */}
             <Button
@@ -332,7 +333,7 @@ export function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className="flex flex-col items-end gap-1 md:hidden">
+        <div className="flex flex-col items-end gap-1 md:hidden" style={{ transform: 'translateX(-375px)' }}>
           <div className="flex items-center gap-2">
             {/* Language Switcher - Mobile */}
             <Button

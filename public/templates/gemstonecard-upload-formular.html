@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GemstoneCard - Vollständiges Upload-Formular</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group.conditional {
+            display: none;
+        }
+        
+        .form-group.conditional.show {
+            display: flex;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        label.required::after {
+            content: " *";
+            color: #dc3545;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        select,
+        textarea {
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .records-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 3px solid #667eea;
+        }
+        
+        .records-list {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .record-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .record-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        .record-info {
+            flex: 1;
+        }
+        
+        .record-info strong {
+            color: #667eea;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .record-info span {
+            color: #666;
+            font-size: 13px;
+            margin-right: 15px;
+        }
+        
+        .record-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-edit {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: #218838;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+        
+        .csv-output {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .csv-output h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        textarea#csvOutputText {
+            width: 100%;
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GemstoneCard - Vollständiges Upload-Formular</h1>
+        <p class="subtitle">Erfassen Sie alle Felder der GemstoneCard mit Dropdown-Auswahlfeldern. Mehrere Datensätze können hinzugefügt und als CSV exportiert werden.</p>
+        
+        <div class="success-message" id="successMessage">
+            ✓ Datensatz erfolgreich hinzugefügt!
+        </div>
+        
+        <form id="gemstoneForm">
+            <div class="section-title">Grundinformationen</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name" class="required">Name</label>
+                    <input type="text" id="name" name="name" required placeholder="z.B. Smaragd 2.5 Karat">
+                </div>
+                
+                <div class="form-group">
+                    <label for="type" class="required">Typ</label>
+                    <select id="type" name="type" required onchange="toggleTypeFields()">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="cut">Geschliffen (Cut)</option>
+                        <option value="rough">Rohstein (Rough)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category" class="required">Kategorie</label>
+                    <select id="category" name="category" required>
+                        <option value="">-- Bitte wählen --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="origin" class="required">Herkunft</label>
+                    <select id="origin" name="origin" required>
+                        <option value="">-- Bitte wählen --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="originType">Entstehung</label>
+                    <select id="originType" name="originType">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="natürlich">Natürlich</option>
+                        <option value="synthetisch">Synthetisch</option>
+                        <option value="Imitation">Imitation</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="price" class="required">Preis</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" required placeholder="z.B. 1600.00">
+                </div>
+                
+                <div class="form-group">
+                    <label for="currency" class="required">Währung</label>
+                    <select id="currency" name="currency" required>
+                        <option value="EUR" selected>EUR</option>
+                        <option value="USD">USD</option>
+                        <option value="GBP">GBP</option>
+                        <option value="CHF">CHF</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-title">Gewicht und Abmessungen</div>
+            <div class="form-grid">
+                <div class="form-group" id="caratWeightGroup">
+                    <label for="caratWeight">Karat (ct)</label>
+                    <input type="number" id="caratWeight" name="caratWeight" step="0.01" min="0" placeholder="z.B. 2.50">
+                </div>
+                
+                <div class="form-group" id="gramWeightGroup">
+                    <label for="gramWeight">Gewicht (g)</label>
+                    <input type="number" id="gramWeight" name="gramWeight" step="0.01" min="0" placeholder="z.B. 5.00">
+                </div>
+                
+                <div class="form-group">
+                    <label for="length">Länge (mm)</label>
+                    <input type="number" id="length" name="length" step="0.01" min="0" placeholder="z.B. 12.12">
+                </div>
+                
+                <div class="form-group">
+                    <label for="width">Breite (mm)</label>
+                    <input type="number" id="width" name="width" step="0.01" min="0" placeholder="z.B. 10.38">
+                </div>
+                
+                <div class="form-group">
+                    <label for="height">Höhe (mm)</label>
+                    <input type="number" id="height" name="height" step="0.01" min="0" placeholder="z.B. 7.62">
+                </div>
+            </div>
+            
+            <div class="section-title">Farbe und Eigenschaften</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="color">Farbe</label>
+                    <select id="color" name="color">
+                        <option value="">-- Bitte wählen --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group conditional" id="colorIntensityGroup">
+                    <label for="colorIntensity">Farbsättigung</label>
+                    <select id="colorIntensity" name="colorIntensity">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Pale">Pale (sehr hell)</option>
+                        <option value="Light">Light (hell)</option>
+                        <option value="Medium">Medium (mittel)</option>
+                        <option value="Intense">Intense (intensiv)</option>
+                        <option value="Vivid">Vivid (sehr intensiv)</option>
+                        <option value="Deep">Deep (dunkel)</option>
+                        <option value="Rich">Rich (satt)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group conditional" id="colorSaturationGroup">
+                    <label for="colorSaturation">Helligkeit (1-10)</label>
+                    <input type="number" id="colorSaturation" name="colorSaturation" min="1" max="10" placeholder="1-10">
+                    <div class="help-text">Helligkeitsskala von 1 (weiß) bis 10 (schwarz)</div>
+                </div>
+                
+                <div class="form-group conditional" id="clarityGroup">
+                    <label for="clarity">Reinheit</label>
+                    <select id="clarity" name="clarity">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="FL">FL - Flawless (Lupenrein, keine Einschlüsse)</option>
+                        <option value="VVS">VVS - Very Very Slightly Included</option>
+                        <option value="VS">VS - Very Slightly Included</option>
+                        <option value="SI">SI - Slightly Included</option>
+                        <option value="I">I - Included</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-title">Schliff (nur für geschliffene Edelsteine)</div>
+            <div class="form-grid">
+                <div class="form-group conditional" id="cutGroup">
+                    <label for="cut">Schliffart</label>
+                    <select id="cut" name="cut">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Brillant-Schliff">Brillant-Schliff</option>
+                        <option value="Stufen-Schliff">Stufen-Schliff</option>
+                        <option value="Konkav-Schliff">Konkav-Schliff</option>
+                        <option value="Portugiesischer Schliff">Portugiesischer Schliff</option>
+                        <option value="Treppen-Schliff">Treppen-Schliff</option>
+                        <option value="Rosen-Schliff">Rosen-Schliff</option>
+                        <option value="Schachbrett-Schliff">Schachbrett-Schliff</option>
+                        <option value="Mischschliff">Mischschliff</option>
+                        <option value="Cabochon">Cabochon</option>
+                    </select>
+                </div>
+                
+                <div class="form-group conditional" id="cutFormGroup">
+                    <label for="cutForm">Schliffform</label>
+                    <select id="cutForm" name="cutForm">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Rund">Rund</option>
+                        <option value="Oval">Oval</option>
+                        <option value="Kissen">Kissen</option>
+                        <option value="Herz">Herz</option>
+                        <option value="Tropfen">Tropfen</option>
+                        <option value="Marquise">Marquise</option>
+                        <option value="Princess">Princess</option>
+                        <option value="Brillant">Brillant</option>
+                        <option value="Smaragd">Smaragd</option>
+                        <option value="Baguette">Baguette</option>
+                        <option value="Asscher">Asscher</option>
+                        <option value="Trillion">Trillion</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-title">Rohstein-Eigenschaften (nur für Rohsteine)</div>
+            <div class="form-grid">
+                <div class="form-group conditional" id="crystalFormGroup">
+                    <label for="crystalForm">Kristallform</label>
+                    <input type="text" id="crystalForm" name="crystalForm" placeholder="z.B. Prismatisch">
+                </div>
+                
+                <div class="form-group conditional" id="crystalQualityGroup">
+                    <label for="crystalQuality">Kristallqualität</label>
+                    <select id="crystalQuality" name="crystalQuality">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="sehr gut">Sehr gut</option>
+                        <option value="gut">Gut</option>
+                        <option value="zufriedenstellend">Zufriedenstellend</option>
+                        <option value="ausreichend">Ausreichend</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-title">Behandlung und Zertifizierung</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="treatment">Behandlung</label>
+                    <select id="treatment" name="treatment">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="none">Keine Behandlung</option>
+                        <option value="heated">Erhitzt</option>
+                        <option value="oiled">Geölt</option>
+                        <option value="irradiated">Bestrahlt</option>
+                        <option value="diffused">Diffusionsbehandlung</option>
+                        <option value="coated">Beschichtet</option>
+                        <option value="bleached">Gebleicht</option>
+                        <option value="filled">Gefüllt (Fracture Filling)</option>
+                        <option value="stabilized">Stabilisiert</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="certification">Zertifizierung</label>
+                    <select id="certification" name="certification">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="GIA">GIA</option>
+                        <option value="IGI">IGI</option>
+                        <option value="HRD">HRD</option>
+                        <option value="SSEF">SSEF</option>
+                        <option value="Gübelin">Gübelin</option>
+                        <option value="DSEF">DSEF</option>
+                        <option value="AIGS">AIGS</option>
+                        <option value="GRS">GRS</option>
+                        <option value="GemResearch Swisslab">GemResearch Swisslab</option>
+                        <option value="ICI">ICI</option>
+                        <option value="none">Keine Zertifizierung</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="certificationNumber">Zertifikatsnummer</label>
+                    <input type="text" id="certificationNumber" name="certificationNumber" placeholder="z.B. ICI-2024-001">
+                </div>
+                
+                <div class="form-group">
+                    <label for="certificationUrl">Zertifikats-URL</label>
+                    <input type="url" id="certificationUrl" name="certificationUrl" placeholder="https://...">
+                </div>
+            </div>
+            
+            <div class="section-title">Weitere Informationen</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="rarity">Rarität</label>
+                    <select id="rarity" name="rarity">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="Gewöhnlich">Gewöhnlich</option>
+                        <option value="Häufig">Häufig</option>
+                        <option value="Selten">Selten</option>
+                        <option value="Sehr selten">Sehr selten</option>
+                        <option value="außergewöhnliches">Außergewöhnlich</option>
+                        <option value="Einzigartig">Einzigartig</option>
+                        <option value="Museumsqualität">Museumsqualität</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stock">Bestand</label>
+                    <input type="number" id="stock" name="stock" min="0" value="1">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="description">Beschreibung</label>
+                    <textarea id="description" name="description" placeholder="Beschreibung des Edelsteins..."></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="images">Bilder (URLs, durch Komma getrennt)</label>
+                    <textarea id="images" name="images" placeholder="/products/gem1.jpg,/products/gem2.jpg"></textarea>
+                    <div class="help-text">Mehrere URLs durch Komma trennen</div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="videos">Videos (URLs, durch Komma getrennt)</label>
+                    <textarea id="videos" name="videos" placeholder="/products/video1.mp4"></textarea>
+                    <div class="help-text">Mehrere URLs durch Komma trennen</div>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="isNew" name="isNew" value="true">
+                    <label for="isNew" style="margin: 0;">Neu</label>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="featured" name="featured" value="true">
+                    <label for="featured" style="margin: 0;">Featured</label>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="inStock" name="inStock" value="true" checked>
+                    <label for="inStock" style="margin: 0;">Verfügbar</label>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" class="btn-primary" onclick="addRecord()">Datensatz hinzufügen</button>
+                <button type="button" class="btn-secondary" onclick="clearForm()">Formular zurücksetzen</button>
+            </div>
+        </form>
+        
+        <div class="records-section" id="recordsSection" style="display: none;">
+            <div class="section-title">Gespeicherte Datensätze (<span id="recordCount">0</span>)</div>
+            <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 12px; margin-bottom: 15px; font-size: 13px; color: #004085;">
+                <strong>ℹ️ Hinweis:</strong> Ihre Datensätze werden automatisch im Browser gespeichert und bleiben auch nach einem Seitenneuladen erhalten. Sie können die CSV-Datei jederzeit generieren und herunterladen.
+            </div>
+            <div id="recordsList" class="records-list"></div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button type="button" class="btn-primary" onclick="generateCSV()">CSV generieren und herunterladen</button>
+                <button type="button" class="btn-secondary" onclick="exportJSON()">Als JSON exportieren</button>
+                <button type="button" class="btn-secondary" onclick="printRecords()">Drucken</button>
+                <button type="button" class="btn-secondary" onclick="validateRecords()">Daten validieren</button>
+                <button type="button" class="btn-secondary" onclick="clearAllRecords()">Alle Datensätze löschen</button>
+            </div>
+            <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 13px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="autoDeleteAfterExport" style="width: 18px; height: 18px;">
+                    <span>Nach CSV-Export automatisch alle Datensätze löschen</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="csv-output" id="csvOutput" style="display: none;">
+            <h3>Generierte CSV-Daten</h3>
+            <textarea id="csvOutputText" readonly></textarea>
+            <div class="button-group" style="margin-top: 15px;">
+                <button type="button" class="btn-primary" onclick="downloadCSV()">CSV herunterladen</button>
+                <button type="button" class="btn-secondary" onclick="copyToClipboard()">In Zwischenablage kopieren</button>
+                <button type="button" class="btn-secondary" onclick="exportAsExcel()">Als Excel exportieren</button>
+            </div>
+        </div>
+        
+        <div class="csv-output" id="jsonOutput" style="display: none; margin-top: 20px;">
+            <h3>Generierte JSON-Daten</h3>
+            <textarea id="jsonOutputText" readonly style="min-height: 200px;"></textarea>
+            <div class="button-group" style="margin-top: 15px;">
+                <button type="button" class="btn-primary" onclick="downloadJSON()">JSON herunterladen</button>
+                <button type="button" class="btn-secondary" onclick="copyJSONToClipboard()">In Zwischenablage kopieren</button>
+            </div>
+        </div>
+        
+        <div id="validationResults" style="display: none; margin-top: 20px; padding: 15px; border-radius: 6px; background: #fff3cd; border: 1px solid #ffc107;">
+            <h3 style="margin-bottom: 10px; color: #856404;">Validierungs-Ergebnisse</h3>
+            <div id="validationContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Optionen aus Konstanten
+        const CATEGORIES = ['Achat', 'Albit', 'Alexandrit', 'Amazonit', 'Amethyst', 'Andalusit', 'Andradit', 'Apatit', 'Aquamarin', 'Aventurin', 'Azurit', 'Benitoit', 'Beryll', 'Beryllonit', 'Bixbit', 'Brasilianit', 'Calcit', 'Carnelian', 'Cerussit', 'Chalcedon', 'Charoit', 'Chrysoberyll', 'Chrysokoll', 'Chrysopras', 'Citrin', 'Cordierit', 'Danburit', 'Demantoid', 'Diamant', 'Diopsid', 'Dumortierit', 'Ekanit', 'Epidot', 'Eudialyt', 'Fenakit', 'Fluorit', 'Garnet', 'Goshenit', 'Grossular', 'Hämatit', 'Hambergit', 'Heliodor', 'Hessonit', 'Hiddenit', 'Howlith', 'Hypersthen', 'Iolith', 'Jade', 'Jadeit', 'Jaspis', 'Jeremejewit', 'Korund', 'Kunzit', 'Kyanit', 'Labradorit', 'Lapis Lazuli', 'Larimar', 'Lazulith', 'Lepidolith', 'Magnetit', 'Malachit', 'Moldavit', 'Mondstein', 'Morganit', 'Obsidian', 'Opal', 'Padparadscha', 'Peridot', 'Perowskit', 'Phenakit', 'Prehnit', 'Pyrit', 'Pyrop', 'Quarz', 'Rhodochrosit', 'Rhodolith', 'Rhodonit', 'Rubin', 'Rutil', 'Saphir', 'Sardonyx', 'Schörl', 'Selenit', 'Serpentin', 'Smaragd', 'Smithsonit', 'Spessartin', 'Spinell', 'Spodumen', 'Staurolith', 'Sunstone', 'Tansanit', 'Tanzanit', 'Tigerauge', 'Topas', 'Tourmalin', 'Tsavorit', 'Turmalin', 'Türkis', 'Uvarovit', 'Variscit', 'Vesuvianit', 'Zirkon', 'Zoisit', 'Zultanit'].sort();
+        
+        const COUNTRIES = ['Afghanistan', 'Ägypten', 'Albanien', 'Algerien', 'Andorra', 'Angola', 'Antigua und Barbuda', 'Äquatorialguinea', 'Argentinien', 'Armenien', 'Aserbaidschan', 'Äthiopien', 'Australien', 'Bahamas', 'Bahrain', 'Bangladesch', 'Barbados', 'Belarus', 'Belgien', 'Belize', 'Benin', 'Bhutan', 'Bolivien', 'Bosnien und Herzegowina', 'Botswana', 'Brasilien', 'Brunei', 'Bulgarien', 'Burkina Faso', 'Burundi', 'Chile', 'China', 'Costa Rica', 'Dänemark', 'Deutschland', 'Dominica', 'Dominikanische Republik', 'Dschibuti', 'Ecuador', 'El Salvador', 'Elfenbeinküste', 'Eritrea', 'Estland', 'Eswatini', 'Fidschi', 'Finnland', 'Frankreich', 'Gabun', 'Gambia', 'Georgien', 'Ghana', 'Grenada', 'Griechenland', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Indien', 'Indonesien', 'Irak', 'Iran', 'Irland', 'Island', 'Israel', 'Italien', 'Jamaika', 'Japan', 'Jemen', 'Jordanien', 'Kambodscha', 'Kamerun', 'Kanada', 'Kap Verde', 'Kasachstan', 'Katar', 'Kenia', 'Kirgisistan', 'Kiribati', 'Kolumbien', 'Komoren', 'Kongo', 'Demokratische Republik Kongo', 'Kroatien', 'Kuba', 'Kuwait', 'Laos', 'Lesotho', 'Lettland', 'Libanon', 'Liberia', 'Libyen', 'Liechtenstein', 'Litauen', 'Luxemburg', 'Madagaskar', 'Malawi', 'Malaysia', 'Malediven', 'Mali', 'Malta', 'Marokko', 'Marshallinseln', 'Mauretanien', 'Mauritius', 'Mexiko', 'Mikronesien', 'Moldau', 'Monaco', 'Mongolei', 'Montenegro', 'Mosambik', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Neuseeland', 'Nicaragua', 'Niederlande', 'Niger', 'Nigeria', 'Nordkorea', 'Nordmazedonien', 'Norwegen', 'Oman', 'Österreich', 'Pakistan', 'Palau', 'Panama', 'Papua-Neuguinea', 'Paraguay', 'Peru', 'Philippinen', 'Polen', 'Portugal', 'Ruanda', 'Rumänien', 'Russland', 'Salomonen', 'Sambia', 'Samoa', 'San Marino', 'São Tomé und Príncipe', 'Saudi-Arabien', 'Schweden', 'Schweiz', 'Senegal', 'Serbien', 'Seychellen', 'Sierra Leone', 'Simbabwe', 'Singapur', 'Slowakei', 'Slowenien', 'Somalia', 'Spanien', 'Sri Lanka', 'St. Kitts und Nevis', 'St. Lucia', 'St. Vincent und die Grenadinen', 'Südafrika', 'Sudan', 'Südkorea', 'Südsudan', 'Suriname', 'Syrien', 'Tadschikistan', 'Taiwan', 'Tansania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad und Tobago', 'Tschad', 'Tschechien', 'Tunesien', 'Türkei', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'Ungarn', 'Uruguay', 'USA', 'Usbekistan', 'Vanuatu', 'Vatikanstadt', 'Venezuela', 'Vereinigte Arabische Emirate', 'Vietnam', 'Weißrussland', 'Zentralafrikanische Republik', 'Zypern'].sort();
+        
+        const COLORS = ['Achatgrau', 'Aprikose', 'Aquamarinblau', 'Aschgrau', 'Beige', 'Bernstein', 'Bisquit', 'Blassblau', 'Blassgelb', 'Blassgrün', 'Blasslila', 'Blassrosa', 'Blau', 'Blau-Grün', 'Blau-Violett', 'Bläulich', 'Bläulich-Grün', 'Bläulich-Violett', 'Braun', 'Braun-Gelb', 'Braun-Rot', 'Bronze', 'Champagner', 'Chromgrün', 'Cognac', 'Cyan', 'Dunkelblau', 'Dunkelbraun', 'Dunkelgelb', 'Dunkelgrau', 'Dunkelgrün', 'Dunkellila', 'Dunkelorange', 'Dunkelrosa', 'Dunkelrot', 'Dunkeltürkis', 'Dunkelviolett', 'Eisblau', 'Elfenbein', 'Emeraldgrün', 'Farblos', 'Feuerrot', 'Flieder', 'Gelb', 'Gelb-Grün', 'Gelb-Orange', 'Gelblich', 'Gelblich-Grün', 'Gold', 'Goldgelb', 'Grau', 'Grau-Blau', 'Grau-Grün', 'Grün', 'Grün-Blau', 'Grün-Gelb', 'Grünlich', 'Grünlich-Blau', 'Himmelblau', 'Honiggelb', 'Indigo', 'Jadegrün', 'Kamel', 'Karminrot', 'Kastanienbraun', 'Kobaltblau', 'Koralle', 'Kupfer', 'Lachs', 'Lavendel', 'Lemon', 'Lila', 'Lila-Blau', 'Lila-Rot', 'Magenta', 'Mahagoni', 'Marineblau', 'Mint', 'Moosgrün', 'Navy', 'Ocker', 'Oliv', 'Olivgrün', 'Orange', 'Orange-Gelb', 'Orange-Rot', 'Orchidee', 'Pastellblau', 'Pastellgelb', 'Pastellgrün', 'Pastelllila', 'Pastellrosa', 'Perlmutt', 'Pfirsich', 'Pink', 'Pink-Rot', 'Platin', 'Purpur', 'Rosa', 'Rosa-Lila', 'Rosa-Rot', 'Rot', 'Rot-Orange', 'Rot-Violett', 'Rötlich', 'Rötlich-Orange', 'Rötlich-Violett', 'Rubinrot', 'Safrangelb', 'Salmon', 'Scharlachrot', 'Schwarz', 'Schwarz-Blau', 'Schwarz-Grün', 'Schwarz-Rot', 'Schwarz-Violett', 'Silber', 'Smaragdgrün', 'Tannengrün', 'Taupe', 'Teal', 'Tiefblau', 'Tiefgrün', 'Tiefrot', 'Tiefviolett', 'Türkis', 'Türkis-Blau', 'Türkis-Grün', 'Ultramarin', 'Vanille', 'Violett', 'Violett-Blau', 'Violett-Rot', 'Violettlich', 'Weiß', 'Weiß-Gelb', 'Weiß-Grün', 'Weißlich', 'Weißlich-Blau', 'Weißlich-Grün', 'Zitronengelb', 'Zitronengrün'].sort();
+        
+        // CSV Header
+        const CSV_HEADER = 'name,type,category,origin,originType,price,currency,caratWeight,gramWeight,length,width,height,color,colorIntensity,colorSaturation,clarity,cut,cutForm,crystalForm,crystalQuality,treatment,certification,certificationNumber,certificationUrl,rarity,stock,description,images,videos,isNew,featured,inStock';
+        
+        // Array zum Speichern aller Datensätze
+        let records = [];
+        let editingIndex = -1;
+        const STORAGE_KEY = 'gemstonecard_records';
+        
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', function() {
+            populateSelect('category', CATEGORIES);
+            populateSelect('origin', COUNTRIES);
+            populateSelect('color', COLORS);
+            loadRecordsFromStorage();
+        });
+        
+        // Daten aus localStorage laden
+        function loadRecordsFromStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    records = JSON.parse(stored);
+                    if (records.length > 0) {
+                        updateRecordsList();
+                    }
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden der gespeicherten Daten:', error);
+            }
+        }
+        
+        // Daten in localStorage speichern
+        function saveRecordsToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            } catch (error) {
+                console.error('Fehler beim Speichern der Daten:', error);
+                // Falls localStorage voll ist, warnen
+                alert('Warnung: Die Daten konnten nicht gespeichert werden. Bitte exportieren Sie die CSV-Datei, bevor Sie die Seite schließen.');
+            }
+        }
+        
+        function populateSelect(id, options) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+        }
+        
+        function toggleTypeFields() {
+            const type = document.getElementById('type').value;
+            const isCut = type === 'cut';
+            const isRough = type === 'rough';
+            
+            // Gewicht-Felder
+            document.getElementById('caratWeightGroup').style.display = isCut ? 'flex' : 'none';
+            document.getElementById('gramWeightGroup').style.display = isRough ? 'flex' : 'none';
+            
+            // Cut-spezifische Felder
+            const cutFields = ['colorIntensityGroup', 'colorSaturationGroup', 'clarityGroup', 'cutGroup', 'cutFormGroup'];
+            cutFields.forEach(id => {
+                const group = document.getElementById(id);
+                if (group) {
+                    if (isCut) {
+                        group.classList.add('show');
+                    } else {
+                        group.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Rough-spezifische Felder
+            const roughFields = ['crystalFormGroup', 'crystalQualityGroup'];
+            roughFields.forEach(id => {
+                const group = document.getElementById(id);
+                if (group) {
+                    if (isRough) {
+                        group.classList.add('show');
+                    } else {
+                        group.classList.remove('show');
+                    }
+                }
+            });
+        }
+        
+        function escapeCSV(value) {
+            if (value === null || value === undefined || value === '') {
+                return '';
+            }
+            const stringValue = String(value);
+            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                return '"' + stringValue.replace(/"/g, '""') + '"';
+            }
+            return stringValue;
+        }
+        
+        function getFormValue(id) {
+            const element = document.getElementById(id);
+            if (!element) return '';
+            
+            if (element.type === 'checkbox') {
+                return element.checked ? 'true' : 'false';
+            }
+            
+            return element.value || '';
+        }
+        
+        function getAllFormValues() {
+            return {
+                name: getFormValue('name'),
+                type: getFormValue('type'),
+                category: getFormValue('category'),
+                origin: getFormValue('origin'),
+                originType: getFormValue('originType'),
+                price: getFormValue('price'),
+                currency: getFormValue('currency'),
+                caratWeight: getFormValue('caratWeight'),
+                gramWeight: getFormValue('gramWeight'),
+                length: getFormValue('length'),
+                width: getFormValue('width'),
+                height: getFormValue('height'),
+                color: getFormValue('color'),
+                colorIntensity: getFormValue('colorIntensity'),
+                colorSaturation: getFormValue('colorSaturation'),
+                clarity: getFormValue('clarity'),
+                cut: getFormValue('cut'),
+                cutForm: getFormValue('cutForm'),
+                crystalForm: getFormValue('crystalForm'),
+                crystalQuality: getFormValue('crystalQuality'),
+                treatment: getFormValue('treatment'),
+                certification: getFormValue('certification'),
+                certificationNumber: getFormValue('certificationNumber'),
+                certificationUrl: getFormValue('certificationUrl'),
+                rarity: getFormValue('rarity'),
+                stock: getFormValue('stock'),
+                description: getFormValue('description'),
+                images: getFormValue('images'),
+                videos: getFormValue('videos'),
+                isNew: getFormValue('isNew'),
+                featured: getFormValue('featured'),
+                inStock: getFormValue('inStock')
+            };
+        }
+        
+        function setFormValues(values) {
+            Object.keys(values).forEach(key => {
+                const element = document.getElementById(key);
+                if (!element) return;
+                
+                if (element.type === 'checkbox') {
+                    element.checked = values[key] === 'true';
+                } else {
+                    element.value = values[key] || '';
+                }
+            });
+            toggleTypeFields();
+        }
+        
+        function addRecord() {
+            const form = document.getElementById('gemstoneForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const values = getAllFormValues();
+            
+            if (editingIndex >= 0) {
+                records[editingIndex] = values;
+                editingIndex = -1;
+            } else {
+                records.push(values);
+            }
+            
+            updateRecordsList();
+            saveRecordsToStorage(); // Speichere nach jedem Hinzufügen
+            clearForm();
+            showSuccessMessage();
+        }
+        
+        function updateRecordsList() {
+            const recordsList = document.getElementById('recordsList');
+            const recordsSection = document.getElementById('recordsSection');
+            const recordCount = document.getElementById('recordCount');
+            
+            if (records.length === 0) {
+                recordsSection.style.display = 'none';
+                return;
+            }
+            
+            recordsSection.style.display = 'block';
+            recordCount.textContent = records.length;
+            
+            recordsList.innerHTML = '';
+            records.forEach((record, index) => {
+                const recordItem = document.createElement('div');
+                recordItem.className = 'record-item';
+                recordItem.innerHTML = `
+                    <div class="record-info">
+                        <strong>${record.name || 'Unbenannt'}</strong>
+                        <span>Typ: ${record.type === 'cut' ? 'Geschliffen' : 'Rohstein'}</span>
+                        <span>Kategorie: ${record.category || '-'}</span>
+                        <span>Farbe: ${record.color || '-'}</span>
+                        <span>Preis: ${record.price || '-'} ${record.currency || 'EUR'}</span>
+                    </div>
+                    <div class="record-actions">
+                        <button type="button" class="btn-edit btn-small" onclick="editRecord(${index})">Bearbeiten</button>
+                        <button type="button" class="btn-danger btn-small" onclick="deleteRecord(${index})">Löschen</button>
+                    </div>
+                `;
+                recordsList.appendChild(recordItem);
+            });
+        }
+        
+        function editRecord(index) {
+            editingIndex = index;
+            const record = records[index];
+            setFormValues(record);
+            
+            document.getElementById('gemstoneForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        function deleteRecord(index) {
+            if (confirm('Möchten Sie diesen Datensatz wirklich löschen?')) {
+                records.splice(index, 1);
+                updateRecordsList();
+                saveRecordsToStorage(); // Speichere nach jedem Löschen
+            }
+        }
+        
+        function clearAllRecords() {
+            if (records.length === 0) return;
+            if (confirm('Möchten Sie wirklich alle ' + records.length + ' Datensätze löschen?')) {
+                records = [];
+                updateRecordsList();
+                saveRecordsToStorage(); // Speichere nach dem Löschen
+                localStorage.removeItem(STORAGE_KEY); // Entferne auch aus localStorage
+            }
+        }
+        
+        function showSuccessMessage() {
+            const message = document.getElementById('successMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+        
+        function generateCSV() {
+            if (records.length === 0) {
+                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
+                return;
+            }
+            
+            const csvRows = records.map(record => {
+                return [
+                    escapeCSV(record.name),
+                    escapeCSV(record.type),
+                    escapeCSV(record.category),
+                    escapeCSV(record.origin),
+                    escapeCSV(record.originType),
+                    escapeCSV(record.price),
+                    escapeCSV(record.currency),
+                    escapeCSV(record.caratWeight),
+                    escapeCSV(record.gramWeight),
+                    escapeCSV(record.length),
+                    escapeCSV(record.width),
+                    escapeCSV(record.height),
+                    escapeCSV(record.color),
+                    escapeCSV(record.colorIntensity),
+                    escapeCSV(record.colorSaturation),
+                    escapeCSV(record.clarity),
+                    escapeCSV(record.cut),
+                    escapeCSV(record.cutForm),
+                    escapeCSV(record.crystalForm),
+                    escapeCSV(record.crystalQuality),
+                    escapeCSV(record.treatment),
+                    escapeCSV(record.certification),
+                    escapeCSV(record.certificationNumber),
+                    escapeCSV(record.certificationUrl),
+                    escapeCSV(record.rarity),
+                    escapeCSV(record.stock),
+                    escapeCSV(record.description),
+                    escapeCSV(record.images),
+                    escapeCSV(record.videos),
+                    escapeCSV(record.isNew),
+                    escapeCSV(record.featured),
+                    escapeCSV(record.inStock)
+                ].join(',');
+            });
+            
+            const fullCSV = CSV_HEADER + '\n' + csvRows.join('\n');
+            
+            document.getElementById('csvOutput').style.display = 'block';
+            document.getElementById('csvOutputText').value = fullCSV;
+            
+            downloadCSV();
+            
+            // Prüfe, ob automatisches Löschen aktiviert ist
+            const autoDelete = document.getElementById('autoDeleteAfterExport');
+            if (autoDelete && autoDelete.checked) {
+                if (confirm('Möchten Sie die gespeicherten Datensätze nach dem Export löschen?')) {
+                    records = [];
+                    localStorage.removeItem(STORAGE_KEY);
+                    updateRecordsList();
+                }
+            }
+            
+            document.getElementById('csvOutput').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function clearForm() {
+            document.getElementById('gemstoneForm').reset();
+            editingIndex = -1;
+            toggleTypeFields();
+        }
+        
+        function downloadCSV() {
+            const csvText = document.getElementById('csvOutputText').value;
+            if (!csvText) {
+                alert('Bitte generieren Sie zuerst die CSV-Daten.');
+                return;
+            }
+            
+            const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'gemstonecard-upload-' + new Date().toISOString().split('T')[0] + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function copyToClipboard() {
+            const csvText = document.getElementById('csvOutputText').value;
+            if (!csvText) {
+                alert('Bitte generieren Sie zuerst die CSV-Daten.');
+                return;
+            }
+            
+            navigator.clipboard.writeText(csvText).then(() => {
+                alert('CSV-Daten wurden in die Zwischenablage kopiert!');
+            }).catch(err => {
+                alert('Fehler beim Kopieren: ' + err);
+            });
+        }
+        
+        // JSON Export
+        function exportJSON() {
+            if (records.length === 0) {
+                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
+                return;
+            }
+            
+            const jsonData = {
+                exportDate: new Date().toISOString(),
+                totalRecords: records.length,
+                records: records
+            };
+            
+            const jsonText = JSON.stringify(jsonData, null, 2);
+            
+            document.getElementById('jsonOutput').style.display = 'block';
+            document.getElementById('jsonOutputText').value = jsonText;
+            
+            downloadJSON();
+            
+            document.getElementById('jsonOutput').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function downloadJSON() {
+            const jsonText = document.getElementById('jsonOutputText').value;
+            if (!jsonText) {
+                alert('Bitte generieren Sie zuerst die JSON-Daten.');
+                return;
+            }
+            
+            const blob = new Blob([jsonText], { type: 'application/json;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'gemstonecard-upload-' + new Date().toISOString().split('T')[0] + '.json');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function copyJSONToClipboard() {
+            const jsonText = document.getElementById('jsonOutputText').value;
+            if (!jsonText) {
+                alert('Bitte generieren Sie zuerst die JSON-Daten.');
+                return;
+            }
+            
+            navigator.clipboard.writeText(jsonText).then(() => {
+                alert('JSON-Daten wurden in die Zwischenablage kopiert!');
+            }).catch(err => {
+                alert('Fehler beim Kopieren: ' + err);
+            });
+        }
+        
+        // Excel Export (als CSV mit Excel-kompatiblem Format)
+        function exportAsExcel() {
+            const csvText = document.getElementById('csvOutputText').value;
+            if (!csvText) {
+                alert('Bitte generieren Sie zuerst die CSV-Daten.');
+                return;
+            }
+            
+            // Excel erkennt CSV mit BOM (Byte Order Mark) besser
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + csvText], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'gemstonecard-upload-' + new Date().toISOString().split('T')[0] + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('Excel-kompatible CSV-Datei wurde heruntergeladen. Öffnen Sie sie in Excel.');
+        }
+        
+        // Druckfunktion
+        function printRecords() {
+            if (records.length === 0) {
+                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
+                return;
+            }
+            
+            let printContent = '<html><head><title>Edelstein-Datensätze</title><style>';
+            printContent += 'body { font-family: Arial, sans-serif; padding: 20px; }';
+            printContent += 'h1 { color: #333; }';
+            printContent += 'table { width: 100%; border-collapse: collapse; margin-top: 20px; }';
+            printContent += 'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }';
+            printContent += 'th { background-color: #667eea; color: white; }';
+            printContent += 'tr:nth-child(even) { background-color: #f2f2f2; }';
+            printContent += '</style></head><body>';
+            printContent += '<h1>Edelstein-Datensätze</h1>';
+            printContent += '<p>Exportiert am: ' + new Date().toLocaleString('de-DE') + '</p>';
+            printContent += '<p>Anzahl Datensätze: ' + records.length + '</p>';
+            printContent += '<table>';
+            printContent += '<tr><th>Name</th><th>Typ</th><th>Kategorie</th><th>Herkunft</th><th>Preis</th><th>Währung</th></tr>';
+            
+            records.forEach(record => {
+                printContent += '<tr>';
+                printContent += '<td>' + (record.name || '-') + '</td>';
+                printContent += '<td>' + (record.type === 'cut' ? 'Geschliffen' : 'Rohstein') + '</td>';
+                printContent += '<td>' + (record.category || '-') + '</td>';
+                printContent += '<td>' + (record.origin || '-') + '</td>';
+                printContent += '<td>' + (record.price || '-') + '</td>';
+                printContent += '<td>' + (record.currency || 'EUR') + '</td>';
+                printContent += '</tr>';
+            });
+            
+            printContent += '</table></body></html>';
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // Validierungsfunktion
+        function validateRecords() {
+            if (records.length === 0) {
+                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
+                return;
+            }
+            
+            const errors = [];
+            const warnings = [];
+            let validCount = 0;
+            
+            records.forEach((record, index) => {
+                const recordErrors = [];
+                const recordWarnings = [];
+                
+                // Pflichtfelder prüfen
+                if (!record.name || record.name.trim() === '') {
+                    recordErrors.push('Name fehlt');
+                }
+                if (!record.type) {
+                    recordErrors.push('Typ fehlt');
+                }
+                if (!record.category) {
+                    recordErrors.push('Kategorie fehlt');
+                }
+                if (!record.origin) {
+                    recordErrors.push('Herkunft fehlt');
+                }
+                if (!record.price || parseFloat(record.price) <= 0) {
+                    recordErrors.push('Preis fehlt oder ist ungültig');
+                }
+                
+                // Warnungen
+                if (!record.description || record.description.trim() === '') {
+                    recordWarnings.push('Keine Beschreibung');
+                }
+                if (!record.images || record.images.trim() === '') {
+                    recordWarnings.push('Keine Bilder');
+                }
+                if (record.type === 'cut' && !record.caratWeight) {
+                    recordWarnings.push('Kein Karat-Gewicht für geschliffenen Stein');
+                }
+                if (record.type === 'rough' && !record.gramWeight) {
+                    recordWarnings.push('Kein Gramm-Gewicht für Rohstein');
+                }
+                
+                if (recordErrors.length === 0) {
+                    validCount++;
+                } else {
+                    errors.push({
+                        index: index + 1,
+                        name: record.name || 'Unbenannt',
+                        errors: recordErrors
+                    });
+                }
+                
+                if (recordWarnings.length > 0) {
+                    warnings.push({
+                        index: index + 1,
+                        name: record.name || 'Unbenannt',
+                        warnings: recordWarnings
+                    });
+                }
+            });
+            
+            // Ergebnisse anzeigen
+            let resultHTML = '<div style="margin-bottom: 15px;">';
+            resultHTML += '<strong>Zusammenfassung:</strong><br>';
+            resultHTML += '✓ Gültige Datensätze: ' + validCount + ' von ' + records.length + '<br>';
+            resultHTML += '✗ Fehlerhafte Datensätze: ' + errors.length + '<br>';
+            resultHTML += '⚠ Warnungen: ' + warnings.length + '<br>';
+            resultHTML += '</div>';
+            
+            if (errors.length > 0) {
+                resultHTML += '<div style="margin-top: 15px;"><strong style="color: #dc3545;">Fehler:</strong><ul>';
+                errors.forEach(error => {
+                    resultHTML += '<li>Datensatz #' + error.index + ' (' + error.name + '): ' + error.errors.join(', ') + '</li>';
+                });
+                resultHTML += '</ul></div>';
+            }
+            
+            if (warnings.length > 0) {
+                resultHTML += '<div style="margin-top: 15px;"><strong style="color: #ffc107;">Warnungen:</strong><ul>';
+                warnings.forEach(warning => {
+                    resultHTML += '<li>Datensatz #' + warning.index + ' (' + warning.name + '): ' + warning.warnings.join(', ') + '</li>';
+                });
+                resultHTML += '</ul></div>';
+            }
+            
+            if (errors.length === 0 && warnings.length === 0) {
+                resultHTML += '<div style="color: #28a745; font-weight: bold; margin-top: 15px;">✓ Alle Datensätze sind gültig!</div>';
+            }
+            
+            document.getElementById('validationContent').innerHTML = resultHTML;
+            document.getElementById('validationResults').style.display = 'block';
+            document.getElementById('validationResults').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
+

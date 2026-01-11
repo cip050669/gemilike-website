@@ -11,8 +11,9 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, Play, ZoomIn, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, ZoomIn, FlaskConical } from 'lucide-react';
 import { Swipeable } from '@/components/ui/Swipeable';
+import { Treatment } from '@/lib/types/gemstone';
 import { cn } from '@/lib/utils';
 
 interface MediaGalleryProps {
@@ -24,6 +25,7 @@ interface MediaGalleryProps {
     certified: boolean;
     lab?: string;
   };
+  treatment?: Treatment | string | null;
   inStock?: boolean;
 }
 
@@ -37,13 +39,58 @@ export function MediaGallery({
   gemName,
   className,
   certification,
+  treatment,
   inStock,
 }: MediaGalleryProps) {
+  // certification is part of the props interface but not currently used in the component
+  void certification;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticScroll = useRef(false);
+
+  // Convert treatment string to Treatment object
+  // Only show badge if treatment is actually present and not "none" or empty
+  const treatmentObj: Treatment | null = useMemo(() => {
+    if (!treatment) return null;
+    if (typeof treatment === 'string') {
+      const trimmed = treatment.trim();
+      if (!trimmed || trimmed === 'none' || trimmed === '') {
+        return null; // Don't show badge for untreated
+      }
+      return {
+        treated: true,
+        type: trimmed as Treatment['type'],
+      };
+    }
+    // If it's already a Treatment object, only return it if treated
+    if (treatment.treated && treatment.type && treatment.type !== 'none') {
+      return treatment;
+    }
+    return null;
+  }, [treatment]);
+
+  // Get treatment text
+  const getTreatmentText = (type?: string) => {
+    if (!type || type === 'none') return 'Unbehandelt';
+    switch (type) {
+      case 'heated':
+        return 'Erhitzt';
+      case 'oiled':
+        return 'Geölt';
+      case 'irradiated':
+        return 'Bestrahlt';
+      case 'diffused':
+        return 'Diffundiert';
+      case 'filled':
+        return 'Gefüllt';
+      case 'coated':
+        return 'Beschichtet';
+      default:
+        return 'Behandelt';
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -237,14 +284,17 @@ export function MediaGallery({
                 )}
 
 
-                {certification?.certified && (
+                {treatmentObj && treatmentObj.treated && treatmentObj.type && treatmentObj.type !== 'none' && (
                   <div 
                     className="absolute z-10"
                     style={{ bottom: '16px', left: '16px', position: 'absolute' }}
                   >
-                    <Badge className="flex items-center gap-2 bg-slate-700/90 text-[11px] text-white">
-                      <Award className="h-3.5 w-3.5" />
-                      {certification.lab ?? 'Zertifiziert'}
+                    <Badge 
+                      className="flex items-center gap-2 !bg-white !text-black text-[11px] shadow-lg border-2 border-black/20"
+                      style={{ backgroundColor: 'white', color: 'black' }}
+                    >
+                      <FlaskConical className="h-3.5 w-3.5" style={{ color: 'black' }} />
+                      {getTreatmentText(treatmentObj.type)}
                     </Badge>
                   </div>
                 )}

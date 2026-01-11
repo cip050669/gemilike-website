@@ -2,6 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { extractPayload, normaliseGemstonePayload } from '../utils';
 import { notifyWishlistCustomers } from '@/lib/services/wishlist-notifications';
+import { Prisma } from '@prisma/client';
+
+async function generateUniqueSlug(base: string, excludeId?: string) {
+  const safeBase =
+    base
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'gemstone';
+
+  let counter = 0;
+  // First try plain, then with -1, -2, ...; stop after reasonable attempts
+  while (counter < 2000) {
+    const candidate = counter === 0 ? safeBase : `${safeBase}-${counter}`;
+    const exists = await prisma.gemstone.findUnique({ where: { slug: candidate } });
+    if (!exists || (excludeId && exists.id === excludeId)) {
+      return candidate;
+    }
+    counter += 1;
+  }
+
+  // Extreme fallback: timestamped slug
+  return `${safeBase}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+}
 
 export async function GET(
   request: NextRequest,
@@ -76,6 +99,18 @@ export async function PUT(
       status: payload.status ?? existing.status, // Preserve status if not explicitly changed
     };
 
+    // Generate unique slug if name changed or slug is provided
+    const nameChanged = payload.name && payload.name !== existing.name;
+    if (nameChanged || payload.slug) {
+      const baseSlug = payload.slug 
+        ? String(payload.slug).trim()
+        : String(basePayload.name ?? existing.name).trim();
+      basePayload.slug = await generateUniqueSlug(baseSlug, id);
+    } else {
+      // Keep existing slug if name didn't change
+      basePayload.slug = existing.slug;
+    }
+
     const data = normaliseGemstonePayload(basePayload, uploadedImage, fallbackImages, true);
     
     // Check if gemstone is becoming available (was sold, now not sold, or inventory updated)
@@ -93,10 +128,36 @@ export async function PUT(
       inventoryAvailable = (currentInventory?.quantity ?? 0) === 0 && newQuantity > 0;
     }
     
-    const gemstone = await prisma.gemstone.update({
-      where: { id },
-      data
-    });
+    // Try to update with retry logic for slug conflicts
+    let gemstone;
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        gemstone = await prisma.gemstone.update({
+          where: { id },
+          data
+        });
+        break;
+      } catch (error) {
+        lastError = error;
+        // If slug unique constraint hit, regenerate and retry
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+          const meta = error.meta as { target?: string[] };
+          if (meta?.target?.includes('slug')) {
+            const baseSlug = String(basePayload.name ?? existing.name).trim();
+            const newSlug = await generateUniqueSlug(baseSlug, id);
+            basePayload.slug = newSlug;
+            data.slug = newSlug;
+            continue;
+          }
+        }
+        throw error;
+      }
+    }
+
+    if (!gemstone) {
+      throw lastError ?? new Error('Unknown error while updating gemstone');
+    }
 
     // Send wishlist notifications if gemstone became available
     if (isBecomingAvailable || inventoryAvailable) {

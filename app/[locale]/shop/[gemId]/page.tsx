@@ -245,6 +245,7 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
                       ? { certified: true, lab: gemstone.certification }
                       : undefined
                   }
+                  treatment={gemstone.treatment}
                 />
               </div>
 

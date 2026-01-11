@@ -396,6 +396,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                                 }
                               : undefined
                           }
+                          treatment={selectedGemstone.treatment}
                         />
                       </div>
 

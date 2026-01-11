@@ -1,4 +1,6 @@
 import { LegalPageContent } from '@/components/legal/LegalPageContent';
+import { PublicLayout } from '@/components/layout/PublicLayout';
+import { ScrollAnimated } from '@/components/ui/ScrollAnimated';
 
 export default async function ImpressumPage({
   params,
@@ -8,21 +10,34 @@ export default async function ImpressumPage({
   const { locale } = await params;
 
   return (
-    <div className="min-h-screen public-page-bg">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <LegalPageContent
-            slug="impressum"
-            locale={locale}
-            fallbackContent={
-              <div className="text-center text-muted-foreground">
-                Impressum-Seite wird geladen...
+    <PublicLayout>
+      <div className="min-h-screen public-page-bg text-white pb-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <ScrollAnimated direction="fade" delay={0}>
+            <section className="main-container">
+              <div className="story-card space-y-4 p-6 md:p-8">
+                <LegalPageContent
+                  slug="impressum"
+                  locale={locale}
+                  fallbackContent={
+                    <>
+                      <div className="space-y-4 text-center mb-8">
+                        <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
+                          <span className="gemilike-text-gradient">Impressum</span>
+                        </h1>
+                      </div>
+                      <div className="text-center text-gray-200">
+                        Impressum-Seite wird geladen...
+                      </div>
+                    </>
+                  }
+                />
               </div>
-            }
-          />
+            </section>
+          </ScrollAnimated>
         </div>
       </div>
-    </div>
+    </PublicLayout>
   );
 }
 

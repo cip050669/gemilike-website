@@ -2,7 +2,7 @@
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     # PostgreSQL 17 is the latest stable version
     container_name: gemilike-postgres
     restart: unless-stopped
@@ -16,21 +16,28 @@ services:
       # Use different port if 5432 is already in use
       - "${POSTGRES_PORT:-5433}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gemilike}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gemilike} -d ${POSTGRES_DB:-gemilike}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     networks:
       - gemilike-network
-    # Resource limits for production
+    # Resource limits for production (optimized)
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 2G
+          pids: 100
         reservations:
           cpus: '0.5'
           memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
 
   # Next.js Application
   app:
@@ -108,20 +115,27 @@ services:
     healthcheck:
       # Check if the application is responding
       # Fallback to curl if wget is not available
+      # Also check database connectivity
       test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health 2>/dev/null || curl -f http://localhost:3000/api/health 2>/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    # Resource limits for production
+    # Resource limits for production (optimized)
     deploy:
       resources:
         limits:
           cpus: '4.0'
           memory: 4G
+          pids: 200
         reservations:
           cpus: '1.0'
           memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
 
 volumes:
   postgres_data:

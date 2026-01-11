@@ -1,17 +1,44 @@
 import { PrismaClient } from '@prisma/client';
 
+// Optional import for Accelerate extension (only used if PRISMA_ACCELERATE_URL is set)
+let withAccelerate: ((options?: any) => any) | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const accelerateModule = require('@prisma/extension-accelerate');
+  withAccelerate = accelerateModule.withAccelerate;
+} catch {
+  // Accelerate extension not available - will use direct connection
+}
+
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: ReturnType<typeof createPrismaClient> | undefined;
 };
+
+// Create Prisma Client with Accelerate extension or direct connection
+// Prisma 7: Connection is configured via prisma.config.ts or Accelerate extension
+function createPrismaClient() {
+  // Prisma 7: Standard client options
+  const baseClient = new PrismaClient({
+    log: process.env.NODE_ENV === 'development' 
+      ? ['error', 'warn'] 
+      : ['error'],
+    errorFormat: 'pretty',
+  });
+
+  // Extend with Accelerate extension if Accelerate URL is set and extension is available
+  // Accelerate extension will use PRISMA_ACCELERATE_URL from environment
+  if (process.env.PRISMA_ACCELERATE_URL && withAccelerate) {
+    return baseClient.$extends(withAccelerate());
+  }
+
+  // Direct connection (uses DATABASE_URL from prisma.config.ts)
+  return baseClient;
+}
 
 // Create or reuse Prisma Client instance with proper configuration
 // In development, this allows hot reload to pick up new Prisma Client
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: process.env.NODE_ENV === 'development' 
-    ? ['error', 'warn'] 
-    : ['error'],
-  errorFormat: 'pretty',
-});
+// Prisma 7: Uses Accelerate if PRISMA_ACCELERATE_URL is configured
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 // Graceful shutdown handling
 if (process.env.NODE_ENV !== 'production') {

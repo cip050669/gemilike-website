@@ -43,6 +43,7 @@ export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded
               gemName={gemstone.name}
               className="rounded-lg"
               certification={gemstone.certification}
+              treatment={gemstone.treatment}
               inStock={gemstone.inStock}
             />
           </div>

@@ -491,7 +491,7 @@ header[class*="fixed"] {
       rgba(0, 188, 212, 0.22) 75%,     /* Cyan-Akzent (gem-ice) */
       rgba(11, 12, 16, 0.90) 100%       /* Dunkler Basis */
     ) !important;
-    margin: 2rem auto;
+    margin: 0 auto 2rem auto;
     padding: 2.25rem;
     max-width: 1200px;
     border-radius: 0.9rem;
@@ -538,7 +538,7 @@ header[class*="fixed"] {
 
   @media (max-width: 1024px) {
     .main-container {
-      margin: 1.75rem auto;
+      margin: 0 auto 1.75rem auto;
       padding: 1.75rem;
       max-width: 960px;
     }
@@ -554,7 +554,7 @@ header[class*="fixed"] {
 
   @media (max-width: 768px) {
     .main-container {
-      margin: 1rem auto;
+      margin: 0 auto 1rem auto;
       padding: 1.2rem;
       max-width: 100%;
     }

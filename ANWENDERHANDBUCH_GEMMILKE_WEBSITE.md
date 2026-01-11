@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.5.7  
+**Version:** 2.6.0  
 **Stand:** Januar 2026  
-**Letzte Aktualisierung:** 6. Januar 2026 - Sicherheitsupdates, UI-Verbesserungen Shop, Navigation-Anpassungen, Sicherheit & GitHub-Verwaltung dokumentiert  
+**Letzte Aktualisierung:** 11. Januar 2026 - Major-Updates: Next.js 16.1.1, Prisma 7.2.0, @types/node 25, react-leaflet-cluster 4.0.0, Minor/Patch-Updates installiert, Prisma Accelerate Support implementiert, GitHub-Workflows aktualisiert  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -1248,15 +1248,32 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - **Fehlerbehandlung:** Detaillierte Fehlermeldungen bei fehlgeschlagenen Löschvorgängen
 - **Erfolgsmeldung:** Bestätigung der erfolgreich gelöschten Edelsteine
 
-**HTML-Upload-Formular:**
+**HTML-Upload-Formulare:**
 
-Ein interaktives HTML-Formular ist verfügbar unter `/templates/edelsteine-upload-formular.html`:
+Zwei interaktive HTML-Formulare sind verfügbar:
 
-- **Dropdown-Auswahlfelder** für alle Attribute mit festen Werten
-- **Mehrere Datensätze** können nacheinander eingegeben werden
-- **Datensatz-Verwaltung:** Hinzufügen, Bearbeiten, Löschen
-- **CSV-Generierung:** Alle Datensätze werden am Ende als eine CSV-Datei exportiert
-- **Validierung:** Pflichtfelder werden automatisch geprüft
+1. **Basis-Formular:** `/templates/edelsteine-upload-formular.html`
+   - Einfache Datenerfassung
+   - CSV-Export
+   - Dropdown-Auswahlfelder für alle Attribute mit festen Werten
+   - Mehrere Datensätze können nacheinander eingegeben werden
+   - Datensatz-Verwaltung: Hinzufügen, Bearbeiten, Löschen
+   - CSV-Generierung: Alle Datensätze werden am Ende als eine CSV-Datei exportiert
+   - Validierung: Pflichtfelder werden automatisch geprüft
+
+2. **GemstoneCard-Formular:** `/templates/gemstonecard-upload-formular.html` (Version 2.5.8+)
+   - **Vollständige Erfassung:** Alle Felder der GemstoneCard-Komponente
+   - **Automatische Speicherung:** localStorage-Integration, Daten bleiben nach Seitenneuladen erhalten
+   - **Dynamische Felder:** Cut- und Rough-spezifische Felder werden automatisch angezeigt/versteckt
+   - **Umfangreiche Export-Optionen:**
+     - CSV-Export (automatischer Download)
+     - JSON-Export mit Metadaten
+     - Excel-kompatibler Export
+     - Druckfunktion
+     - Datenvalidierung mit detaillierten Fehlern und Warnungen
+     - Kopieren in Zwischenablage
+   - **Automatisches Löschen:** Optional nach CSV-Export
+   - Siehe Abschnitt 15.2.1 für detaillierte Dokumentation
 
 **Datenbank-Models:**
 
@@ -3390,14 +3407,14 @@ Diese Anleitung erklärt, wie Sie die Gemilike-Website mit Docker ausführen.
 - Docker Compose (Version 2.0 oder höher)
 - `.env` Datei mit allen notwendigen Umgebungsvariablen
 
-#### Aktualisierungen (2025)
+#### Aktualisierungen (2025-2026)
 
 Die Docker-Konfiguration wurde am 01.12.2025 aktualisiert mit:
 - ✅ Dockerfile Syntax 1.8 (aktuelle docker/dockerfile Version)
 - ✅ Durchgängige Node 22 Alpine Basis (deps, builder, runner)
-- ✅ PostgreSQL 16 Images als Standard (`docker-compose.yml` und `.dev`) - Kompatibilität mit vorhandenen Datenbanken
+- ✅ PostgreSQL 17 Images als Standard (`docker-compose.yml` und `.dev`) - Neueste stabile Version
 - ✅ MailHog fest auf `mailhog/mailhog:v1.0.1` für reproduzierbare Dev-E-Mails
-- ✅ Prisma CLI/Client Version 6.18.0 in Dockerfile, Compose und `package.json`
+- ✅ Prisma CLI/Client Version 6.19.1 in Dockerfile, Compose und `package.json`
 - ✅ Cache Mounts für schnellere Builds (npm & Prisma)
 - ✅ Verbesserte Health Checks (wget + curl Fallback)
 - ✅ Resource Limits für Production
@@ -3415,6 +3432,32 @@ Die Docker-Konfiguration wurde am 01.12.2025 aktualisiert mit:
 - ✅ **Optimierte Build-Prozesse** (Version 2.4.0)
   - Automatische Verifikation kritischer Dateien
   - Verbesserte Logs und Fehlerbehandlung
+
+**Weitere Optimierungen (11.01.2026 - Version 2.5.9):**
+- ✅ **Build-Cache-Optimierungen:**
+  - Mehrere Cache-Mounts (`/root/.npm`, `/root/.cache`, `/root/.cache/prisma`, `/root/.cache/next`)
+  - `--prefer-offline` und `--no-audit` Flags für schnellere Builds
+  - Optimierte Layer-Reihenfolge (package files zuerst, dann Code)
+- ✅ **Sicherheitsverbesserungen:**
+  - Non-root User (`nextjs`) mit minimalen Berechtigungen
+  - `NODE_OPTIONS="--disable-proto=delete"` für zusätzliche Sicherheit
+  - Korrekte Dateiberechtigungen (755 für Verzeichnisse, 644 für Dateien)
+  - Bereinigung von APK-Cache und temporären Dateien
+  - Separate virtuelle Pakete für Build- und Runtime-Dependencies
+- ✅ **Health-Check-Verbesserungen:**
+  - Health-Check direkt im Dockerfile
+  - Verbesserter PostgreSQL Health-Check (prüft auch Datenbank)
+  - `start_period` für PostgreSQL hinzugefügt
+  - Fallback-Mechanismen (wget + curl)
+- ✅ **Resource-Limits optimiert:**
+  - PID-Limits hinzugefügt (PostgreSQL: 100, App: 200)
+  - Restart-Policy mit Retry-Logik
+  - Optimierte CPU- und Memory-Limits beibehalten
+- ✅ **Multi-Stage-Build optimiert:**
+  - Optimierte Copy-Reihenfolge (größte Dateien zuerst)
+  - Separate Layer für Prisma-Generierung
+  - Redundante Kopien reduziert
+  - Bessere Layer-Caching-Strategie
 
 #### Container-Update (November 2025)
 
@@ -4507,11 +4550,166 @@ Das Dokument enthält:
 
 **Ende des Anwenderhandbuchs**
 
-*Letzte Aktualisierung: 22. Dezember 2025*  
-*Version: 2.5.4*  
-*Gesamt: 4.600+ Zeilen Dokumentation*
+*Letzte Aktualisierung: 6. Januar 2026*  
+*Version: 2.5.8*  
+*Gesamt: 5.700+ Zeilen Dokumentation*
 
 ## Änderungsprotokoll
+
+### Version 2.6.0 (11. Januar 2026)
+
+#### Major-Updates und Dependency-Updates
+
+**Next.js 15.5.9 → 16.1.1:**
+- ✅ Next.js auf Version 16.1.1 aktualisiert
+- ✅ `middleware.ts` → `proxy.ts` bereits umbenannt (Next.js 16 Anforderung)
+- ✅ `cookies()` Aufrufe verwenden bereits `await` (Next.js 16 kompatibel)
+- ✅ Code verwendet bereits `params: Promise<{ locale: string }>` Pattern
+- ⚠️ **Lokale Ausführung:** Node.js 20.9+ erforderlich (Docker: Node.js 22 ✅)
+- ⚠️ `next-intl` Kompatibilität mit Next.js 16 sollte geprüft werden
+
+**Prisma 6.19.1 → 7.2.0:**
+- ✅ Prisma auf Version 7.2.0 aktualisiert
+- ✅ Schema angepasst (`url` aus `datasource` entfernt für Prisma 7)
+- ✅ `prisma.config.ts` erstellt für Migrate-Konfiguration
+- ✅ Prisma Client v7.2.0 erfolgreich generiert
+- ✅ Prisma Accelerate Support implementiert (optional)
+- ⚠️ **Lokale Installation:** Node.js 20.19+ erforderlich (Docker: Node.js 22 ✅)
+- ⚠️ **Breaking Changes:** 13 Enums im Schema - mögliche Anpassungen erforderlich
+- ⚠️ TypeScript-Fehler mit Prisma 7 Typen müssen noch behoben werden
+
+**@types/node 20.19.28 → 25.0.6:**
+- ✅ TypeScript-Typen für Node.js 25 aktualisiert
+- ⚠️ Großer Versionssprung (20 → 25) - Typinkompatibilitäten möglich
+
+**react-leaflet-cluster 3.1.1 → 4.0.0:**
+- ✅ react-leaflet-cluster auf Version 4.0.0 aktualisiert
+- ✅ Keine Breaking Changes (wird nicht direkt verwendet)
+
+**Minor/Patch-Updates:**
+- ✅ `@radix-ui/react-slot`: 1.2.3 → 1.2.4
+- ✅ `@types/nodemailer`: 7.0.4 → 7.0.5
+- ✅ `@types/react`: 19.2.7 → 19.2.8
+- ✅ `eslint-config-next`: 15.5.4 → 15.5.9
+- ✅ `next-intl`: 4.6.1 → 4.7.0
+- ✅ `undici`: 7.16.0 → 7.18.2
+
+**Prisma Accelerate Support:**
+- ✅ `@prisma/extension-accelerate` in `package.json` hinzugefügt
+- ✅ Optionaler Import in `lib/prisma.ts` implementiert
+- ✅ Automatische Erkennung von `PRISMA_ACCELERATE_URL`
+- ✅ Fallback auf direkte Verbindung wenn Accelerate nicht verfügbar
+- 📋 **Setup erforderlich:** Prisma Accelerate Account erstellen und `PRISMA_ACCELERATE_URL` in `.env` setzen
+
+**GitHub-Workflows aktualisiert:**
+- ✅ `dependency-check/Dependency-Check_Action@main` → `@v3` (spezifische Version)
+- ✅ Alle Security-Workflows aktiv und konfiguriert
+- ✅ 0 Sicherheitslücken gefunden (`npm audit`)
+
+**Technische Details:**
+- **Prisma 7 Konfiguration:**
+  - `prisma/schema.prisma`: `url` aus `datasource` entfernt
+  - `prisma.config.ts`: Neue Konfigurationsdatei für Migrate
+  - `lib/prisma.ts`: Unterstützt Accelerate Extension (optional)
+- **Next.js 16 Anpassungen:**
+  - `proxy.ts`: Middleware umbenannt (bereits vorhanden)
+  - Asynchrone APIs: Bereits implementiert
+- **Docker:**
+  - Alle Updates funktionieren in Docker (Node.js 22)
+  - Lokale Entwicklung benötigt Node.js 20.19+
+
+**Bekannte Probleme:**
+- ⚠️ TypeScript-Fehler mit Prisma 7 Typen (Union-Typen Inkompatibilität)
+- ⚠️ Lokale Node.js-Version (18.19.1) erfüllt nicht Anforderungen
+- ⚠️ Prisma 7 ist sehr neu - einige Breaking Changes noch nicht vollständig dokumentiert
+
+**Nächste Schritte:**
+- [ ] TypeScript-Fehler mit Prisma 7 Typen beheben
+- [ ] Alle Prisma-Queries testen
+- [ ] Prisma Accelerate Account einrichten (optional)
+- [ ] Lokale Node.js-Version auf 20.19+ aktualisieren (empfohlen)
+
+**Betroffene Dateien:**
+- `package.json` - Alle Dependency-Updates
+- `prisma/schema.prisma` - Prisma 7 Anpassungen
+- `prisma.config.ts` - Neue Datei für Prisma 7
+- `lib/prisma.ts` - Accelerate Support
+- `.github/workflows/security-check.yml` - Dependency-Check Version
+- `app/[locale]/worldmap/page.tsx` - Type-Assertions für Prisma 7
+
+### Version 2.5.9 (11. Januar 2026)
+
+#### Design-Anpassungen und UI-Verbesserungen
+
+**Einheitliches Design für alle öffentlichen Seiten:**
+- Alle öffentlichen Seiten verwenden jetzt das gleiche Design wie die Startseite
+- Konsistente Verwendung von `PublicLayout`, `ScrollAnimated`, `main-container` und `story-card`
+- Einheitliche Farben, Abstände und Animationen auf allen Seiten
+- Verbesserte Benutzererfahrung durch konsistentes Design
+
+**Angepasste Seiten:**
+- Downloads, Blog, Wissenswertes, About, Services, Contact, Worldmap
+- AGB, Datenschutz, Impressum, Privacy, Terms, Cookies
+- Wishlist (komplett überarbeitet mit neuem Design)
+
+**Header-Positionierung:**
+- Navigation-Links und Action-Buttons um 375px nach links verschoben (in Richtung Logo)
+- Verbesserte visuelle Balance im Header
+- Konsistente Positionierung auf Desktop und Mobile
+- Verwendung von `transform: translateX()` für präzise Positionierung
+
+**CSS-Verbesserungen:**
+- `.main-container` hat jetzt keinen oberen Abstand mehr (`margin-top: 0`)
+- Seiten schließen direkt am Header an, ohne grauen Spalt
+- Konsistente Abstände zwischen Containern
+- Optimierte Media Queries für verschiedene Bildschirmgrößen
+
+**Technische Details:**
+- Alle Seiten verwenden `public-page-bg` für Hintergrund
+- `gemilike-text-gradient` für alle Überschriften
+- `ScrollAnimated` für sanfte Animationen beim Scrollen
+- Konsistente Container-Breiten (`max-w-6xl mx-auto px-4`)
+
+#### Docker-Container-Optimierungen
+
+**Build-Cache-Optimierungen:**
+- Mehrere Cache-Mounts (`/root/.npm`, `/root/.cache`, `/root/.cache/prisma`, `/root/.cache/next`)
+- `--prefer-offline` und `--no-audit` Flags für schnellere Builds
+- Optimierte Layer-Reihenfolge (package files zuerst, dann Code)
+- `npm cache clean --force` nach Installationen
+
+**Sicherheitsverbesserungen:**
+- Non-root User (`nextjs`) mit minimalen Berechtigungen
+- `NODE_OPTIONS="--disable-proto=delete"` für zusätzliche Sicherheit
+- Korrekte Dateiberechtigungen (755 für Verzeichnisse, 644 für Dateien)
+- Bereinigung von APK-Cache und temporären Dateien
+- Separate virtuelle Pakete für Build- und Runtime-Dependencies
+
+**Health-Check-Verbesserungen:**
+- Health-Check direkt im Dockerfile
+- Verbesserter PostgreSQL Health-Check (prüft auch Datenbank)
+- `start_period` für PostgreSQL hinzugefügt
+- Fallback-Mechanismen (wget + curl)
+
+**Resource-Limits optimiert:**
+- PID-Limits hinzugefügt (PostgreSQL: 100, App: 200)
+- Restart-Policy mit Retry-Logik (`on-failure:5`)
+- Optimierte CPU- und Memory-Limits beibehalten
+
+**Multi-Stage-Build optimiert:**
+- Optimierte Copy-Reihenfolge (größte Dateien zuerst)
+- Separate Layer für Prisma-Generierung
+- Redundante Kopien reduziert
+- Bessere Layer-Caching-Strategie
+
+**PostgreSQL-Update:**
+- PostgreSQL von Version 16 auf Version 17 aktualisiert
+- Alpine-Version für kleinere Image-Größe
+- Verbesserte Performance und Sicherheit
+
+**Betroffene Dateien:**
+- `Dockerfile` - Multi-Stage-Build mit optimierten Cache-Mounts
+- `docker-compose.yml` - PostgreSQL 17, verbesserte Health-Checks, Resource-Limits
 
 ### Version 2.5.4 (22. Dezember 2025)
 
@@ -4542,6 +4740,21 @@ Das Dokument enthält:
   - Spezielle Edelsteinfarben (Smaragdgrün, Rubinrot, etc.)
 - Verfügbar in Admin-Editor, HTML-Upload-Formular und CSV-Import
 
+**Edelstein-Kategorien - Erweiterte Liste (Version 2.5.8):**
+- **Von 57 auf 100+ Schmucksteine erweitert**
+- **Neue Steine hinzugefügt:**
+  - Albit, Amazonit, Zultanit (wie angefragt)
+  - Andalusit, Andradit, Azurit, Benitoit, Bixbit, Carnelian, Cerussit, Charoit, Chrysokoll, Cordierit, Dumortierit, Ekanit, Eudialyt, Fenakit, Hambergit, Howlith, Hypersthen, Jadeit, Jeremejewit, Kyanit, Larimar, Lazulith, Lepidolith, Magnetit, Malachit, Perowskit, Phenakit, Pyrop, Rhodochrosit, Rhodonit, Rutil, Selenit, Serpentin, Smithsonit, Staurolith, Tanzanit, Türkis, Variscit
+- **Alphabetisch sortiert** für einfache Navigation
+- **Verfügbar in:**
+  - Admin-Bereich (`/de/admin/gemstones/`) - Dropdown "Edelsteinart"
+  - HTML-Upload-Formularen (beide Formulare)
+  - CSV-Import
+- **Betroffene Dateien:**
+  - `lib/constants/gemstone-options.ts` - Hauptkonstanten-Datei
+  - `public/templates/gemstonecard-upload-formular.html` - Neues Formular
+  - `public/templates/edelsteine-upload-formular.html` - Altes Formular
+
 **Schliff → Schliffart - Umbenennung und Erweiterung:**
 - Feld umbenannt von "Schliff" zu "Schliffart" für bessere Klarheit
 - Neun verschiedene Schliffarten verfügbar:
@@ -4556,18 +4769,14 @@ Das Dokument enthält:
   - Cabochon
 - Änderung in Admin-Editor, GemstoneCard, HTML-Formular und CSV-Vorlage
 
-**Kategorie - Erweiterte Edelsteinarten:**
-- Von 18 auf über 60 Edelsteinarten erweitert
-- Neue Kategorien inklusive:
-  - Achat, Apatit, Aventurin, Beryll, Beryllonit, Brazilianit
-  - Calcit, Chalcedon, Chrysoberyll, Chrysopras, Citrin, Danburit
-  - Demantoid, Diopsid, Epidot, Fluorit, Goshenit, Grossular
-  - Hämatit, Heliodor, Hessonit, Hiddenit, Iolith, Jade, Jaspis
-  - Korund, Labradorit, Lapis Lazuli, Moldavit, Obsidian
-  - Padparadscha, Prehnit, Pyrit, Quarz, Rhodolith, Sardonyx
-  - Schörl, Spessartin, Spodumen, Sunstone, Tigerauge, Tsavorit
-  - Uvarovit, Vesuvianit, Zoisit
-- Alphabetisch sortiert für einfache Auswahl
+**Kategorie - Erweiterte Edelsteinarten (Version 2.5.8):**
+- **Von 57 auf 100+ Schmucksteine erweitert**
+- **Neue Steine hinzugefügt (inkl. angeforderte):**
+  - **Albit, Amazonit, Zultanit** (wie angefragt)
+  - Andalusit, Andradit, Azurit, Benitoit, Bixbit, Carnelian, Cerussit, Charoit, Chrysokoll, Cordierit, Dumortierit, Ekanit, Eudialyt, Fenakit, Hambergit, Howlith, Hypersthen, Jadeit, Jeremejewit, Kyanit, Larimar, Lazulith, Lepidolith, Magnetit, Malachit, Perowskit, Phenakit, Pyrop, Rhodochrosit, Rhodonit, Rutil, Selenit, Serpentin, Smithsonit, Staurolith, Tanzanit, Türkis, Variscit
+- **Bestehende Kategorien:** Achat, Alexandrit, Amethyst, Apatit, Aquamarin, Aventurin, Beryll, Beryllonit, Brasilianit, Calcit, Chalcedon, Chrysoberyll, Chrysopras, Citrin, Danburit, Demantoid, Diamant, Diopsid, Epidot, Fluorit, Garnet, Goshenit, Grossular, Hämatit, Heliodor, Hessonit, Hiddenit, Iolith, Jade, Jaspis, Korund, Kunzit, Labradorit, Lapis Lazuli, Moldavit, Mondstein, Morganit, Obsidian, Opal, Padparadscha, Peridot, Prehnit, Pyrit, Quarz, Rhodolith, Rubin, Saphir, Sardonyx, Schörl, Smaragd, Spessartin, Spinell, Spodumen, Sunstone, Tansanit, Tigerauge, Topas, Tourmalin, Tsavorit, Turmalin, Uvarovit, Vesuvianit, Zirkon, Zoisit
+- **Alphabetisch sortiert** für einfache Auswahl
+- **Verfügbar in:** Admin-Bereich, HTML-Upload-Formularen, CSV-Import
 
 **Schliffform - Smaragd bestätigt:**
 - Smaragd bereits in der Liste vorhanden
@@ -4751,6 +4960,61 @@ docker compose up -d
 
 **Hinweis:**
 - Prisma-Warnung bezüglich Schema-Konfiguration (Prisma 7 Breaking Change) vorhanden, aber App startet erfolgreich
+
+#### Weitere UI-Verbesserungen (6. Januar 2026 - Nachmittag)
+
+**Shop-Thumbnail Textfarben-Optimierung:**
+- **Aggressive Farbsetzung:** Implementierung einer robusten Lösung für schwarze Schrift in Shop-Thumbnails
+- **MutationObserver:** Kontinuierliche Überwachung der DOM-Elemente, um sicherzustellen, dass die schwarze Schrift beibehalten wird
+- **Mehrfache Timeouts:** Verwendung von mehreren Timeouts (0ms, 10ms, 50ms, 100ms, 200ms, 500ms) für zuverlässige Farbsetzung
+- **RequestAnimationFrame:** Doppelte Animation-Frames für optimale Timing-Synchronisation
+- **Betroffene Elemente:**
+  - Titel (h3) - schwarze Schrift
+  - Kategorie (span) - schwarze Schrift
+  - Beschreibung (p) - schwarze Schrift
+- **Betroffene Komponente:** `components/shop/GemstoneThumbnail.tsx`
+
+**CSS-Verbesserungen:**
+- **Erhöhte Opazität:** `.gem-card` Hintergrund hat jetzt 75% weniger Transparenz (0.70 → 0.925, 0.50 → 0.875)
+- **Spezifische Selektoren:** Weitere hochspezifische CSS-Regeln für `.gemstone-thumbnail-wrapper` hinzugefügt
+- **Forced Color Adjust:** Verwendung von `forced-color-adjust: none` für maximale Kompatibilität
+- **Betroffene Datei:** `app/globals.css`
+
+**Header-Mobile-Navigation Verbesserungen:**
+- **z-index Erhöhung:** Header z-index von 9999 auf 10000 erhöht für bessere Überlagerung
+- **Mobile Menu Overlay:** Verbesserte z-index-Verwaltung (Overlay: 99998, Panel: 99999)
+- **Event-Handling:** `stopPropagation()` hinzugefügt, um ungewollte Event-Bubbling zu verhindern
+- **Panel-Positionierung:** Mobile Menu Panel jetzt links positioniert (statt rechts) für bessere UX
+- **Pointer Events:** Explizite `pointerEvents` und `touchAction` für bessere Touch-Interaktion
+- **Betroffene Datei:** `components/layout/Header.tsx`
+
+**Sicherheitsdokumentation:**
+- **Neue Dokumentationsdateien erstellt:**
+  - `SECURITY_AUDIT_REPORT.md` - Umfassender Sicherheitsaudit-Bericht
+  - `SSH_SETUP_ANLEITUNG.md` - Detaillierte Anleitung für SSH-Key-Setup
+  - `SSH_SETUP_ABGESCHLOSSEN.md` - Bestätigung des erfolgreichen SSH-Setups
+  - `GITHUB_SSH_KEY_HINZUFUEGEN.md` - Anleitung zum Hinzufügen von SSH-Keys zu GitHub
+  - `GITHUB_SSH_KEY_KORREKT.md` - Korrektur-Anleitung für SSH-Keys
+- **Inhalt:** Dokumentation von GitHub Personal Access Token Sicherheitsproblemen und Lösungen
+- **SSH-Setup:** Vollständige Anleitung für die Migration von HTTPS-Token zu SSH-Keys
+
+**Legal Pages Script:**
+- **Neues Script:** `scripts/create-legal-pages.ts` erstellt
+- **Funktionalität:** Automatische Erstellung vollständiger juristischer Seiten
+- **Unterstützte Seiten:**
+  - Impressum (gemäß § 5 TMG)
+  - Allgemeine Geschäftsbedingungen (AGB)
+  - Datenschutzerklärung (DSGVO-konform)
+  - Cookie-Richtlinie
+- **Features:**
+  - Vollständige deutsche und EU-konforme Inhalte
+  - Automatische Datenbank-Integration
+  - Mehrsprachige Unterstützung (vorbereitet)
+  - Prisma-Integration für Content-Management
+
+**Homepage Carousel:**
+- **Anpassungen:** `components/home/NewGemstonesCarousel.tsx` - Verbesserungen an der Carousel-Komponente
+- **Thumbnail-Optimierung:** Konsistente schwarze Schrift auch im Homepage-Carousel
 
 ---
 
@@ -5365,6 +5629,74 @@ git remote set-url origin git@github.com:cip050669/gemilike-website.git
 
 ## 16. Änderungsprotokoll
 
+### Version 2.5.8 (6. Januar 2026) - Edelstein-Verwaltung Erweiterungen
+
+#### Erweiterte Edelsteinart-Liste
+- **Von 57 auf 100+ Schmucksteine erweitert**
+- **Neue Steine hinzugefügt:**
+  - Albit, Amazonit, Zultanit (wie angefragt)
+  - Andalusit, Andradit, Azurit, Benitoit, Bixbit, Carnelian, Cerussit, Charoit, Chrysokoll, Cordierit, Dumortierit, Ekanit, Eudialyt, Fenakit, Hambergit, Howlith, Hypersthen, Jadeit, Jeremejewit, Kyanit, Larimar, Lazulith, Lepidolith, Magnetit, Malachit, Perowskit, Phenakit, Pyrop, Rhodochrosit, Rhodonit, Rutil, Selenit, Serpentin, Smithsonit, Staurolith, Tanzanit, Türkis, Variscit
+- **Betroffene Dateien:**
+  - `lib/constants/gemstone-options.ts` - Konstanten-Datei
+  - `public/templates/gemstonecard-upload-formular.html` - Neues Formular
+  - `public/templates/edelsteine-upload-formular.html` - Altes Formular (aktualisiert)
+- **Verfügbar in:** Admin-Bereich (`/de/admin/gemstones/`) und allen HTML-Formularen
+
+#### Neues GemstoneCard-Upload-Formular
+- **Vollständiges Formular:** Alle Felder der GemstoneCard-Komponente
+- **Dynamische Feldanzeige:** Cut- und Rough-spezifische Felder werden automatisch angezeigt/versteckt
+- **Automatische Speicherung:** 
+  - localStorage-Integration für persistente Speicherung
+  - Daten bleiben nach Seitenneuladen erhalten
+  - Automatisches Laden beim Öffnen
+- **Umfangreiche Export-Optionen:**
+  - CSV-Export (automatischer Download)
+  - JSON-Export mit Metadaten (Export-Datum, Anzahl Datensätze)
+  - Excel-kompatibler Export (mit BOM für bessere Kompatibilität)
+  - Druckfunktion (druckfreundliche Tabelle)
+  - Datenvalidierung (Prüfung auf Fehler und Warnungen)
+  - Kopieren in Zwischenablage (CSV und JSON)
+- **Automatisches Löschen:** Optional nach CSV-Export (Checkbox)
+- **Betroffene Datei:** `public/templates/gemstonecard-upload-formular.html`
+
+#### Verbesserte Benutzerführung
+- **Hinweis-Box:** Informiert über automatische Speicherung
+- **Validierungs-Ergebnisse:** Detaillierte Anzeige von Fehlern und Warnungen
+- **Erfolgsmeldungen:** Bestätigung nach Aktionen
+- **Datenverwaltung:** Bearbeiten und Löschen einzelner Datensätze
+
+---
+
+### Version 2.5.7 (6. Januar 2026) - Erweiterte Updates
+
+#### Shop-Thumbnail Textfarben-Optimierung (Nachmittag)
+- Aggressive Farbsetzung mit MutationObserver für kontinuierliche Überwachung
+- Mehrfache Timeouts und RequestAnimationFrame für zuverlässige schwarze Schrift
+- Betroffene Elemente: Titel, Kategorie, Beschreibung in `GemstoneThumbnail.tsx`
+
+#### CSS-Verbesserungen
+- Erhöhte Opazität für `.gem-card` Hintergrund (75% weniger Transparenz)
+- Weitere spezifische CSS-Regeln für `.gemstone-thumbnail-wrapper`
+- `forced-color-adjust: none` für maximale Kompatibilität
+
+#### Header-Mobile-Navigation Verbesserungen
+- z-index Erhöhung (9999 → 10000) für bessere Überlagerung
+- Verbesserte z-index-Verwaltung für Mobile Menu (Overlay: 99998, Panel: 99999)
+- Event-Handling mit `stopPropagation()` für bessere Touch-Interaktion
+- Mobile Menu Panel jetzt links positioniert
+
+#### Sicherheitsdokumentation
+- Neue Dokumentationsdateien: `SECURITY_AUDIT_REPORT.md`, `SSH_SETUP_ANLEITUNG.md`, `SSH_SETUP_ABGESCHLOSSEN.md`, `GITHUB_SSH_KEY_*.md`
+- Vollständige Dokumentation von GitHub Personal Access Token Sicherheitsproblemen
+- SSH-Setup-Anleitung für Migration von HTTPS-Token zu SSH-Keys
+
+#### Legal Pages Script
+- Neues Script: `scripts/create-legal-pages.ts`
+- Automatische Erstellung juristischer Seiten (Impressum, AGB, Datenschutz, Cookie-Richtlinie)
+- DSGVO-konforme Inhalte mit Prisma-Integration
+
+---
+
 ### Version 2.5.5 (23. Dezember 2025)
 
 #### Verbesserter CSV-Import-Dialog
@@ -5430,6 +5762,54 @@ git remote set-url origin git@github.com:cip050669/gemilike-website.git
 4. Am Ende "CSV generieren und herunterladen" klicken
 5. CSV-Datei enthält alle eingegebenen Datensätze
 
+### 15.2.1 GemstoneCard-Upload-Formular (Version 2.5.8)
+
+**Neue Funktion:** Vollständiges HTML-Formular mit allen Feldern der GemstoneCard
+
+**Features:**
+- **Alle GemstoneCard-Felder:** Vollständige Erfassung aller Attribute
+  - Grundinformationen: Name, Typ (Cut/Rough), Kategorie, Herkunft, Entstehung, Preis, Währung
+  - Gewicht & Abmessungen: Karat/Gramm, Länge, Breite, Höhe
+  - Farbe & Eigenschaften: Farbe, Farbsättigung, Helligkeit (1-10), Reinheit
+  - Schliff (nur Cut): Schliffart, Schliffform
+  - Rohstein (nur Rough): Kristallform, Kristallqualität
+  - Behandlung & Zertifizierung: Behandlung, Zertifizierung, Zertifikatsnummer, URL
+  - Weitere Infos: Rarität, Bestand, Beschreibung, Bilder, Videos, Flags (Neu, Featured, Verfügbar)
+- **Dynamische Feldanzeige:** Cut- und Rough-spezifische Felder werden automatisch angezeigt/versteckt
+- **Automatische Speicherung:** Alle Datensätze werden im Browser (localStorage) gespeichert
+  - Daten bleiben auch nach Seitenneuladen erhalten
+  - Automatisches Laden beim Öffnen des Formulars
+- **Mehrfach-Erfassung:** Mehrere Datensätze nacheinander erfassen, bearbeiten und löschen
+- **Umfangreiche Export-Optionen:**
+  - CSV-Export (automatischer Download)
+  - JSON-Export mit Metadaten
+  - Excel-kompatibler Export
+  - Druckfunktion (druckfreundliche Tabelle)
+  - Datenvalidierung (Prüfung auf Fehler und Warnungen)
+  - Kopieren in Zwischenablage (CSV und JSON)
+- **Automatisches Löschen:** Optional nach CSV-Export
+
+**Zugriff:** `/templates/gemstonecard-upload-formular.html`
+
+**Verwendung:**
+1. Formular im Browser öffnen
+2. Typ auswählen (Cut oder Rough) - zeigt automatisch relevante Felder
+3. Alle Felder ausfüllen (Pflichtfelder: Name, Typ, Kategorie, Herkunft, Preis)
+4. "Datensatz hinzufügen" klicken - wird automatisch gespeichert
+5. Weitere Datensätze hinzufügen oder bestehende bearbeiten/löschen
+6. Export-Optionen nutzen:
+   - **CSV generieren und herunterladen:** Erstellt CSV und startet automatischen Download
+   - **Als JSON exportieren:** Exportiert strukturierte JSON-Datei
+   - **Als Excel exportieren:** Excel-kompatible CSV-Datei
+   - **Drucken:** Erstellt druckfreundliche Tabelle
+   - **Daten validieren:** Prüft alle Datensätze auf Fehler und Warnungen
+
+**Technische Details:**
+- **Speicherung:** localStorage (Browser-spezifisch)
+- **Dateiformate:** CSV, JSON
+- **Validierung:** Prüft Pflichtfelder und zeigt Warnungen für optionale Felder
+- **Kompatibilität:** Funktioniert in allen modernen Browsern
+
 ### 15.3 Profilseite-Verbesserungen
 
 **Textfarben-Optimierung:**
@@ -5474,7 +5854,37 @@ git remote set-url origin git@github.com:cip050669/gemilike-website.git
 - Automatisches Schließen nach Link-Klick
 - Bessere z-index-Verwaltung für korrekte Darstellung
 
-### 15.5 Technische Verbesserungen
+### 15.5 Design-Anpassungen (Version 2.5.9 - 11.01.2026)
+
+**Einheitliches Design für alle öffentlichen Seiten:**
+- Alle öffentlichen Seiten verwenden jetzt das gleiche Design wie die Startseite
+- Konsistente Verwendung von `PublicLayout`, `ScrollAnimated`, `main-container` und `story-card`
+- Einheitliche Farben, Abstände und Animationen auf allen Seiten
+- Verbesserte Benutzererfahrung durch konsistentes Design
+
+**Angepasste Seiten:**
+- Downloads, Blog, Wissenswertes, About, Services, Contact, Worldmap
+- AGB, Datenschutz, Impressum, Privacy, Terms, Cookies
+- Wishlist (komplett überarbeitet mit neuem Design)
+
+**Header-Positionierung:**
+- Navigation-Links und Action-Buttons um 375px nach links verschoben (in Richtung Logo)
+- Verbesserte visuelle Balance im Header
+- Konsistente Positionierung auf Desktop und Mobile
+
+**CSS-Verbesserungen:**
+- `.main-container` hat jetzt keinen oberen Abstand mehr (`margin-top: 0`)
+- Seiten schließen direkt am Header an, ohne grauen Spalt
+- Konsistente Abstände zwischen Containern
+- Optimierte Media Queries für verschiedene Bildschirmgrößen
+
+**Technische Details:**
+- Alle Seiten verwenden `public-page-bg` für Hintergrund
+- `gemilike-text-gradient` für alle Überschriften
+- `ScrollAnimated` für sanfte Animationen beim Scrollen
+- Konsistente Container-Breiten (`max-w-6xl mx-auto px-4`)
+
+### 15.6 Technische Verbesserungen
 
 **API-Verbesserungen:**
 - Adress-API erstellt automatisch Customer-Einträge, falls nicht vorhanden

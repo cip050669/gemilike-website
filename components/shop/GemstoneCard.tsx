@@ -45,6 +45,7 @@ export function GemstoneCard({ gemstone, onAddToCart, isAdded, onQuickView }: Ge
             gemName={gemstone.name}
             className="rounded-lg max-h-[300px] object-contain"
             certification={gemstone.certification}
+            treatment={gemstone.treatment}
             inStock={gemstone.inStock}
           />
           
