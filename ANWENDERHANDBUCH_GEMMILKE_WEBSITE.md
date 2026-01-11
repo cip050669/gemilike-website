@@ -3414,7 +3414,7 @@ Die Docker-Konfiguration wurde am 01.12.2025 aktualisiert mit:
 - ✅ Durchgängige Node 22 Alpine Basis (deps, builder, runner)
 - ✅ PostgreSQL 17 Images als Standard (`docker-compose.yml` und `.dev`) - Neueste stabile Version
 - ✅ MailHog fest auf `mailhog/mailhog:v1.0.1` für reproduzierbare Dev-E-Mails
-- ✅ Prisma CLI/Client Version 6.19.1 in Dockerfile, Compose und `package.json`
+- ✅ Prisma CLI/Client Version 7.2.0 in Dockerfile, Compose und `package.json`
 - ✅ Cache Mounts für schnellere Builds (npm & Prisma)
 - ✅ Verbesserte Health Checks (wget + curl Fallback)
 - ✅ Resource Limits für Production
@@ -3433,7 +3433,7 @@ Die Docker-Konfiguration wurde am 01.12.2025 aktualisiert mit:
   - Automatische Verifikation kritischer Dateien
   - Verbesserte Logs und Fehlerbehandlung
 
-**Weitere Optimierungen (11.01.2026 - Version 2.5.9):**
+**Weitere Optimierungen (11.01.2026 - Version 2.6.0):**
 - ✅ **Build-Cache-Optimierungen:**
   - Mehrere Cache-Mounts (`/root/.npm`, `/root/.cache`, `/root/.cache/prisma`, `/root/.cache/next`)
   - `--prefer-offline` und `--no-audit` Flags für schnellere Builds
@@ -3472,8 +3472,8 @@ Die Docker-Konfiguration wurde am 01.12.2025 aktualisiert mit:
 - ✅ `gemilike-app`: Healthy, läuft auf Port 3002
 - ✅ `gemilike-postgres`: Healthy, läuft auf Port 5433
 - ✅ Alle Migrationen erfolgreich angewendet
-- ✅ Next.js 15.5.4 läuft korrekt
-- ✅ Prisma Client generiert (v6.18.0, identisch zu `package.json`)
+- ✅ Next.js 16.1.1 läuft korrekt
+- ✅ Prisma Client generiert (v7.2.0, identisch zu `package.json`)
 
 #### Schnellstart
 
