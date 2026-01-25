@@ -90,7 +90,9 @@ export async function notifyWishlistCustomers(gemstoneId: string) {
       }
     });
 
-    const price = gemstone.priceBooks[0];
+    // Prisma 7: Typ-Assertion für priceBooks Array
+    const priceBooks = Array.isArray(gemstone.priceBooks) ? gemstone.priceBooks : [];
+    const price = priceBooks[0] as unknown as { priceGross: number | null; currency: string | null } | undefined;
     const priceDisplay = price
       ? `${Number(price.priceGross).toFixed(2)} ${price.currency}`
       : 'Preis auf Anfrage';

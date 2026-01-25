@@ -1,3 +1,8 @@
+// TextEncoder/TextDecoder für Prisma, @noble/hashes und cuid2 in Jest/jsdom
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 import '@testing-library/jest-dom'
 
 // Mock Next.js router

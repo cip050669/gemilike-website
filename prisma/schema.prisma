@@ -215,34 +215,37 @@ model Customer {
 }
 
 model Gemstone {
-  id               String              @id @default(cuid())
-  slug             String              @unique
-  status           GemstoneStatus      @default(DRAFT)
-  category         String
-  name             String
-  shortDescription String?
-  longDescription  String?
-  origin           String?
-  condition        GemstoneCondition   @default(CUT)
-  isNew            Boolean             @default(false)
-  isSold           Boolean             @default(false)
-  featured         Boolean             @default(false)
-  cut              String?
-  cutForm          String?
-  publishedAt      DateTime?
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
-  rarity           String?
-  cartItems        CartItem[]
-  downloadGrants   DownloadGrant[]
-  attributes       GemstoneAttributes?
-  inventory        GemstoneInventory?
-  media            GemstoneMedia[]
-  priceBooks       GemstonePrice[]
-  tags             GemstoneTag[]
-  orderItems       OrderItem[]
-  reviews          Review[]
-  wishlistItems    WishlistItem[]
+  id                 String              @id @default(cuid())
+  slug               String              @unique
+  status             GemstoneStatus      @default(DRAFT)
+  category           String
+  name               String
+  shortDescription   String?
+  longDescription    String?
+  origin             String?
+  condition          GemstoneCondition   @default(CUT)
+  isNew              Boolean             @default(false)
+  isSold             Boolean             @default(false)
+  featured           Boolean             @default(false)
+  cut                String?
+  cutForm            String?
+  publishedAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  rarity             String?
+  cartItems          CartItem[]
+  downloadGrants     DownloadGrant[]
+  attributes         GemstoneAttributes?
+  inventory          GemstoneInventory?
+  media              GemstoneMedia[]
+  priceBooks         GemstonePrice[]
+  tags               GemstoneTag[]
+  orderItems         OrderItem[]
+  reviews            Review[]
+  wishlistItems      WishlistItem[]
+  purchaseOrderItems PurchaseOrderItem[]
+  stockMovements     StockMovement[]
+  stockReservations  StockReservation[]
 }
 
 model GemstoneAttributes {
@@ -653,18 +656,18 @@ model CheckoutEvent {
 }
 
 model Order {
-  id                String          @id @default(cuid())
-  orderNumber       String          @unique
+  id                String             @id @default(cuid())
+  orderNumber       String             @unique
   customerId        String?
   cartId            String?
-  status            OrderStatus     @default(PENDING)
-  paymentStatus     PaymentStatus   @default(UNPAID)
+  status            OrderStatus        @default(PENDING)
+  paymentStatus     PaymentStatus      @default(UNPAID)
   paymentMethod     PaymentMethod?
-  subtotal          Decimal         @db.Decimal(12, 2)
-  taxAmount         Decimal         @db.Decimal(12, 2)
-  shippingAmount    Decimal         @db.Decimal(12, 2)
-  total             Decimal         @db.Decimal(12, 2)
-  currency          String          @default("EUR")
+  subtotal          Decimal            @db.Decimal(12, 2)
+  taxAmount         Decimal            @db.Decimal(12, 2)
+  shippingAmount    Decimal            @db.Decimal(12, 2)
+  total             Decimal            @db.Decimal(12, 2)
+  currency          String             @default("EUR")
   notes             String?
   placedAt          DateTime?
   paidAt            DateTime?
@@ -672,15 +675,16 @@ model Order {
   fulfillmentData   Json?
   billingAddressId  String?
   shippingAddressId String?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
   downloadGrants    DownloadGrant[]
   invoice           Invoice?
-  billingAddress    Address?        @relation("OrderBillingAddress", fields: [billingAddressId], references: [id])
-  cart              Cart?           @relation("CartOrders", fields: [cartId], references: [id])
-  customer          Customer?       @relation(fields: [customerId], references: [id])
-  shippingAddress   Address?        @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddress    Address?           @relation("OrderBillingAddress", fields: [billingAddressId], references: [id])
+  cart              Cart?              @relation("CartOrders", fields: [cartId], references: [id])
+  customer          Customer?          @relation(fields: [customerId], references: [id])
+  shippingAddress   Address?           @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id])
   items             OrderItem[]
+  stockReservations StockReservation[]
 }
 
 model OrderItem {
@@ -775,23 +779,23 @@ model Tag {
 }
 
 model User {
-  id            String            @id @default(cuid())
-  name          String?
-  email         String            @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  phone         String?
-  role          UserRole          @default(CUSTOMER)
-  isActive      Boolean           @default(true)
-  notes         String?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  accounts      Account[]
-  auditLogs     AuditLog[]
-  customer      Customer?
-  sessions      Session[]
-  colorCharts   ColorChart[]
+  id               String             @id @default(cuid())
+  name             String?
+  email            String             @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  phone            String?
+  role             UserRole           @default(CUSTOMER)
+  isActive         Boolean            @default(true)
+  notes            String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  accounts         Account[]
+  auditLogs        AuditLog[]
+  customer         Customer?
+  sessions         Session[]
+  colorCharts      ColorChart[]
   gemstoneAnalyses GemstoneAnalysis[]
 }
 
@@ -848,82 +852,82 @@ model DownloadGrant {
 }
 
 model ColorChart {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  name        String
-  origin      String?
-  locale      String   @default("de")
-  
+  id     String  @id @default(cuid())
+  slug   String  @unique
+  name   String
+  origin String?
+  locale String  @default("de")
+
   // GIA-Daten (als JSON für Flexibilität)
-  gia         Json     // { hue: "pkR–R", tone: "3–5", sat: "4–6" }
-  
+  gia Json // { hue: "pkR–R", tone: "3–5", sat: "4–6" }
+
   // Farbdaten
-  gradient    String[] // Array von Hex-Farben: ["#FBB7D0", "#F78AB8", ...]
-  pleochro    String[] // Array von Pleochroismus-Farben: ["#F78AB8", "#E6579C", ...]
-  
+  gradient String[] // Array von Hex-Farben: ["#FBB7D0", "#F78AB8", ...]
+  pleochro String[] // Array von Pleochroismus-Farben: ["#F78AB8", "#E6579C", ...]
+
   // Lichtstandard
-  light       String   @default("D55, CRI ≥95")
-  
+  light String @default("D55, CRI ≥95")
+
   // Zusätzliche Informationen
   note        String?
   description String?
-  
+
   // Status & Metadata
-  published   Boolean  @default(false)
-  featured    Boolean  @default(false)
-  order       Int      @default(0) // Sortierreihenfolge
-  
+  published Boolean @default(false)
+  featured  Boolean @default(false)
+  order     Int     @default(0) // Sortierreihenfolge
+
   // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations (optional)
   createdById String?
-  createdBy   User?    @relation(fields: [createdById], references: [id])
-  
+  createdBy   User?   @relation(fields: [createdById], references: [id])
+
   @@index([published, locale])
   @@index([featured])
   @@index([slug, locale])
 }
 
 model GemstoneAnalysis {
-  id          String   @id @default(cuid())
-  imageUrl    String?  // URL zum analysierten Bild (falls gespeichert)
-  imageName   String?  // Original-Dateiname
-  
+  id        String  @id @default(cuid())
+  imageUrl  String? // URL zum analysierten Bild (falls gespeichert)
+  imageName String? // Original-Dateiname
+
   // Analyse-Ergebnisse (als JSON gespeichert)
-  primaryColor        Json     // PrimaryColorAnalysis
-  secondaryColors     Json     // SecondaryColorAnalysis[]
-  luminanceSaturation Json     // LuminanceSaturationAnalysis
-  spectralCharacteristic Json  // SpectralCharacteristic
-  giaColorGrade       Json     // GIAColorGrade
-  overallImpression   Json     // OverallImpression
-  pleochroism         String?
-  
+  primaryColor           Json // PrimaryColorAnalysis
+  secondaryColors        Json // SecondaryColorAnalysis[]
+  luminanceSaturation    Json // LuminanceSaturationAnalysis
+  spectralCharacteristic Json // SpectralCharacteristic
+  giaColorGrade          Json // GIAColorGrade
+  overallImpression      Json // OverallImpression
+  pleochroism            String?
+
   // Erweiterte Analyse-Parameter
-  whitepoint          String?  @default("D65") // D50 oder D65
-  kValue              Int?     // Manueller K-Means Cluster-Wert
-  maskingOptions      Json?    // Maskierungs-Einstellungen (MaskingOptions)
-  customPalette       Json?    // Benutzerdefinierte Palette (string[])
-  paletteComparisons  Json?    // Palette-Vergleiche (PaletteComparison[])
-  
+  whitepoint         String? @default("D65") // D50 oder D65
+  kValue             Int? // Manueller K-Means Cluster-Wert
+  maskingOptions     Json? // Maskierungs-Einstellungen (MaskingOptions)
+  customPalette      Json? // Benutzerdefinierte Palette (string[])
+  paletteComparisons Json? // Palette-Vergleiche (PaletteComparison[])
+
   // Metadaten
-  locale      String   @default("de")
-  notes       String?  // Zusätzliche Notizen
-  tags        String[] // Tags für Kategorisierung
-  
+  locale String   @default("de")
+  notes  String? // Zusätzliche Notizen
+  tags   String[] // Tags für Kategorisierung
+
   // Status
-  published   Boolean  @default(false)
-  featured    Boolean  @default(false)
-  
+  published Boolean @default(false)
+  featured  Boolean @default(false)
+
   // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
   createdById String?
-  createdBy   User?    @relation(fields: [createdById], references: [id])
-  
+  createdBy   User?   @relation(fields: [createdById], references: [id])
+
   @@index([createdAt])
   @@index([published])
   @@index([createdById])
@@ -1016,4 +1020,184 @@ enum KycStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// ============================================
+// Warenwirtschaftssystem (WWS) Modelle
+// ============================================
+
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  companyName    String?
+  contactPerson  String?
+  email          String?
+  phone          String?
+  address        String?
+  postalCode     String?
+  city           String?
+  country        String          @default("DE")
+  taxId          String?
+  vatId          String?
+  paymentTerms   Int             @default(30) // Zahlungsziel in Tagen
+  currency       String          @default("EUR")
+  notes          String?
+  isActive       Boolean         @default(true)
+  rating         Int? // Bewertung 1-5
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  purchaseOrders PurchaseOrder[]
+  stockMovements StockMovement[]
+
+  @@index([isActive])
+  @@index([name])
+}
+
+model Warehouse {
+  id             String             @id @default(cuid())
+  name           String
+  code           String             @unique // Kurzcode z.B. "WH-01"
+  address        String?
+  postalCode     String?
+  city           String?
+  country        String             @default("DE")
+  contactPerson  String?
+  phone          String?
+  email          String?
+  isActive       Boolean            @default(true)
+  isDefault      Boolean            @default(false)
+  notes          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  stockMovements StockMovement[]
+  reservations   StockReservation[]
+
+  @@index([isActive])
+  @@index([code])
+}
+
+model PurchaseOrder {
+  id             String              @id @default(cuid())
+  orderNumber    String              @unique
+  supplierId     String
+  warehouseId    String?
+  status         PurchaseOrderStatus @default(DRAFT)
+  orderDate      DateTime            @default(now())
+  expectedDate   DateTime?
+  receivedDate   DateTime?
+  totalAmount    Decimal             @db.Decimal(12, 2)
+  currency       String              @default("EUR")
+  notes          String?
+  internalNotes  String?
+  createdBy      String? // User ID
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  supplier       Supplier            @relation(fields: [supplierId], references: [id])
+  items          PurchaseOrderItem[]
+  stockMovements StockMovement[]
+
+  @@index([supplierId])
+  @@index([status])
+  @@index([orderDate])
+}
+
+model PurchaseOrderItem {
+  id               String        @id @default(cuid())
+  purchaseOrderId  String
+  gemstoneId       String
+  quantity         Int
+  unitPrice        Decimal       @db.Decimal(12, 2)
+  totalPrice       Decimal       @db.Decimal(12, 2)
+  receivedQuantity Int           @default(0)
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  gemstone         Gemstone      @relation(fields: [gemstoneId], references: [id])
+
+  @@index([purchaseOrderId])
+  @@index([gemstoneId])
+}
+
+model StockMovement {
+  id              String              @id @default(cuid())
+  gemstoneId      String
+  warehouseId     String?
+  movementType    StockMovementType
+  quantity        Int
+  referenceType   StockReferenceType?
+  referenceId     String? // ID der Referenz (Order, PurchaseOrder, etc.)
+  supplierId      String?
+  purchaseOrderId String?
+  notes           String?
+  createdBy       String? // User ID
+  createdAt       DateTime            @default(now())
+  gemstone        Gemstone            @relation(fields: [gemstoneId], references: [id])
+  warehouse       Warehouse?          @relation(fields: [warehouseId], references: [id])
+  supplier        Supplier?           @relation(fields: [supplierId], references: [id])
+  purchaseOrder   PurchaseOrder?      @relation(fields: [purchaseOrderId], references: [id])
+
+  @@index([gemstoneId])
+  @@index([warehouseId])
+  @@index([movementType])
+  @@index([createdAt])
+  @@index([referenceType, referenceId])
+}
+
+model StockReservation {
+  id          String            @id @default(cuid())
+  gemstoneId  String
+  warehouseId String
+  orderId     String? // Für Bestellungen
+  cartId      String? // Für Warenkörbe
+  quantity    Int
+  status      ReservationStatus @default(ACTIVE)
+  expiresAt   DateTime? // Automatische Freigabe nach Ablauf
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  gemstone    Gemstone          @relation(fields: [gemstoneId], references: [id])
+  warehouse   Warehouse         @relation(fields: [warehouseId], references: [id])
+  order       Order?            @relation(fields: [orderId], references: [id])
+
+  @@index([gemstoneId])
+  @@index([warehouseId])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([orderId])
+  @@index([cartId])
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  PENDING
+  CONFIRMED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+enum StockMovementType {
+  IN // Wareneingang
+  OUT // Warenausgang
+  TRANSFER // Umlagerung
+  ADJUSTMENT // Bestandskorrektur
+  RETURN // Rücksendung
+  DAMAGE // Beschädigung/Verschleiss
+  LOSS // Verlust
+}
+
+enum StockReferenceType {
+  PURCHASE_ORDER
+  ORDER
+  MANUAL
+  TRANSFER
+  ADJUSTMENT
+}
+
+enum ReservationStatus {
+  ACTIVE
+  FULFILLED
+  CANCELLED
+  EXPIRED
 }

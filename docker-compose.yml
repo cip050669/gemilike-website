@@ -46,6 +46,8 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        # Dummy for build only; runtime uses DATABASE_URL from environment below
+        - DATABASE_URL=postgresql://build:build@localhost:5432/build
     container_name: gemilike-app
     restart: unless-stopped
     environment:

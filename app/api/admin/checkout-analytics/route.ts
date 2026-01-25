@@ -60,7 +60,9 @@ export async function GET(request: NextRequest) {
           },
         });
 
-        const uniqueUsers = await prisma.checkoutEvent.groupBy({
+        // Prisma 7: groupBy-Typ-Workaround
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const uniqueUsers = await (prisma.checkoutEvent.groupBy as any)({
           by: ['customerId', 'sessionId'],
           where: {
             step,
@@ -88,8 +90,9 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    // Drop-off-Analyse: Wo brechen Nutzer ab?
-    const dropOffs = await prisma.checkoutEvent.groupBy({
+    // Drop-off-Analyse: Wo brechen Nutzer ab? (Prisma 7: groupBy-Typ-Workaround)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dropOffs = await (prisma.checkoutEvent.groupBy as any)({
       by: ['step'],
       where: {
         step: { in: ['abandon'] },
@@ -119,8 +122,9 @@ export async function GET(request: NextRequest) {
       ? completedCheckoutSessions.reduce((sum, s) => sum + (s.totalDuration || 0), 0) / completedCheckoutSessions.length
       : 0;
 
-    // Fehler-Analyse
-    const errors = await prisma.checkoutEvent.groupBy({
+    // Fehler-Analyse (Prisma 7: groupBy-Typ-Workaround)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const errors = await (prisma.checkoutEvent.groupBy as any)({
       by: ['step', 'error'],
       where: {
         error: { not: null },

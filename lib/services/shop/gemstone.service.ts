@@ -51,7 +51,9 @@ const extractRarity = (metadata?: Prisma.JsonValue | null): string | null => {
 };
 
 export const toShopGemstone = (gem: GemstoneWithRelations): ShopGemstone => {
-  const priceBook = gem.priceBooks[0];
+  // Prisma 7: Typ-Assertion für priceBooks Array
+  const priceBooks = Array.isArray(gem.priceBooks) ? gem.priceBooks : [];
+  const priceBook = priceBooks[0];
   const inventory = gem.inventory;
   const attributes = gem.attributes;
 

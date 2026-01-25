@@ -108,8 +108,9 @@ export async function GET(request: NextRequest) {
       ? (abandonedCarts / cartsCreatedInPeriod) * 100
       : 0;
 
-    // Top Produkte in Warenkörben
-    const topCarted = await prisma.cartItem.groupBy({
+    // Top Produkte in Warenkörben (Prisma 7: groupBy-Typ-Workaround)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const topCarted = await (prisma.cartItem.groupBy as any)({
       by: ['gemstoneId'],
       _sum: { quantity: true },
       _count: { gemstoneId: true },
@@ -124,7 +125,11 @@ export async function GET(request: NextRequest) {
         },
       },
       take: 10,
-    });
+    }) as Array<{
+      gemstoneId: string;
+      _sum: { quantity: Prisma.Decimal | null };
+      _count: { gemstoneId: number };
+    }>;
 
     const gemstoneIds = topCarted.map((item) => item.gemstoneId);
     const gemstones = await prisma.gemstone.findMany({
@@ -147,7 +152,9 @@ export async function GET(request: NextRequest) {
 
     const topProducts = topCarted.map((item) => {
       const gemstone = gemstoneMap.get(item.gemstoneId);
-      const priceGross = gemstone?.priceBooks[0]?.priceGross;
+      // Prisma 7: Typ-Assertion für priceBooks Array
+      const priceBooks = (gemstone?.priceBooks as Array<{ priceGross: Prisma.Decimal | null }> | undefined) ?? [];
+      const priceGross = priceBooks[0]?.priceGross;
       return {
         gemstoneId: item.gemstoneId,
         name: gemstone?.name || 'Unbekannt',
@@ -158,14 +165,19 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Zeitbasierte Analyse (letzte 30 Tage täglich)
-    const dailyStats = await prisma.cart.groupBy({
+    // Zeitbasierte Analyse (letzte 30 Tage täglich) (Prisma 7: groupBy-Typ-Workaround)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dailyStats = await (prisma.cart.groupBy as any)({
       by: ['status', 'createdAt'],
       _count: { id: true },
       where: {
         createdAt: { gte: startDate },
       },
-    });
+    }) as Array<{
+      status: string;
+      createdAt: Date;
+      _count: { id: number };
+    }>;
 
     // Gruppiere nach Datum
     const dailyMap = new Map<string, { active: number; checkedOut: number; abandoned: number }>();

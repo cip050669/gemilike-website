@@ -204,9 +204,9 @@ export async function POST(request: NextRequest) {
     let gemstone;
     for (let attempt = 0; attempt < 5; attempt++) {
       try {
-        gemstone = await prisma.gemstone.create({
-          data: data as Parameters<typeof prisma.gemstone.create>[0]['data'],
-        });
+        // Prisma 7: create-Typ-Workaround
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        gemstone = await prisma.gemstone.create({ data: data as any });
         break;
       } catch (error) {
         lastError = error;

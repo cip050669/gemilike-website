@@ -24,7 +24,9 @@ export async function GET() {
         prisma.cart.count({
           where: { status: 'ACTIVE' },
         }),
-        prisma.wishlistItem.groupBy({
+        // Prisma 7: groupBy-Typ-Workaround
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (prisma.wishlistItem.groupBy as any)({
           by: ['gemstoneId'],
           _count: { gemstoneId: true },
           orderBy: {
@@ -34,7 +36,9 @@ export async function GET() {
           },
           take: 5,
         }),
-        prisma.cartItem.groupBy({
+        // Prisma 7: groupBy-Typ-Workaround
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (prisma.cartItem.groupBy as any)({
           by: ['gemstoneId'],
           _sum: { quantity: true },
           orderBy: {

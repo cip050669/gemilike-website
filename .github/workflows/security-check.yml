@@ -12,6 +12,10 @@ on:
     - cron: '0 3 * * 2'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   security-check:
     name: Security Check

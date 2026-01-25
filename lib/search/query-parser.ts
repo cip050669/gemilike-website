@@ -19,9 +19,9 @@ export interface ParsedVectorQuery {
 const LOGIC_SPLIT_OR = /\s+\bOR\b\s+/i;
 const LOGIC_SPLIT_AND = /\s+\bAND\b\s+/i;
 const COMPARATOR_REGEX =
-  /^([a-zA-Z][\w-]*)\s*(<=|>=|=|<|>)\s*([-+]?\d+(?:[.,]\d+)?)(?:\s*[a-zA-Z%°]+)?$/i;
+  /^([a-zA-Z][\w-]*)\s*(<=|>=|=|<|>)\s*([-+]?\d+(?:[.,]\d+)?)(?:\s*[a-zA-Z%°€$£¥]+)?$/i;
 const COMPARATOR_NO_FIELD_REGEX =
-  /^(<=|>=|=|<|>)\s*([-+]?\d+(?:[.,]\d+)?)(?:\s*[a-zA-Z%°]+)?$/i;
+  /^(<=|>=|=|<|>)\s*([-+]?\d+(?:[.,]\d+)?)(?:\s*[a-zA-Z%°€$£¥]+)?$/i;
 const HAS_LOGIC_REGEX = /\b(AND|OR)\b/i;
 const HAS_COMPARATOR_REGEX = /[a-zA-Z][\w-]*\s*(?:<=|>=|=|<|>)\s*[-+]?\d+(?:[.,]\d+)?/i;
 const TERM_STOP_WORDS = new Set([

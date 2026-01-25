@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
+import { PayPalProvider } from '@/components/paypal/PayPalProvider';
 import clsx from 'clsx';
 
 export const metadata: Metadata = {
@@ -46,10 +47,12 @@ export default async function LocaleLayout({
         <ServiceWorkerRegistration />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>
-            <Header />
-            <main id="main-content" tabIndex={-1}>
-              {children}
-            </main>
+            <PayPalProvider>
+              <Header />
+              <main id="main-content" tabIndex={-1}>
+                {children}
+              </main>
+            </PayPalProvider>
           </SessionProvider>
         </NextIntlClientProvider>
       </body>

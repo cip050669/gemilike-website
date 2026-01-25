@@ -12,6 +12,11 @@ on:
     - cron: '0 6 * * 1'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   security-audit:
     name: npm Security Audit
@@ -35,7 +40,7 @@ jobs:
         continue-on-error: true
       
       - name: Run npm audit (JSON output)
-        run: npm audit --json > npm-audit.json || true
+        run: npm audit --json > npm-audit.json 2>/dev/null || true
       
       - name: Upload audit results
         uses: actions/upload-artifact@v4
@@ -51,23 +56,24 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const audit = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
-            const vulnerabilities = audit.metadata?.vulnerabilities || {};
-            const total = vulnerabilities.total || 0;
-            
+            let audit = { metadata: { vulnerabilities: {} } };
+            try {
+              if (fs.existsSync('npm-audit.json')) {
+                const raw = fs.readFileSync('npm-audit.json', 'utf8');
+                if (raw && raw.trim()) audit = JSON.parse(raw);
+              }
+            } catch (e) { /* use defaults */ }
+            const vuln = audit.metadata?.vulnerabilities || {};
+            const total = Number(vuln.total) || 0;
             if (total > 0) {
               const body = `## 🔒 Security Audit Results
-              
               **Total vulnerabilities found:** ${total}
-              
-              - Critical: ${vulnerabilities.critical || 0}
-              - High: ${vulnerabilities.high || 0}
-              - Moderate: ${vulnerabilities.moderate || 0}
-              - Low: ${vulnerabilities.low || 0}
-              
+              - Critical: ${vuln.critical || 0}
+              - High: ${vuln.high || 0}
+              - Moderate: ${vuln.moderate || 0}
+              - Low: ${vuln.low || 0}
               Please review and update dependencies as needed.`;
-              
-              github.rest.issues.createComment({
+              await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,

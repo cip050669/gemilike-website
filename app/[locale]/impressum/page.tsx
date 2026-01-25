@@ -16,10 +16,10 @@ export default async function ImpressumPage({
           <ScrollAnimated direction="fade" delay={0}>
             <section className="main-container">
               <div className="story-card space-y-4 p-6 md:p-8">
-                <LegalPageContent
-                  slug="impressum"
-                  locale={locale}
-                  fallbackContent={
+          <LegalPageContent
+            slug="impressum"
+            locale={locale}
+            fallbackContent={
                     <>
                       <div className="space-y-4 text-center mb-8">
                         <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
@@ -27,11 +27,11 @@ export default async function ImpressumPage({
                         </h1>
                       </div>
                       <div className="text-center text-gray-200">
-                        Impressum-Seite wird geladen...
-                      </div>
+                Impressum-Seite wird geladen...
+              </div>
                     </>
-                  }
-                />
+            }
+          />
               </div>
             </section>
           </ScrollAnimated>

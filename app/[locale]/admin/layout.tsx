@@ -48,6 +48,7 @@ export default function AdminLayout({
     { href: '/de/admin/select-options', label: '📋 Select Options' },
     { href: '/de/admin/settings', label: '⚙️ Einstellungen' },
     { href: '/de/admin/stories', label: '📖 Stories' },
+    { href: '/de/admin/warehouse', label: '📦 Warenwirtschaft' },
     { href: '/de/admin/wissenswertes', label: '📚 Wissenswertes' },
     { href: '/de/admin/worldmap', label: '🗺️ Weltkarte' },
   ];

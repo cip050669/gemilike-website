@@ -178,8 +178,14 @@ const resolveGemstonePrice = async (gemstoneId: string) => {
     throw new Error('Dieser Edelstein ist nicht verfügbar.');
   }
 
-  const price = gemstone.priceBooks[0]?.priceGross ?? gemstone.priceBooks[0]?.priceNet;
-  const currency = gemstone.priceBooks[0]?.currency ?? 'EUR';
+  // Prisma 7: Typ-Assertion für priceBooks Array
+  const priceBooks = (gemstone.priceBooks as Array<{
+    priceGross: Prisma.Decimal | null;
+    priceNet: Prisma.Decimal | null;
+    currency: string | null;
+  }>) ?? [];
+  const price = priceBooks[0]?.priceGross ?? priceBooks[0]?.priceNet;
+  const currency = priceBooks[0]?.currency ?? 'EUR';
 
   if (!price) {
     throw new Error('Preis für Edelstein nicht verfügbar.');
@@ -208,7 +214,9 @@ export const addGemstoneToCart = async (
   const cart = await loadOrCreateActiveCart(identity);
   const { price, currency } = await resolveGemstonePrice(gemstoneId);
 
-  const updatedCart = await prisma.$transaction(async (tx) => {
+  // Prisma 7: $transaction-Typ-Workaround
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updatedCart = await (prisma.$transaction as any)(async (tx: any) => {
     const existing = await tx.cartItem.findFirst({
       where: {
         cartId: cart.id,

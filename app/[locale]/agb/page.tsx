@@ -16,10 +16,10 @@ export default async function AgbPage({
           <ScrollAnimated direction="fade" delay={0}>
             <section className="main-container">
               <div className="story-card space-y-4 p-6 md:p-8">
-                <LegalPageContent
-                  slug="agb"
-                  locale={locale}
-                  fallbackContent={
+          <LegalPageContent
+            slug="agb"
+            locale={locale}
+            fallbackContent={
                     <>
                       <div className="space-y-4 text-center mb-8">
                         <h1 className="text-4xl md:text-5xl font-impact font-weight-impact">
@@ -27,11 +27,11 @@ export default async function AgbPage({
                         </h1>
                       </div>
                       <div className="text-center text-gray-200">
-                        AGB-Seite wird geladen...
-                      </div>
+                AGB-Seite wird geladen...
+              </div>
                     </>
-                  }
-                />
+            }
+          />
               </div>
             </section>
           </ScrollAnimated>

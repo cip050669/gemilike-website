@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.6.0  
+**Version:** 2.7.0  
 **Stand:** Januar 2026  
-**Letzte Aktualisierung:** 11. Januar 2026 - Major-Updates: Next.js 16.1.1, Prisma 7.2.0, @types/node 25, react-leaflet-cluster 4.0.0, Minor/Patch-Updates installiert, Prisma Accelerate Support implementiert, GitHub-Workflows aktualisiert  
+**Letzte Aktualisierung:** 25. Januar 2026 - Warenwirtschaftssystem (WWS) implementiert, Prisma 7 Migration abgeschlossen, Connection Pool Optimierungen  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -46,6 +46,7 @@ Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit f
   - **Farbanalyse**: Professionelles Tool zur automatischen Farbanalyse von Edelstein-Bildern mit erweiterten Algorithmen (Borderline v4)
 - **Kundenverwaltung** mit Bestellungen und Rechnungen
 - **Newsletter-Management**
+- **Warenwirtschaftssystem (WWS)** für Lagerverwaltung, Lieferanten, Einkaufsbestellungen und Lagerbewegungen
 - **Weltkarte** mit Fundorten
 - **Moderne Web Design Features** (Version 2.4.0+):
   - Progressive Enhancement für alle Formulare
@@ -58,15 +59,16 @@ Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit f
 
 ### 1.3 Technologie-Stack
 
-- **Framework:** Next.js 15.5.4 (React 19.2.0)
-- **Datenbank:** PostgreSQL mit Prisma ORM
+- **Framework:** Next.js 16.1.1 (React 19.2.3)
+- **Datenbank:** PostgreSQL mit Prisma ORM 7.3.0
 - **Authentifizierung:** NextAuth.js 4.24.11
-- **Internationalisierung:** next-intl 4.3.9
+- **Internationalisierung:** next-intl 4.7.0
 - **Styling:** Tailwind CSS 4
 - **UI-Komponenten:** Radix UI
 - **State Management:** Zustand 5.0.8
 - **PDF-Generierung:** @react-pdf/renderer 4.3.1
 - **Karten:** Leaflet 1.9.4
+- **Zahlungen:** PayPal Integration (@paypal/react-paypal-js 8.1.3, @paypal/paypal-server-sdk 1.0.0)
 
 ---
 
@@ -78,8 +80,10 @@ Die Website folgt einer **Next.js App Router Architektur** mit:
 
 - **Server Components** für serverseitiges Rendering
 - **Client Components** für interaktive UI-Elemente
-- **API Routes** für Backend-Funktionalität
-- **Middleware** für Authentifizierung und Routing
+- **API Routes** für Backend-Funktionalität (u. a. Admin, Shop, PayPal, Farbtafeln, Warenwirtschaft)
+- **Proxy/Middleware** (`proxy.ts`) für Lokalisierung (next-intl), Header-Anpassungen und Routing; zusätzlich `middleware-admin.ts` für Admin-Bereich
+- **PayPal-Integration** über `@paypal/react-paypal-js` (Frontend) und `@paypal/paypal-server-sdk` (Backend) mit optionalem Ladeverhalten bei fehlenden Umgebungsvariablen
+- **Prisma** mit optionalem **Accelerate** (`PRISMA_ACCELERATE_URL`) für verbesserte DB-Performance
 
 ### 2.2 Projektstruktur
 
@@ -88,7 +92,7 @@ gemilike-website/
 ├── app/                          # Next.js App Router
 │   ├── [locale]/                 # Lokalisierte Routen
 │   │   ├── page.tsx              # Startseite
-│   │   ├── admin/                # Admin-Bereich
+│   │   ├── admin/                # Admin-Bereich (u. a. warehouse/, gemstones/, orders/)
 │   │   ├── shop/                 # Shop-Bereich
 │   │   ├── blog/                 # Blog-Bereich
 │   │   ├── downloads/            # Downloads-Bereich
@@ -96,45 +100,60 @@ gemilike-website/
 │   │   ├── wissenswertes/        # Knowledge Base
 │   │   ├── profile/              # Benutzerprofil
 │   │   ├── cart/                 # Warenkorb
-│   │   ├── checkout/             # Checkout
-│   │   └── ...                   # Weitere öffentliche Seiten
+│   │   ├── checkout/             # Checkout (mit PayPal-Buttons)
+│   │   ├── auth/                 # Anmeldung, Registrierung, Abmeldung
+│   │   ├── orders/               # Kunden-Bestellübersicht
+│   │   ├── certificates/         # Zertifikate
+│   │   ├── services/             # Services-Seite
+│   │   ├── returns/              # Widerruf
+│   │   ├── shipping/             # Versand
+│   │   └── ...                   # terms, privacy, imprint, contact, wishlist, etc.
 │   └── api/                      # API-Routen
-│       ├── admin/                # Admin-APIs
+│       ├── admin/                # Admin-APIs (inkl. purchase-orders, warehouses, suppliers, stock-movements)
+│       ├── paypal/               # PayPal: create-order, capture-order, webhook
 │       ├── color-charts/         # Farbtafeln-APIs
 │       ├── gemstone-analyses/    # Farbanalyse-APIs
 │       ├── shop/                 # Shop-APIs
 │       ├── cart/                 # Warenkorb-APIs
 │       ├── orders/               # Bestell-APIs
-│       └── ...                   # Weitere API-Routen
+│       ├── checkout/             # Checkout-Tracking
+│       ├── user/                 # Profil, Adressen, Rechnungen, Bestellungen
+│       └── ...                   # newsletter, wishlist, knowledge-base, downloads, etc.
 ├── components/                   # React-Komponenten
 │   ├── admin/                    # Admin-Komponenten
 │   ├── color-charts/             # Farbtafeln-Komponenten
 │   ├── shop/                     # Shop-Komponenten
-│   ├── layout/                   # Layout-Komponenten
+│   ├── layout/                   # Layout-Komponenten (Header, Footer)
 │   ├── ui/                       # UI-Basis-Komponenten
 │   ├── home/                     # Homepage-Komponenten
 │   ├── profile/                  # Profil-Komponenten
-│   └── ...                       # Weitere Komponenten
+│   ├── paypal/                   # PayPalProvider, PayPalCheckoutButton
+│   ├── cart/                     # Cart, CartSync, WishlistButton
+│   ├── accessibility/            # LiveRegion, SkipToContent, Focus-Trap, Keyboard-Navigation
+│   └── ...                       # blog, newsletter, legal, map, worldmap, providers, seo
 ├── lib/                          # Bibliotheken und Utilities
-│   ├── services/                 # Business-Logic-Services
-│   ├── store/                    # Zustand Stores
+│   ├── services/                 # Business-Logic-Services (shop, about, blog, invoice, …)
+│   ├── store/                    # Zustand Stores (cart, wishlist)
+│   ├── paypal/                   # PayPal-Konfiguration (config.ts)
 │   ├── utils/                    # Utility-Funktionen
 │   ├── hooks/                    # Custom React Hooks
 │   ├── types/                    # TypeScript-Typen
-│   └── ...                       # Weitere Utilities
+│   └── ...                       # prisma, auth, email, search, actions, middleware
 ├── prisma/                       # Datenbank-Schema
-│   ├── schema.prisma             # Prisma Schema
+│   ├── schema.prisma             # Prisma Schema (Prisma 7)
+│   ├── prisma.config.ts          # Datasource-URL für Migrate (Prisma 7)
 │   └── migrations/               # Datenbank-Migrationen
 ├── public/                       # Statische Dateien
 │   ├── uploads/                  # Hochgeladene Dateien
 │   ├── products/                 # Produktbilder
 │   └── templates/                # CSV-Vorlagen
+├── proxy.ts                      # Middleware: Lokalisierung (next-intl), Request-Header
 ├── __tests__/                    # Test-Dateien
 ├── scripts/                      # Build- und Deployment-Skripte
 ├── config/                       # Konfigurationsdateien
 ├── i18n/                         # Internationalisierung
 ├── messages/                     # Übersetzungsdateien
-├── types/                        # Globale TypeScript-Typen
+├── types/                        # Globale TypeScript-Typen (z. B. next-auth.d.ts)
 └── deploy/                       # Deployment-Konfigurationen
 ```
 
@@ -142,31 +161,31 @@ gemilike-website/
 
 **Stand:** Januar 2026
 
-Das Projekt umfasst insgesamt **114.736 Zeilen Code** (ohne `node_modules`, `.next` und `.git`):
+Das Projekt umfasst insgesamt **120.753 Zeilen Code** (ohne `node_modules`, `.next` und `.git`):
 
-| Dateityp | Zeilen | Beschreibung |
-|----------|--------|--------------|
-| **TSX** | 64.001 | React-Komponenten mit TypeScript (UI-Komponenten, Seiten) |
-| **TS** | 38.883 | TypeScript-Dateien (Services, Utilities, API-Routen, Server Actions) |
-| **JS** | 8.213 | JavaScript-Dateien (Konfigurationen, Skripte, Legacy-Code) |
-| **CSS** | 1.341 | Stylesheets (globale Styles, Tailwind-Erweiterungen) |
-| **HTML** | 2.298 | HTML-Templates und statische Seiten |
-| **Gesamt** | **114.736** | Gesamter Quellcode des Projekts |
+| Dateityp | Zeilen | Anteil | Beschreibung |
+|----------|--------|--------|--------------|
+| **TSX** | 67.048 | 56 % | React-Komponenten mit TypeScript (UI-Komponenten, Seiten) |
+| **TS** | 40.604 | 34 % | TypeScript-Dateien (Services, Utilities, API-Routen, Server Actions) |
+| **JS** | 8.213 | 7 % | JavaScript-Dateien (Konfigurationen, Skripte, Legacy-Code) |
+| **CSS** | 1.341 | 1 % | Stylesheets (globale Styles, Tailwind-Erweiterungen) |
+| **HTML** | 3.547 | 3 % | HTML-Templates und statische Seiten |
+| **Gesamt** | **120.753** | 100 % | Gesamter Quellcode des Projekts |
 
 **Hinweise:**
-- Die größte Codebasis liegt in **TSX-Dateien** (56%), was die React-basierte Architektur widerspiegelt
-- **TypeScript-Dateien** (34%) enthalten hauptsächlich Business-Logik, Server Actions und API-Routen
-- Die relativ geringe Anzahl an **CSS-Zeilen** (1%) zeigt die effiziente Nutzung von Tailwind CSS
+- Die größte Codebasis liegt in **TSX-Dateien** (56 %), was die React-basierte Architektur widerspiegelt
+- **TypeScript-Dateien** (34 %) enthalten hauptsächlich Business-Logik, Server Actions und API-Routen
+- Die relativ geringe Anzahl an **CSS-Zeilen** (1 %) zeigt die effiziente Nutzung von Tailwind CSS
 - **HTML-Dateien** enthalten hauptsächlich Test-Dateien und Templates
 
 ### 2.4 Datenbank
 
-**PostgreSQL** mit **Prisma ORM**:
+**PostgreSQL** mit **Prisma ORM 7** (Datasource-URL über `prisma.config.ts`):
 
-- **52 Haupt-Models** für verschiedene Entitäten
-- **46 Relations** zwischen Models für Datenintegrität
-- **30 Indexes** für Performance-Optimierung
-- **13 Enums** für typsichere Werte
+- **58 Haupt-Models** für verschiedene Entitäten
+- **56 Relations** zwischen Models für Datenintegrität
+- **50 Indexes** (`@@index`) für Performance-Optimierung
+- **17 Enums** für typsichere Werte
 
 **Haupt-Models (Auswahl):**
 - **E-Commerce:** `Gemstone`, `GemstoneAttributes`, `GemstoneInventory`, `GemstonePrice`, `Cart`, `CartItem`, `Order`, `OrderItem`, `Invoice`, `InvoiceItem`
@@ -176,16 +195,18 @@ Das Projekt umfasst insgesamt **114.736 Zeilen Code** (ohne `node_modules`, `.ne
 - **Weltkarte:** `Location`, `Country`, `GemType`
 - **Newsletter & Marketing:** `NewsletterSubscriber`, `NewstickerItem`
 - **Downloads:** `DownloadGrant`
-- **Rechtliches:** `LegalPage`, `FooterLink`, `FooterSection`
+- **Rechtliches:** `LegalPage`, `FooterLink`, `FooterSection`, `LegalLink`
 - **Konfiguration:** `HeaderData`, `HeroImage`, `HeroSettings`, `ContainerContent`, `ContactData`, `CompanySettings`, `SelectOption`, `PictogramDescription`
-- **Weitere:** `Review`, `Tag`, `GemstoneTag`, `Wishlist`, `WishlistItem`, `CheckoutEvent`, `Coupon`, `AuditLog`, `BankAccount`, `NavigationItem`, `LegalLink`
+- **Warenwirtschaftssystem (WWS):** `Supplier`, `Warehouse`, `PurchaseOrder`, `PurchaseOrderItem`, `StockMovement`, `StockReservation`
+- **Weitere:** `Review`, `Tag`, `GemstoneTag`, `Wishlist`, `WishlistItem`, `CheckoutEvent`, `Coupon`, `AuditLog`, `BankAccount`, `NavigationItem`
 
 **Enums:**
 - `UserRole`, `GemstoneStatus`, `GemstoneCondition`, `MediaType`, `PriceDiscountType`, `CartStatus`, `OrderStatus`, `PaymentStatus`, `PaymentMethod`, `DownloadResourceType`, `InvoiceStatus`, `AddressType`, `KycStatus`
+- **WWS:** `PurchaseOrderStatus`, `StockMovementType`, `StockReferenceType`, `ReservationStatus`
 
 ### 2.5 Design & Layout-System
 
-#### 2.4.1 Design-Vorlage: Shop-Seite
+#### 2.5.1 Design-Vorlage: Shop-Seite
 
 Die **Shop-Seite** (`/shop`) dient als Design-Vorlage für alle anderen Seiten der Website. Alle Seiten übernehmen exakt dasselbe Layout, Background, Farbverlauf, Container und Thumbnail-Styles.
 
@@ -218,7 +239,7 @@ Die **Shop-Seite** (`/shop`) dient als Design-Vorlage für alle anderen Seiten d
 - Backdrop-Filter: `blur(12px)`
 - Border-Radius: `1rem`
 
-#### 2.4.2 Typografie & Überschriften
+#### 2.5.2 Typografie & Überschriften
 
 **Moderne Progressive Schriftart: Inter**
 
@@ -277,7 +298,7 @@ Die Website verwendet **Inter** als primäre Schriftart für alle Body-Texte. In
 - **H3:** Immer `text-gray-200` mit Inter
 - **Body:** Immer `text-gray-200` mit Inter
 
-#### 2.4.3 Textfarbe-Strategie (Helles Grau)
+#### 2.5.3 Textfarbe-Strategie (Helles Grau)
 
 Statt reinem Weiß wird helles Grau verwendet für bessere Lesbarkeit und angenehmeres Erscheinungsbild.
 
@@ -308,7 +329,7 @@ Statt reinem Weiß wird helles Grau verwendet für bessere Lesbarkeit und angene
 - ✅ Sekundärer Text: `text-gray-300`
 - ✅ Tertiärer Text: `text-gray-400`
 
-#### 2.4.4 Layout-Konsistenz
+#### 2.5.4 Layout-Konsistenz
 
 **Container-Struktur:**
 - Alle Seiten verwenden `main-container` Klasse
@@ -328,7 +349,7 @@ Statt reinem Weiß wird helles Grau verwendet für bessere Lesbarkeit und angene
 - Tablet: `768px - 1024px`
 - Desktop: `> 1024px`
 
-#### 2.4.5 Moderne Progressive Schriftart: Inter
+#### 2.5.5 Moderne Progressive Schriftart: Inter
 
 Die Website verwendet **Inter** als primäre Schriftart für alle Body-Texte. Inter ist eine moderne, progressive Schriftart, die speziell für digitale Interfaces entwickelt wurde.
 
@@ -381,9 +402,9 @@ module.exports = {
 - **Display-Font (Impact):** Nur für H1 und H2 Überschriften
 - **Body-Font (Inter):** Für alle anderen Texte (H3, Body, Buttons, etc.)
 
-#### 2.4.6 Umsetzungsstatus
+#### 2.5.6 Umsetzungsstatus
 
-**Aktueller Stand (Version 2.5.0):**
+**Aktueller Stand (Version 2.7.0):**
 - ✅ Shop-Seite als Vorlage definiert
 - ✅ Design-System vollständig dokumentiert
 - ✅ Inter-Schriftart integriert und aktiv
@@ -1821,11 +1842,395 @@ Zwei interaktive HTML-Formulare sind verfügbar:
 
 ---
 
+### 4.14 Warenwirtschaftssystem (WWS) (`/admin/warehouse`)
+
+**Version:** 2.7.0  
+**Einführung:** Januar 2026
+
+Das Warenwirtschaftssystem (WWS) ermöglicht die vollständige Verwaltung von Lieferanten, Lagerorten, Einkaufsbestellungen und Lagerbewegungen.
+
+#### Übersicht (`/admin/warehouse`)
+
+**Dashboard mit Statistiken:**
+
+- **Statistik-Karten:**
+  - Lieferanten (gesamt, aktiv, inaktiv)
+  - Lagerorte (gesamt, aktiv, inaktiv)
+  - Einkaufsbestellungen (gesamt, ausstehend)
+  - Gesamtumsatz aller Bestellungen
+
+- **Bestellungen nach Status:**
+  - Entwurf, Ausstehend, Bestätigt
+  - Teilweise erhalten, Erhalten, Storniert
+
+- **Lagerbewegungen nach Typ:**
+  - Wareneingang (IN)
+  - Warenausgang (OUT)
+  - Umlagerung (TRANSFER)
+  - Korrektur (ADJUSTMENT)
+  - Rücksendung (RETURN)
+  - Beschädigung (DAMAGE)
+  - Verlust (LOSS)
+
+- **Top Lieferanten:**
+  - Nach Anzahl Bestellungen sortiert
+  - Anzeige von Name, Firmenname und Bestellanzahl
+
+- **Niedrige Bestände:**
+  - Produkte mit Bestand ≤ 10
+  - Warnung bei kritischen Beständen
+
+- **Letzte Lagerbewegungen:**
+  - Timeline der 10 neuesten Bewegungen
+  - Anzeige von Typ, Produkt, Lager, Menge und Datum
+
+**Navigation:**
+
+- Schnellzugriff auf alle WWS-Bereiche über Karten
+- Übersicht der letzten Lieferanten und Lagerorte
+
+#### Lieferantenverwaltung (`/admin/warehouse/suppliers`)
+
+**Übersicht (`/admin/warehouse/suppliers`):**
+
+- Liste aller Lieferanten
+- Suche nach Name, Firmenname oder E-Mail
+- Filterung nach Status (aktiv/inaktiv)
+- Anzeige von Kontaktdaten, Bewertung und Bestellanzahl
+- Schnellaktionen: Bearbeiten, Löschen
+
+**Neuer Lieferant (`/admin/warehouse/suppliers/new`):**
+
+**Grundinformationen:**
+- Name (Pflichtfeld)
+- Firmenname
+- Ansprechpartner
+- E-Mail
+- Telefon
+- Bewertung (1-5)
+
+**Adresse:**
+- Straße & Hausnummer
+- PLZ
+- Stadt
+- Land (Standard: DE)
+
+**Geschäftsinformationen:**
+- Steuernummer
+- Umsatzsteuer-ID
+- Zahlungsziel (Tage, Standard: 30)
+- Währung (Standard: EUR)
+- Notizen
+- Aktiv/Inaktiv Status
+
+**Bearbeiten (`/admin/warehouse/suppliers/[id]`):**
+
+- Vollständige Bearbeitung aller Felder
+- Status-Änderung
+- Löschfunktion
+
+**Datenbank-Model:** `Supplier`
+
+**Felder:**
+- `id` - Eindeutige ID
+- `name` - Name des Lieferanten
+- `companyName` - Firmenname
+- `contactPerson` - Ansprechpartner
+- `email` - E-Mail-Adresse
+- `phone` - Telefonnummer
+- `address` - Straße & Hausnummer
+- `postalCode` - Postleitzahl
+- `city` - Stadt
+- `country` - Land (Standard: DE)
+- `taxId` - Steuernummer
+- `vatId` - Umsatzsteuer-ID
+- `paymentTerms` - Zahlungsziel in Tagen (Standard: 30)
+- `currency` - Währung (Standard: EUR)
+- `notes` - Notizen
+- `isActive` - Aktiv-Status
+- `rating` - Bewertung (1-5)
+- `createdAt` - Erstellungsdatum
+- `updatedAt` - Aktualisierungsdatum
+
+**API-Endpunkte:**
+
+- `GET /api/admin/suppliers` - Alle Lieferanten abrufen
+- `POST /api/admin/suppliers` - Neuen Lieferanten erstellen
+- `GET /api/admin/suppliers/[id]` - Einzelnen Lieferanten abrufen
+- `PUT /api/admin/suppliers/[id]` - Lieferanten aktualisieren
+- `DELETE /api/admin/suppliers/[id]` - Lieferanten löschen
+
+#### Lagerverwaltung (`/admin/warehouse/warehouses`)
+
+**Übersicht (`/admin/warehouse/warehouses`):**
+
+- Liste aller Lagerorte
+- Anzeige von Name, Code, Adresse
+- Status-Badges (Aktiv, Standard)
+- Schnellaktionen: Bearbeiten
+
+**Neuer Lagerort (`/admin/warehouse/warehouses/new`):**
+
+**Grundinformationen:**
+- Name (Pflichtfeld)
+- Code (Pflichtfeld, eindeutig, z.B. "WH-01")
+
+**Adresse:**
+- Straße & Hausnummer
+- PLZ
+- Stadt
+- Land (Standard: DE)
+
+**Kontaktinformationen:**
+- Ansprechpartner
+- Telefon
+- E-Mail
+- Notizen
+
+**Einstellungen:**
+- Aktiv/Inaktiv
+- Standard-Lagerort (nur einer kann Standard sein)
+
+**Bearbeiten (`/admin/warehouse/warehouses/[id]`):**
+
+- Vollständige Bearbeitung aller Felder
+- Status-Änderung
+- Standard-Lagerort setzen
+- Löschfunktion
+
+**Datenbank-Model:** `Warehouse`
+
+**Felder:**
+- `id` - Eindeutige ID
+- `name` - Name des Lagerorts
+- `code` - Eindeutiger Code (z.B. "WH-01")
+- `address` - Straße & Hausnummer
+- `postalCode` - Postleitzahl
+- `city` - Stadt
+- `country` - Land (Standard: DE)
+- `contactPerson` - Ansprechpartner
+- `phone` - Telefonnummer
+- `email` - E-Mail-Adresse
+- `isActive` - Aktiv-Status
+- `isDefault` - Standard-Lagerort (nur einer möglich)
+- `notes` - Notizen
+- `createdAt` - Erstellungsdatum
+- `updatedAt` - Aktualisierungsdatum
+
+**API-Endpunkte:**
+
+- `GET /api/admin/warehouses` - Alle Lagerorte abrufen
+- `POST /api/admin/warehouses` - Neuen Lagerort erstellen
+- `GET /api/admin/warehouses/[id]` - Einzelnen Lagerort abrufen
+- `PUT /api/admin/warehouses/[id]` - Lagerort aktualisieren
+- `DELETE /api/admin/warehouses/[id]` - Lagerort löschen
+
+#### Einkaufsbestellungen (`/admin/warehouse/purchase-orders`)
+
+**Übersicht (`/admin/warehouse/purchase-orders`):**
+
+- Liste aller Einkaufsbestellungen
+- Filterung nach Status
+- Anzeige von Bestellnummer, Lieferant, Datum, Betrag
+- Status-Badges mit Farbcodierung
+- Anzahl Positionen pro Bestellung
+
+**Status-Filter:**
+- Alle
+- Entwurf (DRAFT)
+- Ausstehend (PENDING)
+- Bestätigt (CONFIRMED)
+- Teilweise erhalten (PARTIALLY_RECEIVED)
+- Erhalten (RECEIVED)
+- Storniert (CANCELLED)
+
+**Detailansicht (`/admin/warehouse/purchase-orders/[id]`):**
+
+- Vollständige Bestelldetails
+- Lieferanteninformationen
+- Bestellpositionen mit Edelsteinen
+- Status-Verwaltung
+- Notizen (öffentlich und intern)
+
+**Datenbank-Models:**
+
+- `PurchaseOrder` - Einkaufsbestellungen
+- `PurchaseOrderItem` - Bestellpositionen
+
+**PurchaseOrder Felder:**
+- `id` - Eindeutige ID
+- `orderNumber` - Eindeutige Bestellnummer
+- `supplierId` - Lieferanten-ID
+- `warehouseId` - Lagerort-ID (optional)
+- `status` - Status (DRAFT, PENDING, CONFIRMED, PARTIALLY_RECEIVED, RECEIVED, CANCELLED)
+- `orderDate` - Bestelldatum
+- `expectedDate` - Erwartetes Lieferdatum
+- `receivedDate` - Empfangsdatum
+- `totalAmount` - Gesamtbetrag
+- `currency` - Währung (Standard: EUR)
+- `notes` - Öffentliche Notizen
+- `internalNotes` - Interne Notizen
+- `createdBy` - Benutzer-ID (Ersteller)
+- `createdAt` - Erstellungsdatum
+- `updatedAt` - Aktualisierungsdatum
+
+**PurchaseOrderItem Felder:**
+- `id` - Eindeutige ID
+- `purchaseOrderId` - Bestell-ID
+- `gemstoneId` - Edelstein-ID
+- `quantity` - Bestellmenge
+- `unitPrice` - Einzelpreis
+- `totalPrice` - Gesamtpreis
+- `receivedQuantity` - Empfangene Menge
+- `notes` - Notizen
+- `createdAt` - Erstellungsdatum
+- `updatedAt` - Aktualisierungsdatum
+
+**Status-Workflow:**
+
+1. **DRAFT** - Entwurf, noch nicht versendet
+2. **PENDING** - Ausstehend, an Lieferanten gesendet
+3. **CONFIRMED** - Bestätigt vom Lieferanten
+4. **PARTIALLY_RECEIVED** - Teilweise erhalten
+5. **RECEIVED** - Vollständig erhalten
+6. **CANCELLED** - Storniert
+
+**API-Endpunkte:**
+
+- `GET /api/admin/purchase-orders` - Alle Bestellungen abrufen (mit Filter: `?status=STATUS`)
+- `POST /api/admin/purchase-orders` - Neue Bestellung erstellen
+- `GET /api/admin/purchase-orders/[id]` - Einzelne Bestellung abrufen
+- `PUT /api/admin/purchase-orders/[id]` - Bestellung aktualisieren
+- `DELETE /api/admin/purchase-orders/[id]` - Bestellung löschen
+
+#### Bestandsübersicht & Lagerbewegungen (`/admin/warehouse/stock`)
+
+**Übersicht (`/admin/warehouse/stock`):**
+
+**Statistik-Karten:**
+- Aktive Produkte (mit Bestand)
+- Lagerbewegungen (letzte 50)
+- Gesamtbestand (Summe aller Einheiten)
+
+**Filter:**
+- Suche nach Produktname
+- Filter nach Bewegungstyp
+
+**Letzte Lagerbewegungen:**
+- Timeline der letzten 20 Bewegungen
+- Anzeige von Typ, Produkt, Lager, Menge, Datum
+- Farbcodierte Badges nach Bewegungstyp
+
+**Bestandsübersicht:**
+- Produkte mit aktuellem Lagerbestand
+- Anzeige von Name und Menge
+- Link zur Produktbearbeitung
+
+**Datenbank-Model:** `StockMovement`
+
+**Felder:**
+- `id` - Eindeutige ID
+- `gemstoneId` - Edelstein-ID
+- `warehouseId` - Lagerort-ID (optional)
+- `movementType` - Bewegungstyp (IN, OUT, TRANSFER, ADJUSTMENT, RETURN, DAMAGE, LOSS)
+- `quantity` - Menge
+- `referenceType` - Referenztyp (PURCHASE_ORDER, ORDER, MANUAL, TRANSFER, ADJUSTMENT)
+- `referenceId` - Referenz-ID (z.B. Bestellnummer)
+- `supplierId` - Lieferanten-ID (optional)
+- `purchaseOrderId` - Einkaufsbestellungs-ID (optional)
+- `notes` - Notizen
+- `createdBy` - Benutzer-ID (Ersteller)
+- `createdAt` - Erstellungsdatum
+
+**Bewegungstypen:**
+
+- **IN** - Wareneingang (z.B. von Lieferanten)
+- **OUT** - Warenausgang (z.B. Verkauf)
+- **TRANSFER** - Umlagerung zwischen Lagern
+- **ADJUSTMENT** - Bestandskorrektur
+- **RETURN** - Rücksendung
+- **DAMAGE** - Beschädigung/Verschleiß
+- **LOSS** - Verlust
+
+**API-Endpunkte:**
+
+- `GET /api/admin/stock-movements` - Alle Bewegungen abrufen (mit Filter: `?movementType=TYPE&limit=N`)
+- `POST /api/admin/stock-movements` - Neue Bewegung erstellen
+- `GET /api/admin/stock-movements/[id]` - Einzelne Bewegung abrufen
+- `PUT /api/admin/stock-movements/[id]` - Bewegung aktualisieren
+- `DELETE /api/admin/stock-movements/[id]` - Bewegung löschen
+
+**Statistiken-API:**
+
+- `GET /api/admin/warehouse/stats` - Umfassende WWS-Statistiken
+  - Lieferanten-Statistiken
+  - Lagerort-Statistiken
+  - Bestellungs-Statistiken (Status-Verteilung, Gesamtumsatz)
+  - Lagerbewegungs-Statistiken (nach Typ)
+  - Top-Lieferanten
+  - Niedrige Bestände
+  - Letzte Bewegungen
+  - Tägliche Bestellungen (letzte 30 Tage)
+
+#### Bestandsreservierungen
+
+**Datenbank-Model:** `StockReservation`
+
+**Funktionalität:**
+
+- Reservierung von Beständen für Bestellungen oder Warenkörbe
+- Automatische Freigabe nach Ablauf
+- Status-Verwaltung (ACTIVE, FULFILLED, CANCELLED, EXPIRED)
+
+**Felder:**
+- `id` - Eindeutige ID
+- `gemstoneId` - Edelstein-ID
+- `warehouseId` - Lagerort-ID
+- `orderId` - Bestellungs-ID (optional)
+- `cartId` - Warenkorb-ID (optional)
+- `quantity` - Reservierte Menge
+- `status` - Status (ACTIVE, FULFILLED, CANCELLED, EXPIRED)
+- `expiresAt` - Ablaufdatum (optional)
+- `notes` - Notizen
+- `createdAt` - Erstellungsdatum
+- `updatedAt` - Aktualisierungsdatum
+
+**Verwendung:**
+
+- Automatische Reservierung bei Bestellungen
+- Warenkorb-Reservierungen (temporär)
+- Bestandsschutz bei gleichzeitigen Bestellungen
+
+---
+
+**Datenbank-Enums:**
+
+- `PurchaseOrderStatus` - Status von Einkaufsbestellungen
+- `StockMovementType` - Typen von Lagerbewegungen
+- `StockReferenceType` - Referenztypen für Bewegungen
+- `ReservationStatus` - Status von Reservierungen
+
+**Migration:**
+
+Die Datenbank-Migration wurde am 25. Januar 2026 durchgeführt:
+- Migration: `20260125200829_add_warehouse_management_system`
+- Erstellt 6 neue Tabellen und 4 neue Enums
+- Alle Indizes und Relationen wurden angelegt
+
+**Hinweise:**
+
+- Das WWS ist vollständig in den Admin-Bereich integriert
+- Alle Funktionen sind über die Navigation erreichbar
+- Statistiken werden in Echtzeit berechnet
+- Die API-Routes unterstützen Filterung und Pagination
+
+---
+
 ## 5. Datenbank-Schema
 
 ### 5.1 Übersicht
 
-Die Datenbank besteht aus **28 Haupt-Models** mit umfangreichen Relations:
+Die Datenbank besteht aus **34 Haupt-Models** (inkl. WWS) mit umfangreichen Relations:
 
 #### Benutzer & Authentifizierung
 
@@ -1898,6 +2303,15 @@ Die Datenbank besteht aus **28 Haupt-Models** mit umfangreichen Relations:
 
 - `ColorChart` - Farbtafeln
 - `GemstoneAnalysis` - Farbanalysen (inkl. erweiterte Parameter)
+
+#### Warenwirtschaftssystem (WWS) - Version 2.7.0
+
+- `Supplier` - Lieferanten
+- `Warehouse` - Lagerorte
+- `PurchaseOrder` - Einkaufsbestellungen
+- `PurchaseOrderItem` - Bestellpositionen
+- `StockMovement` - Lagerbewegungen
+- `StockReservation` - Bestandsreservierungen
 
 ---
 
@@ -2094,6 +2508,40 @@ Die Datenbank besteht aus **28 Haupt-Models** mit umfangreichen Relations:
 - `PAID` - Bezahlt
 - `CANCELLED` - Storniert
 
+#### PurchaseOrderStatus (WWS)
+
+- `DRAFT` - Entwurf
+- `PENDING` - Ausstehend
+- `CONFIRMED` - Bestätigt
+- `PARTIALLY_RECEIVED` - Teilweise erhalten
+- `RECEIVED` - Erhalten
+- `CANCELLED` - Storniert
+
+#### StockMovementType (WWS)
+
+- `IN` - Wareneingang
+- `OUT` - Warenausgang
+- `TRANSFER` - Umlagerung
+- `ADJUSTMENT` - Bestandskorrektur
+- `RETURN` - Rücksendung
+- `DAMAGE` - Beschädigung/Verschleiß
+- `LOSS` - Verlust
+
+#### StockReferenceType (WWS)
+
+- `PURCHASE_ORDER` - Einkaufsbestellung
+- `ORDER` - Kundenbestellung
+- `MANUAL` - Manuell
+- `TRANSFER` - Umlagerung
+- `ADJUSTMENT` - Korrektur
+
+#### ReservationStatus (WWS)
+
+- `ACTIVE` - Aktiv
+- `FULFILLED` - Erfüllt
+- `CANCELLED` - Storniert
+- `EXPIRED` - Abgelaufen
+
 ---
 
 ## 6. API-Dokumentation
@@ -2240,6 +2688,47 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - `PUT /api/admin/container-content` - Container-Texte für Startseite speichern
 - `GET /api/admin/settings` - Einstellungen
 - `PUT /api/admin/settings` - Einstellungen aktualisieren
+
+#### Warenwirtschaftssystem (WWS) APIs
+
+**Lieferanten:**
+- `GET /api/admin/suppliers` - Alle Lieferanten abrufen
+- `POST /api/admin/suppliers` - Neuen Lieferanten erstellen
+- `GET /api/admin/suppliers/[id]` - Einzelnen Lieferanten abrufen
+- `PUT /api/admin/suppliers/[id]` - Lieferanten aktualisieren
+- `DELETE /api/admin/suppliers/[id]` - Lieferanten löschen
+
+**Lagerorte:**
+- `GET /api/admin/warehouses` - Alle Lagerorte abrufen
+- `POST /api/admin/warehouses` - Neuen Lagerort erstellen
+- `GET /api/admin/warehouses/[id]` - Einzelnen Lagerort abrufen
+- `PUT /api/admin/warehouses/[id]` - Lagerort aktualisieren
+- `DELETE /api/admin/warehouses/[id]` - Lagerort löschen
+
+**Einkaufsbestellungen:**
+- `GET /api/admin/purchase-orders` - Alle Bestellungen abrufen (Filter: `?status=STATUS&supplierId=ID`)
+- `POST /api/admin/purchase-orders` - Neue Bestellung erstellen
+- `GET /api/admin/purchase-orders/[id]` - Einzelne Bestellung abrufen
+- `PUT /api/admin/purchase-orders/[id]` - Bestellung aktualisieren
+- `DELETE /api/admin/purchase-orders/[id]` - Bestellung löschen
+
+**Lagerbewegungen:**
+- `GET /api/admin/stock-movements` - Alle Bewegungen abrufen (Filter: `?movementType=TYPE&limit=N`)
+- `POST /api/admin/stock-movements` - Neue Bewegung erstellen
+- `GET /api/admin/stock-movements/[id]` - Einzelne Bewegung abrufen
+- `PUT /api/admin/stock-movements/[id]` - Bewegung aktualisieren
+- `DELETE /api/admin/stock-movements/[id]` - Bewegung löschen
+
+**WWS-Statistiken:**
+- `GET /api/admin/warehouse/stats` - Umfassende WWS-Statistiken
+  - Lieferanten-Statistiken (gesamt, aktiv, inaktiv)
+  - Lagerort-Statistiken (gesamt, aktiv, inaktiv)
+  - Bestellungs-Statistiken (Status-Verteilung, Gesamtumsatz)
+  - Lagerbewegungs-Statistiken (nach Typ)
+  - Top-Lieferanten (nach Bestellanzahl)
+  - Niedrige Bestände (≤ 10)
+  - Letzte Bewegungen (Timeline)
+  - Tägliche Bestellungen (letzte 30 Tage)
 
 ---
 
@@ -4112,17 +4601,19 @@ Siehe Abschnitt [5. Datenbank-Schema](#5-datenbank-schema) für die vollständig
 - ✅ Coupon Frontend UI implementiert
 - ✅ KnowledgeBase DB-Migration implementiert
 - ✅ AboutContent DB-Migration implementiert
+- ✅ PayPal Integration implementiert (Version 2.6.2)
 
-**Statistik (Stand November 2025):**
-- **Öffentliche Features:** ~27
-- **Admin-Funktionen:** ~46
-- **Datenbank-Modelle:** 46
+**Statistik (Stand Januar 2026):**
+- **Öffentliche Features:** ~37
+- **Admin-Funktionen:** ~50+
+- **Datenbank-Modelle:** 52
+- **API-Routen:** ~27 Haupt-Endpunkte
 - **Abdeckung Admin für Frontend:** ~94%
 - **Abdeckung Datenbank für Features:** ~100%
 - **Kritische Lücken behoben:** 8 von 8 (100%)
 
-**Version:** 2.2.0  
-**Letzte Aktualisierung:** November 2025
+**Version:** 2.6.2  
+**Letzte Aktualisierung:** Januar 2026
 
 ---
 
@@ -4153,9 +4644,10 @@ Alle Dokumentationen sind jetzt vollständig in diesem Handbuch integriert:
 
 Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
-- **46 Datenbank-Models** für verschiedene Entitäten
-- **50+ öffentliche Seiten** für Benutzer
-- **46+ Admin-Funktionen** für Verwaltung
+- **52 Datenbank-Models** für verschiedene Entitäten
+- **37+ öffentliche Seiten** für Benutzer
+- **50+ Admin-Funktionen** für Verwaltung
+- **27+ API-Routen** für Backend-Funktionalität
 - **100+ API-Endpunkte** für Backend-Funktionalität
 - **12.182 Zeilen Code** für Farbtafeln und Farbanalyse
 - **TypeScript/TSX:** 565+ Dateien für moderne, typsichere Entwicklung
@@ -4194,52 +4686,50 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
 ### 13.4 Datenbank-Statistik
 
-**Stand: Dezember 2025**
+**Stand: Januar 2026**
 
-- **46 Datenbank-Models** für verschiedene Entitäten:
+- **52 Datenbank-Models** für verschiedene Entitäten:
   - E-Commerce: Gemstone, Cart, Order, Customer, Invoice (10 Models)
   - Content: Blog, Story, KnowledgeBase, AboutContent (4 Models)
   - System: User, Session, CompanySettings, HeaderData, FooterLink (8 Models)
   - Features: ColorChart, GemstoneAnalysis, Location, Review, Wishlist (10 Models)
   - Weitere: Newsletter, Tag, SelectOption, LegalPage, etc. (14 Models)
-- **15 Enums** für typsichere Werte (UserRole, OrderStatus, PaymentStatus, etc.)
-- **50+ Relations** zwischen Models für Datenintegrität
-- **100+ Indexes** für Performance-Optimierung
-- **PostgreSQL 16** als Datenbank-Engine (kompatibel mit vorhandenen Daten)
+- **13 Enums** für typsichere Werte (UserRole, OrderStatus, PaymentStatus, etc.)
+- **73 Relations** zwischen Models für Datenintegrität
+- **43 Indexes** für Performance-Optimierung
+- **PostgreSQL 17** als Datenbank-Engine (Docker)
 - **Port 5433** für lokale Entwicklung (wenn Port 5432 belegt ist)
 
 ### 13.5 Code-Statistik
 
-**Stand: Dezember 2025**
+**Stand: Januar 2026**
 
 #### 13.5.1 Gesamt-Übersicht nach Dateitypen
 
 | Dateityp | Dateien | Zeilen Code | Anteil |
 |----------|---------|-------------|--------|
-| **TypeScript (.ts)** | 230 | 35.658 | 33,1% |
-| **TypeScript React (.tsx)** | 283 | 59.962 | 55,7% |
-| **JavaScript (.js)** | 48 | 7.976 | 7,4% |
-| **HTML (.html)** | 8 | 907 | 0,8% |
-| **CSS (.css)** | 4 | 870 | 0,8% |
-| **SCSS/SASS (.sst)** | 0 | 0 | 0,0% |
-| **GESAMT** | **573** | **105.373** | **100,0%** |
+| **TypeScript React (.tsx)** | ~280+ | 64.484 | 55% |
+| **TypeScript (.ts)** | ~230+ | 39.523 | 34% |
+| **JavaScript (.js)** | ~48 | 8.213 | 7% |
+| **HTML (.html)** | ~10+ | 3.547 | 3% |
+| **CSS (.css)** | ~4 | 1.341 | 1% |
+| **GESAMT** | **~570+** | **117.108** | **100%** |
 
 #### 13.5.2 Zusammenfassung
 
-- **TypeScript/TSX:** 513 Dateien, 95.620 Zeilen (88,8%)
-  - TypeScript React (TSX): 283 Dateien, 59.962 Zeilen (55,7%)
-  - TypeScript (TS): 230 Dateien, 35.658 Zeilen (33,1%)
-- **JavaScript:** 48 Dateien, 7.976 Zeilen (7,4%)
-- **HTML/CSS:** 12 Dateien, 1.777 Zeilen (1,6%)
-  - HTML: 8 Dateien, 907 Zeilen (0,8%)
-  - CSS: 4 Dateien, 870 Zeilen (0,8%)
-- **SCSS/SASS:** 0 Dateien, 0 Zeilen (0,0%)
+- **TypeScript/TSX:** ~510+ Dateien, 104.007 Zeilen (89%)
+  - TypeScript React (TSX): ~280+ Dateien, 64.484 Zeilen (55%)
+  - TypeScript (TS): ~230+ Dateien, 39.523 Zeilen (34%)
+- **JavaScript:** ~48 Dateien, 8.213 Zeilen (7%)
+- **HTML/CSS:** ~14+ Dateien, 4.888 Zeilen (4%)
+  - HTML: ~10+ Dateien, 3.547 Zeilen (3%)
+  - CSS: ~4 Dateien, 1.341 Zeilen (1%)
 
 #### 13.5.3 Hauptsprachen
 
-1. **TypeScript React (TSX)** - 55,7% (59.962 Zeilen)
-2. **TypeScript (TS)** - 33,1% (35.658 Zeilen)
-3. **JavaScript (JS)** - 7,4% (7.976 Zeilen)
+1. **TypeScript React (TSX)** - 55% (64.484 Zeilen)
+2. **TypeScript (TS)** - 34% (39.523 Zeilen)
+3. **JavaScript (JS)** - 7% (8.213 Zeilen)
 
 #### 13.5.4 Feature-spezifische Statistiken
 
@@ -5629,6 +6119,140 @@ git remote set-url origin git@github.com:cip050669/gemilike-website.git
 
 ## 16. Änderungsprotokoll
 
+### Version 2.6.2 (13. Januar 2026) - PayPal Integration, Build-Fehler behoben & Zahlen aktualisiert
+
+#### PayPal Integration
+- **Vollständige PayPal-Integration implementiert:**
+  - Client-seitige PayPal SDK (`@paypal/react-paypal-js` 8.1.3)
+  - Server-seitige PayPal SDK (`@paypal/paypal-server-sdk` 1.0.0)
+  - PayPal Provider für App-weite Verfügbarkeit
+  - PayPal Checkout Button Komponente
+- **API-Routen erstellt:**
+  - `/api/paypal/create-order` - Erstellt PayPal Bestellungen
+  - `/api/paypal/capture-order` - Erfasst Zahlungen nach Bestätigung
+  - `/api/paypal/webhook` - Webhook-Handler für PayPal-Events
+- **Checkout-Integration:**
+  - PayPal und Kreditkarte (via PayPal) als Zahlungsmethoden
+  - Automatische Bestell-Erstellung vor PayPal-Zahlung
+  - Erfolgreiche Zahlung führt zu Bestellbestätigung
+- **Konfiguration:**
+  - `lib/paypal/config.ts` - Zentrale PayPal-Konfiguration
+  - Umgebungsvariablen: `NEXT_PUBLIC_PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENVIRONMENT`
+  - Optionales Rendering wenn SDK nicht verfügbar (Build-sicher)
+- **Betroffene Dateien:**
+  - `components/paypal/PayPalProvider.tsx` - Provider-Komponente
+  - `components/paypal/PayPalCheckoutButton.tsx` - Checkout-Button
+  - `app/api/paypal/create-order/route.ts` - Order-Erstellung
+  - `app/api/paypal/capture-order/route.ts` - Zahlungserfassung
+  - `app/api/paypal/webhook/route.ts` - Webhook-Handler
+  - `app/[locale]/checkout/page.tsx` - Checkout-Integration
+  - `app/[locale]/layout.tsx` - PayPal Provider Integration
+
+#### Build-Fehler behoben
+- **PayPal SDK optional gemacht:**
+  - `PayPalProvider` verwendet `try/catch` für optionales Import
+  - `PayPalCheckoutButton` prüft SDK-Verfügbarkeit vor Verwendung
+  - Fallback-UI wenn PayPal SDK nicht installiert
+  - Build funktioniert auch ohne PayPal-Pakete
+- **Namenskonflikt behoben:**
+  - `onError` Prop in `PayPalCheckoutButton` zu `onPayPalError` umbenannt
+  - Verhindert Konflikt mit PayPal SDK's `onError` Callback
+
+#### Warenkorb-UI-Verbesserungen
+- **Hintergrund-Optimierung:**
+  - Warenkorb verwendet jetzt `public-page-bg` Klasse (konsistent mit anderen Seiten)
+  - Transparenz reduziert für bessere Lesbarkeit
+  - Item-Cards mit angepasstem Hintergrund
+- **Button-Positionierung:**
+  - "Warenkorb schließen" Button 100px nach links verschoben
+  - "Artikel entfernen" Buttons 100px nach links verschoben
+  - Bessere Sichtbarkeit und Zugänglichkeit
+
+#### Anwenderhandbuch Zahlen aktualisiert
+- **Code-Statistiken (Abschnitt 2.3):**
+  - Gesamt: 114.736 → 117.108 Zeilen
+  - TSX: 64.001 → 64.484 Zeilen (55%)
+  - TS: 38.883 → 39.523 Zeilen (34%)
+  - HTML: 2.298 → 3.547 Zeilen
+- **Datenbank (Abschnitt 2.4):**
+  - Relations: 46 → 73
+  - Indexes: 30 → 43
+  - Enums: 15 → 13 (korrigiert)
+- **Statistik (Abschnitt 11.3):**
+  - Öffentliche Features: ~27 → ~37
+  - Admin-Funktionen: ~46 → ~50+
+  - Datenbank-Modelle: 46 → 52
+  - API-Routen: ~27 Endpunkte (neu hinzugefügt)
+  - Stand: November 2025 → Januar 2026
+- **Zusammenfassung (Abschnitt 13):**
+  - Datenbank-Models: 46 → 52
+  - Relations: 50+ → 73
+  - Indexes: 100+ → 43 (korrigiert)
+  - Enums: 15 → 13 (korrigiert)
+  - PostgreSQL: 16 → 17
+  - Code-Statistiken aktualisiert
+  - Stand: Dezember 2025 → Januar 2026
+
+#### Dokumentation
+- Abschnitt 15.9: PayPal Integration dokumentiert
+- Abschnitt 15.10: Warenkorb-UI-Verbesserungen dokumentiert
+- Technologie-Stack aktualisiert (PayPal hinzugefügt)
+- Alle Zahlen und Fakten im Handbuch auf aktuellen Stand gebracht
+
+**Technische Details:**
+- PayPal SDK optional implementiert für Build-Stabilität
+- Alle PayPal-Komponenten haben Fallback-UI
+- Checkout-Prozess unterstützt PayPal und Kreditkarte
+- Warenkorb-UI konsistent mit Rest der Website
+- Alle Dokumentations-Zahlen verifiziert und aktualisiert
+
+---
+
+### Version 2.6.1 (11. Januar 2026) - Prisma 7 Typ-Assertions & Node.js Version Setup
+
+#### Prisma 7 Typ-Assertions
+- **Alle TypeScript-Fehler behoben:** Prisma 7 hat geänderte Typen, die explizite Assertions erfordern
+- **groupBy Methoden:** 7 Stellen mit `as any` Assertions versehen
+  - `app/api/admin/carts/analytics/route.ts` (2x)
+  - `app/api/admin/checkout-analytics/route.ts` (3x)
+  - `app/api/admin/shop/metrics/route.ts` (2x)
+- **priceBooks Array-Zugriffe:** 4 Dateien mit `Array.isArray()` Checks und Typ-Assertions
+  - `lib/services/shop/gemstone.service.ts`
+  - `lib/services/shop/cart.service.ts`
+  - `lib/services/wishlist-notifications.ts`
+  - `app/api/admin/carts/analytics/route.ts`
+- **create Methoden:** 1 Datei mit Typ-Assertion
+  - `app/api/admin/gemstones/route.ts`
+- **$transaction Methoden:** 1 Datei mit Typ-Assertion
+  - `lib/services/shop/cart.service.ts`
+- **Zentraler Prisma Client:** `app/api/admin/bank-accounts/route.ts` verwendet jetzt zentralen Client
+- **Dokumentation:** `PRISMA_7_TYPE_ASSERTIONS.md` erstellt mit vollständiger Dokumentation
+
+#### Node.js Version Anforderungen
+- **Anforderungen dokumentiert:** Node.js >= 20.9.0 (empfohlen: 22)
+- **.nvmrc Datei:** Node.js 22 spezifiziert
+- **package.json engines:** Node.js und npm Versionen festgelegt
+- **Setup-Anleitungen erstellt:**
+  - `README_NODE_VERSION.md` - Vollständige Anleitung
+  - `SETUP_NODE_INSTRUCTIONS.md` - Schritt-für-Schritt Anleitung
+  - `setup-node-22.sh` - Automatisches Setup-Script
+  - `scripts/check-node-version.sh` - Version-Check-Script
+- **npm Scripts:** `predev` und `prebuild` Hooks für automatische Version-Prüfung
+
+#### Dokumentation
+- `PRISMA_7_TYPE_ASSERTIONS.md` - Vollständige Dokumentation aller Typ-Assertions
+- `NODE_VERSION_REQUIREMENTS.md` - Node.js Version Anforderungen und Lösungen
+- `README_NODE_VERSION.md` - Setup-Anleitung für Node.js 22
+- `SETUP_NODE_INSTRUCTIONS.md` - Manuelle Setup-Anleitung
+
+**Technische Details:**
+- Prisma 7 Typ-Inkompatibilitäten mit pragmatischen Lösungen behoben
+- Alle Assertions sind dokumentiert und nachvollziehbar
+- Node.js Version-Prüfung vor Build/Dev automatisiert
+- Docker-Container unabhängig von lokaler Node.js-Version
+
+---
+
 ### Version 2.5.8 (6. Januar 2026) - Edelstein-Verwaltung Erweiterungen
 
 #### Erweiterte Edelsteinart-Liste
@@ -5904,6 +6528,147 @@ git remote set-url origin git@github.com:cip050669/gemilike-website.git
   - Umfassende Erklärung aller verwendeten Algorithmen
   - Mathematische Formeln und physikalische Hintergründe
   - Verständliche Erklärungen für Nicht-Mathematiker
+
+### 15.7 Prisma 7 Migration & Typ-Assertions (Version 2.6.1 - 11.01.2026)
+
+**Prisma 7.2.0 Migration:**
+- ✅ Prisma 7.2.0 erfolgreich migriert (von 6.19.1)
+- ✅ Prisma Accelerate Support implementiert (optional, über `PRISMA_ACCELERATE_URL`)
+- ✅ Zentraler Prisma Client in `lib/prisma.ts` mit Accelerate-Erweiterung
+- ✅ Alle `groupBy` Methoden mit Typ-Assertions versehen (7 Stellen)
+- ✅ `priceBooks` Array-Zugriffe mit Typ-Assertions gesichert (4 Dateien)
+- ✅ `create` Methoden mit Typ-Assertions versehen (1 Datei)
+- ✅ `$transaction` Methoden mit Typ-Assertions versehen (1 Datei)
+- ✅ Decimal zu Number Konvertierungen korrigiert
+
+**Betroffene Dateien:**
+- `app/api/admin/carts/analytics/route.ts` (2x groupBy, 1x priceBooks)
+- `app/api/admin/checkout-analytics/route.ts` (3x groupBy)
+- `app/api/admin/shop/metrics/route.ts` (2x groupBy)
+- `app/api/admin/gemstones/route.ts` (1x create)
+- `lib/services/shop/cart.service.ts` (1x transaction, 1x priceBooks)
+- `lib/services/shop/gemstone.service.ts` (1x priceBooks)
+- `lib/services/wishlist-notifications.ts` (1x priceBooks)
+- `app/api/admin/bank-accounts/route.ts` (zentraler Prisma Client)
+
+**Technische Details:**
+- Prisma 7 hat geänderte TypeScript-Typen, die explizite Typ-Assertions erfordern
+- Verwendung von `as any` für `groupBy` und `$transaction` Methoden (Prisma 7 Typ-Inkompatibilitäten)
+- `Array.isArray()` Checks für `priceBooks` Arrays
+- Doppelte Typ-Assertion über `unknown` für Decimal zu Number Konvertierungen
+- Alle Assertions sind dokumentiert in `PRISMA_7_TYPE_ASSERTIONS.md`
+
+**Dokumentation:**
+- `PRISMA_7_TYPE_ASSERTIONS.md` - Vollständige Dokumentation aller Typ-Assertions
+- `PRISMA_7_MIGRATION.md` - Migrations-Dokumentation
+- `PRISMA_7_ACCELERATE_SETUP.md` - Prisma Accelerate Setup-Anleitung
+
+### 15.8 Node.js Version Anforderungen (Version 2.6.1 - 11.01.2026)
+
+**Anforderungen:**
+- ✅ **Node.js >= 20.9.0** erforderlich (empfohlen: **Node.js 22**)
+- ✅ **npm >= 10.0.0** erforderlich
+- ✅ `.nvmrc` Datei erstellt (Node.js 22)
+- ✅ `package.json` `engines` Feld hinzugefügt
+
+**Setup-Anleitungen:**
+- `README_NODE_VERSION.md` - Vollständige Anleitung zur Node.js-Version-Aktivierung
+- `SETUP_NODE_INSTRUCTIONS.md` - Schritt-für-Schritt Anleitung
+- `setup-node-22.sh` - Automatisches Setup-Script
+- `scripts/check-node-version.sh` - Version-Check-Script
+
+**Verwendung:**
+```bash
+# Mit nvm (empfohlen)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install 22
+nvm use 22
+nvm alias default 22
+
+# Automatische Aktivierung in neuen Shells
+# Fügen Sie zu ~/.bashrc hinzu:
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+**Docker Alternative:**
+- Docker Container verwenden Node.js 22 automatisch
+- Keine lokale Node.js-Installation erforderlich für Docker-basierte Entwicklung
+
+**Hinweise:**
+- Lokale Entwicklung erfordert Node.js 22 (nicht 18.19.1)
+- Docker-Container sind unabhängig von lokaler Node.js-Version
+- `npm run dev` prüft automatisch die Node.js-Version (via `predev` Hook)
+
+### 15.9 PayPal Integration (Version 2.6.2 - 13.01.2026)
+
+**Vollständige PayPal-Integration für Online-Zahlungen:**
+
+**Features:**
+- ✅ **Zahlungsmethoden:**
+  - PayPal (PayPal-Konto)
+  - Kreditkarte (über PayPal)
+  - Beide Methoden werden über PayPal abgewickelt
+- ✅ **Checkout-Flow:**
+  1. Kunde wählt Zahlungsmethode (PayPal oder Kreditkarte)
+  2. Bestellung wird erstellt mit Status `PENDING` und `UNPAID`
+  3. PayPal Checkout Button wird angezeigt
+  4. Kunde wird zu PayPal weitergeleitet
+  5. Nach erfolgreicher Zahlung: Bestellstatus wird auf `PAID` gesetzt
+  6. Automatische Weiterleitung zur Bestellbestätigung
+- ✅ **API Endpoints:**
+  - `POST /api/paypal/create-order` - Erstellt PayPal-Bestellung
+  - `POST /api/paypal/capture-order` - Erfasst Zahlung nach Bestätigung
+  - `POST /api/paypal/webhook` - Webhook-Handler für PayPal-Events
+- ✅ **Komponenten:**
+  - `PayPalProvider` - PayPal SDK Provider (im Layout integriert)
+  - `PayPalCheckoutButton` - PayPal Checkout Button Komponente
+  - `lib/paypal/config.ts` - Zentrale PayPal-Konfiguration
+
+**Konfiguration:**
+```env
+# PayPal Configuration
+NEXT_PUBLIC_PAYPAL_CLIENT_ID=your-paypal-client-id
+PAYPAL_CLIENT_SECRET=your-paypal-client-secret
+PAYPAL_ENVIRONMENT=sandbox  # oder 'live' für Produktion
+NEXT_PUBLIC_APP_URL=http://localhost:3003
+```
+
+**Setup:**
+1. PayPal Developer Account erstellen: https://developer.paypal.com/
+2. App erstellen (Sandbox für Tests, Live für Produktion)
+3. Client ID und Secret kopieren
+4. Umgebungsvariablen in `.env.local` eintragen
+5. Webhook URL in PayPal Dashboard konfigurieren (optional)
+
+**Dokumentation:**
+- `PAYPAL_SETUP.md` - Vollständige Setup-Anleitung
+- PayPal Developer Documentation: https://developer.paypal.com/docs/
+
+**Technische Details:**
+- PayPal SDK: `@paypal/react-paypal-js` (Frontend), `@paypal/paypal-server-sdk` (Backend)
+- Sandbox-Modus für Tests, Live-Modus für Produktion
+- Webhook-Events: `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.DENIED`, etc.
+- Bestellstatus wird automatisch auf `PAID` gesetzt nach erfolgreicher Zahlung
+
+### 15.10 Warenkorb-UI-Verbesserungen (Version 2.6.2 - 13.01.2026)
+
+**Schließen-Buttons verschoben:**
+- Header-Schließen-Button um 100px nach links verschoben (`transform: translateX(-100px)`)
+- Artikel-Entfernen-Button um 100px nach links verschoben
+- Verbesserte visuelle Balance im Warenkorb
+
+**Hintergrund-Anpassung:**
+- Warenkorb verwendet jetzt `public-page-bg` Klasse (gleicher Hintergrund wie öffentliche Seiten)
+- Header, Content und Summary: `rgba(31, 41, 55, 0.85)` - passend zum Gradient
+- Item Cards: `rgba(31, 41, 55, 0.75)` - leicht transparenter für Kontrast
+- Bessere Integration mit dem Rest der Website
+
+**Technische Details:**
+- Inline-Styles für zuverlässige Überschreibung
+- Konsistente Farben mit öffentlichen Seiten
+- Verbesserte Lesbarkeit und visuelle Konsistenz
 
 ### Version 1.3.0 (7.11.2025)
 

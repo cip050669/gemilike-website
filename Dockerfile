@@ -55,7 +55,7 @@ RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/root/.cache \
     npm ci --legacy-peer-deps --prefer-offline --no-audit
 
-# Copy Prisma schema and generate client (separate layer for better caching)
+# Copy Prisma schema and generate client (prisma.config.ts erst nach generate, da DATABASE_URL beim Build fehlt)
 COPY prisma ./prisma
 RUN --mount=type=cache,target=/root/.cache/prisma \
     --mount=type=cache,target=/root/.npm \
@@ -69,18 +69,25 @@ COPY next.config.ts tsconfig.json ./
 COPY app ./app
 COPY components ./components
 COPY lib ./lib
+COPY src ./src
 COPY middleware*.ts ./
+COPY proxy.ts ./
 COPY types ./types
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 
 # Set build-time environment variables
 ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+# Dummy DATABASE_URL for Next.js page-data collection (Prisma needs it when modules load)
+# Runtime uses real DATABASE_URL from docker-compose / container env
+ARG DATABASE_URL=postgresql://build:build@localhost:5432/build
+ENV DATABASE_URL=$DATABASE_URL
 
-# Build the application with optimizations
+# Build the application with optimizations (next build directly to skip prebuild that needs bash)
 # This will create the standalone output in .next/standalone
 RUN --mount=type=cache,target=/root/.cache/next \
-    npm run build
+    npx next build
 
 # Verify critical files exist after build
 RUN test -f public/sw.js && echo "✓ Service Worker found" || echo "⚠ Warning: Service Worker not found" && \
@@ -132,8 +139,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy public files (including Service Worker)
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Copy Prisma schema and migrations (needed for migrations at runtime)
+# Copy Prisma schema, config (Prisma 7) and migrations (needed for migrations at runtime)
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./
 
 # Copy Prisma Client from builder (needed for runtime)
 # The standalone build may not include all Prisma Client files

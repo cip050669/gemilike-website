@@ -1,6 +1,22 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { CartItem, Cart } from '@/lib/types';
+
+export interface CartItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  total: number;
+}
+
+interface Cart {
+  items: CartItem[];
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  total: number;
+  currency: string;
+}
 
 interface CartStore extends Cart {
   addToCart: (item: Omit<CartItem, 'id'>) => void;

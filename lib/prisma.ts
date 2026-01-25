@@ -1,49 +1,64 @@
 import { PrismaClient } from '@prisma/client';
-
-// Optional import for Accelerate extension (only used if PRISMA_ACCELERATE_URL is set)
-let withAccelerate: ((options?: any) => any) | null = null;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const accelerateModule = require('@prisma/extension-accelerate');
-  withAccelerate = accelerateModule.withAccelerate;
-} catch {
-  // Accelerate extension not available - will use direct connection
-}
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined;
 };
 
-// Create Prisma Client with Accelerate extension or direct connection
-// Prisma 7: Connection is configured via prisma.config.ts or Accelerate extension
+// Create Prisma Client with Accelerate or direct connection adapter
+// Prisma 7: Requires either "adapter" or "accelerateUrl" in constructor
 function createPrismaClient() {
-  // Prisma 7: Standard client options
-  const baseClient = new PrismaClient({
-    log: process.env.NODE_ENV === 'development' 
-      ? ['error', 'warn'] 
-      : ['error'],
-    errorFormat: 'pretty',
-  });
+  const baseOptions = {
+    log: (process.env.NODE_ENV === 'development' 
+      ? ['error', 'warn']
+      : ['error']) as ('error' | 'warn' | 'info' | 'query')[],
+    errorFormat: 'pretty' as const,
+  };
 
-  // Extend with Accelerate extension if Accelerate URL is set and extension is available
-  // Accelerate extension will use PRISMA_ACCELERATE_URL from environment
-  if (process.env.PRISMA_ACCELERATE_URL && withAccelerate) {
-    return baseClient.$extends(withAccelerate());
+  // Prisma 7: Use accelerateUrl if PRISMA_ACCELERATE_URL is set
+  if (process.env.PRISMA_ACCELERATE_URL) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma 7 accelerateUrl-Option
+    return new PrismaClient({ ...baseOptions, accelerateUrl: process.env.PRISMA_ACCELERATE_URL } as any);
+  } else {
+    // Prisma 7: Use adapter for direct connection
+    // Create pg Pool and wrap it in PrismaPg adapter
+    if (process.env.DATABASE_URL) {
+      // Configure connection pool for optimal performance
+      // Allow multiple concurrent connections based on environment
+      const maxConnections = process.env.DATABASE_POOL_MAX 
+        ? parseInt(process.env.DATABASE_POOL_MAX, 10)
+        : process.env.NODE_ENV === 'production' ? 20 : 10;
+      
+      const pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        max: maxConnections, // Allow multiple concurrent connections
+        min: 2, // Maintain minimum connections for better performance
+        idleTimeoutMillis: 30000, // Close idle connections after 30s
+        connectionTimeoutMillis: 2000, // Timeout after 2s if connection cannot be established
+      });
+      const adapter = new PrismaPg(pool);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma 7 adapter-Option
+      return new PrismaClient({ ...baseOptions, adapter } as any);
+    } else {
+      throw new Error('Either PRISMA_ACCELERATE_URL or DATABASE_URL must be set');
+    }
   }
-
-  // Direct connection (uses DATABASE_URL from prisma.config.ts)
-  return baseClient;
 }
 
 // Create or reuse Prisma Client instance with proper configuration
+// Cache globally in both development and production to prevent connection pool exhaustion
 // In development, this allows hot reload to pick up new Prisma Client
+// In production (especially serverless), this prevents creating new instances on each module reload
 // Prisma 7: Uses Accelerate if PRISMA_ACCELERATE_URL is configured
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
+// Always cache the client globally to prevent multiple instances
+// This is critical in production/serverless environments where modules can reload
+globalForPrisma.prisma = prisma;
+
 // Graceful shutdown handling
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-} else {
+if (process.env.NODE_ENV === 'production') {
   // In production, ensure graceful disconnection on shutdown
   process.on('beforeExit', async () => {
     await prisma.$disconnect();

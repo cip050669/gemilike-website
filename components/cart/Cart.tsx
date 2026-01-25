@@ -59,10 +59,10 @@ export function Cart() {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={toggleCart}>
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-gem-bgDark border-l border-gem-iceDark/20 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="fixed right-0 top-0 h-full w-full max-w-md border-l border-gem-iceDark/20 shadow-2xl public-page-bg" onClick={(e) => e.stopPropagation()}>
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gem-iceDark/20 p-6 bg-gem-bgDark/50">
+          <div className="flex items-center justify-between border-b border-gem-iceDark/20 p-6" style={{ backgroundColor: 'rgba(31, 41, 55, 0.85)' }}>
             <div className="flex items-center gap-3">
               <ShoppingCartIcon className="h-6 w-6 text-gem-accent" />
               <h2 className="text-xl font-bold text-gem-text">Warenkorb</h2>
@@ -78,13 +78,14 @@ export function Cart() {
               onClick={toggleCart} 
               aria-label="Warenkorb schließen"
               className="hover:bg-gem-surface-soft"
+              style={{ transform: 'translateX(-100px)' }}
             >
               <XIcon className="h-5 w-5" />
             </Button>
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6 bg-gem-bgDark">
+          <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: 'rgba(31, 41, 55, 0.85)' }}>
             {isLoading && (
               <div className="py-8 text-center text-muted-foreground">
                 Wird geladen …
@@ -120,7 +121,7 @@ export function Cart() {
                   ].filter(Boolean).join(' • ') || 'Keine Details verfügbar';
                   
                   return (
-                    <Card key={item.id} className="bg-gem-bgDark border-gem-iceDark/20">
+                    <Card key={item.id} className="border-gem-iceDark/30 shadow-md" style={{ backgroundColor: 'rgba(31, 41, 55, 0.75)' }}>
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-4">
                           {item.image ? (
@@ -186,18 +187,19 @@ export function Cart() {
                               >
                                 <PlusIcon className="h-4 w-4" />
                               </Button>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeItem(item.id)}
-                              disabled={isLoading}
-                              className="h-8 w-8 text-red-400 hover:text-red-300"
-                              aria-label="Artikel entfernen"
-                            >
-                              <XIcon className="h-4 w-4" />
-                            </Button>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeItem(item.id)}
+                            disabled={isLoading}
+                            className="h-8 w-8 text-red-400 hover:text-red-300"
+                            aria-label="Artikel entfernen"
+                            style={{ transform: 'translateX(-100px)' }}
+                          >
+                            <XIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -209,7 +211,7 @@ export function Cart() {
 
           {/* Cart Summary */}
           {items.length > 0 && (
-            <div className="border-t border-gem-iceDark/20 p-6 bg-gem-bgDark/50 space-y-4">
+            <div className="border-t border-gem-iceDark/20 p-6 space-y-4" style={{ backgroundColor: 'rgba(31, 41, 55, 0.85)' }}>
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-gem-text">Gesamt:</span>
                 <span className="text-2xl font-bold text-gem-accent">

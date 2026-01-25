@@ -129,5 +129,26 @@ test -f public/sw.js && echo 'Service Worker found' || echo 'Warning: Service Wo
 
 ---
 
-**Letzte Aktualisierung:** November 2025
+---
+
+## Januar 2026 – Build-Fix & Image-Updates
+
+### Dockerfile
+- **DATABASE_URL beim Build:** Dummy `postgresql://build:build@localhost:5432/build` als `ARG`/`ENV`, damit Prisma beim Next.js Page-Data-Collect (z.B. `/api/admin/audit-logs`) nicht mit „Either PRISMA_ACCELERATE_URL or DATABASE_URL must be set“ abbricht. Zur Laufzeit wird die echte `DATABASE_URL` aus docker-compose/Container-Env genutzt.
+- **Build-Befehl:** `npm run build` durch `npx next build` ersetzt, um das prebuild-Skript (benötigt `bash`) im Alpine-Image zu vermeiden.
+
+### docker-compose.yml
+- **Build-Arg:** `DATABASE_URL=postgresql://build:build@localhost:5432/build` für den App-Build ergänzt (nur Build, nicht Laufzeit).
+
+### deploy/strato-compose.yml
+- **postgres:** `postgres:16` → `postgres:17-alpine`
+- **redis:** `redis:7-alpine` → `redis:7.4-alpine`
+- **minio:** `minio/minio:latest` → `minio/minio:RELEASE.2024-11-07`
+- **caddy:** `caddy:2.8` → `caddy:2.10-alpine`
+- **grafana:** `grafana/grafana:10.4.2` → `grafana/grafana:11.0.0`
+- **App-Start:** `npm run start` → `node server.js` (Standalone-Output).
+
+---
+
+**Letzte Aktualisierung:** Januar 2026
 

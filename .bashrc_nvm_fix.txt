@@ -1,0 +1,27 @@
+═══════════════════════════════════════════════════════════════
+  FIX: npm_config_prefix Problem
+═══════════════════════════════════════════════════════════════
+
+PROBLEM:
+  nvm ist nicht kompatibel mit npm_config_prefix="/usr/local"
+
+LÖSUNG (in Ihrer Shell ausführen):
+─────────────────────────────────────────────────────────────
+  unset npm_config_prefix
+  nvm install 22
+  nvm use 22
+  nvm alias default 22
+  node --version  # Verifizierung
+
+DAUERHAFTE LÖSUNG:
+─────────────────────────────────────────────────────────────
+  Fügen Sie zu ~/.bashrc hinzu (nach den nvm-Zeilen):
+  
+  unset npm_config_prefix
+  
+  Dann in neuem Terminal:
+  cd /home/cip050669/CascadeProjects/gemilike-website
+  nvm use
+  npm run dev
+
+═══════════════════════════════════════════════════════════════

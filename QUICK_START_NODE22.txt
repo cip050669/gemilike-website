@@ -1,0 +1,40 @@
+═══════════════════════════════════════════════════════════════
+  QUICK START: Node.js 22 aktivieren
+═══════════════════════════════════════════════════════════════
+
+WICHTIG: nvm ist eine Shell-Funktion und muss in Ihrer 
+         interaktiven Shell geladen werden!
+
+OPTION 1: Script mit 'source' ausführen (empfohlen)
+─────────────────────────────────────────────────────
+  source activate-node-22.sh
+
+OPTION 2: Manuelle Befehle (falls Script nicht funktioniert)
+─────────────────────────────────────────────────────────────
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  nvm install 22
+  nvm use 22
+  nvm alias default 22
+
+OPTION 3: Für dauerhafte Aktivierung
+─────────────────────────────────────
+  Fügen Sie diese Zeilen zu Ihrer ~/.bashrc hinzu:
+  
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  
+  Dann in einem neuen Terminal:
+  cd /home/cip050669/CascadeProjects/gemilike-website
+  nvm use  # Verwendet automatisch .nvmrc
+
+VERIFIZIERUNG:
+─────────────────────────────────────────────────────
+  node --version  # Sollte v22.x.x zeigen
+  npm --version
+
+DANN:
+─────────────────────────────────────────────────────
+  npm run dev
+
+═══════════════════════════════════════════════════════════════

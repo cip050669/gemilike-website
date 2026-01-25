@@ -246,7 +246,7 @@ export function Header() {
         )}
 
         {/* Action Buttons - Desktop */}
-        <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0" style={{ transform: 'translateX(-375px)' }}>
+        <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0" style={{ transform: 'translateX(-495px)' }}>
           <div className="flex items-center gap-2 lg:gap-3">
             {/* Language Switcher */}
             <Button
@@ -333,7 +333,7 @@ export function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className="flex flex-col items-end gap-1 md:hidden" style={{ transform: 'translateX(-375px)' }}>
+        <div className="flex flex-col items-end gap-1 md:hidden" style={{ transform: 'translateX(-495px)' }}>
           <div className="flex items-center gap-2">
             {/* Language Switcher - Mobile */}
             <Button

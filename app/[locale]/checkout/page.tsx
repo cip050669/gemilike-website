@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { CheckIcon, CreditCardIcon, TruckIcon, TagIcon, X } from 'lucide-react';
+import { PayPalCheckoutButton } from '@/components/paypal/PayPalCheckoutButton';
 
 export default function CheckoutPage() {
   const items = useCartStore((state) => state.items);
@@ -50,6 +51,8 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState<string>('start');
   const [stepStartTime, setStepStartTime] = useState<number>(Date.now());
   const [cartId, setCartId] = useState<string | null>(null);
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+  const [showPayPalButton, setShowPayPalButton] = useState(false);
 
   // Tracking-Funktion
   const trackCheckoutEvent = useCallback(async (
@@ -204,7 +207,17 @@ export default function CheckoutPage() {
       }
 
       const order = await orderResponse.json();
+      setCreatedOrderId(order.id);
 
+      // Wenn PayPal/Kreditkarte gewählt, zeige PayPal Button
+      if (formData.paymentMethod === 'paypal' || formData.paymentMethod === 'creditcard') {
+        setShowPayPalButton(true);
+        setIsSubmitting(false);
+        // Don't redirect yet, wait for PayPal payment
+        return;
+      }
+
+      // Für andere Zahlungsmethoden (falls später hinzugefügt)
       // Track erfolgreiche Bestellung
       await trackCheckoutEvent('success', 8, true, undefined, {
         orderId: order.id,
@@ -460,6 +473,7 @@ export default function CheckoutPage() {
                       id="paypal"
                       name="paymentMethod"
                       value="paypal"
+                      checked={formData.paymentMethod === 'paypal'}
                       onChange={(e) => {
                         handleInputChange('paymentMethod', e.target.value);
                         if (currentStep !== 'payment') {
@@ -467,7 +481,7 @@ export default function CheckoutPage() {
                         }
                       }}
                     />
-                    <Label htmlFor="paypal" className="flex items-center space-x-2">
+                    <Label htmlFor="paypal" className="flex items-center space-x-2 cursor-pointer">
                       <CreditCardIcon className="h-4 w-4" />
                       <span>PayPal</span>
                     </Label>
@@ -479,28 +493,23 @@ export default function CheckoutPage() {
                       id="creditcard"
                       name="paymentMethod"
                       value="creditcard"
-                      onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+                      checked={formData.paymentMethod === 'creditcard'}
+                      onChange={(e) => {
+                        handleInputChange('paymentMethod', e.target.value);
+                        if (currentStep !== 'payment') {
+                          setCurrentStep('payment');
+                        }
+                      }}
                     />
-                    <Label htmlFor="creditcard" className="flex items-center space-x-2">
+                    <Label htmlFor="creditcard" className="flex items-center space-x-2 cursor-pointer">
                       <CreditCardIcon className="h-4 w-4" />
-                      <span>Kreditkarte</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      id="sepa"
-                      name="paymentMethod"
-                      value="sepa"
-                      onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
-                    />
-                    <Label htmlFor="sepa" className="flex items-center space-x-2">
-                      <CreditCardIcon className="h-4 w-4" />
-                      <span>SEPA-Lastschrift</span>
+                      <span>Kreditkarte (über PayPal)</span>
                     </Label>
                   </div>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  Beide Zahlungsmethoden werden über PayPal abgewickelt. Sie können mit PayPal-Konto oder Kreditkarte bezahlen.
+                </p>
               </CardContent>
             </Card>
 
@@ -645,22 +654,66 @@ export default function CheckoutPage() {
                 {submitError}
               </div>
             )}
-            
-            <Button 
-              onClick={(e) => {
-                setCurrentStep('submit');
-                void trackCheckoutEvent('submit', 7, false, undefined, {
-                  hasCoupon: !!appliedCoupon,
-                  itemCount: getTotalItems(),
-                });
-                handleSubmit(e);
-              }}
-              disabled={isSubmitting}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <CheckIcon className="h-5 w-5 mr-2" />
-              {isSubmitting ? 'Wird verarbeitet...' : 'Bestellung abschließen'}
-            </Button>
+
+            {/* PayPal Checkout Button */}
+            {showPayPalButton && createdOrderId && (formData.paymentMethod === 'paypal' || formData.paymentMethod === 'creditcard') && (
+              <div className="space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                    Bitte bestätigen Sie Ihre Zahlung über PayPal. Sie können mit Ihrem PayPal-Konto oder einer Kreditkarte bezahlen.
+                  </p>
+                  <PayPalCheckoutButton
+                    orderId={createdOrderId}
+                    total={getFinalTotal() + (getFinalTotal() * 0.19)}
+                    currency="EUR"
+                    onSuccess={async () => {
+                      // Track erfolgreiche Bestellung
+                      await trackCheckoutEvent('success', 8, true, undefined, {
+                        orderId: createdOrderId,
+                        totalItems: getTotalItems(),
+                        totalAmount: getFinalTotal() + (getFinalTotal() * 0.19),
+                      });
+                      // Cart leeren
+                      await clearCart();
+                    }}
+                    onError={(error) => {
+                      setSubmitError(error);
+                      setShowPayPalButton(false);
+                    }}
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPayPalButton(false);
+                    setCreatedOrderId(null);
+                    setIsSubmitting(false);
+                  }}
+                  className="w-full"
+                >
+                  Abbrechen
+                </Button>
+              </div>
+            )}
+
+            {/* Standard Submit Button (nur wenn PayPal nicht aktiv) */}
+            {!showPayPalButton && (
+              <Button 
+                onClick={(e) => {
+                  setCurrentStep('submit');
+                  void trackCheckoutEvent('submit', 7, false, undefined, {
+                    hasCoupon: !!appliedCoupon,
+                    itemCount: getTotalItems(),
+                  });
+                  handleSubmit(e);
+                }}
+                disabled={isSubmitting || !formData.paymentMethod}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <CheckIcon className="h-5 w-5 mr-2" />
+                {isSubmitting ? 'Wird verarbeitet...' : 'Bestellung abschließen'}
+              </Button>
+            )}
           </div>
         </div>
       </div>
