@@ -16,9 +16,13 @@ import navStyles from '@/components/layout/HeaderNav.module.css';
 import { cn } from '@/lib/utils';
 
 const formatWeight = (weight?: number | null, unit?: 'ct' | 'g', type?: 'cut' | 'rough') => {
-  if (typeof weight !== 'number') return null;
+  if (typeof weight !== 'number' || !Number.isFinite(weight)) return null;
   const resolvedUnit = unit ?? (type === 'rough' ? 'g' : 'ct');
-  return `${weight.toFixed(2)} ${resolvedUnit}`;
+  const formatted = new Intl.NumberFormat('de-DE', {
+    minimumFractionDigits: weight % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(weight);
+  return `${formatted} ${resolvedUnit}`;
 };
 
 const formatDimension = (value?: number | null) =>

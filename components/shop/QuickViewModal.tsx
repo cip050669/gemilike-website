@@ -22,6 +22,14 @@ interface QuickViewModalProps {
 
 export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded }: QuickViewModalProps) {
   const t = useTranslations('shop');
+  const formatWeight = (value?: number | null, unit?: 'ct' | 'g') => {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return '–';
+    const formatted = new Intl.NumberFormat('de-DE', {
+      minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+    return `${formatted} ${unit ?? 'ct'}`;
+  };
   
   if (!gemstone) return null;
   
@@ -97,7 +105,7 @@ export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded
                     <div className="flex items-center gap-2">
                       <Weight className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">{t('caratWeight')}:</span>
-                      <span>{gemstone.caratWeight} ct</span>
+                      <span>{formatWeight(gemstone.caratWeight, 'ct')}</span>
                     </div>
                   )}
                   
@@ -105,7 +113,7 @@ export function QuickViewModal({ gemstone, isOpen, onClose, onAddToCart, isAdded
                     <div className="flex items-center gap-2">
                       <Weight className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">{t('gramWeight')}:</span>
-                      <span>{gemstone.gramWeight} g</span>
+                      <span>{formatWeight(gemstone.gramWeight, 'g')}</span>
                     </div>
                   )}
                   

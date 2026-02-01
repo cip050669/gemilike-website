@@ -58,6 +58,18 @@ export const toNumber = (value: unknown, fallback: number | null = null) => {
   if (value === null || value === undefined || value === '') {
     return fallback;
   }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return fallback;
+    let normalized = trimmed.replace(/\s+/g, '');
+    if (normalized.includes(',') && normalized.includes('.')) {
+      normalized = normalized.replace(/\./g, '').replace(',', '.');
+    } else {
+      normalized = normalized.replace(',', '.');
+    }
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 };
@@ -160,7 +172,7 @@ export const normaliseGemstonePayload = (
   
   if (payload.color || payload.colorIntensity || colorBrightness !== null || payload.clarity || 
       payload.treatment || payload.certification || payload.certificateId || payload.certificateUrl ||
-      payload.lengthMm || payload.widthMm || payload.heightMm) {
+      payload.lengthMm || payload.widthMm || payload.heightMm || payload.originType) {
     if (isUpdate) {
       // For updates, use upsert with gemstoneId as unique constraint
       gemstoneData.attributes = {
@@ -181,6 +193,7 @@ export const normaliseGemstonePayload = (
             lengthMm: payload.lengthMm ? toNumber(payload.lengthMm, null) : null,
             widthMm: payload.widthMm ? toNumber(payload.widthMm, null) : null,
             heightMm: payload.heightMm ? toNumber(payload.heightMm, null) : null,
+            metadata: payload.originType ? { originType: String(payload.originType) } : undefined,
           },
           update: {
             color: toStringOrNull(payload.color),
@@ -195,6 +208,7 @@ export const normaliseGemstonePayload = (
             lengthMm: payload.lengthMm ? toNumber(payload.lengthMm, null) : null,
             widthMm: payload.widthMm ? toNumber(payload.widthMm, null) : null,
             heightMm: payload.heightMm ? toNumber(payload.heightMm, null) : null,
+            metadata: payload.originType ? { originType: String(payload.originType) } : undefined,
           },
         },
       };
@@ -213,6 +227,7 @@ export const normaliseGemstonePayload = (
           lengthMm: payload.lengthMm ? toNumber(payload.lengthMm, null) : null,
           widthMm: payload.widthMm ? toNumber(payload.widthMm, null) : null,
           heightMm: payload.heightMm ? toNumber(payload.heightMm, null) : null,
+          metadata: payload.originType ? { originType: String(payload.originType) } : undefined,
         },
       };
     }
@@ -261,14 +276,15 @@ export const normaliseGemstonePayload = (
   }
 
   // Price relation data
-  const priceNet = toNumber(payload.price ?? payload.priceNet, 0) ?? 0;
-  if (priceNet > 0 || isUpdate) {
-    const taxRate = toNumber(payload.taxRate, 19) ?? 19;
-    const priceGross = priceNet > 0 ? priceNet * (1 + taxRate / 100) : 0;
+  const taxRate = toNumber(payload.taxRate, 19) ?? 19;
+  const priceInput = payload.priceGross ?? payload.price ?? payload.priceNet;
+  const priceGross = toNumber(priceInput, 0) ?? 0;
+  const priceNet = priceGross > 0 ? priceGross / (1 + taxRate / 100) : 0;
+  if (priceGross > 0 || isUpdate) {
     
     if (isUpdate) {
       // For updates, create a new price entry (historical pricing)
-      if (priceNet > 0) {
+      if (priceGross > 0) {
         gemstoneData.priceBooks = {
           create: {
             currency: String(payload.currency ?? 'EUR'),
@@ -280,7 +296,7 @@ export const normaliseGemstonePayload = (
       }
     } else {
       // For creates, always create price entry
-      if (priceNet > 0) {
+      if (priceGross > 0) {
         gemstoneData.priceBooks = {
           create: {
             currency: String(payload.currency ?? 'EUR'),

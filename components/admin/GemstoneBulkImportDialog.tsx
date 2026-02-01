@@ -101,48 +101,15 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
   };
 
   const parseCSV = (content: string) => {
-    // Handle both \n and \r\n line endings
-    const lines = content
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(line => line.length > 0); // Remove completely empty lines
-    
-    console.log(`parseCSV: Found ${lines.length} lines (including header)`);
-    
-    if (lines.length < 2) {
+    const { headers, rows, lineCount } = parseCsvContent(content);
+    console.log(`parseCSV: Found ${lineCount} rows (including header)`);
+
+    if (headers.length === 0 || rows.length === 0) {
       alert('CSV-Datei muss mindestens eine Header-Zeile und eine Daten-Zeile enthalten.');
       return;
     }
 
-    // Parse CSV with proper handling of quoted values
-    const parseCSVLine = (line: string): string[] => {
-      const result: string[] = [];
-      let current = '';
-      let inQuotes = false;
-      
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          if (inQuotes && line[i + 1] === '"') {
-            current += '"';
-            i++; // Skip next quote
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          result.push(current.trim());
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-      result.push(current.trim());
-      return result;
-    };
-
-    const headers = parseCSVLine(lines[0]).map(h => h.trim().replace(/"/g, ''));
-    const data = lines.slice(1).map<RawCsvRow>((line) => {
-      const values = parseCSVLine(line);
+    const data = rows.map<RawCsvRow>((values) => {
       const row: RawCsvRow = {};
       headers.forEach((header, index) => {
         row[header] = (values[index] || '').trim().replace(/^"|"$/g, '');
@@ -213,10 +180,147 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
     return ['true', '1', 'yes', 'ja'].includes(normalized);
   };
 
+  const normalizeMediaPath = (value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    const publicIndex = trimmed.lastIndexOf('/public/');
+    if (publicIndex >= 0) {
+      return trimmed.slice(publicIndex + '/public'.length);
+    }
+    const windowsPublicIndex = trimmed.toLowerCase().lastIndexOf('\\public\\');
+    if (windowsPublicIndex >= 0) {
+      return trimmed.slice(windowsPublicIndex + '\\public'.length).replace(/\\/g, '/');
+    }
+    return trimmed;
+  };
+
   const parseStringArray = (value: string | undefined): string[] => {
     if (!value || value.trim() === '') return [];
     // Split by comma and filter empty values
-    return value.split(',').map(v => v.trim()).filter(Boolean);
+    return value
+      .split(',')
+      .map(v => normalizeMediaPath(v))
+      .filter(Boolean);
+  };
+
+  const parseCsvContent = (content: string): { headers: string[]; rows: string[][]; lineCount: number } => {
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentValue = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < content.length; i++) {
+      const char = content[i];
+      const nextChar = content[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          currentValue += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+        continue;
+      }
+
+      if (char === ',' && !inQuotes) {
+        currentRow.push(currentValue.trim());
+        currentValue = '';
+        continue;
+      }
+
+      if ((char === '\n' || char === '\r') && !inQuotes) {
+        if (char === '\r' && nextChar === '\n') {
+          i++;
+        }
+        currentRow.push(currentValue.trim());
+        const isEmptyRow = currentRow.every(value => value === '');
+        if (!isEmptyRow) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentValue = '';
+        continue;
+      }
+
+      currentValue += char;
+    }
+
+    if (currentValue.length > 0 || currentRow.length > 0) {
+      currentRow.push(currentValue.trim());
+      const isEmptyRow = currentRow.every(value => value === '');
+      if (!isEmptyRow) {
+        rows.push(currentRow);
+      }
+    }
+
+    if (rows.length === 0) {
+      return { headers: [], rows: [], lineCount: 0 };
+    }
+
+    const headers = rows[0].map(h => h.trim().replace(/"/g, ''));
+    const dataRows = rows.slice(1);
+    return { headers, rows: dataRows, lineCount: rows.length };
+  };
+
+  const normalizeRow = (row: RawCsvRow): RawCsvRow => {
+    const getFirst = (keys: string[]): string => {
+      for (const key of keys) {
+        const value = row[key];
+        if (value && value.trim() !== '') {
+          return value;
+        }
+      }
+      return '';
+    };
+
+    const inStockRaw = getFirst(['inStock', 'InStock', 'in_stock']);
+    const soldRaw = getFirst(['Verkauft', 'sold', 'isSold', 'verkauft']);
+    const derivedSold = inStockRaw ? (parseBoolean(inStockRaw) ? 'false' : 'true') : '';
+
+    return {
+      Stein: getFirst(['Stein', 'Name', 'name', 'stone', 'gem', 'Gemstone']),
+      Herkunft: getFirst(['Herkunft', 'origin', 'Origin']),
+      Farbe: getFirst(['Farbe', 'color', 'Color']),
+      'Cut/Rough': getFirst(['Cut/Rough', 'type', 'Type', 'cutRough', 'cut/rough']),
+      Karat: getFirst([
+        'Karat',
+        'caratWeight',
+        'Carat',
+        'Karat (ct)',
+        'Karat(ct)',
+        'ct',
+        'gramWeight',
+        'Gramm',
+        'Gewicht_g',
+      ]),
+      'Preis (Brutto)': getFirst(['Preis (Brutto)', 'Preis', 'price', 'Price']),
+      Kategorie: getFirst(['Kategorie', 'category', 'Category']),
+      Entstehung: getFirst(['Entstehung', 'originType', 'OriginType']),
+      Schliffart: getFirst(['Schliffart', 'cut', 'Cut']),
+      Schliffform: getFirst(['Schliffform', 'cutForm', 'CutForm']),
+      Reinheitsgrad: getFirst(['Reinheitsgrad', 'clarity', 'Clarity']),
+      Farbsättigung: getFirst(['Farbsättigung', 'colorIntensity', 'ColorIntensity']),
+      Helligkeit: getFirst(['Helligkeit', 'colorBrightness', 'colorSaturation', 'ColorBrightness']),
+      Behandlungsart: getFirst(['Behandlungsart', 'treatment', 'Treatment']),
+      Zertifizierungs_Labor: getFirst(['Zertifizierungs_Labor', 'certification', 'Certification']),
+      Zertifikatsnummer: getFirst(['Zertifikatsnummer', 'certificationNumber', 'CertificateId', 'certificateId']),
+      Zertifikats_URL: getFirst(['Zertifikats_URL', 'certificationUrl', 'CertificateUrl', 'certificateUrl']),
+      Rarität: getFirst(['Rarität', 'rarity', 'Rarity']),
+      Anzahl: getFirst(['Anzahl', 'stock', 'quantity', 'Quantity']),
+      SKU: getFirst(['SKU', 'sku']),
+      Währung: getFirst(['Währung', 'currency', 'Currency']),
+      Kurzbeschreibung: getFirst(['Kurzbeschreibung', 'description', 'shortDescription', 'ShortDescription']),
+      Langbeschreibung: getFirst(['Langbeschreibung', 'longDescription', 'LongDescription']),
+      Bilder: getFirst(['Bilder', 'images', 'Images']),
+      Videos: getFirst(['Videos', 'videos', 'Videos']),
+      Neu: getFirst(['Neu', 'isNew', 'new', 'IsNew']),
+      Featured: getFirst(['Featured', 'featured', 'isFeatured', 'IsFeatured']),
+      Verkauft: soldRaw || derivedSold,
+      Länge_mm: getFirst(['Länge_mm', 'length', 'lengthMm', 'Length']),
+      Breite_mm: getFirst(['Breite_mm', 'width', 'widthMm', 'Width']),
+      Höhe_mm: getFirst(['Höhe_mm', 'height', 'heightMm', 'Height']),
+    };
   };
 
   const validateData = (data: RawCsvRow[]): { valid: ValidatedGemstone[]; errors: string[] } => {
@@ -232,29 +336,31 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
     console.log(`validateData: Processing ${nonEmptyRows.length} non-empty rows out of ${data.length} total rows`);
 
     nonEmptyRows.forEach((row, index) => {
+      const normalizedRow = normalizeRow(row);
       const rowNum = index + 2; // +2 because index is 0-based and we skip header
       const errorsForRow: string[] = [];
 
       // Required fields
-      if (!row['Stein'] || row['Stein'].trim() === '') {
+      if (!normalizedRow['Stein'] || normalizedRow['Stein'].trim() === '') {
         errorsForRow.push('Stein (Name) ist erforderlich');
       }
-      if (!row['Farbe'] || row['Farbe'].trim() === '') {
+      if (!normalizedRow['Farbe'] || normalizedRow['Farbe'].trim() === '') {
         errorsForRow.push('Farbe ist erforderlich');
       }
-      if (!row['Cut/Rough'] || !['cut', 'rough'].includes(row['Cut/Rough'].toLowerCase())) {
+      if (!normalizedRow['Cut/Rough'] || !['cut', 'rough'].includes(normalizedRow['Cut/Rough'].toLowerCase())) {
         errorsForRow.push('Cut/Rough muss "cut" oder "rough" sein');
       }
-      if (!row['Karat'] || parseNumber(row['Karat']) === null) {
+      if (!normalizedRow['Karat'] || parseNumber(normalizedRow['Karat']) === null) {
         errorsForRow.push('Karat ist erforderlich und muss eine Zahl sein');
       }
-      if (!row['Preis'] || parseNumber(row['Preis']) === null) {
-        errorsForRow.push('Preis ist erforderlich und muss eine Zahl sein');
-      }
-      if (!row['Kategorie'] || row['Kategorie'].trim() === '') {
+    const priceValue = normalizedRow['Preis (Brutto)'] ?? normalizedRow['Preis'];
+    if (!priceValue || parseNumber(priceValue) === null) {
+      errorsForRow.push('Preis ist erforderlich und muss eine Zahl sein');
+    }
+      if (!normalizedRow['Kategorie'] || normalizedRow['Kategorie'].trim() === '') {
         errorsForRow.push('Kategorie ist erforderlich');
       }
-      if (!row['Währung'] || row['Währung'].trim() === '') {
+      if (!normalizedRow['Währung'] || normalizedRow['Währung'].trim() === '') {
         errorsForRow.push('Währung ist erforderlich');
       }
 
@@ -263,69 +369,69 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
         return;
       }
 
-      const cutRough = row['Cut/Rough'].toLowerCase();
+      const cutRough = normalizedRow['Cut/Rough'].toLowerCase();
       const type = cutRough === 'cut' ? 'cut' : 'rough';
       const condition = cutRough === 'cut' ? 'CUT' : 'ROUGH';
-      const caratWeight = parseNumber(row['Karat']);
-      const price = parseNumber(row['Preis']) || 0;
+      const caratWeight = parseNumber(normalizedRow['Karat']);
+    const price = parseNumber(priceValue) || 0;
 
       // Parse dimensions
-      const lengthMm = parseNumber(row['Länge_mm']);
-      const widthMm = parseNumber(row['Breite_mm']);
-      const heightMm = parseNumber(row['Höhe_mm']);
+      const lengthMm = parseNumber(normalizedRow['Länge_mm']);
+      const widthMm = parseNumber(normalizedRow['Breite_mm']);
+      const heightMm = parseNumber(normalizedRow['Höhe_mm']);
 
       // Parse images and videos
-      const images = parseStringArray(row['Bilder']);
-      const videos = parseStringArray(row['Videos']);
+      const images = parseStringArray(normalizedRow['Bilder']);
+      const videos = parseStringArray(normalizedRow['Videos']);
 
       // Parse boolean fields
-      const isNew = parseBoolean(row['Neu']);
-      const featured = parseBoolean(row['Featured']);
-      const verkauft = parseBoolean(row['Verkauft']);
+      const isNew = parseBoolean(normalizedRow['Neu']);
+      const featured = parseBoolean(normalizedRow['Featured']);
+      const verkauft = parseBoolean(normalizedRow['Verkauft']);
       const inStock = !verkauft;
 
       // Parse quantity
-      const quantity = parseNumber(row['Anzahl']) || 1;
+      const quantity = parseNumber(normalizedRow['Anzahl']) || 1;
 
       // Parse color brightness (1-10 scale)
-      const colorBrightness = row['Helligkeit'] ? parseNumber(row['Helligkeit']) : null;
+      const colorBrightness = normalizedRow['Helligkeit'] ? parseNumber(normalizedRow['Helligkeit']) : null;
       const normalizedBrightness = colorBrightness !== null 
         ? Math.max(0, Math.min(10, Math.round(colorBrightness))) 
         : null;
 
       valid.push({
-        name: row['Stein'].trim(),
-        category: row['Kategorie'].trim(),
+        name: normalizedRow['Stein'].trim(),
+        category: normalizedRow['Kategorie'].trim(),
         type,
         condition,
-        origin: row['Herkunft']?.trim() || undefined,
-        color: row['Farbe']?.trim() || undefined,
-        cut: row['Schliffart']?.trim() || undefined,
-        cutForm: row['Schliffform']?.trim() || undefined,
+        origin: normalizedRow['Herkunft']?.trim() || undefined,
+        color: normalizedRow['Farbe']?.trim() || undefined,
+        cut: normalizedRow['Schliffart']?.trim() || undefined,
+        cutForm: normalizedRow['Schliffform']?.trim() || undefined,
         caratWeight: caratWeight || undefined,
         gramWeight: type === 'rough' ? caratWeight : undefined,
         price,
-        currency: row['Währung'].trim(),
+        currency: normalizedRow['Währung'].trim(),
         lengthMm: lengthMm || undefined,
         widthMm: widthMm || undefined,
         heightMm: heightMm || undefined,
-        clarity: row['Reinheitsgrad']?.trim() || undefined,
-        colorIntensity: row['Farbsättigung']?.trim() || undefined,
+        clarity: normalizedRow['Reinheitsgrad']?.trim() || undefined,
+        colorIntensity: normalizedRow['Farbsättigung']?.trim() || undefined,
         colorBrightness: normalizedBrightness || undefined,
-        treatment: row['Behandlungsart']?.trim() || undefined,
-        certification: row['Zertifizierungs_Labor']?.trim() || undefined,
-        certificateId: row['Zertifikatsnummer']?.trim() || undefined,
-        certificateUrl: row['Zertifikats_URL']?.trim() || undefined,
-        rarity: row['Rarität']?.trim() || undefined,
-        description: row['Kurzbeschreibung']?.trim() || undefined,
-        shortDescription: row['Kurzbeschreibung']?.trim() || undefined,
-        longDescription: row['Langbeschreibung']?.trim() || undefined,
+        treatment: normalizedRow['Behandlungsart']?.trim() || undefined,
+        certification: normalizedRow['Zertifizierungs_Labor']?.trim() || undefined,
+        certificateId: normalizedRow['Zertifikatsnummer']?.trim() || undefined,
+        certificateUrl: normalizedRow['Zertifikats_URL']?.trim() || undefined,
+        rarity: normalizedRow['Rarität']?.trim() || undefined,
+        description: normalizedRow['Kurzbeschreibung']?.trim() || undefined,
+        shortDescription: normalizedRow['Kurzbeschreibung']?.trim() || undefined,
+        longDescription: normalizedRow['Langbeschreibung']?.trim() || undefined,
         images,
         videos,
         isNew,
         featured,
         inStock,
-        sku: row['SKU']?.trim() || undefined,
+        sku: normalizedRow['SKU']?.trim() || undefined,
         quantity: Math.max(1, quantity),
       });
     });
@@ -344,15 +450,10 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
     setImportResult(null);
 
     try {
-      // Re-parse CSV - handle both \n and \r\n line endings
-      const lines = csvData
-        .split(/\r?\n/)
-        .map(line => line.trim())
-        .filter(line => line.length > 0); // Remove completely empty lines
-      
-      console.log(`CSV Import: Total lines after splitting: ${lines.length}`);
-      
-      if (lines.length < 2) {
+      const { headers, rows, lineCount } = parseCsvContent(csvData);
+      console.log(`CSV Import: Total rows after parsing: ${lineCount}`);
+
+      if (headers.length === 0 || rows.length === 0) {
         setImportResult({
           success: false,
           message: 'CSV-Datei muss mindestens eine Header-Zeile und eine Daten-Zeile enthalten.',
@@ -363,41 +464,9 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
         setIsImporting(false);
         return;
       }
-      const parseCSVLine = (line: string): string[] => {
-        const result: string[] = [];
-        let current = '';
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          if (char === '"') {
-            if (inQuotes && line[i + 1] === '"') {
-              current += '"';
-              i++;
-            } else {
-              inQuotes = !inQuotes;
-            }
-          } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
-            current = '';
-          } else {
-            current += char;
-          }
-        }
-        result.push(current.trim());
-        return result;
-      };
+      console.log(`CSV Import: Found ${rows.length} data rows (excluding header)`);
 
-      const headers = parseCSVLine(lines[0]).map(h => h.trim().replace(/"/g, ''));
-      
-      // Filter out completely empty lines before parsing
-      const dataRows = lines.slice(1)
-        .map(line => line.trim())
-        .filter(line => line.length > 0); // Remove empty lines
-      
-      console.log(`CSV Import: Found ${dataRows.length} data rows (excluding header)`);
-      
-      const data = dataRows.map<RawCsvRow>((line) => {
-        const values = parseCSVLine(line);
+      const data = rows.map<RawCsvRow>((values) => {
         const row: RawCsvRow = {};
         headers.forEach((header, index) => {
           row[header] = (values[index] || '').trim().replace(/^"|"$/g, '');
@@ -587,6 +656,9 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
                     className="mt-1 bg-[#1a1a1a] text-white border-gray-600"
                   />
                 </div>
+                <p className="text-xs text-gray-400">
+                  Hinweis: Preis = Bruttopreis inkl. MwSt. (Spalte: &quot;Preis (Brutto)&quot;).
+                </p>
                 
                 <div className="text-center text-gray-400">oder</div>
                 
@@ -594,12 +666,15 @@ export function GemstoneBulkImportDialog({ onImportComplete }: GemstoneBulkImpor
                   <Label htmlFor="csv-content" className="text-white">CSV-Daten direkt eingeben</Label>
                   <Textarea
                     id="csv-content"
-                    placeholder="Stein,Herkunft,Farbe,Cut/Rough,Karat,Preis,Kategorie,Währung..."
+                    placeholder="Stein,Herkunft,Farbe,Cut/Rough,Karat,Preis (Brutto),Kategorie,Währung..."
                     value={csvData}
                     onChange={handleManualCSV}
                     rows={6}
                     className="mt-1 font-mono text-sm bg-[#1a1a1a] text-white border-gray-600"
                   />
+                  <p className="text-xs text-gray-400 mt-2">
+                    Deutsche und englische Spaltennamen werden akzeptiert (z.B. Stein/Name, Kategorie/category, Cut/Rough/type).
+                  </p>
                 </div>
               </div>
             </CardContent>

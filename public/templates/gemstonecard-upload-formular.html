@@ -327,8 +327,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="price" class="required">Preis</label>
-                    <input type="number" id="price" name="price" step="0.01" min="0" required placeholder="z.B. 1600.00">
+                    <label for="price" class="required">Preis (Brutto)</label>
+                    <input type="text" id="price" name="price" inputmode="decimal" pattern="[0-9.,\s]*" required placeholder="z.B. 1.600,00">
                 </div>
                 
                 <div class="form-group">
@@ -346,35 +346,35 @@
             <div class="form-grid">
                 <div class="form-group" id="caratWeightGroup">
                     <label for="caratWeight">Karat (ct)</label>
-                    <input type="number" id="caratWeight" name="caratWeight" step="0.01" min="0" placeholder="z.B. 2.50">
+                    <input type="text" id="caratWeight" name="caratWeight" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 2,50">
                 </div>
                 
                 <div class="form-group" id="gramWeightGroup">
                     <label for="gramWeight">Gewicht (g)</label>
-                    <input type="number" id="gramWeight" name="gramWeight" step="0.01" min="0" placeholder="z.B. 5.00">
+                    <input type="text" id="gramWeight" name="gramWeight" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 5,00">
                 </div>
                 
                 <div class="form-group">
                     <label for="length">Länge (mm)</label>
-                    <input type="number" id="length" name="length" step="0.01" min="0" placeholder="z.B. 12.12">
+                    <input type="text" id="length" name="length" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 12,12">
                 </div>
                 
                 <div class="form-group">
                     <label for="width">Breite (mm)</label>
-                    <input type="number" id="width" name="width" step="0.01" min="0" placeholder="z.B. 10.38">
+                    <input type="text" id="width" name="width" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 10,38">
                 </div>
                 
                 <div class="form-group">
                     <label for="height">Höhe (mm)</label>
-                    <input type="number" id="height" name="height" step="0.01" min="0" placeholder="z.B. 7.62">
+                    <input type="text" id="height" name="height" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 7,62">
                 </div>
             </div>
             
             <div class="section-title">Farbe und Eigenschaften</div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="color">Farbe</label>
-                    <select id="color" name="color">
+                    <label for="color" class="required">Farbe</label>
+                    <select id="color" name="color" required>
                         <option value="">-- Bitte wählen --</option>
                     </select>
                 </div>
@@ -631,7 +631,7 @@
         const COLORS = ['Achatgrau', 'Aprikose', 'Aquamarinblau', 'Aschgrau', 'Beige', 'Bernstein', 'Bisquit', 'Blassblau', 'Blassgelb', 'Blassgrün', 'Blasslila', 'Blassrosa', 'Blau', 'Blau-Grün', 'Blau-Violett', 'Bläulich', 'Bläulich-Grün', 'Bläulich-Violett', 'Braun', 'Braun-Gelb', 'Braun-Rot', 'Bronze', 'Champagner', 'Chromgrün', 'Cognac', 'Cyan', 'Dunkelblau', 'Dunkelbraun', 'Dunkelgelb', 'Dunkelgrau', 'Dunkelgrün', 'Dunkellila', 'Dunkelorange', 'Dunkelrosa', 'Dunkelrot', 'Dunkeltürkis', 'Dunkelviolett', 'Eisblau', 'Elfenbein', 'Emeraldgrün', 'Farblos', 'Feuerrot', 'Flieder', 'Gelb', 'Gelb-Grün', 'Gelb-Orange', 'Gelblich', 'Gelblich-Grün', 'Gold', 'Goldgelb', 'Grau', 'Grau-Blau', 'Grau-Grün', 'Grün', 'Grün-Blau', 'Grün-Gelb', 'Grünlich', 'Grünlich-Blau', 'Himmelblau', 'Honiggelb', 'Indigo', 'Jadegrün', 'Kamel', 'Karminrot', 'Kastanienbraun', 'Kobaltblau', 'Koralle', 'Kupfer', 'Lachs', 'Lavendel', 'Lemon', 'Lila', 'Lila-Blau', 'Lila-Rot', 'Magenta', 'Mahagoni', 'Marineblau', 'Mint', 'Moosgrün', 'Navy', 'Ocker', 'Oliv', 'Olivgrün', 'Orange', 'Orange-Gelb', 'Orange-Rot', 'Orchidee', 'Pastellblau', 'Pastellgelb', 'Pastellgrün', 'Pastelllila', 'Pastellrosa', 'Perlmutt', 'Pfirsich', 'Pink', 'Pink-Rot', 'Platin', 'Purpur', 'Rosa', 'Rosa-Lila', 'Rosa-Rot', 'Rot', 'Rot-Orange', 'Rot-Violett', 'Rötlich', 'Rötlich-Orange', 'Rötlich-Violett', 'Rubinrot', 'Safrangelb', 'Salmon', 'Scharlachrot', 'Schwarz', 'Schwarz-Blau', 'Schwarz-Grün', 'Schwarz-Rot', 'Schwarz-Violett', 'Silber', 'Smaragdgrün', 'Tannengrün', 'Taupe', 'Teal', 'Tiefblau', 'Tiefgrün', 'Tiefrot', 'Tiefviolett', 'Türkis', 'Türkis-Blau', 'Türkis-Grün', 'Ultramarin', 'Vanille', 'Violett', 'Violett-Blau', 'Violett-Rot', 'Violettlich', 'Weiß', 'Weiß-Gelb', 'Weiß-Grün', 'Weißlich', 'Weißlich-Blau', 'Weißlich-Grün', 'Zitronengelb', 'Zitronengrün'].sort();
         
         // CSV Header
-        const CSV_HEADER = 'name,type,category,origin,originType,price,currency,caratWeight,gramWeight,length,width,height,color,colorIntensity,colorSaturation,clarity,cut,cutForm,crystalForm,crystalQuality,treatment,certification,certificationNumber,certificationUrl,rarity,stock,description,images,videos,isNew,featured,inStock';
+        const CSV_HEADER = 'Stein,Herkunft,Farbe,Cut/Rough,Karat,Preis (Brutto),Kategorie,Entstehung,Schliffart,Schliffform,Reinheitsgrad,Farbsättigung,Helligkeit,Behandlungsart,Zertifizierungs_Labor,Zertifikatsnummer,Zertifikats_URL,Rarität,Anzahl,SKU,Währung,Kurzbeschreibung,Langbeschreibung,Bilder,Videos,Neu,Featured,Verkauft,Länge_mm,Breite_mm,Höhe_mm';
         
         // Array zum Speichern aller Datensätze
         let records = [];
@@ -688,10 +688,18 @@
             const type = document.getElementById('type').value;
             const isCut = type === 'cut';
             const isRough = type === 'rough';
+            const caratWeightInput = document.getElementById('caratWeight');
+            const gramWeightInput = document.getElementById('gramWeight');
+            const caratLabel = document.querySelector('label[for="caratWeight"]');
+            const gramLabel = document.querySelector('label[for="gramWeight"]');
             
             // Gewicht-Felder
             document.getElementById('caratWeightGroup').style.display = isCut ? 'flex' : 'none';
             document.getElementById('gramWeightGroup').style.display = isRough ? 'flex' : 'none';
+            if (caratWeightInput) caratWeightInput.required = isCut;
+            if (gramWeightInput) gramWeightInput.required = isRough;
+            if (caratLabel) caratLabel.classList.toggle('required', isCut);
+            if (gramLabel) gramLabel.classList.toggle('required', isRough);
             
             // Cut-spezifische Felder
             const cutFields = ['colorIntensityGroup', 'colorSaturationGroup', 'clarityGroup', 'cutGroup', 'cutFormGroup'];
@@ -890,39 +898,42 @@
             }
             
             const csvRows = records.map(record => {
+                const karatValue = record.type === 'rough'
+                    ? (record.gramWeight || record.caratWeight)
+                    : (record.caratWeight || record.gramWeight);
+                const verkauft = record.inStock === 'false' ? 'true' : 'false';
                 return [
                     escapeCSV(record.name),
-                    escapeCSV(record.type),
-                    escapeCSV(record.category),
                     escapeCSV(record.origin),
-                    escapeCSV(record.originType),
-                    escapeCSV(record.price),
-                    escapeCSV(record.currency),
-                    escapeCSV(record.caratWeight),
-                    escapeCSV(record.gramWeight),
-                    escapeCSV(record.length),
-                    escapeCSV(record.width),
-                    escapeCSV(record.height),
                     escapeCSV(record.color),
-                    escapeCSV(record.colorIntensity),
-                    escapeCSV(record.colorSaturation),
-                    escapeCSV(record.clarity),
+                    escapeCSV(record.type),
+                    escapeCSV(karatValue),
+                    escapeCSV(record.price),
+                    escapeCSV(record.category),
+                    escapeCSV(record.originType),
                     escapeCSV(record.cut),
                     escapeCSV(record.cutForm),
-                    escapeCSV(record.crystalForm),
-                    escapeCSV(record.crystalQuality),
+                    escapeCSV(record.clarity),
+                    escapeCSV(record.colorIntensity),
+                    escapeCSV(record.colorSaturation),
                     escapeCSV(record.treatment),
                     escapeCSV(record.certification),
                     escapeCSV(record.certificationNumber),
                     escapeCSV(record.certificationUrl),
                     escapeCSV(record.rarity),
                     escapeCSV(record.stock),
+                    escapeCSV(record.sku || ''),
+                    escapeCSV(record.currency),
                     escapeCSV(record.description),
+                    escapeCSV(''),
                     escapeCSV(record.images),
                     escapeCSV(record.videos),
                     escapeCSV(record.isNew),
                     escapeCSV(record.featured),
-                    escapeCSV(record.inStock)
+                    escapeCSV(verkauft),
+                    escapeCSV(record.length),
+                    escapeCSV(record.width),
+                    escapeCSV(record.height)
                 ].join(',');
             });
             
@@ -1133,8 +1144,15 @@
                 if (!record.origin) {
                     recordErrors.push('Herkunft fehlt');
                 }
-                if (!record.price || parseFloat(record.price) <= 0) {
+                const priceValue = parseFloat(String(record.price || '').replace(',', '.'));
+                if (!record.price || Number.isNaN(priceValue) || priceValue <= 0) {
                     recordErrors.push('Preis fehlt oder ist ungültig');
+                }
+                if (!record.currency) {
+                    recordErrors.push('Währung fehlt');
+                }
+                if (!record.color) {
+                    recordErrors.push('Farbe fehlt');
                 }
                 
                 // Warnungen
@@ -1145,10 +1163,10 @@
                     recordWarnings.push('Keine Bilder');
                 }
                 if (record.type === 'cut' && !record.caratWeight) {
-                    recordWarnings.push('Kein Karat-Gewicht für geschliffenen Stein');
+                    recordErrors.push('Karat-Gewicht fehlt für geschliffenen Stein');
                 }
                 if (record.type === 'rough' && !record.gramWeight) {
-                    recordWarnings.push('Kein Gramm-Gewicht für Rohstein');
+                    recordErrors.push('Gramm-Gewicht fehlt für Rohstein');
                 }
                 
                 if (recordErrors.length === 0) {
@@ -1205,4 +1223,3 @@
     </script>
 </body>
 </html>
-

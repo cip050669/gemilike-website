@@ -65,13 +65,14 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
                   Karat
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="carat"
                   name="carat"
-                  step="0.01"
                   defaultValue={gemstone.carat}
+                  inputMode="decimal"
+                  pattern="[0-9.,\\s]*"
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="z.B. 2.5"
+                  placeholder="z.B. 2,5"
                 />
               </div>
               
@@ -119,16 +120,17 @@ export default async function EditGemstonePage({ params }: EditGemstonePageProps
               
               <div>
                 <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">
-                  Preis (€)
+                  Preis (€ inkl. MwSt.)
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="price"
                   name="price"
-                  step="0.01"
                   defaultValue={gemstone.price}
+                  inputMode="decimal"
+                  pattern="[0-9.,\\s]*"
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="z.B. 1500.00"
+                  placeholder="z.B. 1.500,00"
                 />
               </div>
             </div>

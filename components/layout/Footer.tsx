@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useLocale } from 'next-intl';
-import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -75,51 +74,26 @@ export function Footer() {
     }
   };
 
-  const socialLinks = [
-    { icon: Facebook, href: 'https://facebook.com/gemilike', label: 'Facebook' },
-    { icon: Instagram, href: 'https://instagram.com/gemilike', label: 'Instagram' },
-    { icon: Twitter, href: 'https://twitter.com/gemilike', label: 'Twitter' },
-    { icon: Youtube, href: 'https://youtube.com/gemilike', label: 'YouTube' },
-  ];
-
-  // no-op
-
   return (
     <footer className="bg-gem-bgDark border-t border-gem-iceDark/20">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-row gap-8">
           
-          {/* Spalte 1: Logo + Social Media */}
+          {/* Spalte 1: Logo */}
           <div className="flex-1 space-y-6">
             <div className="flex flex-col items-start space-y-4">
               <Link href={`/${locale}`} className="inline-flex flex-col gap-3 items-start">
                 <Image 
                   src="/logo.png" 
                   alt="Gemilike Logo" 
-                  width={120} 
-                  height={53} 
-                  className="object-contain max-w-[150px] h-auto"
+                  width={240} 
+                  height={106} 
+                  className="object-contain max-w-[300px] h-auto"
                 />
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-gem-ice/40 px-3 py-1 text-[11px] uppercase tracking-[0.3em] text-gem-iceLight">
                   Heroes in Gems
                 </span>
               </Link>
-              
-              {/* Social Media Buttons */}
-              <div className="flex flex-wrap items-center gap-3">
-                {socialLinks.map((social) => (
-                  <Link
-                    key={social.label}
-                    aria-label={social.label}
-                    className="group inline-flex h-11 w-11 items-center justify-center rounded-full border border-gem-ice/20 bg-gem-bgDark/50 text-gem-text transition hover:border-gem-ice/60 hover:text-gem-iceLight hover:bg-gem-ice/10"
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <social.icon className="h-5 w-5 transition group-hover:scale-110" />
-                  </Link>
-                ))}
-              </div>
             </div>
           </div>
 

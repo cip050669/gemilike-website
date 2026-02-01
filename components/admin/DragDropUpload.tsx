@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
-import { ImageIcon, Video, X, Loader2 } from 'lucide-react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { ImageIcon, Video, Loader2, GripVertical } from 'lucide-react';
 
 interface DragDropUploadProps {
   accept?: 'image' | 'video' | 'both';
@@ -24,7 +24,17 @@ export function DragDropUpload({
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [uploadedUrls, setUploadedUrls] = useState<string[]>(existingUrls);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const same =
+      uploadedUrls.length === existingUrls.length &&
+      uploadedUrls.every((url, idx) => url === existingUrls[idx]);
+    if (!same) {
+      setUploadedUrls(existingUrls);
+    }
+  }, [existingUrls, uploadedUrls]);
 
   const getAcceptTypes = () => {
     if (accept === 'image') return 'image/*';
@@ -206,6 +216,16 @@ export function DragDropUpload({
     onUploadComplete(newUrls);
   };
 
+  const moveUrl = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    if (toIndex < 0 || toIndex >= uploadedUrls.length) return;
+    const next = [...uploadedUrls];
+    const [item] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, item);
+    setUploadedUrls(next);
+    onUploadComplete(next);
+  };
+
   const getDisplayText = () => {
     if (accept === 'image') return 'Bilder';
     if (accept === 'video') return 'Videos';
@@ -304,14 +324,37 @@ export function DragDropUpload({
           <h4 className="text-sm font-medium text-gray-300 mb-3">
             Hochgeladene {getDisplayText()} ({uploadedUrls.length})
           </h4>
+          <p className="text-xs text-gray-500 mb-3">
+            Reihenfolge per Drag & Drop ändern, Löschen über das X.
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {uploadedUrls.map((url, index) => {
               const isVideo = url.includes('.mp4') || url.includes('.mov') || url.includes('.webm') || url.includes('.avi');
               return (
-                <div
-                  key={index}
-                  className="relative group aspect-square bg-gray-800 rounded-lg overflow-hidden border border-gray-700"
-                >
+                <div key={index} className="flex flex-col gap-2">
+                  <div
+                    className={`relative group aspect-square bg-gray-800 rounded-lg overflow-hidden border border-gray-700 ${
+                      dragIndex === index ? 'ring-2 ring-blue-400' : ''
+                    }`}
+                    draggable
+                    onDragStart={(e) => {
+                      const target = e.target as HTMLElement;
+                      if (target.closest('button')) {
+                        e.preventDefault();
+                        return;
+                      }
+                      setDragIndex(index);
+                    }}
+                    onDragEnd={() => setDragIndex(null)}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDrop={() => {
+                      if (dragIndex === null) return;
+                      moveUrl(dragIndex, index);
+                      setDragIndex(null);
+                    }}
+                  >
                   {isVideo ? (
                     <video
                       src={url}
@@ -327,19 +370,23 @@ export function DragDropUpload({
                       className="w-full h-full object-cover"
                     />
                   )}
-                  <button
-                    type="button"
-                    onClick={() => removeUrl(url)}
-                    className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Entfernen"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div className="absolute top-2 left-2 text-white/70 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <GripVertical className="w-4 h-4" />
+                  </div>
                   {isVideo && (
                     <div className="absolute bottom-2 left-2">
                       <Video className="w-4 h-4 text-white drop-shadow-lg" />
                     </div>
                   )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeUrl(url)}
+                    className="w-full rounded-md bg-red-600/90 px-2 py-1 text-xs font-semibold text-white hover:bg-red-700"
+                    title="Entfernen"
+                  >
+                    Bild löschen
+                  </button>
                 </div>
               );
             })}
@@ -349,4 +396,3 @@ export function DragDropUpload({
     </div>
   );
 }
-

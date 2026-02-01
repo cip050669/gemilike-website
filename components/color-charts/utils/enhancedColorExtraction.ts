@@ -25,6 +25,7 @@ import { kmeansRGB } from './kmeansPlusPlus';
 import { gmmDiagBIC, getOptimalK } from './gmmBIC';
 import { circularStatsDeg, softCategory, hueBorderlineFromHist } from './circularStats';
 import { ICCProfile } from './iccParser';
+import { segmentGemstoneViaApi } from './mlSegmentation';
 
 export interface EnhancedMaskingOptions extends MaskingOptions {
   useSLIC?: boolean;
@@ -33,6 +34,7 @@ export interface EnhancedMaskingOptions extends MaskingOptions {
   useGuidedFilter?: boolean;
   guidedR?: number;
   guidedEps?: number;
+  useMLSegmentation?: boolean;
 }
 
 export interface EnhancedClusteringOptions {
@@ -118,7 +120,14 @@ export async function extractColorsEnhanced(
         let usedSLIC = false;
         let usedGuidedFilter = false;
 
-        if (maskOpts.useSLIC || maskOpts.useGuidedFilter) {
+        if (maskOpts.useMLSegmentation) {
+          try {
+            mask = await segmentGemstoneViaApi(imageFile);
+          } catch (error) {
+            console.warn('ML-Segmentierung fehlgeschlagen, verwende Standard-Maskierung:', error);
+            mask = detectGemstoneMask(ctx, canvas.width, canvas.height, maskOpts);
+          }
+        } else if (maskOpts.useSLIC || maskOpts.useGuidedFilter) {
           // Enhanced masking with SLIC + Guided Filter
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           

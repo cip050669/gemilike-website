@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +46,7 @@ export function MediaGallery({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [zoomIndex, setZoomIndex] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticScroll = useRef(false);
 
@@ -223,18 +223,28 @@ export function MediaGallery({
                     Ihr Browser unterstützt das Video-Format nicht.
                   </video>
                 ) : (
-                  <Image
-                    src={item.src || PLACEHOLDER}
-                    alt={`${gemName}`}
-                    width={900}
-                    height={600}
-                    className="h-full w-full max-h-[360px] select-none object-contain"
-                    priority={index === 0}
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 900px"
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                  />
+                  <button
+                    type="button"
+                    className="relative h-full w-full max-h-[360px] cursor-zoom-in select-none"
+                    onClick={() => setZoomIndex(index)}
+                    aria-label={`${gemName} vergrößern`}
+                  >
+                    <Image
+                      src={item.src || PLACEHOLDER}
+                      alt={`${gemName}`}
+                      width={900}
+                      height={600}
+                      className="h-full w-full max-h-[360px] select-none object-contain"
+                      priority={index === 0}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 900px"
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                    />
+                    <span className="pointer-events-none absolute right-3 top-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white shadow-lg">
+                      <ZoomIn className="h-4 w-4" />
+                    </span>
+                  </button>
                 )}
 
                 {item.type === 'video' && isVideoPlaying !== index && (
@@ -243,39 +253,7 @@ export function MediaGallery({
                   </div>
                 )}
 
-                {item.type === 'image' && (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="absolute right-4 top-4 hidden rounded-full bg-black/60 text-white shadow-lg transition group-hover:flex"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                        }}
-                        aria-label={`Bild vergrößern`}
-                      >
-                        <ZoomIn className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-5xl max-h-[90vh] bg-black p-0">
-                      <DialogHeader className="px-4 py-2 text-white">
-                        <DialogTitle>Vergrößerte Ansicht von {gemName}</DialogTitle>
-                      </DialogHeader>
-                      <div className="flex items-center justify-center bg-black">
-                        <Image
-                          src={item.src || PLACEHOLDER}
-                          alt={`${gemName} - Vergrößert`}
-                          width={1400}
-                          height={900}
-                          className="max-h-[80vh] w-full object-contain"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1400px"
-                          quality={90}
-                        />
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                )}
+                {item.type === 'image' && null}
 
                 {!inStock && (
                   <div className="absolute left-4 top-4 z-10">
@@ -369,6 +347,29 @@ export function MediaGallery({
           </div>
         </div>
       )}
+
+      <Dialog open={zoomIndex !== null} onOpenChange={(open) => {
+        if (!open) setZoomIndex(null);
+      }}>
+        <DialogContent className="max-w-5xl max-h-[90vh] bg-black p-0">
+          <DialogHeader className="px-4 py-2 text-white">
+            <DialogTitle>Vergrößerte Ansicht von {gemName}</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center bg-black">
+            {zoomIndex !== null && mediaItems[zoomIndex]?.type === 'image' && (
+              <Image
+                src={mediaItems[zoomIndex].src || PLACEHOLDER}
+                alt={`${gemName} - Vergrößert`}
+                width={1400}
+                height={900}
+                className="max-h-[80vh] w-full object-contain"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1400px"
+                quality={90}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

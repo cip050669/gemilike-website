@@ -97,6 +97,7 @@ const CERTIFICATION_OPTIONS: OptionItem[] = [
   'SSEF',
   'Gübelin',
   'DSEF',
+  'AIG',
   'AIGS',
   'GRS',
   'GemResearch Swisslab',
@@ -284,11 +285,12 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                   {weightLabel}
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="gem-weight"
                   value={formValues.weight}
                   onChange={(event) => handleChange('weight', event.target.value)}
-                  step="0.01"
+                  inputMode="decimal"
+                  pattern="[0-9.,\\s]*"
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                   placeholder="z.B. 2.5"
                 />
@@ -572,16 +574,17 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
               {/* Preis */}
               <div>
                 <label htmlFor="gem-price" className="block text-sm font-medium text-gray-200 mb-2">
-                  Preis (€)
+                  Preis (€ inkl. MwSt.)
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="gem-price"
                   value={formValues.price}
                   onChange={(event) => handleChange('price', event.target.value)}
-                  step="0.01"
+                  inputMode="decimal"
+                  pattern="[0-9.,\\s]*"
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
-                  placeholder="z.B. 1500.00"
+                  placeholder="z.B. 1.500,00"
                 />
               </div>
 
@@ -596,6 +599,8 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                     placeholder="Länge"
                     value={formValues.dimensions.length}
                     onChange={(event) => updateDimension('length', event.target.value)}
+                    inputMode="decimal"
+                    pattern="[0-9.,\\s]*"
                     className="px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                   />
                   <input
@@ -603,6 +608,8 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                     placeholder="Breite"
                     value={formValues.dimensions.width}
                     onChange={(event) => updateDimension('width', event.target.value)}
+                    inputMode="decimal"
+                    pattern="[0-9.,\\s]*"
                     className="px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                   />
                   <input
@@ -610,6 +617,8 @@ export function GemstoneEditor({ initialValues, onCancel, onSubmit }: GemstoneEd
                     placeholder="Höhe"
                     value={formValues.dimensions.height}
                     onChange={(event) => updateDimension('height', event.target.value)}
+                    inputMode="decimal"
+                    pattern="[0-9.,\\s]*"
                     className="px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
                   />
                 </div>

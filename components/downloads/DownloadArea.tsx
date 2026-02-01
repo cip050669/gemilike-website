@@ -120,15 +120,15 @@ export function DownloadArea() {
     <div className="space-y-6">
       <Tabs defaultValue="documents" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="documents" className="flex items-center gap-2">
+          <TabsTrigger value="documents" className="flex items-center gap-2 text-black">
             <FileText className="h-4 w-4" />
             Dokumente
           </TabsTrigger>
-          <TabsTrigger value="color-charts" className="flex items-center gap-2">
+          <TabsTrigger value="color-charts" className="flex items-center gap-2 text-black">
             <Palette className="h-4 w-4" />
             Farbtafeln
           </TabsTrigger>
-          <TabsTrigger value="color-analysis" className="flex items-center gap-2">
+          <TabsTrigger value="color-analysis" className="flex items-center gap-2 text-black">
             <ImageIcon className="h-4 w-4" />
             Farbanalyse
           </TabsTrigger>

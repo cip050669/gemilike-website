@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Eye, PenSquare, Trash2, Star, Play, ImageIcon, Video } from 'lucide-react';
+import { Eye, PenSquare, Trash2, Star, Play, ImageIcon, Video, X } from 'lucide-react';
 import { AdminButton } from './AdminButton';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,7 @@ type DisplayGemstone = {
   cutForm?: string;
   rarity?: string;
   origin: string;
+  originType?: string;
   mainImage: string;
   price: number;
   weight?: string;
@@ -55,6 +56,16 @@ const parseList = (value: unknown): string[] => {
     }
   }
   return [];
+};
+
+const toDecimalNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
 };
 
 // Reserved for future use
@@ -139,6 +150,11 @@ export function GemstoneManagementSection() {
   const [metrics, setMetrics] = useState<ShopMetrics | null>(null);
   const [metricsError, setMetricsError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [vectorQuery, setVectorQuery] = useState('');
+  const [vectorMatches, setVectorMatches] = useState<string[] | null>(null);
+  const [vectorStatus, setVectorStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [vectorError, setVectorError] = useState<string | null>(null);
+  const [lastVectorQuery, setLastVectorQuery] = useState('');
 
   const mapApiGemstone = useCallback((gem: Record<string, unknown>): DisplayGemstone => {
     // Extract images from media relation if available, otherwise from images field
@@ -159,23 +175,54 @@ export function GemstoneManagementSection() {
     const fallbackVideos = parseList(gem.videos);
     const videos = mediaVideos.length > 0 ? mediaVideos : fallbackVideos;
 
-    const dimensionsString: string | null = typeof gem.dimensions === 'string' ? gem.dimensions : null;
-    let dimensions: DisplayGemstone['dimensions'];
-    if (dimensionsString) {
-      const cleaned = dimensionsString.replace(/mm/gi, '');
-      const parts = cleaned.split(/x|×/i).map((part) => part.trim());
-      if (parts.length === 3) {
-        dimensions = {
-          length: parts[0] || undefined,
-          width: parts[1] || undefined,
-          height: parts[2] || undefined,
-        };
-      }
-    }
+    const formatWeight = (value?: number, unit?: 'ct' | 'g') => {
+      if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
+      const formatted = new Intl.NumberFormat('de-DE', {
+        minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+      return `${formatted} ${unit ?? 'ct'}`;
+    };
 
-    const weight = typeof gem.weight === 'number'
-      ? `${gem.weight.toFixed(2)} ${gem.type === 'cut' ? 'ct' : 'g'}`
+    const inventory = (gem as { inventory?: { caratWeight?: unknown; gramWeight?: unknown } }).inventory;
+    const caratWeight = toDecimalNumber(inventory?.caratWeight);
+    const gramWeight = toDecimalNumber(inventory?.gramWeight);
+    const weightValue =
+      typeof gem.weight === 'number'
+        ? gem.weight
+        : gem.type === 'rough'
+          ? gramWeight ?? null
+          : caratWeight ?? null;
+    const weight = weightValue !== null
+      ? formatWeight(weightValue, gem.type === 'rough' ? 'g' : 'ct')
       : undefined;
+
+    const attributes = (gem as { attributes?: { lengthMm?: unknown; widthMm?: unknown; heightMm?: unknown; metadata?: unknown } }).attributes;
+    const lengthMm = toDecimalNumber(attributes?.lengthMm);
+    const widthMm = toDecimalNumber(attributes?.widthMm);
+    const heightMm = toDecimalNumber(attributes?.heightMm);
+    const dimensions: DisplayGemstone['dimensions'] =
+      lengthMm !== null || widthMm !== null || heightMm !== null
+        ? {
+            length: lengthMm !== null ? String(lengthMm) : undefined,
+            width: widthMm !== null ? String(widthMm) : undefined,
+            height: heightMm !== null ? String(heightMm) : undefined,
+          }
+        : undefined;
+
+    const priceBook = Array.isArray((gem as { priceBooks?: Array<{ priceGross?: unknown; priceNet?: unknown }> }).priceBooks)
+      ? (gem as { priceBooks: Array<{ priceGross?: unknown; priceNet?: unknown }> }).priceBooks[0]
+      : undefined;
+    const priceGross = toDecimalNumber(priceBook?.priceGross);
+    const priceNet = toDecimalNumber(priceBook?.priceNet);
+    const priceValue =
+      typeof gem.price === 'number'
+        ? gem.price
+        : priceGross ?? priceNet ?? 0;
+    const originType = (() => {
+      const metadata = attributes?.metadata as { originType?: unknown } | undefined;
+      return typeof metadata?.originType === 'string' ? metadata.originType : undefined;
+    })();
 
     const wishlistCount =
       typeof (gem as { wishlistCount?: unknown }).wishlistCount === 'number'
@@ -194,8 +241,9 @@ export function GemstoneManagementSection() {
       cut: typeof gem.cut === 'string' && gem.cut ? String(gem.cut) : undefined,
       cutForm: typeof gem.cutForm === 'string' && gem.cutForm ? String(gem.cutForm) : undefined,
       origin: (typeof gem.origin === 'string' ? gem.origin : '–'),
+      originType,
       mainImage: images[0] || PLACEHOLDER_IMAGE,
-      price: typeof gem.price === 'number' ? gem.price : Number(gem.price ?? 0),
+      price: priceValue,
       weight,
       dimensions,
       color: (typeof (gem as { color?: unknown }).color === 'string' ? (gem as { color: string }).color : (typeof (gem as { attributes?: { color?: unknown } }).attributes?.color === 'string' ? (gem as { attributes: { color: string } }).attributes.color : undefined)),
@@ -263,7 +311,60 @@ export function GemstoneManagementSection() {
     loadMetrics();
   }, []);
 
+  const vectorMatchSet = useMemo(
+    () => (vectorMatches ? new Set(vectorMatches) : null),
+    [vectorMatches]
+  );
+  const vectorActive = vectorMatchSet !== null && lastVectorQuery.trim().length > 0;
+  const vectorSearching = vectorStatus === 'loading';
+
+  const filteredGemstones = useMemo(() => {
+    if (!vectorMatchSet) return gemstones;
+    return gemstones.filter((gem) => vectorMatchSet.has(gem.id));
+  }, [gemstones, vectorMatchSet]);
+
   const actionsDisabled = usingFallback || isLoading;
+
+  const handleVectorReset = () => {
+    setVectorMatches(null);
+    setVectorError(null);
+    setVectorStatus('idle');
+    setVectorQuery('');
+    setLastVectorQuery('');
+  };
+
+  const handleVectorSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = vectorQuery.trim();
+    if (!trimmed) {
+      handleVectorReset();
+      return;
+    }
+    setVectorStatus('loading');
+    setVectorError(null);
+
+    try {
+      const response = await fetch(
+        `/api/shop/vector-search?q=${encodeURIComponent(trimmed)}&locale=de`
+      );
+      if (!response.ok) {
+        throw new Error('Vektorsuche fehlgeschlagen.');
+      }
+      const data = await response.json();
+      const ids: string[] = Array.isArray(data.results)
+        ? data.results.map((result: { id: string }) => result.id)
+        : [];
+
+      setLastVectorQuery(trimmed);
+      setVectorMatches(ids);
+      setVectorStatus(ids.length ? 'success' : 'error');
+      setVectorError(ids.length ? null : 'Keine passenden Edelsteine gefunden.');
+    } catch (err) {
+      console.error(err);
+      setVectorStatus('error');
+      setVectorError(err instanceof Error ? err.message : 'Unbekannter Fehler bei der Vektorsuche.');
+    }
+  };
 
   const handleOpenEditor = (gemstone?: DisplayGemstone) => {
     if (gemstone) {
@@ -278,6 +379,7 @@ export function GemstoneManagementSection() {
           cutForm: gemstone.cutForm ?? '',
           rarity: gemstone.rarity ?? '',
           origin: gemstone.origin === '–' ? '' : gemstone.origin,
+          originType: gemstone.originType ?? '',
           price: gemstone.price ? String(gemstone.price) : '',
           weight: gemstone.weight ? gemstone.weight.replace(/[^0-9.,]/g, '') : '',
           dimensions: {
@@ -309,7 +411,21 @@ export function GemstoneManagementSection() {
       return;
     }
 
-    const weightValue = values.weight ? Number(values.weight) : null;
+    const parseLocaleNumber = (value?: string | null) => {
+      if (!value) return null;
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+      let normalized = trimmed.replace(/\s+/g, '');
+      if (normalized.includes(',') && normalized.includes('.')) {
+        normalized = normalized.replace(/\./g, '').replace(',', '.');
+      } else {
+        normalized = normalized.replace(',', '.');
+      }
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const weightValue = parseLocaleNumber(values.weight);
     
     const payload: Record<string, unknown> = {
       name: values.name,
@@ -319,7 +435,8 @@ export function GemstoneManagementSection() {
       cut: values.type === 'cut' ? values.cut : '',
       cutForm: values.type === 'cut' ? values.cutForm : '',
       origin: values.origin,
-      price: values.price ? Number(values.price) : 0,
+      originType: values.originType,
+      price: parseLocaleNumber(values.price) ?? 0,
       weight: weightValue,
       // For cut gemstones, use caratWeight; for rough, use gramWeight
       ...(values.type === 'cut' 
@@ -343,13 +460,13 @@ export function GemstoneManagementSection() {
 
     // Add dimensions as separate fields (lengthMm, widthMm, heightMm)
     if (values.dimensions.length) {
-      payload.lengthMm = Number(values.dimensions.length) || null;
+      payload.lengthMm = parseLocaleNumber(values.dimensions.length);
     }
     if (values.dimensions.width) {
-      payload.widthMm = Number(values.dimensions.width) || null;
+      payload.widthMm = parseLocaleNumber(values.dimensions.width);
     }
     if (values.dimensions.height) {
-      payload.heightMm = Number(values.dimensions.height) || null;
+      payload.heightMm = parseLocaleNumber(values.dimensions.height);
     }
 
     console.log('Saving gemstone with payload:', payload);
@@ -406,7 +523,7 @@ export function GemstoneManagementSection() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(new Set(gemstones.map((g) => g.id)));
+      setSelectedIds(new Set(filteredGemstones.map((g) => g.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -554,6 +671,73 @@ export function GemstoneManagementSection() {
       .catch((err: Error) => setError(err.message));
   };
 
+  const handleRemoveImage = (gemstone: DisplayGemstone, imageUrl: string) => {
+    if (usingFallback) {
+      alert('Aktion nicht möglich: Datenbankverbindung erforderlich.');
+      return;
+    }
+    const updatedImages = gemstone.images.filter((img) => img !== imageUrl);
+    const newMainImage = updatedImages[0] ?? PLACEHOLDER_IMAGE;
+
+    fetch(`/api/admin/gemstones/${gemstone.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        images: updatedImages,
+        mainImage: newMainImage,
+      }),
+    })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Bild löschen fehlgeschlagen');
+        }
+      })
+      .then(() => {
+        loadGemstones();
+        if (detailGemstone?.id === gemstone.id) {
+          setDetailGemstone({
+            ...detailGemstone,
+            images: updatedImages.length ? updatedImages : [PLACEHOLDER_IMAGE],
+            mainImage: newMainImage,
+          });
+        }
+      })
+      .catch((err: Error) => setError(err.message));
+  };
+
+  const handleRemoveVideo = (gemstone: DisplayGemstone, videoUrl: string) => {
+    if (usingFallback) {
+      alert('Aktion nicht möglich: Datenbankverbindung erforderlich.');
+      return;
+    }
+    const updatedVideos = gemstone.videos.filter((vid) => vid !== videoUrl);
+
+    fetch(`/api/admin/gemstones/${gemstone.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        videos: updatedVideos,
+      }),
+    })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Video löschen fehlgeschlagen');
+        }
+      })
+      .then(() => {
+        loadGemstones();
+        if (detailGemstone?.id === gemstone.id) {
+          setDetailGemstone({
+            ...detailGemstone,
+            videos: updatedVideos,
+          });
+        }
+      })
+      .catch((err: Error) => setError(err.message));
+  };
+
   return (
     <div className="space-y-8 text-white">
       {editorState.open && (
@@ -610,6 +794,52 @@ export function GemstoneManagementSection() {
         )}
       </div>
     </div>
+
+      <div className="rounded-2xl border border-white/10 bg-gray-800/50 p-4">
+        <form onSubmit={handleVectorSearch} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <label className="block text-xs uppercase tracking-[0.3em] text-white/50 mb-2">
+              Vektorsuche (Admin)
+            </label>
+            <input
+              type="text"
+              value={vectorQuery}
+              onChange={(e) => setVectorQuery(e.target.value)}
+              placeholder="z.B. gelber Saphir, oval, unbehandelt..."
+              className="w-full rounded-lg border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary/70"
+              disabled={vectorSearching}
+            />
+          </div>
+          <div className="flex gap-2">
+            <AdminButton
+              type="submit"
+              className="bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong"
+              disabled={vectorSearching}
+            >
+              {vectorSearching ? 'Suche läuft...' : 'Suchen'}
+            </AdminButton>
+            {vectorActive && (
+              <AdminButton
+                type="button"
+                variant="outline"
+                className="border-white/20 text-white hover:bg-gray-800/30/10"
+                onClick={handleVectorReset}
+                disabled={vectorSearching}
+              >
+                Zurücksetzen
+              </AdminButton>
+            )}
+          </div>
+        </form>
+        {vectorActive && (
+          <div className="mt-3 text-xs text-white/60">
+            Treffer: {filteredGemstones.length} • Anfrage: „{lastVectorQuery}“
+          </div>
+        )}
+        {vectorError && (
+          <div className="mt-2 text-xs text-red-300">{vectorError}</div>
+        )}
+      </div>
 
       {/* Gemstone Statistics */}
       <div className="grid gap-4 sm:grid-cols-4">
@@ -708,24 +938,27 @@ export function GemstoneManagementSection() {
       )}
 
       <Card className="border-white/10 bg-gray-700/50/50 p-0">
-        {gemstones.length > 0 && (
+        {filteredGemstones.length > 0 && (
           <div className="p-4 border-b border-white/5 flex items-center gap-3 bg-gray-800/30">
             <input
               type="checkbox"
-              checked={selectedIds.size === gemstones.length && gemstones.length > 0}
+              checked={
+                filteredGemstones.length > 0 &&
+                filteredGemstones.every((gem) => selectedIds.has(gem.id))
+              }
               onChange={(e) => handleSelectAll(e.target.checked)}
               className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-2 focus:ring-primary"
               disabled={actionsDisabled}
             />
             <label className="text-sm text-white/70">
               {selectedIds.size > 0
-                ? `${selectedIds.size} von ${gemstones.length} ausgewählt`
+                ? `${filteredGemstones.filter((g) => selectedIds.has(g.id)).length} von ${filteredGemstones.length} ausgewählt`
                 : 'Alle auswählen'}
             </label>
           </div>
         )}
         <div className="divide-y divide-white/5">
-          {gemstones.map((gemstone) => (
+          {filteredGemstones.map((gemstone) => (
             <div
               key={gemstone.id}
               className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
@@ -773,6 +1006,15 @@ export function GemstoneManagementSection() {
                       e.currentTarget.src = PLACEHOLDER_IMAGE;
                     }}
                   />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(gemstone, gemstone.mainImage)}
+                    className="absolute right-1 top-1 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-black/80 text-white shadow-lg ring-1 ring-white/40 hover:bg-black"
+                    title="Bild entfernen"
+                    aria-label="Bild entfernen"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 </div>
                 <div className="grid gap-1 text-sm text-white/70">
                   <div className="flex flex-wrap items-center gap-3">
@@ -905,6 +1147,17 @@ export function GemstoneManagementSection() {
                             sizes="64px"
                             className="object-cover"
                           />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImage(detailGemstone, image);
+                            }}
+                            className="absolute right-1 top-1 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-black/80 text-white shadow-lg ring-1 ring-white/40 hover:bg-black"
+                            title="Bild entfernen"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
                           {image === detailGemstone.mainImage && (
                             <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                               <Star className="h-3 w-3 text-primary-foreground" />
@@ -929,6 +1182,14 @@ export function GemstoneManagementSection() {
                           <div className="absolute inset-0 flex items-center justify-center">
                             <Play className="h-6 w-6 text-white/80" />
                           </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveVideo(detailGemstone, video)}
+                            className="absolute right-1 top-1 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-black/80 text-white shadow-lg ring-1 ring-white/40 hover:bg-black"
+                            title="Video entfernen"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
                           <div className="absolute bottom-1 right-1">
                             <Video className="h-3 w-3 text-white/60" />
                           </div>

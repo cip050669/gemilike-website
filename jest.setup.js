@@ -1,4 +1,5 @@
 // TextEncoder/TextDecoder für Prisma, @noble/hashes und cuid2 in Jest/jsdom
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- Jest setup uses CommonJS
 const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;

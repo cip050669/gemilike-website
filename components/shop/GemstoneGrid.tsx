@@ -51,10 +51,14 @@ const formatPrice = (value: number, currency: string | boolean | undefined = 'EU
 };
 
 const formatWeight = (weight?: number | null, unit?: 'ct' | 'g') => {
-  if (typeof weight !== 'number') {
+  if (typeof weight !== 'number' || !Number.isFinite(weight)) {
     return null;
   }
-  return `${weight.toFixed(2)} ${unit ?? 'ct'}`;
+  const formatted = new Intl.NumberFormat('de-DE', {
+    minimumFractionDigits: weight % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(weight);
+  return `${formatted} ${unit ?? 'ct'}`;
 };
 
 export function GemstoneGrid({ gemstones }: GemstoneGridProps) {

@@ -34,6 +34,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Restrict paypalOrderId to safe format (prevents request-forgery/SSRF)
+    const safePayPalOrderId = /^[A-Za-z0-9_-]{1,50}$/.test(String(paypalOrderId).trim())
+      ? String(paypalOrderId).trim()
+      : null;
+    if (!safePayPalOrderId) {
+      return NextResponse.json(
+        { error: 'Invalid PayPal Order ID format' },
+        { status: 400 }
+      );
+    }
+
     // Verify order exists and belongs to user
     const order = await prisma.order.findUnique({
       where: { id: orderId },
@@ -58,9 +69,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Capture PayPal order via PayPal API
+    // Capture PayPal order via PayPal API (use validated ID only)
     const captureResponse = await fetch(
-      `${PAYPAL_API_BASE_URL}/v2/checkout/orders/${paypalOrderId}/capture`,
+      `${PAYPAL_API_BASE_URL}/v2/checkout/orders/${safePayPalOrderId}/capture`,
       {
         method: 'POST',
         headers: {
@@ -94,7 +105,7 @@ export async function POST(request: NextRequest) {
           paymentMethod: 'PAYPAL',
           paidAt: new Date(),
           notes: JSON.stringify({
-            paypalOrderId: paypalOrderId,
+            paypalOrderId: safePayPalOrderId,
             paypalCaptureId: captureData.purchase_units[0]?.payments?.captures[0]?.id,
             paypalStatus: captureData.status,
             paypalDetails: captureData,
@@ -115,7 +126,7 @@ export async function POST(request: NextRequest) {
         data: {
           paymentStatus: 'PENDING',
           notes: JSON.stringify({
-            paypalOrderId: paypalOrderId,
+            paypalOrderId: safePayPalOrderId,
             paypalStatus: captureData.status,
             paypalDetails: captureData,
           }),

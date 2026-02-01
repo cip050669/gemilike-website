@@ -25,9 +25,13 @@ const formatPrice = (value: number, currency = 'EUR') =>
   }).format(value);
 
 const formatWeight = (gem: ShopGemstone) => {
-  if (typeof gem.weight !== 'number') return null;
+  if (typeof gem.weight !== 'number' || !Number.isFinite(gem.weight)) return null;
   const unit = gem.weightUnit ?? (gem.type === 'rough' ? 'g' : 'ct');
-  return `${gem.weight.toFixed(2)} ${unit}`;
+  const formatted = new Intl.NumberFormat('de-DE', {
+    minimumFractionDigits: gem.weight % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(gem.weight);
+  return `${formatted} ${unit}`;
 };
 
 const toCartItem = (gem: ShopGemstone) => ({

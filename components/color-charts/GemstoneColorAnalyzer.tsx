@@ -77,6 +77,7 @@ export function GemstoneColorAnalyzer() {
   const [useGuidedFilter, setUseGuidedFilter] = useState(false); // Guided Filter
   const [guidedR, setGuidedR] = useState(4); // Guided Filter Radius
   const [guidedEps] = useState(1e-3); // Guided Filter Regularisierung
+  const [useMLSegmentation, setUseMLSegmentation] = useState(false); // ML Segmentierung via API
   const [iccInfo, setIccInfo] = useState<ICCProfile | null>(null);
   
   // OpenCV GrabCut state
@@ -592,7 +593,7 @@ export function GemstoneColorAnalyzer() {
       }
 
       // Borderline v4: Use enhanced extraction if advanced features are enabled
-      const useEnhanced = useSLIC || useGuidedFilter || autoK;
+      const useEnhanced = useSLIC || useGuidedFilter || autoK || useMLSegmentation;
       
       let imageAnalysis;
       let regions;
@@ -607,6 +608,7 @@ export function GemstoneColorAnalyzer() {
           useGuidedFilter,
           guidedR,
           guidedEps,
+          useMLSegmentation,
         };
         
         const enhancedClustering: EnhancedClusteringOptions = {
@@ -1226,6 +1228,23 @@ export function GemstoneColorAnalyzer() {
                     />
                     Auto-K via GMM+BIC (automatische Cluster-Anzahl)
                   </label>
+
+                  {/* ML Segmentierung */}
+                  <div className="space-y-1">
+                    <label className="flex items-center gap-2 text-xs text-gray-400">
+                      <input
+                        type="checkbox"
+                        checked={useMLSegmentation}
+                        onChange={(e) => setUseMLSegmentation(e.target.checked)}
+                        disabled={isAnalyzing}
+                        className="rounded"
+                      />
+                      ML-Segmentierung (API, experimentell)
+                    </label>
+                    <p className="text-[11px] text-gray-500">
+                      Nutzt /api/segmentation. Falls nicht konfiguriert, wird automatisch die Standard-Maskierung verwendet.
+                    </p>
+                  </div>
                   
                   {/* SLIC Superpixels */}
                   <label className="flex items-center gap-2 text-xs text-gray-400">

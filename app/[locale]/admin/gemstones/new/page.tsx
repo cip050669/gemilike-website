@@ -12,6 +12,20 @@ export default function NewGemstonePage() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
 
+  const parseLocaleNumber = (value: FormDataEntryValue | null) => {
+    if (value === null || value === undefined) return null;
+    const raw = String(value).trim();
+    if (!raw) return null;
+    let normalized = raw.replace(/\s+/g, '');
+    if (normalized.includes(',') && normalized.includes('.')) {
+      normalized = normalized.replace(/\./g, '').replace(',', '.');
+    } else {
+      normalized = normalized.replace(',', '.');
+    }
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -24,7 +38,7 @@ export default function NewGemstonePage() {
       const formData = new FormData(form);
       const gemstoneType = formData.get('type') || 'cut';
       const caratValue = formData.get('carat');
-      const weightValue = caratValue && caratValue !== '' ? Number(caratValue) : null;
+      const weightValue = parseLocaleNumber(caratValue);
       
       // Validate name is required
       const name = formData.get('name');
@@ -43,12 +57,12 @@ export default function NewGemstonePage() {
         category: formData.get('category') || 'Edelstein',
         type: gemstoneType,
         condition: gemstoneType === 'cut' ? 'CUT' : 'ROUGH',
-        price: formData.get('price') ? Number(formData.get('price')) : 0,
+        price: parseLocaleNumber(formData.get('price')) ?? 0,
         caratWeight: gemstoneType === 'cut' ? weightValue : null,
         gramWeight: gemstoneType === 'rough' ? weightValue : null,
         color: formData.get('color'),
         colorIntensity: formData.get('colorIntensity'),
-        colorBrightness: formData.get('colorBrightness') ? Number(formData.get('colorBrightness')) : null,
+        colorBrightness: parseLocaleNumber(formData.get('colorBrightness')) ?? null,
         clarity: formData.get('clarity'),
         cut: formData.get('cut'),
         cutForm: formData.get('cutForm'),
@@ -172,13 +186,14 @@ export default function NewGemstonePage() {
                   Karat
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="carat"
                   name="carat"
-                  step="0.01"
                   min="0"
+                  inputMode="decimal"
+                  pattern="[0-9.,\\s]*"
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
-                  placeholder="z.B. 2.5"
+                  placeholder="z.B. 2,5"
                 />
               </div>
             </div>
@@ -412,6 +427,7 @@ export default function NewGemstonePage() {
                   <option value="HRD">HRD - Hoge Raad voor Diamant</option>
                   <option value="SSEF">SSEF - Swiss Gemmological Institute</option>
                   <option value="Gübelin">Gübelin Gem Lab</option>
+                  <option value="AIG">AIG</option>
                   <option value="EGL">EGL - European Gemological Laboratory</option>
                   <option value="Keine">Keine Zertifizierung</option>
                 </select>
@@ -445,16 +461,17 @@ export default function NewGemstonePage() {
               {/* Preis */}
               <div>
                 <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">
-                  Preis (€)
+                  Preis (€ inkl. MwSt.)
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="price"
                   name="price"
-                  step="0.01"
                   min="0"
+                  inputMode="decimal"
+                  pattern="[0-9.,\\s]*"
                   className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700/50 text-white"
-                  placeholder="z.B. 1500.00"
+                  placeholder="z.B. 1.500,00"
                 />
               </div>
             </div>

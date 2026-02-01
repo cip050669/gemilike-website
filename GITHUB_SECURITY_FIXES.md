@@ -135,5 +135,55 @@ jobs:
 
 ---
 
-**Letzte Aktualisierung:** 25. Januar 2026
+---
+
+## 1. Februar 2026 – Sicherheitsprüfung (npm audit)
+
+### Behoben
+- **Next.js (high):** DoS Image Optimizer, Memory Consumption, RSC Deserialization – behoben durch `npm audit fix --legacy-peer-deps`.
+- **fast-xml-parser (high):** DoS Numeric Entities (GHSA-37qj-frw5-hhjh) – behoben durch Override in `package.json`:
+  ```json
+  "fast-xml-parser": ">=5.3.4"
+  ```
+  Betroffen war die Kette @aws-sdk → fast-xml-parser (z. B. bei E-Mail/SES).
+
+### Verbleibend (nur moderate, nicht ohne Breaking Change behebbar)
+- **hono (moderate):** XSS ErrorBoundary, Cache Deception, IP-Spoofing – kommt über **@prisma/dev** (Prisma 7).  
+  Ein Fix würde Prisma auf 6.19.2 zurücksetzen (Breaking Change). Prisma 7 wird weiter verwendet; hono wird nur in Dev-Tools von Prisma genutzt, nicht in der Produktions-Runtime.
+
+### Aktueller Stand
+- **npm audit:** 3 moderate (nur hono/Prisma-Dev), 0 high/critical.
+- **GitHub:** Security-Tab im Repo prüfen für Dependabot-Alerts und Code-Scanning-Ergebnisse.
+
+---
+
+## GitHub-Sicherheitsprüfung (Code Scanning / Dependabot)
+
+### Dependabot / Vulnerability Alerts
+- **Status:** Für dieses Repo deaktiviert (API: 403/404).
+- **Empfehlung:** Unter **Settings → Security → Code security and analysis** „Dependency graph“ und „Dependabot alerts“ aktivieren, um Abhängigkeitswarnungen zu erhalten.
+
+### CodeQL (Code Scanning)
+- **Offene Alerts (Stand Abfrage):** 91 open, 9 fixed.
+- **Nach Schweregrad:**
+  - **1 critical:** `js/request-forgery` – PayPal Capture-URL nutzte nutzerkontrollierten Wert.
+  - **2 high:** `js/polynomial-redos` – Query-Parser: Regex/Verarbeitung mit Nutzereingabe.
+  - **75 medium:** `js/log-injection`.
+  - **Rest:** Qualität (trivial-conditional, unused-local-variable, useless-comparison-test, useless-assignment-to-local).
+
+### Durchgeführte Behebungen (Critical/High)
+1. **`app/api/paypal/capture-order/route.ts` (request-forgery):**
+   - `paypalOrderId` wird vor Verwendung in der URL strikt validiert: nur `[A-Za-z0-9_-]`, max. 50 Zeichen. Verhindert SSRF/Request-Forgery.
+
+2. **`lib/search/query-parser.ts`:**
+   - Tippfehler behoben: `v` → `vectorText`.
+   - ReDoS/DoS abgemildert: maximale Länge für Such-Eingabe (`MAX_QUERY_INPUT_LENGTH = 2000`) und für Dokumenttext bei der Auswertung (`MAX_DOCUMENT_TEXT_LENGTH = 50_000`).
+
+### Verbleibende Code-Scanning-Hinweise
+- **75 × js/log-injection (medium):** Log-Ausgaben prüfen und Nutzerdaten bereinigen/escapen oder aus Logs weglassen.
+- **Qualitätsregeln:** Nach Bedarf bereinigen (unused variables, trivial conditionals, useless comparisons).
+
+---
+
+**Letzte Aktualisierung:** 1. Februar 2026
 

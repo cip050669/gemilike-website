@@ -104,7 +104,8 @@
     "undici": "^7.18.2"
   },
   "overrides": {
-    "lodash": ">=4.17.22"
+    "lodash": ">=4.17.22",
+    "fast-xml-parser": ">=5.3.4"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

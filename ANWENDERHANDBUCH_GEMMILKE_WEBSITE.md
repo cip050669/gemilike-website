@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.7.0  
-**Stand:** Januar 2026  
-**Letzte Aktualisierung:** 25. Januar 2026 - Warenwirtschaftssystem (WWS) implementiert, Prisma 7 Migration abgeschlossen, Connection Pool Optimierungen  
+**Version:** 2.8.0  
+**Stand:** Februar 2026  
+**Letzte Aktualisierung:** Februar 2026 – Sicherheitsanpassungen (CodeQL, npm Overrides), Docker-Build-Fix, PayPal-Validierung, Such-Parser-Limits  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -59,7 +59,7 @@ Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit f
 
 ### 1.3 Technologie-Stack
 
-- **Framework:** Next.js 16.1.1 (React 19.2.3)
+- **Framework:** Next.js 16.1.x (React 19.2.3)
 - **Datenbank:** PostgreSQL mit Prisma ORM 7.3.0
 - **Authentifizierung:** NextAuth.js 4.24.11
 - **Internationalisierung:** next-intl 4.7.0
@@ -768,6 +768,11 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
    - **Guided Filter (Borderline v4)**: Edge-preserving Glättung
      - Radius: 2-8 Pixel (default: 4)
    - Anpassbare Schwellenwerte für alle Filter
+   - **ML-Segmentierung (API, experimentell)**:
+     - Aktiviert eine externe Segmentierung über `/api/segmentation`
+     - Fallback auf Standard-Maskierung bei Fehlern oder fehlender Konfiguration
+     - Unterstützt mehrere Response-Formate (flattened Mask, 2D-Array, Alpha, RLE, PNG, Polygone)
+     - Empfohlen für schwierige Hintergründe oder transparente Steine
 
    **Benutzerdefinierte Palette:**
    - Manuelles Hinzufügen von HEX-Farben
@@ -786,6 +791,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
    - **Hintergrund-Pinsel**: Markierung von Hintergrund-Bereichen
    - Anpassbare Pinselgröße (4-32px)
    - Automatisches Laden von OpenCV.js bei Aktivierung (~8MB)
+   - Falls OpenCV.js nicht geladen werden kann, wird automatisch die Standard-Segmentierung verwendet
 
 3. **Mehrere Bilder gleichzeitig**
    - Upload mehrerer Bilder in einem Vorgang
@@ -927,26 +933,27 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 
 **Sektionen:**
 
-1. **Kontakt & Social Media**
-   - Firmeninformationen aus `ContactData`
-   - Social Media Links aus `HeaderData`
-   - Newsletter-Anmeldung
+1. **Logo & Branding**
+   - Logo und Tagline
+   - Brand-Badge "Heroes in Gems"
 
-2. **Wer sind wir?**
+2. **Newsletter**
+   - Newsletter-Anmeldung (Frontend-Only)
+
+3. **Wer sind wir?**
    - Links zu: Über uns, Leistungen, Wissenswertes, Kontakt
    - Dynamisch aus API oder fest definiert
 
-3. **Rechtliches**
+4. **Rechtliches**
    - Links zu allen aktiven Legal Pages
    - Dynamisch aus `LegalPage` Model
 
 **Datenquellen:**
 
-- `ContactData` - Kontaktinformationen
-- `HeaderData` - Social Media Links
 - `LegalPage` - Rechtliche Seiten
 - `FooterLink` - Zusätzliche Footer-Links (optional)
 - `FooterSection` - Footer-Sektionen (optional)
+- `HeaderData` - Optional für globale Header-Daten (nicht im Footer gerendert)
 
 **API:**
 
@@ -1120,6 +1127,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Tabelle aller Edelsteine
 - Filterung nach Status, Kategorie
 - Suche
+- **Vektorsuche (Admin):** Semantische Suche wie im Shop, filtert die Liste auf Treffer
 - **Statistiken:** Anzeige der Gesamtanzahl, Neu, Featured und Verkauft
 - **Bulk-Delete:** Mehrfachauswahl über Checkboxes mit zentralem Lösch-Button
 - CSV-Import für Bulk-Upload
@@ -1129,8 +1137,9 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Formular für alle Edelstein-Daten
 - Upload von Bildern/Videos
 - Attribute (Größe, Gewicht, Farbe)
-- Preisverwaltung
+- Preisverwaltung (**Bruttopreis inkl. MwSt.**)
 - Inventar-Verwaltung
+- **Zahlenfelder:** Komma oder Punkt als Dezimaltrenner (Karat, Preis, Maße)
 
 #### Bearbeiten (`/admin/gemstones/edit/[id]`)
 
@@ -1138,6 +1147,12 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Media-Verwaltung
 - Status-Änderung
 - Veröffentlichung
+
+**Media-Handling (Admin):**
+- **Bilder/Videos sortieren:** Drag & Drop in der Upload-Vorschau
+- **Löschen:** Pro Bild/Video „Bild löschen“-Button in der Upload-Vorschau
+- **Übersichtsliste:** X-Button auf dem Hauptbild zum Löschen
+- **Detailansicht:** X-Button auf Bild- und Video-Thumbnails
 
 #### CSV-Import für Edelsteine
 
@@ -1158,7 +1173,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
      - Farbe
      - Cut/Rough
      - Karat
-     - Preis
+     - Preis (Brutto)
      - Kategorie
      - Währung
 
@@ -1196,7 +1211,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - `Cut/Rough` - Typ (cut/rough, Pflichtfeld)
 - `Karat` - Gewicht in Karat
 - `Länge_mm`, `Breite_mm`, `Höhe_mm` - Abmessungen
-- `Preis` - Preis (Pflichtfeld)
+- `Preis (Brutto)` - Preis (Pflichtfeld, Bruttopreis inkl. MwSt.)
 - `Kategorie` - Edelstein-Kategorie (Pflichtfeld, Dropdown mit 60+ Edelsteinarten, alphabetisch sortiert)
 - `Entstehung` - Entstehung (Dropdown: natürlich, synthetisch, Imitation)
 - `Mine` - Minenname
@@ -1238,6 +1253,8 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Bilder und Videos können separat hochgeladen werden
 - Dateien werden automatisch dem entsprechenden Edelstein zugeordnet
 - Unterstützte Formate: JPG, PNG, GIF, MP4, WebM
+- **Sortierung:** Drag & Drop in der Upload-Vorschau
+- **Löschen:** Direkt pro Bild/Video in der Vorschau möglich
 
 **Hinweise:**
 
@@ -1249,6 +1266,11 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - **Zahlenformate:** Unterstützung für Punkt (.) und Komma (,) als Dezimaltrennzeichen bei allen numerischen Feldern (Karat, Preis, Länge, Breite, Höhe, etc.)
   - Beispiele: `1.5`, `1,5`, `27.03`, `27,03` werden alle korrekt erkannt
   - Tausendertrennzeichen werden automatisch entfernt
+- **Preis-Spalte:** Empfohlen `Preis (Brutto)`; `Preis` wird als Legacy akzeptiert
+
+**Persistenz wichtiger Felder:**
+- Gewicht, Entstehung, Preis und Maße werden in der Datenbank gespeichert
+- Beim nächsten Laden im Admin werden diese Werte zuverlässig wieder angezeigt
 
 **Erweiterte Auswahlmöglichkeiten (Version 2.5.4):**
 
@@ -2582,6 +2604,33 @@ Die Datenbank besteht aus **34 Haupt-Models** (inkl. WWS) mit umfangreichen Rela
 #### Downloads API
 
 - `GET /api/downloads/files/[fileId]` - Datei-Download
+- `POST /api/segmentation` - ML-Segmentierung (Proxy an externen Service)
+  - Erwartet `multipart/form-data` mit `image`
+  - Antwortformate: `image/*` (PNG), JSON mit `mask` (flattened oder 2D), `alpha`, `counts` (RLE), `mask_png_base64`, `polygons`
+  - **Beispiel (flattened):**
+    ```json
+    { "width": 512, "height": 512, "mask": [0,1,0, ...] }
+    ```
+  - **Beispiel (2D-Array):**
+    ```json
+    { "mask": [[0,1,1],[0,0,1], ...] }
+    ```
+  - **Beispiel (Alpha):**
+    ```json
+    { "width": 512, "height": 512, "alpha": [0.0, 0.7, 1.0, ...] }
+    ```
+  - **Beispiel (RLE):**
+    ```json
+    { "width": 512, "height": 512, "counts": [10,5,3, ...] }
+    ```
+  - **Beispiel (PNG Base64):**
+    ```json
+    { "mask_png_base64": "data:image/png;base64,iVBORw0K..." }
+    ```
+  - **Beispiel (Polygone):**
+    ```json
+    { "width": 512, "height": 512, "polygons": [[[12,34],[56,78],[90,12]], ...] }
+    ```
 
 #### Color Charts API
 
@@ -2741,13 +2790,13 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 **Funktionalität:**
 
 1. **Bild-Upload** - Hochladen eines oder mehrerer Edelstein-Bilder
-2. **Erweiterte Einstellungen** - Whitepoint, K-Value, Maskierungs-Optionen, Custom Palette, GrabCut
+2. **Erweiterte Einstellungen** - Whitepoint, K-Value, Maskierungs-Optionen, Custom Palette, GrabCut, ML-Segmentierung (API)
 3. **Farb-Extraktion** - Automatische Extraktion der dominanten Farben
 4. **Region-Analyse** - Analyse verschiedener Bereiche (Zentrum, Facetten, Schatten)
 5. **GIA-Bewertung** - GIA-konforme Farbbewertung (Hue, Tone, Saturation)
 6. **Varietät-Vorschlag** - Vorschlag möglicher Edelstein-Varietäten
 7. **Pleochroismus-Analyse** - Automatische Erkennung von Pleochroismus
-8. **Palette-Vergleich** - Vergleich mit vordefinierten und benutzerdefinierten Paletten
+8. **Palette-Vergleich** - Hinweis: Funktion aktuell deaktiviert (siehe Downloads-Abschnitt)
 9. **Lernsystem** - Lernen aus manuellen Korrekturen
 10. **Export-Funktionen** - PNG, JSON, PDF
 
@@ -2848,6 +2897,10 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
   - Radius einstellbar (2-8 Pixel, default: 4)
   - Regularisierung einstellbar (10⁻⁶ bis 10⁻², default: 10⁻³)
   - Glattere Masken ohne Verlust von Kanten
+- **ML-Segmentierung (API, experimentell)**:
+  - Externer Segmentierungs-Service über `/api/segmentation`
+  - Fallback auf Standard-Maskierung bei fehlender Konfiguration oder Fehlern
+  - Unterstützt verschiedene Mask-Formate (flattened, 2D, Alpha, RLE, PNG, Polygone)
 - **OpenCV GrabCut** (optional):
   - Präzise Hintergrund-Trennung
   - Rechteck-Initialisierung
@@ -2856,10 +2909,8 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 
 #### Palette-Vergleich
 
-- **Vordefinierte Paletten**: Vergleich mit Standard-Paletten (z.B. "Saphir-Blau (royal)")
-- **Benutzerdefinierte Paletten**: Manuell hinzugefügte HEX-Farben
-- **ΔE76 und ΔE2000 Metriken**: Zwei verschiedene Farbdistanz-Berechnungen
-- **Beste Übereinstimmungen**: Sortierung nach geringster Farbdistanz
+- **Der Palette-Vergleich ist derzeit deaktiviert**, um den Fokus auf die direkte Farbanalyse zu legen.
+- Reaktivierung kann später erfolgen (vorhandene Infrastruktur bleibt erhalten).
 
 #### Mehrere Bilder
 
@@ -2878,6 +2929,7 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - **Segmentierung:**
   - Standard: Automatische Hintergrund-Erkennung
   - Borderline v4: SLIC Superpixels + Guided Filter
+  - Optional: ML-Segmentierung via `/api/segmentation`
   - Optional: OpenCV GrabCut
 - **Edge Detection:** Für Facetten-Erkennung
 - **Adaptive Sampling:** Für wichtige Bildbereiche
@@ -2885,6 +2937,78 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - **ICC-Profil-Unterstützung:** Automatische Weißpunkt-Extraktion und -Verwendung
 - **Borderline-Erkennung:** Zirkuläre Statistik + Soft Category Classification
 - **OpenCV.js:** Für GrabCut-Segmentierung (optional)
+- **Segmentation API:** Externer ML-Service, konfigurierbar via `SEGMENTATION_API_URL`
+
+#### ML-Segmentierung testen (Quick Check)
+
+1. **ENV setzen** (`.env.local`):
+   ```env
+   SEGMENTATION_API_URL=https://your-segmentation-service/segment
+   ```
+2. **Service erreichbar machen** (lokal oder remote).
+3. **Downloads → Farbanalyse** öffnen und **„ML‑Segmentierung (API, experimentell)”** aktivieren.
+4. **Testbild hochladen**:
+   - Erwartung: Analyse läuft ohne Fehler.
+   - Bei Fehlern: Hinweis in der UI, automatische Fallback‑Maskierung greift.
+5. **Optionaler API‑Test** (nur wenn du manuell prüfen willst):
+   ```bash
+   curl -X POST http://localhost:3000/api/segmentation \
+     -F "image=@/pfad/zum/bild.jpg"
+   ```
+   - Erwartet: `image/*` oder JSON‑Maskenformat (siehe Beispiele oben).
+
+#### Troubleshooting ML-Segmentierung
+
+- **Problem:** Toggle aktiv, aber keine Veränderung sichtbar
+  - **Ursache:** Segmentierungs‑API nicht konfiguriert oder liefert Fehler
+  - **Lösung:** `SEGMENTATION_API_URL` prüfen und Service‑Logs ansehen
+
+- **Problem:** Fehlermeldung in der Analyse
+  - **Ursache:** API‑Response ist leer oder Format nicht unterstützt
+  - **Lösung:** Response‑Beispiele oben vergleichen, ggf. Format anpassen
+
+- **Problem:** Maske wirkt invertiert (Hintergrund statt Stein)
+  - **Ursache:** Service liefert invertierte Maske
+  - **Lösung:** Service so konfigurieren, dass Vordergrund = 1 ist
+
+- **Problem:** Sehr grobe Maske / Treppeneffekt
+  - **Ursache:** Zu niedrige Output‑Auflösung oder starke Kompression
+  - **Lösung:** Höhere Auflösung im Service einstellen
+
+- **Problem:** Lange Wartezeit / Timeouts
+  - **Ursache:** Segmentierung zu langsam oder Service überlastet
+  - **Lösung:** Modell vereinfachen, Caching aktivieren, Service skalieren
+
+#### ML-Training: Wann lohnt es sich?
+
+**Daten & Labels**
+- Mindestens 500–1.000 Bilder für Segmentierung; 2.000+ für stabile Ergebnisse
+- Labels konsistent (idealerweise gleicher Prozess/Annotator)
+- Ground-Truth für Farbe (Color-Checker oder Spektralmessung)
+
+**Aufnahme-Standard**
+- Konstantes Licht-Setup (Farbtemperatur, Intensität)
+- Fixe Kamera-/Objektiv-Settings
+- Farbkalibrierung (ICC/Color-Checker)
+
+**Metriken**
+- ΔE2000 als primäre Qualitätsmetrik
+- IoU/Dice für Segmentierung
+
+**Business-Nutzen**
+- Messbarer Gewinn (weniger Fehlklassifikationen, weniger manuelle Korrekturen)
+- Bereitschaft, Modell zu pflegen und zu überwachen
+
+**Entscheidungsbaum (Trainieren?)**
+- **Hast du ≥ 1.000 gelabelte Bilder?**
+  - **Nein** → Nicht trainieren, zuerst Datenset aufbauen.
+  - **Ja** → weiter.
+- **Gibt es Ground-Truth-Farbwerte (Color-Checker/Spektral)?**
+  - **Nein** → Nur Segmentierung trainieren.
+  - **Ja** → weiter.
+- **Sind Aufnahmebedingungen standardisiert?**
+  - **Nein** → Standardisieren, sonst Training instabil.
+  - **Ja** → Training lohnt sich.
 
 **Datenbank:**
 
@@ -3948,6 +4072,11 @@ Die Docker-Konfiguration wurde am 01.12.2025 aktualisiert mit:
   - Redundante Kopien reduziert
   - Bessere Layer-Caching-Strategie
 
+**Build-Fix (Januar 2026 – Version 2.8.0):**
+- ✅ **DATABASE_URL beim Build:** Dummy-`DATABASE_URL` als Build-ARG/ENV, damit Prisma beim Next.js Page-Data-Collect nicht abbricht; Laufzeit nutzt echte `DATABASE_URL` aus docker-compose
+- ✅ **Build-Befehl:** `npx next build` statt `npm run build` (vermeidet prebuild-Skript, das im Alpine-Image `bash` benötigt)
+- ✅ **strato-compose** (`deploy/strato-compose.yml`): Image-Updates (postgres 17-alpine, redis 7.4-alpine, caddy 2.10-alpine, minio RELEASE.2024-11-07, grafana 11.0.0), App-Start mit `node server.js` (Standalone)
+
 #### Container-Update (November 2025)
 
 **Durchgeführte Schritte:**
@@ -3961,8 +4090,8 @@ Die Docker-Konfiguration wurde am 01.12.2025 aktualisiert mit:
 - ✅ `gemilike-app`: Healthy, läuft auf Port 3002
 - ✅ `gemilike-postgres`: Healthy, läuft auf Port 5433
 - ✅ Alle Migrationen erfolgreich angewendet
-- ✅ Next.js 16.1.1 läuft korrekt
-- ✅ Prisma Client generiert (v7.2.0, identisch zu `package.json`)
+- ✅ Next.js 16.1.x läuft korrekt
+- ✅ Prisma Client generiert (v7.3.0, identisch zu `package.json`)
 
 #### Schnellstart
 
@@ -4002,6 +4131,10 @@ SMTP_FROM=noreply@gemilike.de
 
 # Admin
 ADMIN_EMAIL=admin@gemilike.de
+
+# Farbanalyse (ML-Segmentierung, optional)
+# Externer Segmentierungs-Service (z.B. FastAPI/U-Net)
+SEGMENTATION_API_URL=https://your-segmentation-service/segment
 ```
 
 **2. Production Build starten**
@@ -5040,11 +5173,29 @@ Das Dokument enthält:
 
 **Ende des Anwenderhandbuchs**
 
-*Letzte Aktualisierung: 6. Januar 2026*  
-*Version: 2.5.8*  
-*Gesamt: 5.700+ Zeilen Dokumentation*
+*Letzte Aktualisierung: Februar 2026*  
+*Version: 2.8.0*  
+*Gesamt: 6.800+ Zeilen Dokumentation*
 
 ## Änderungsprotokoll
+
+### Version 2.8.0 (Februar 2026)
+
+**Sicherheit & Code-Qualität:**
+- **CodeQL (GitHub Code Scanning):** Critical (request-forgery) und High (polynomial-redos) behoben
+  - PayPal Capture: `paypalOrderId` wird vor Verwendung in der URL validiert (nur `[A-Za-z0-9_-]`, max. 50 Zeichen)
+  - Such-Parser (`lib/search/query-parser.ts`): Eingabe- und Dokumentlängen-Limits, Tippfehler `vectorText` und fehlende Klammer behoben
+- **npm audit:** Overrides für `lodash >=4.17.22` und `fast-xml-parser >=5.3.4`; Next.js durch `npm audit fix --legacy-peer-deps` aktualisiert; 0 critical/high, 3 moderate (hono/Prisma-Dev)
+- **Dokumentation:** `GITHUB_SECURITY_FIXES.md` mit GitHub-Sicherheitsprüfung und CodeQL-Status ergänzt
+
+**Docker:**
+- Build-Fix: Dummy-`DATABASE_URL` beim Build; `npx next build` statt `npm run build` (Alpine ohne bash)
+- strato-compose: Image-Updates (postgres 17-alpine, redis 7.4-alpine, caddy 2.10-alpine, minio, grafana 11); App-Start mit `node server.js`
+
+**Handbuch:**
+- Version auf 2.8.0, Stand Februar 2026 angehoben
+- Abschnitt 15.1.1 (Sicherheitsprüfung) und 10.1 (Docker) aktualisiert
+- PayPal-Sicherheit und Query-Parser-Limits dokumentiert
 
 ### Version 2.6.0 (11. Januar 2026)
 
@@ -5837,6 +5988,31 @@ docker compose up -d
   - Code-Statistiken hinzugefügt: Projekt umfasst 110.134 Zeilen Code (aufgeteilt nach TSX, TS, JS, CSS, HTML)
   - Neuer Abschnitt "2.3 Code-Statistiken" im Anwenderhandbuch
 
+### Version 2.6.3 (01. Februar 2026)
+
+- **Admin Edelsteine**
+  - Vektorsuche im Admin (`/admin/gemstones`)
+  - Medien-Sortierung per Drag & Drop im Upload-Bereich
+  - Löschen von Bildern/Videos im Upload-Bereich, in Detailansicht und in der Übersichtsliste
+  - Zahlenfelder akzeptieren Komma/Punkt; Preise werden als **Bruttopreis inkl. MwSt.** gespeichert
+  - CSV-Import akzeptiert `Preis (Brutto)` (Legacy: `Preis`)
+  - Persistente Speicherung von Gewicht, Entstehung, Preis und Maßen
+- **Zertifizierungen**
+  - AIG als zusätzliche Zertifizierung im Admin-Auswahlfeld
+- **Shop/Startseite**
+  - Gewichtsangaben in Thumbnails/Detailansichten mit deutschem Zahlenformat (Komma)
+
+### Version 2.6.1 (01. Februar 2026)
+
+- **Farbanalyse: ML-Segmentierung (API, optional)**
+  - Neuer optionaler ML-Segmentierungsweg über `/api/segmentation`
+  - Auto-Detect für gängige Mask-Formate (PNG, flattened, 2D, Alpha, RLE, Polygone)
+  - Fallback auf Standard-Maskierung bei Fehlern/fehlender Konfiguration
+  - Neue ENV: `SEGMENTATION_API_URL`
+- **Footer-Anpassungen**
+  - Social-Media-Links aus dem Footer entfernt
+  - Footer-Logo vergrößert für bessere Sichtbarkeit
+
 ### Version 2.1.0 (Dezember 2025)
 
 - **Shop-Seite Verbesserungen:**
@@ -5881,15 +6057,17 @@ docker compose up -d
 
 #### 15.1.1 GitHub Repository Sicherheitsprüfung
 
-**Datum:** 6. Januar 2026
+**Datum:** 6. Januar 2026 (aktualisiert Februar 2026)
 
-**Status:** ✅ Alle kritischen Probleme behoben
+**Status:** ✅ Kritische und hohe Befunde behoben; moderate (hono/Prisma-Dev) verbleibend
 
 #### Durchgeführte Prüfungen
 
 **1. npm audit - Dependency Vulnerabilities:**
-- ✅ **Status:** Keine bekannten Vulnerabilities
-- ✅ **jspdf:** Auf Version 4.0.0 aktualisiert (Sicherheitslücke behoben)
+- ✅ **Status:** 0 critical/high (Stand: Februar 2026)
+- ✅ **Overrides** in `package.json`: `lodash >=4.17.22` (Prototype Pollution), `fast-xml-parser >=5.3.4` (DoS)
+- ✅ **Next.js** und **fast-xml-parser** durch `npm audit fix --legacy-peer-deps` bzw. Override behoben
+- ⚠️ **3 moderate** (hono über @prisma/dev – nur Dev-Tools, nicht Produktions-Runtime); Behebung würde Prisma-Downgrade erfordern
 - **Regelmäßige Prüfung:** Wöchentlich `npm audit` ausführen
 
 **2. Hardcoded Secrets:**
@@ -5904,8 +6082,14 @@ docker compose up -d
 - ✅ Hardcoded Credentials wurden bereits entfernt
 - ✅ Development-Mode Authentication Bypass wurde entfernt
 
-**4. Security-Dokumentation:**
-- ✅ `.github/SECURITY_FIXES.md` - Dokumentiert bereits behobene Probleme
+**4. CodeQL (Code Scanning) – Februar 2026:**
+- ✅ **Critical (request-forgery):** PayPal Capture-URL nutzt nur noch validierte `paypalOrderId` (Format: `[A-Za-z0-9_-]`, max. 50 Zeichen) – verhindert SSRF/Request-Forgery
+- ✅ **High (polynomial-redos):** Such-Parser (`lib/search/query-parser.ts`) mit Eingabe-/Dokumentlängen-Limits (`MAX_QUERY_INPUT_LENGTH`, `MAX_DOCUMENT_TEXT_LENGTH`) abgesichert; Tippfehler `vectorText` behoben
+- ⚠️ **Medium (log-injection):** 75 Hinweise – Log-Ausgaben bei Bedarf bereinigen
+- **Dependabot/Vulnerability Alerts:** Für dieses Repo derzeit deaktiviert; Aktivierung unter Settings → Security empfohlen
+
+**5. Security-Dokumentation:**
+- ✅ `GITHUB_SECURITY_FIXES.md` - Behobene Sicherheitswarnungen und GitHub-CodeQL-Status
 - ✅ `.github/CODE_SCANNING_GUIDE.md` - Code Scanning Anleitung
 - ✅ `SECURITY.md` - Security Policy vorhanden
 
@@ -6597,9 +6781,13 @@ export NVM_DIR="$HOME/.nvm"
 - Keine lokale Node.js-Installation erforderlich für Docker-basierte Entwicklung
 
 **Hinweise:**
-- Lokale Entwicklung erfordert Node.js 22 (nicht 18.19.1)
+- Lokale Entwicklung erfordert Node.js 20.19+ (empfohlen 22)
 - Docker-Container sind unabhängig von lokaler Node.js-Version
 - `npm run dev` prüft automatisch die Node.js-Version (via `predev` Hook)
+
+**Semantische Suche / Query-Parser (Version 2.8.0):**
+- **ReDoS/DoS-Absicherung:** Maximale Länge für Such-Eingabe (`MAX_QUERY_INPUT_LENGTH = 2000`) und für Dokumenttext bei der Auswertung (`MAX_DOCUMENT_TEXT_LENGTH = 50_000`) in `lib/search/query-parser.ts`
+- Behebung eines Tippfehlers (`vectorText`) und fehlender schließender Klammer in `parseVectorQuery`
 
 ### 15.9 PayPal Integration (Version 2.6.2 - 13.01.2026)
 
@@ -6651,6 +6839,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3003
 - Sandbox-Modus für Tests, Live-Modus für Produktion
 - Webhook-Events: `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.DENIED`, etc.
 - Bestellstatus wird automatisch auf `PAID` gesetzt nach erfolgreicher Zahlung
+- **Sicherheit (Version 2.8.0):** `paypalOrderId` wird vor Verwendung in der PayPal-URL strikt validiert (nur `[A-Za-z0-9_-]`, max. 50 Zeichen), um Request-Forgery/SSRF zu verhindern
 
 ### 15.10 Warenkorb-UI-Verbesserungen (Version 2.6.2 - 13.01.2026)
 

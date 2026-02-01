@@ -17,6 +17,14 @@ interface GemstoneThumbnailProps {
 
 export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailProps) {
   const t = useTranslations('shop');
+  const formatWeightValue = (value?: number | null, unit?: 'ct' | 'g') => {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return 'N/A';
+    const formatted = new Intl.NumberFormat('de-DE', {
+      minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+    return `${formatted} ${unit ?? 'ct'}`;
+  };
   const adminT = useTranslations('admin');
   const colorStyle = gemstone.color ? getColorBadgeStyle(gemstone.color) : null;
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -278,9 +286,11 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
             <PictogramWithTooltip iconName="Weight" size="sm" />
             <span className="text-muted-foreground">{t('weight')}:</span>
             <span className="font-medium">
-              {gemstone.type === 'cut' && 'caratWeight' in gemstone ? `${gemstone.caratWeight} ct` : 
-               gemstone.type === 'rough' && 'gramWeight' in gemstone ? `${gemstone.gramWeight} g` : 
-               'N/A'}
+              {gemstone.type === 'cut' && 'caratWeight' in gemstone
+                ? formatWeightValue(gemstone.caratWeight, 'ct')
+                : gemstone.type === 'rough' && 'gramWeight' in gemstone
+                  ? formatWeightValue(gemstone.gramWeight, 'g')
+                  : 'N/A'}
             </span>
           </div>
         </div>
@@ -289,4 +299,3 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
     </div>
   );
 }
-

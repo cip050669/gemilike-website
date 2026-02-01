@@ -43,8 +43,11 @@ const TERM_STOP_WORDS = new Set([
 
 const normalizeNumber = (value: string) => Number(value.replace(',', '.'));
 
+/** Max input length to mitigate ReDoS / DoS from complex or very long queries */
+const MAX_QUERY_INPUT_LENGTH = 2000;
+
 export function parseVectorQuery(input: string): ParsedVectorQuery {
-  const trimmed = input.trim();
+  const trimmed = input.trim().slice(0, MAX_QUERY_INPUT_LENGTH);
   if (!trimmed) {
     return { groups: [], vectorText: '' };
   }
@@ -170,6 +173,9 @@ function compareValues(value: number, operator: ComparisonOperator, expected: nu
   }
 }
 
+/** Max document length to mitigate ReDoS when matching terms */
+const MAX_DOCUMENT_TEXT_LENGTH = 50_000;
+
 export function evaluateVectorQuery<TPayload>(
   parsed: ParsedVectorQuery,
   documentText: string,
@@ -180,7 +186,7 @@ export function evaluateVectorQuery<TPayload>(
     return true;
   }
 
-  const normalizedText = documentText.toLowerCase();
+  const normalizedText = documentText.slice(0, MAX_DOCUMENT_TEXT_LENGTH).toLowerCase();
 
   // Gruppen werden mit OR kombiniert (wenn mehrere Gruppen vorhanden sind)
   // Innerhalb einer Gruppe: Text-Terms mit OR, numerische Filter mit AND
