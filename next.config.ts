@@ -8,6 +8,7 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['192.168.1.106', '*.192.168.1.106'],
   /** Turbopack: Workspace-Root (behebt „set turbopack.root“ / Next.js-Auflösung) */
   turbopack: {
     root: projectRoot,
@@ -23,6 +24,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: [
         'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://192.168.1.106:3000',
         'https://fqm1955x-3000.euw.devtunnels.ms',
       ],
     },

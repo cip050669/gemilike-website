@@ -14,6 +14,7 @@ export default async function BlogPostPage({
   params: Promise<{ locale: string; slug: string }> 
 }) {
   const { locale, slug } = await params;
+  const isEnglish = locale === 'en';
   const post = await getBlogBySlug(slug, locale);
   
   if (!post) {
@@ -23,12 +24,12 @@ export default async function BlogPostPage({
   return (
     <div className="container py-12 md:py-20">
       <div className="mx-auto max-w-4xl container-dark">
-        {/* Zurück-Button */}
+        {/* Back button */}
         <div className="mb-8">
           <Button variant="ghost" asChild>
             <Link href={`/${locale}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Zurück zur Startseite
+              {isEnglish ? 'Back to home' : 'Zurück zur Startseite'}
             </Link>
           </Button>
         </div>
@@ -40,7 +41,7 @@ export default async function BlogPostPage({
               <Badge>{post.category}</Badge>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span>{new Date(post.createdAt).toLocaleDateString('de-DE')}</span>
+                <span>{new Date(post.createdAt).toLocaleDateString(isEnglish ? 'en-GB' : 'de-DE')}</span>
               </div>
             </div>
             <CardTitle className="text-3xl md:text-4xl">{post.title}</CardTitle>
@@ -80,7 +81,7 @@ export default async function BlogPostPage({
               <div className="mt-8 pt-6 border-t border-border">
                 <div className="flex items-center gap-2 mb-4">
                   <Tag className="h-4 w-4" />
-                  <span className="text-sm font-medium">Tags:</span>
+                  <span className="text-sm font-medium">{isEnglish ? 'Tags:' : 'Tags:'}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {post.tags.map((tag, index) => (

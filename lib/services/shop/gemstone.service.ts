@@ -1,4 +1,6 @@
 import type { Prisma } from '@prisma/client';
+import fs from 'node:fs';
+import path from 'node:path';
 import { prisma } from '@/lib/prisma';
 import { semanticVectorSearch, type SemanticDocument, type VectorSearchResult } from '@/lib/search/vector-search';
 import { parseVectorQuery, evaluateVectorQuery } from '@/lib/search/query-parser';
@@ -44,6 +46,22 @@ const decimalToNumber = (value?: Prisma.Decimal | number | string | null): numbe
 const ensureImages = (urls: string[]): string[] =>
   urls.length ? urls : [GEMSTONE_PLACEHOLDER_IMAGE];
 
+const PUBLIC_ROOT = path.join(process.cwd(), 'public');
+
+const normalizeMediaUrl = (value: string | null | undefined): string[] => {
+  if (!value) return [];
+
+  return value
+    .split(/\r?\n/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .filter((entry) => entry.startsWith('/'))
+    .filter((entry) => !entry.startsWith('//'))
+    .filter((entry) => !entry.startsWith('/home/'))
+    .filter((entry) => !entry.startsWith('/Users/'))
+    .filter((entry) => fs.existsSync(path.join(PUBLIC_ROOT, entry.slice(1))));
+};
+
 const extractRarity = (metadata?: Prisma.JsonValue | null): string | null => {
   if (!metadata || typeof metadata !== 'object') return null;
   const maybeRecord = metadata as Record<string, unknown>;
@@ -69,6 +87,8 @@ export const toShopGemstone = (gem: GemstoneWithRelations): ShopGemstone => {
 
   const imageMedia = gem.media.filter((media) => media.type === 'IMAGE');
   const videoMedia = gem.media.filter((media) => media.type === 'VIDEO');
+  const imageUrls = imageMedia.flatMap((media) => normalizeMediaUrl(media.url));
+  const videoUrls = videoMedia.flatMap((media) => normalizeMediaUrl(media.url));
 
   // Ensure currency is a valid string
   let currency = 'EUR';
@@ -111,8 +131,8 @@ export const toShopGemstone = (gem: GemstoneWithRelations): ShopGemstone => {
     isSold: gem.isSold ?? false,
     stock,
     isNew: gem.isNew ?? false,
-    images: ensureImages(imageMedia.map((media) => media.url).filter(Boolean)),
-    videos: videoMedia.map((media) => media.url).filter(Boolean),
+    images: ensureImages(imageUrls),
+    videos: videoUrls,
   };
 };
 

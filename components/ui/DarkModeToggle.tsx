@@ -48,11 +48,11 @@ export function DarkModeToggle({ className }: DarkModeToggleProps) {
   if (!mounted) {
     return (
       <Button
-      variant="ghost"
-      size="icon"
-      className="h-9 w-9"
-      aria-label="Dark Mode umschalten"
-      disabled
+        variant="ghost"
+        size="icon"
+        type="button"
+        className={className ?? 'h-9 w-9'}
+        aria-label="Dark Mode umschalten"
       >
         <Sun className="h-4 w-4" />
       </Button>

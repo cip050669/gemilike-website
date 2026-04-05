@@ -4,7 +4,6 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let PayPalScriptProvider: any = null;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const paypalModule = require('@paypal/react-paypal-js');
   PayPalScriptProvider = paypalModule.PayPalScriptProvider;
 } catch {

@@ -50,7 +50,7 @@ jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: Record<string, unknown> & { alt: string }) => {
     const { blurDataURL: _b, placeholder: _p, ...rest } = props
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+    // eslint-disable-next-line @next/next/no-img-element
     return <img {...rest} alt={props.alt} />
   },
 }))

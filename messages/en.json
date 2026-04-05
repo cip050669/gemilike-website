@@ -18,17 +18,169 @@
     "sort": "Sort",
     "refresh": "Refresh"
   },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "HomePage": {
+    "hero": {
+      "title": "Welcome to Gemilike",
+      "description": "Your specialist for rough and cut gemstones. Discover our exquisite selection of diamonds, emeralds, rubies, and many other gemstones.",
+      "discoverGems": "Discover gemstones",
+      "aboutUs": "About us"
+    },
+    "features": {
+      "whyGemilike": "Why Gemilike?",
+      "qualityService": "We offer the highest quality and the best service in the gemstone trade",
+      "premiumQuality": {
+        "title": "Premium quality",
+        "description": "Only the finest gemstones from trusted sources"
+      },
+      "expertKnowledge": {
+        "title": "Expert knowledge",
+        "description": "Decades of experience in the gemstone trade"
+      },
+      "certified": {
+        "title": "Certified",
+        "description": "All gemstones with official certificates"
+      },
+      "secureShipping": {
+        "title": "Secure shipping",
+        "description": "Insured and secure worldwide shipping"
+      }
+    },
+    "featuredProducts": {
+      "ourHighlights": "Our highlights",
+      "discoverPopular": "Discover our most popular gemstones",
+      "diamond": {
+        "title": "Diamond",
+        "badge": "Premium",
+        "description": "Brilliant-cut diamond of the highest quality"
+      },
+      "emerald": {
+        "title": "Emerald",
+        "badge": "Rare",
+        "description": "Natural emerald with an intense green color"
+      },
+      "ruby": {
+        "title": "Ruby",
+        "badge": "Exclusive",
+        "description": "Fiery red ruby with exceptional clarity"
+      },
+      "onRequest": "On request",
+      "details": "Details",
+      "viewAllGems": "View all gemstones"
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved"
+  },
+  "cookies": {
+    "message": "This website uses cookies to provide you with the best possible experience.",
+    "accept": "Accept"
+  },
+  "about": {
+    "title": "About Gemilike",
+    "subtitle": "Exclusive gemstones, decades of experience, and personal advice",
+    "intro1": "For more than 20 years, we have curated exceptional gemstones for collectors, jewelers, and lovers of the finest treasures. Our focus is on authentic provenance, excellent cuts, and transparent sourcing.",
+    "intro2": "With an international network of trusted mining partners and gemological institutes, we support you from the initial consultation to the secure delivery of your selected one-of-a-kind pieces.",
+    "mission": "Our mission",
+    "missionDesc": "We aim to preserve the beauty of rare gemstones and place them responsibly into the hands of our customers.",
+    "values": "Our values",
+    "valuesDesc": "Integrity, sustainability, and a fascination for natural treasures shape every decision we make.",
+    "expertise": "Our expertise",
+    "expertiseDesc": "Certified gemologists with deep market knowledge guide you through selection and evaluation.",
+    "quality": "Quality promise",
+    "qualityDesc": "All gemstones are examined by independent laboratories and delivered with the appropriate certificates.",
+    "services": {
+      "intro": "Our service portfolio"
+    }
+  },
+  "services": {
+    "title": "Our gemstone service",
+    "subtitle": "From rough stones to collection support, we guide you personally",
+    "rough": "Rough stones",
+    "roughDesc": "Rare finds for collectors, cutters, and investors",
+    "cut": "Cut gemstones",
+    "cutDesc": "Brilliantly cut individual stones of verified top quality",
+    "diamonds": "Diamonds",
+    "diamondsDesc": "Colorless and colored diamonds with internationally recognized certificates",
+    "colored": "Colored gemstones",
+    "coloredDesc": "Vivid emeralds, rubies, sapphires, and other rarities",
+    "collector": "Collector service",
+    "collectorDesc": "Curatorial service for museum-quality pieces with provenance and documentation",
+    "wholesale": "Wholesale",
+    "wholesaleDesc": "Tailored selection and fair terms for goldsmiths and traders",
+    "ctaTitle": "Get personal advice",
+    "ctaDesc": "Together we will find the right gemstone for your project or your collection.",
+    "ctaButton": "Get in touch"
+  },
+  "knowledge": {
+    "loading": "Loading article...",
+    "notFound": "Article not found",
+    "notFoundDesc": "This knowledge article is unavailable or has been removed.",
+    "backToHome": "Back to home",
+    "backToList": "Back to knowledge",
+    "author": "Gemilike editorial team",
+    "discoverShop": "Go to shop"
+  },
   "admin": {
-    "title": "Admin Panel",
+    "title": "Gemstone management",
+    "description": "Manage your website content and settings",
     "dashboard": "Dashboard",
     "downloads": "Downloads",
     "projects": "Projects",
     "files": "Files",
     "users": "Users",
-    "settings": "Settings"
+    "settings": "Settings",
+    "gemstones": "Gemstones",
+    "analytics": "Analytics",
+    "searchPlaceholder": "Search gemstones...",
+    "allCategories": "All categories",
+    "allRarities": "All rarities",
+    "import": "Import",
+    "newGemstone": "New gemstone",
+    "editGemstone": "Edit gemstone",
+    "loading": "Loading...",
+    "noGemstones": "No gemstones found",
+    "createFirst": "Create your first gemstone",
+    "noImage": "No image",
+    "priceOnRequest": "Price on request",
+    "confirmDelete": "Do you really want to delete this gemstone?",
+    "analyticsDescription": "Website statistics and analytics are displayed here",
+    "settingsDescription": "Configure website settings here",
+    "available": "Available",
+    "soldOut": "Sold out",
+    "cut": "Cut",
+    "rough": "Rough",
+    "category": "Category",
+    "color": "Color",
+    "origin": "Origin",
+    "caratWeight": "Carat weight",
+    "gramWeight": "Gram weight",
+    "saveSuccess": "Saved successfully",
+    "saveError": "Error while saving",
+    "deleteSuccess": "Deleted successfully",
+    "deleteError": "Error while deleting",
+    "name": "Name",
+    "type": "Type",
+    "price": "Price",
+    "create": "Create",
+    "update": "Update",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "selectFile": "Select file",
+    "about": {
+      "title": "About page management",
+      "description": "Manage the content of the About page",
+      "mission": "Mission",
+      "vision": "Vision"
+    }
   },
   "downloads": {
-    "title": "Download Area",
+    "title": "Download area",
     "description": "Protected download area for projects and files",
     "login": "Login",
     "email": "Email",
@@ -39,6 +191,7 @@
     "upload": "Upload",
     "project": "Project",
     "category": "Category",
+    "description": "Description",
     "active": "Active",
     "inactive": "Inactive",
     "created": "Created",
@@ -46,59 +199,6 @@
     "size": "Size",
     "type": "Type",
     "actions": "Actions"
-  },
-  "shop": {
-    "title": "Our Selection of Gemstones",
-    "subtitle": "Discover new finds, unique pieces, and certified qualities. Each tile shows weight, origin, price, and status at a glance.",
-    "viewDetails": "View details",
-    "wishlist": "Wishlist",
-    "wishlistCount": "{count, plural, one {# item saved} other {# items saved}}",
-    "wishlistEmpty": "Your wishlist is empty",
-    "wishlistEmptyDescription": "Save your favorite gems with the heart icon to find them here later.",
-    "goToShop": "Go to shop",
-    "backToHome": "Back to home",
-    "clearWishlist": "Clear wishlist",
-    "loadMore": "Load more gemstones",
-    "showingCount": "Showing {shown} of {total} gemstones",
-    "showingAll": "All {total} gemstones are displayed",
-    "noResults": "No gemstones found. Please adjust the filters or search.",
-    "vectorSearch": {
-      "title": "Semantic Vector Search",
-      "description": "Describe in natural language what you're looking for, e.g., \"intense green emerald from Colombia\".",
-      "label": "Semantic Vector Search",
-      "placeholder": "Describe color, origin, certificate …",
-      "button": "Vector Search",
-      "searching": "Searching …",
-      "reset": "Reset",
-      "hint": "Describe in natural language, e.g., \"intense green emerald from Colombia\", to find similar pieces.",
-      "matches": "{count} semantic matches for \"{query}\" – all other gemstones are hidden.",
-      "noPriceMatches": "No gemstones match this price range.",
-      "noUncertifiedMatches": "No uncertified gemstones found.",
-      "noCertifiedMatches": "No certified gemstones found.",
-      "noTreatedMatches": "No treated gemstones found.",
-      "noUntreatedMatches": "No untreated gemstones found.",
-      "noMatches": "No gemstones match this description.",
-      "error": "The vector search could not be executed.",
-      "unknownError": "Unknown error in vector search. Please try again."
-    }
-  },
-  "home": {
-    "loadingStories": "Loading stories...",
-    "noStories": "No stories available",
-    "noImage": "No image",
-    "readStory": "Read story",
-    "storiesTitle": "Our Stories",
-    "storiesDescription": "Discover the fascinating stories behind our gemstones",
-    "newGemstonesTitle": "New Gemstones",
-    "newGemstonesDesc": "Discover our latest gemstone collections",
-    "noNewGemstones": "Currently no new gemstones available. Please check back later!",
-    "loadingGemstones": "Loading gemstones...",
-    "of": "of",
-    "noGemstones": "No gemstones available",
-    "addGemstonesHint": "Add gemstones in the admin panel",
-    "manageGemstones": "Manage gemstones",
-    "addToCart": "Add to cart",
-    "priceOnRequest": "Price on request"
   },
   "errors": {
     "loading": "Error loading",
@@ -110,5 +210,77 @@
     "permission": "Permission error",
     "network": "Network error",
     "server": "Server error"
+  },
+  "home": {
+    "loadingStories": "Loading stories...",
+    "noStories": "No stories available",
+    "noImage": "No image",
+    "readStory": "Read story",
+    "storiesTitle": "Our stories",
+    "storiesDescription": "Discover the fascinating stories behind our gemstones",
+    "newGemstonesTitle": "New gemstones",
+    "newGemstonesDesc": "Discover our latest gemstone collections",
+    "noNewGemstones": "There are currently no new gemstones available. Please check back later!",
+    "loadingGemstones": "Loading gemstones...",
+    "of": "of",
+    "noGemstones": "No gemstones available",
+    "addGemstonesHint": "Add gemstones in the admin panel",
+    "manageGemstones": "Manage gemstones",
+    "addToCart": "Add to cart",
+    "priceOnRequest": "Price on request"
+  },
+  "shop": {
+    "title": "Our selection of gemstones",
+    "subtitle": "Discover new finds, unique one-of-a-kind pieces, and certified quality. Each tile shows weight, origin, price, and status at a glance.",
+    "viewDetails": "View details",
+    "wishlist": "Wishlist",
+    "wishlistCount": "{count, plural, one {# item in your wishlist} other {# items in your wishlist}}",
+    "wishlistEmpty": "Your wishlist is empty",
+    "wishlistEmptyDescription": "Save your favorite pieces with the heart icon so you can quickly find them again here.",
+    "goToShop": "Go to shop",
+    "backToHome": "Back to home",
+    "clearWishlist": "Clear wishlist",
+    "loadMore": "Load more gemstones",
+    "openMoreInPanel": "Show {count} more gemstones",
+    "moreGemstonesTitle": "More gemstones",
+    "moreGemstonesLoaded": "{shown} of {total} additional gemstones loaded",
+    "moreGemstonesEmpty": "No additional gemstones available.",
+    "moreGemstonesLoadNext": "Load {count} more gemstones",
+    "moreGemstonesComplete": "All additional gemstones are loaded.",
+    "closePanel": "Close panel",
+    "showingCount": "Showing {shown} of {total} gemstones",
+    "showingAll": "Showing all {total} gemstones",
+    "noResults": "No gemstones found. Adjust the filters or search.",
+    "vectorSearch": {
+      "title": "Semantic vector search",
+      "description": "Describe in natural language what you are looking for, for example \"intense green emerald from Colombia\".",
+      "label": "Semantic vector search",
+      "placeholder": "Describe color, origin, certificate ...",
+      "button": "Vector search",
+      "searching": "Searching ...",
+      "reset": "Reset",
+      "hint": "Describe in natural language, e.g. \"intense green emerald from Colombia\", to find similar pieces.",
+      "matches": "{count} semantic matches for \"{query}\" - all other gemstones are hidden.",
+      "noPriceMatches": "No gemstones match this price range.",
+      "noUncertifiedMatches": "No uncertified gemstones found.",
+      "noCertifiedMatches": "No certified gemstones found.",
+      "noTreatedMatches": "No treated gemstones found.",
+      "noUntreatedMatches": "No untreated gemstones found.",
+      "noMatches": "No gemstones match this description.",
+      "error": "The vector search could not be executed.",
+      "unknownError": "Unknown error during vector search. Please try again."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Discover the fascinating world of gemstones",
+    "readMore": "Read more",
+    "published": "Published",
+    "author": "Author",
+    "tags": "Tags",
+    "category": "Category",
+    "search": "Search blog",
+    "noPosts": "No posts found",
+    "loading": "Loading blog posts..."
   }
 }

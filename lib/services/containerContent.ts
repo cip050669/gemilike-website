@@ -24,6 +24,21 @@ export const DEFAULT_CONTAINER_CONTENT: Record<string, ContainerContentRecord> =
     locale: 'de',
     body: 'Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar.',
   },
+  'home.blog.heading:en': {
+    key: 'home.blog.heading',
+    locale: 'en',
+    title: 'STORIES ABOUT GEMSTONES',
+  },
+  'home.blog.subheading:en': {
+    key: 'home.blog.subheading',
+    locale: 'en',
+    body: 'Discover the fascinating stories and myths behind our gemstones',
+  },
+  'home.newGemstones.description:en': {
+    key: 'home.newGemstones.description',
+    locale: 'en',
+    body: 'Discover our latest and most exclusive gemstones, hand-selected and immediately available.',
+  },
 };
 
 const mergeWithDefaults = (

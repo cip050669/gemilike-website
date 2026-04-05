@@ -28,6 +28,7 @@ export default function KnowledgeArticlePage() {
   const router = useRouter();
   const slug = params.slug as string;
   const locale = params.locale as string;
+  const isEnglish = locale === 'en';
   const [article, setArticle] = useState<KnowledgeArticle | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +62,7 @@ export default function KnowledgeArticlePage() {
           slug: found.slug,
         });
       } catch (error) {
-        console.error('Fehler beim Laden Wissenswertes:', error);
+        console.error(locale === 'en' ? 'Error loading knowledge article:' : 'Fehler beim Laden Wissenswertes:', error);
         router.push(`/${locale}/wissenswertes`);
       } finally {
         setLoading(false);
@@ -129,7 +130,7 @@ export default function KnowledgeArticlePage() {
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  <span className="text-sm">{new Date(article.createdAt).toLocaleDateString('de-DE')}</span>
+                  <span className="text-sm">{new Date(article.createdAt).toLocaleDateString(isEnglish ? 'en-GB' : 'de-DE')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />

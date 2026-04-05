@@ -33,8 +33,9 @@ export default async function HomePage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+  const isEnglish = locale === 'en';
   try {
-    const { locale } = await params;
     const blogs = await getBlogs(locale, true).catch(() => []); // Get only published blogs for this locale
     const containerContent = await getContainerContent(
       [
@@ -48,15 +49,19 @@ export default async function HomePage({
     const blogHeading =
       containerContent.find((item) => item.key === 'home.blog.heading')?.title ||
       DEFAULT_CONTAINER_CONTENT['home.blog.heading']?.title ||
-      'GESCHICHTEN UM EDELSTEINE';
+      (isEnglish ? 'STORIES ABOUT GEMSTONES' : 'GESCHICHTEN UM EDELSTEINE');
     const blogSubheading =
       containerContent.find((item) => item.key === 'home.blog.subheading')?.body ||
       DEFAULT_CONTAINER_CONTENT['home.blog.subheading']?.body ||
-      'Entdecken Sie die faszinierenden Geschichten und Mythen hinter unseren Edelsteinen';
+      (isEnglish
+        ? 'Discover the fascinating stories and myths behind our gemstones'
+        : 'Entdecken Sie die faszinierenden Geschichten und Mythen hinter unseren Edelsteinen');
     const newGemstonesDescription =
       containerContent.find((item) => item.key === 'home.newGemstones.description')?.body ||
       DEFAULT_CONTAINER_CONTENT['home.newGemstones.description']?.body ||
-      'Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar.';
+      (isEnglish
+        ? 'Discover our latest and most exclusive gemstones, hand-selected and immediately available.'
+        : 'Entdecken Sie unsere neuesten und exklusivsten Edelsteine – handverlesen und sofort verfügbar.');
     const blogSettings = {
       heading: blogHeading,
       subheading: blogSubheading,
@@ -71,7 +76,7 @@ export default async function HomePage({
       titleLine2: 'Heroes in Gems------',
       subtitle: 'Ihr Spezialist für rohe und geschliffene Edelsteine.',
       subtitleColor: '#F4F4FF',
-      backgroundImage: '/images/hero/default-hero.jpg',
+      backgroundImage: '/images/hero-fallback.jpg',
       ctaText: 'Sortiment entdecken',
       ctaLink: '/shop',
       secondaryCtaText: null,
@@ -134,18 +139,19 @@ export default async function HomePage({
             {!hasStories && (
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold gemilike-text-gradient">
-                  Noch keine Geschichten veröffentlicht
+                  {isEnglish ? 'No stories published yet' : 'Noch keine Geschichten veröffentlicht'}
                 </h3>
                 <p className="text-gray-200 text-base leading-relaxed">
-                  Sobald Blog-Beiträge veröffentlicht sind, erscheinen sie hier als
-                  Inspiration rund um Edelsteine.
+                  {isEnglish
+                    ? 'As soon as blog posts are published, they will appear here as inspiration from the world of gemstones.'
+                    : 'Sobald Blog-Beiträge veröffentlicht sind, erscheinen sie hier als Inspiration rund um Edelsteine.'}
                 </p>
                 <Button
                   variant="outline"
                   className="mt-4 border-white/40 text-white hover:bg-gray-800/30/10"
                   asChild
                 >
-                  <Link href={`/${locale}/blog`}>Zum Blog</Link>
+                  <Link href={`/${locale}/blog`}>{isEnglish ? 'Go to blog' : 'Zum Blog'}</Link>
                 </Button>
               </div>
             )}
@@ -192,7 +198,7 @@ export default async function HomePage({
                             'ml-auto inline-flex items-center gap-3'
                           )}
                         >
-                          <span className={navStyles.navLabel}>Mehr lesen</span>
+                          <span className={navStyles.navLabel}>{isEnglish ? 'Read more' : 'Mehr lesen'}</span>
                           <svg
                             className="relative z-[1] h-3.5 w-3.5"
                             fill="none"
@@ -237,8 +243,12 @@ export default async function HomePage({
       <PublicLayout>
         <div className="min-h-screen public-page-bg text-white pb-16 flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Fehler beim Laden der Seite</h1>
-            <p className="text-gray-300">Bitte versuchen Sie es später erneut.</p>
+            <h1 className="text-2xl font-bold mb-4">
+              {isEnglish ? 'Error loading page' : 'Fehler beim Laden der Seite'}
+            </h1>
+            <p className="text-gray-300">
+              {isEnglish ? 'Please try again later.' : 'Bitte versuchen Sie es später erneut.'}
+            </p>
             {process.env.NODE_ENV === 'development' && (
               <pre className="mt-4 text-xs text-left bg-gray-900 p-4 rounded overflow-auto max-w-2xl">
                 {error instanceof Error ? error.message : String(error)}

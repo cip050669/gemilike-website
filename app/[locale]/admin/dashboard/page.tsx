@@ -3,6 +3,7 @@ import { Users, Gem, ShoppingCart, DollarSign, TrendingUp, AlertCircle } from 'l
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { AiReindexPanel } from '@/components/admin/ai-reindex-panel';
+import { Prisma } from '@prisma/client';
 
 export default async function AdminDashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -21,6 +22,7 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
     checkoutStats,
     staleGemstoneEmbeddings,
     staleKnowledgeEmbeddings,
+    initialRecentJobs,
   ] = await Promise.all([
     prisma.gemstone.count(),
     prisma.user.count(),
@@ -67,7 +69,7 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
     prisma.gemstone.count({
       where: {
         OR: [
-          { searchEmbedding: null },
+          { searchEmbedding: { equals: Prisma.AnyNull } },
           { searchEmbeddingUpdatedAt: null },
         ],
       },
@@ -75,12 +77,35 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
     prisma.knowledgeBase.count({
       where: {
         OR: [
-          { searchEmbedding: null },
+          { searchEmbedding: { equals: Prisma.AnyNull } },
           { searchEmbeddingUpdatedAt: null },
         ],
       },
     }),
+    prisma.aiJob.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 6,
+      select: {
+        id: true,
+        type: true,
+        status: true,
+        locale: true,
+        createdAt: true,
+        completedAt: true,
+        error: true,
+      },
+    }),
   ]);
+
+  const recentJobsForPanel = initialRecentJobs.map((job) => ({
+    id: job.id,
+    type: String(job.type),
+    status: String(job.status),
+    locale: job.locale,
+    createdAt: job.createdAt.toISOString(),
+    completedAt: job.completedAt ? job.completedAt.toISOString() : null,
+    error: job.error,
+  }));
 
   const stats = {
     totalGemstones,
@@ -245,6 +270,7 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
         locale={locale}
         staleGemstoneEmbeddings={staleGemstoneEmbeddings}
         staleKnowledgeEmbeddings={staleKnowledgeEmbeddings}
+        initialRecentJobs={recentJobsForPanel}
       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">

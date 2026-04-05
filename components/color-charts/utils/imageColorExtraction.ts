@@ -709,17 +709,6 @@ function xyzToRgb(xyz: { x: number; y: number; z: number }): { r: number; g: num
 }
 
 /**
- * Calculate Delta E between two Lab colors (legacy, now uses CIEDE2000)
- * Kept for backward compatibility, but CIEDE2000 is used in clustering
- * Note: This function is not currently used but kept for potential future use
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function calculateDeltaE(lab1: { L: number; a: number; b: number }, lab2: { L: number; a: number; b: number }): number {
-  // Use CIEDE2000 for better perceptual accuracy
-  return deltaE2000(lab1, lab2);
-}
-
-/**
  * Calculate color purity (how uniform the colors are) using CIEDE2000
  */
 function calculateColorPurity(colors: ColorSample[], primary: ColorSample): number {

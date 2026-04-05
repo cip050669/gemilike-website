@@ -31,8 +31,8 @@ export default function AdminLayout({
     { href: '/de/admin/checkout-analytics', label: '📊 Checkout-Analytics' },
     { href: '/de/admin/color-charts', label: '🎨 Farbtafeln' },
     { href: '/de/admin/customers', label: '👥 Kunden' },
-    { href: '/de/admin/dashboard', label: '📈 Statistiken' },
-    { href: '/de/admin', label: '🏠 Dashboard' },
+    { href: '/de/admin/dashboard', label: '🤖 KI & Statistiken' },
+    { href: '/de/admin', label: '🏠 Startseite' },
     { href: '/de/admin/gemstones', label: '💎 Edelsteine' },
     { href: '/de/admin/gemstone-analyses', label: '🔬 Farbanalysen' },
     { href: '/de/admin/header', label: '🔝 Header' },
@@ -154,7 +154,7 @@ export default function AdminLayout({
               ← Zur Website
             </Link>
           </div>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Admin Panel</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Admin</h2>
           <p style={{ fontSize: '14px', color: '#9ca3af' }}>Gemilike</p>
         </div>
 

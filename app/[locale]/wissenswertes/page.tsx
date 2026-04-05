@@ -27,6 +27,7 @@ export default async function KnowledgeListPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const isEnglish = locale === 'en';
   const [settings, articles] = await Promise.all([
     loadKnowledgeSectionSettings(),
     getKnowledgeArticles(locale, true), // Get only published knowledge articles for this locale
@@ -119,7 +120,7 @@ export default async function KnowledgeListPage({
                               'ml-auto inline-flex items-center gap-3'
                             )}
                           >
-                            <span className={navStyles.navLabel}>Mehr lesen</span>
+                            <span className={navStyles.navLabel}>{isEnglish ? 'Read more' : 'Mehr lesen'}</span>
                             <svg
                               className="relative z-[1] h-3.5 w-3.5"
                               fill="none"
@@ -145,10 +146,12 @@ export default async function KnowledgeListPage({
           ) : (
             <div className="story-card text-center">
               <h3 className="text-2xl font-bold mb-4 gemilike-text-gradient">
-                Noch keine Artikel veröffentlicht
+                {isEnglish ? 'No articles published yet' : 'Noch keine Artikel veröffentlicht'}
               </h3>
               <p className="text-gray-200 text-base leading-relaxed">
-                Sobald Wissenswert-Artikel veröffentlicht sind, erscheinen sie hier.
+                {isEnglish
+                  ? 'As soon as knowledge articles are published, they will appear here.'
+                  : 'Sobald Wissenswert-Artikel veröffentlicht sind, erscheinen sie hier.'}
               </p>
             </div>
           )}

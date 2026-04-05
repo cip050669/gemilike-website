@@ -126,6 +126,7 @@ export function GemstoneThumbnail({ gemstone, onOpenCard }: GemstoneThumbnailPro
     <div 
       className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 group rounded-lg border border-gem-iceDark/20 bg-gem-bgDark/80 shadow-sm backdrop-blur-sm gemstone-thumbnail-wrapper"
       onClick={() => onOpenCard(gemstone)}
+      onDoubleClick={() => onOpenCard(gemstone)}
       style={{ 
         '--color-text-primary': '#000000',
         color: '#000000'

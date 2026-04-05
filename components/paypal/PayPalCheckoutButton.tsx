@@ -10,7 +10,6 @@ let PayPalButtons: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let usePayPalScriptReducer: any = null;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const paypalModule = require('@paypal/react-paypal-js');
   PayPalButtons = paypalModule.PayPalButtons;
   usePayPalScriptReducer = paypalModule.usePayPalScriptReducer;

@@ -1909,7 +1909,6 @@ function suggestColorCause(hex: string, lab: { a: number; b: number }): string[]
 async function suggestVarietyWithLearning(
   hex: string,
   lab: { a: number; b: number; L: number },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _saturation: number
 ): Promise<string[]> {
   const varieties: string[] = [];
@@ -2054,7 +2053,6 @@ async function suggestVarietyWithLearning(
 function suggestVariety(
   hex: string,
   lab: { a: number; b: number; L: number },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _saturation: number
 ): string[] {
   // For synchronous calls, return base suggestions

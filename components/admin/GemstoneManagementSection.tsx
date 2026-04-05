@@ -69,7 +69,6 @@ const toDecimalNumber = (value: unknown): number | null => {
 };
 
 // Reserved for future use
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const convertLibraryGemstone = (gem: Gemstone): DisplayGemstone => {
   const weight = isCutGemstone(gem)
     ? `${gem.caratWeight} ct`

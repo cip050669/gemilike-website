@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon, LogInIcon, Languages, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 // Removed Sheet import - using custom modal instead
@@ -21,17 +22,28 @@ interface NavigationItem {
   id: string;
 }
 
-const FALLBACK_NAV: NavigationItem[] = [
-  { href: '/', label: 'Startseite', id: 'fallback-1' },
-  { href: '/shop', label: 'Shop', id: 'fallback-2' },
-  { href: '/wissenswertes', label: 'Wissenswertes', id: 'fallback-3' },
-  { href: '/worldmap', label: 'Fundorte', id: 'fallback-4' },
-  { href: '/downloads', label: 'Download', id: 'fallback-6' },
-];
-
 export function Header() {
+  const t = useTranslations('nav');
+  const pathname = usePathname();
+  const router = useRouter();
+  const localePrefix = (() => {
+    if (!pathname) return '';
+    const segments = pathname.split('/');
+    return segments[1] && segments[1].length === 2 ? `/${segments[1]}` : '';
+  })();
+  const currentLocale = localePrefix.replace('/', '') || 'de';
+  const fallbackNav = useMemo<NavigationItem[]>(
+    () => [
+      { href: '/', label: t('home'), id: 'fallback-1' },
+      { href: '/shop', label: 'Shop', id: 'fallback-2' },
+      { href: '/wissenswertes', label: currentLocale === 'en' ? 'Knowledge' : 'Wissenswertes', id: 'fallback-3' },
+      { href: '/worldmap', label: currentLocale === 'en' ? 'Locations' : 'Fundorte', id: 'fallback-4' },
+      { href: '/downloads', label: currentLocale === 'en' ? 'Downloads' : 'Download', id: 'fallback-6' },
+    ],
+    [currentLocale, t]
+  );
   const [isMounted, setIsMounted] = useState(false);
-  const [navItems, setNavItems] = useState<NavigationItem[]>(FALLBACK_NAV);
+  const [navItems, setNavItems] = useState<NavigationItem[]>(fallbackNav);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const [headerSettings, setHeaderSettings] = useState({
@@ -48,8 +60,18 @@ export function Header() {
   const fetchWishlist = useWishlistStore((state) => state.fetchWishlist);
   const wishlistSummary = useWishlistStore((state) => state.summary);
   const wishlistCount = useWishlistStore((state) => state.totalItems);
-  const pathname = usePathname();
-  const router = useRouter();
+  const isEnglish = currentLocale === 'en';
+  const switchLanguageLabel = isEnglish ? 'Switch language' : 'Sprache wechseln';
+  const switchLanguageTitle = isEnglish ? 'Switch language: to German' : 'Sprache wechseln: Zu Englisch';
+  const wishlistLabel = isEnglish ? 'Wishlist' : 'Wunschliste';
+  const cartLabel = isEnglish ? 'Cart' : 'Warenkorb';
+  const profileLabel = isEnglish ? 'Profile' : 'Profil';
+  const signInLabel = isEnglish ? 'Sign in' : 'Anmelden';
+  const openNavigationLabel = isEnglish ? 'Open navigation' : 'Navigation öffnen';
+  const closeNavigationLabel = isEnglish ? 'Close navigation' : 'Navigation schließen';
+  const menuTitle = isEnglish ? `Navigation (${navItems?.length || 0} items)` : `Navigation (${navItems?.length || 0} Einträge)`;
+  const emptyNavLabel = isEnglish ? 'No navigation items available' : 'Keine Navigationselemente verfügbar';
+  const welcomeLabel = isEnglish ? 'Welcome' : 'Willkommen';
 
   useEffect(() => {
     setIsMounted(true);
@@ -133,7 +155,7 @@ export function Header() {
                    labelLower !== 'kontakt';
           });
 
-          const merged = [...FALLBACK_NAV];
+          const merged = [...fallbackNav];
           filteredMapped.forEach((item) => {
             const normalized = normalizeHref(item.href);
             const exists = merged.some((fallback) => normalizeHref(fallback.href) === normalized);
@@ -147,11 +169,11 @@ export function Header() {
             setNavItems(merged);
           } else {
             console.log('No mapped items, using fallback');
-            setNavItems(FALLBACK_NAV);
+            setNavItems(fallbackNav);
           }
         } else {
           console.log('No navigation items in API response, using fallback');
-          setNavItems(FALLBACK_NAV);
+          setNavItems(fallbackNav);
         }
         setHeaderSettings({
           cartEnabled: data?.cartSettings?.enabled ?? true,
@@ -161,20 +183,14 @@ export function Header() {
         });
       } catch (error) {
         console.warn('Header navigation fetch failed, using fallback.', error);
-        setNavItems(FALLBACK_NAV);
+        setNavItems(fallbackNav);
       }
     })();
-  }, []);
+  }, [fallbackNav]);
 
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
-
-  const localePrefix = (() => {
-    if (!pathname) return '';
-    const segments = pathname.split('/');
-    return segments[1] && segments[1].length === 2 ? `/${segments[1]}` : '';
-  })();
 
   const stripLocale = (path: string) => {
     const segments = path.split('/');
@@ -203,18 +219,18 @@ export function Header() {
   return (
     <header 
       data-header-fixed
-      className="sticky top-0 h-[104px] z-[10000] header-gradient-bg border-b border-white/10"
+      className="sticky top-0 z-[10000] border-b border-white/10 header-gradient-bg"
     >
-      <div className="flex items-center justify-between w-full h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="mx-auto flex min-h-[84px] w-full max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-[96px] sm:px-6 lg:px-8">
         {/* Logo - Links */}
-        <div className="flex-shrink-0">
+        <div className="flex shrink-0 items-center">
           <Link href={buildHref('/')} className="inline-flex items-center transition-transform duration-200 hover:scale-[1.05]">
             <Image
               src="/logo.png"
               alt="Gemilike - Heroes in Gems"
               width={190}
               height={114}
-              className="h-[104px] w-auto"
+              className="h-[56px] w-auto sm:h-[88px] lg:h-[96px]"
               style={{ width: 'auto' }}
               priority
             />
@@ -224,8 +240,7 @@ export function Header() {
         {/* Hauptnavigation - Desktop */}
         {navItems.length > 0 && (
           <nav 
-            className="flex items-center justify-center flex-1 gap-2 xl:gap-4 px-4 min-w-0"
-            style={{ transform: 'translateX(-375px)' }}
+            className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 md:justify-center md:gap-2 md:px-4 xl:gap-4"
             aria-label="Hauptnavigation"
           >
             {navItems.map(({ href, label, id }) => {
@@ -234,7 +249,11 @@ export function Header() {
                 <Link
                   key={id}
                   href={buildHref(href)}
-                  className={cn(styles.navButton, isActive && 'shadow-[0_0_32px_rgba(0,0,0,0.35)]')}
+                  className={cn(
+                    styles.navButton,
+                    'shrink-0 px-2.5 py-2 text-[11px] md:px-4 md:text-sm',
+                    isActive && 'shadow-[0_0_32px_rgba(0,0,0,0.35)]'
+                  )}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   <span className={styles.navLabel}>{label}</span>
@@ -246,7 +265,7 @@ export function Header() {
         )}
 
         {/* Action Buttons - Desktop */}
-        <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0" style={{ transform: 'translateX(-495px)' }}>
+        <div className="hidden shrink-0 flex-col items-end gap-1 md:flex">
           <div className="flex items-center gap-2 lg:gap-3">
             {/* Language Switcher */}
             <Button
@@ -259,8 +278,8 @@ export function Header() {
                 router.push(newPath);
               }}
               className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
-              aria-label="Sprache wechseln"
-              title={localePrefix === '/de' || !localePrefix ? 'Sprache wechseln: Zu Englisch' : 'Sprache wechseln: Zu Deutsch'}
+              aria-label={switchLanguageLabel}
+              title={switchLanguageTitle}
             >
               <Languages className="h-4 w-4" />
             </Button>
@@ -273,10 +292,8 @@ export function Header() {
                 size="icon" 
                 onClick={() => router.push(buildHref('/wishlist'))}
                 className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all relative"
-                aria-label={`Wunschliste${isMounted && wishlistCount > 0 ? `, ${wishlistCount} Artikel` : ''}`}
-                title={isMounted && wishlistCount > 0 
-                  ? `Wunschliste öffnen (${wishlistCount} ${wishlistCount === 1 ? 'Artikel' : 'Artikel'})` 
-                  : 'Wunschliste öffnen - Gespeicherte Edelsteine anzeigen'}
+                aria-label={`${wishlistLabel}${isMounted && wishlistCount > 0 ? `, ${wishlistCount}` : ''}`}
+                title={wishlistLabel}
               >
                 <HeartIcon className="h-4 w-4" />
                 {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
@@ -293,10 +310,8 @@ export function Header() {
                 size="icon" 
                 onClick={toggleCart}
                 className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all relative"
-                aria-label={`Warenkorb${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()} Artikel` : ''}`}
-                title={isMounted && getTotalItems() > 0 
-                  ? `Warenkorb öffnen (${getTotalItems()} ${getTotalItems() === 1 ? 'Artikel' : 'Artikel'})` 
-                  : 'Warenkorb öffnen - Ihre ausgewählten Edelsteine anzeigen'}
+                aria-label={`${cartLabel}${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()}` : ''}`}
+                title={cartLabel}
               >
                 <ShoppingCartIcon className="h-4 w-4" />
                 {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
@@ -312,10 +327,8 @@ export function Header() {
               size="icon" 
               onClick={handleUserClick}
               className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
-              aria-label={status === 'authenticated' ? 'Profil öffnen' : 'Anmelden'}
-              title={status === 'authenticated' 
-                ? 'Profil öffnen - Ihre Kontoinformationen und Bestellungen anzeigen' 
-                : 'Anmelden - Melden Sie sich an, um auf Ihr Konto zuzugreifen'}
+              aria-label={status === 'authenticated' ? profileLabel : signInLabel}
+              title={status === 'authenticated' ? profileLabel : signInLabel}
             >
               {status === 'authenticated' ? (
                 <UserIcon className="h-4 w-4" />
@@ -327,14 +340,14 @@ export function Header() {
           {/* Welcome Message - Desktop */}
           {status === 'authenticated' && session?.user?.name && (
             <div className="text-xs text-white/90 font-medium px-1">
-              Willkommen {session.user.name}
+              {welcomeLabel} {session.user.name}
             </div>
           )}
         </div>
 
         {/* Mobile Menu */}
-        <div className="flex flex-col items-end gap-1 md:hidden" style={{ transform: 'translateX(-495px)' }}>
-          <div className="flex items-center gap-2">
+        <div className="flex shrink-0 flex-col items-end gap-1 md:hidden">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Language Switcher - Mobile */}
             <Button
               variant="ghost"
@@ -345,11 +358,11 @@ export function Header() {
                 const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
                 router.push(newPath);
               }}
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
-              aria-label="Sprache wechseln"
-              title={localePrefix === '/de' || !localePrefix ? 'Sprache wechseln: Zu Englisch' : 'Sprache wechseln: Zu Deutsch'}
+              className="h-8 w-8 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+              aria-label={switchLanguageLabel}
+              title={switchLanguageTitle}
             >
-              <Languages className="h-4 w-4" />
+              <Languages className="h-4 w-4 sm:h-4 sm:w-4" />
             </Button>
             
             {headerSettings.wishlistEnabled && (
@@ -357,11 +370,9 @@ export function Header() {
                 variant="ghost" 
                 size="icon" 
                 onClick={() => router.push(buildHref('/wishlist'))}
-                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white relative"
-                aria-label="Wunschliste"
-                title={isMounted && wishlistCount > 0 
-                  ? `Wunschliste öffnen (${wishlistCount} ${wishlistCount === 1 ? 'Artikel' : 'Artikel'})` 
-                  : 'Wunschliste öffnen - Gespeicherte Edelsteine anzeigen'}
+                className="relative h-8 w-8 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+                aria-label={wishlistLabel}
+                title={wishlistLabel}
               >
                 <HeartIcon className="h-4 w-4" />
                 {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
@@ -377,11 +388,9 @@ export function Header() {
                 variant="ghost" 
                 size="icon" 
                 onClick={toggleCart}
-                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white relative"
-                aria-label="Warenkorb"
-                title={isMounted && getTotalItems() > 0 
-                  ? `Warenkorb öffnen (${getTotalItems()} ${getTotalItems() === 1 ? 'Artikel' : 'Artikel'})` 
-                  : 'Warenkorb öffnen - Ihre ausgewählten Edelsteine anzeigen'}
+                className="relative h-8 w-8 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+                aria-label={cartLabel}
+                title={cartLabel}
               >
                 <ShoppingCartIcon className="h-4 w-4" />
                 {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
@@ -396,11 +405,9 @@ export function Header() {
               variant="ghost" 
               size="icon" 
               onClick={handleUserClick}
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white"
-              aria-label={status === 'authenticated' ? 'Profil' : 'Anmelden'}
-              title={status === 'authenticated' 
-                ? 'Profil öffnen - Ihre Kontoinformationen und Bestellungen anzeigen' 
-                : 'Anmelden - Melden Sie sich an, um auf Ihr Konto zuzugreifen'}
+              className="h-8 w-8 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+              aria-label={status === 'authenticated' ? profileLabel : signInLabel}
+              title={status === 'authenticated' ? profileLabel : signInLabel}
             >
               {status === 'authenticated' ? (
                 <UserIcon className="h-4 w-4" />
@@ -412,9 +419,9 @@ export function Header() {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white flex-shrink-0 relative z-[10000]"
-              aria-label={isMenuOpen ? 'Navigation schließen' : 'Navigation öffnen'}
-              title={isMenuOpen ? 'Menü schließen' : 'Menü öffnen - Zeigt die Navigation und alle Seiten an'}
+              className="relative z-[10000] h-8 w-8 shrink-0 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+              aria-label={isMenuOpen ? closeNavigationLabel : openNavigationLabel}
+              title={isMenuOpen ? closeNavigationLabel : openNavigationLabel}
               type="button"
               aria-expanded={isMenuOpen}
               aria-haspopup="true"
@@ -450,8 +457,7 @@ export function Header() {
                     position: 'fixed',
                     left: 0,
                     top: 0,
-                    width: '100%',
-                    maxWidth: '400px',
+                    width: 'min(88vw, 360px)',
                     height: '100vh',
                     backgroundColor: '#0a0a0a',
                     borderRight: '1px solid #1f2937',
@@ -472,7 +478,7 @@ export function Header() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      padding: '1rem 1.5rem',
+                      padding: '0.875rem 1rem',
                       borderBottom: '1px solid #1f2937',
                       backgroundColor: '#111111',
                       flexShrink: 0,
@@ -489,7 +495,7 @@ export function Header() {
                         lineHeight: '1.5'
                       }}
                     >
-                      Navigation ({navItems?.length || 0} Einträge)
+                      {menuTitle}
                     </h2>
                     <button
                       onClick={() => setIsMenuOpen(false)}
@@ -512,7 +518,7 @@ export function Header() {
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = 'transparent';
                       }}
-                      aria-label="Menü schließen"
+                      aria-label={closeNavigationLabel}
                     >
                       <X style={{ width: '1.25rem', height: '1.25rem' }} />
                     </button>
@@ -526,7 +532,7 @@ export function Header() {
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '0.5rem',
-                      padding: '1rem 1.5rem',
+                      padding: '0.875rem 1rem 1rem',
                       overflowY: 'auto',
                       overflowX: 'hidden',
                       WebkitOverflowScrolling: 'touch',
@@ -552,7 +558,7 @@ export function Header() {
                             type="button"
                             onClick={handleClick}
                             style={{
-                              padding: '1rem',
+                              padding: '0.875rem 1rem',
                               borderRadius: '0.5rem',
                               border: 'none',
                               backgroundColor: isActive ? '#7c3aed' : '#1a1a1a',
@@ -584,7 +590,7 @@ export function Header() {
                       })
                     ) : (
                       <div style={{ padding: '0.75rem 1rem', color: '#9ca4b5', fontSize: '0.875rem' }}>
-                        Keine Navigationselemente verfügbar
+                        {emptyNavLabel}
                       </div>
                     )}
                   </nav>
@@ -600,7 +606,7 @@ export function Header() {
                       }}
                     >
                       <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
-                        Willkommen, {session.user.name}
+                        {welcomeLabel}, {session.user.name}
                       </div>
                     </div>
                   )}
@@ -611,12 +617,12 @@ export function Header() {
           {/* Welcome Message - Mobile */}
           {status === 'authenticated' && session?.user?.name && (
             <div className="text-xs text-white/90 font-medium px-1">
-              Willkommen {session.user.name}
+              {welcomeLabel} {session.user.name}
             </div>
           )}
         </div>
       </div>
-      
+
       <Cart />
     </header>
   );

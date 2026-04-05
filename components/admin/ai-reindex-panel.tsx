@@ -1,6 +1,7 @@
 'use client';
 
 import { startTransition, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Activity, RefreshCw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +21,7 @@ interface AiReindexPanelProps {
   locale: string;
   staleGemstoneEmbeddings: number;
   staleKnowledgeEmbeddings: number;
+  initialRecentJobs?: AiJobSummary[];
 }
 
 interface JobSummaryResponse {
@@ -59,13 +61,17 @@ export function AiReindexPanel({
   locale,
   staleGemstoneEmbeddings,
   staleKnowledgeEmbeddings,
+  initialRecentJobs = [],
 }: AiReindexPanelProps) {
+  const router = useRouter();
+  const [hasHydrated, setHasHydrated] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<'gemstones' | 'knowledge' | null>(null);
-  const [recentJobs, setRecentJobs] = useState<AiJobSummary[]>([]);
-  const [loadingJobs, setLoadingJobs] = useState(true);
+  const [recentJobs, setRecentJobs] = useState<AiJobSummary[]>(initialRecentJobs);
+  const [loadingJobs, setLoadingJobs] = useState(initialRecentJobs.length === 0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
 
   const latestGemstoneJob = useMemo(
     () => recentJobs.find((job) => job.type === 'GEMSTONE_REINDEX'),
@@ -82,12 +88,13 @@ export function AiReindexPanel({
 
   async function loadJobs(background = false) {
     try {
+      setError(null);
       if (background) {
         setIsRefreshing(true);
       } else {
         setLoadingJobs(true);
       }
-      const response = await fetch('/api/admin/ai/jobs?limit=6', {
+      const response = await fetch(`/api/admin/ai/jobs?limit=6&ts=${Date.now()}`, {
         method: 'GET',
         cache: 'no-store',
       });
@@ -99,6 +106,7 @@ export function AiReindexPanel({
       }
 
       setRecentJobs(Array.isArray(payload.jobs) ? payload.jobs : []);
+      setLastUpdatedAt(new Date().toISOString());
     } catch (jobsError) {
       setError(jobsError instanceof Error ? jobsError.message : 'Unbekannter Fehler');
     } finally {
@@ -108,8 +116,21 @@ export function AiReindexPanel({
   }
 
   useEffect(() => {
-    loadJobs();
+    setHasHydrated(true);
   }, []);
+
+  useEffect(() => {
+    setRecentJobs(initialRecentJobs);
+    setLoadingJobs(false);
+    setLastUpdatedAt(new Date().toISOString());
+  }, [initialRecentJobs]);
+
+  useEffect(() => {
+    if (initialRecentJobs.length > 0) {
+      return;
+    }
+    loadJobs();
+  }, [initialRecentJobs.length]);
 
   useEffect(() => {
     if (!hasRunningJobs && pendingAction === null) {
@@ -164,6 +185,11 @@ export function AiReindexPanel({
     }
   }
 
+  async function handleManualRefresh() {
+    await loadJobs(true);
+    router.refresh();
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -203,7 +229,7 @@ export function AiReindexPanel({
             <Button
               className="mt-4 w-full"
               onClick={() => triggerReindex('gemstones')}
-              disabled={pendingAction !== null}
+              disabled={hasHydrated ? pendingAction !== null : undefined}
             >
               <RefreshCw className={`mr-2 h-4 w-4 ${pendingAction === 'gemstones' ? 'animate-spin' : ''}`} />
               Produkt-Reindex ausfuehren
@@ -224,7 +250,7 @@ export function AiReindexPanel({
               className="mt-4 w-full"
               variant="secondary"
               onClick={() => triggerReindex('knowledge')}
-              disabled={pendingAction !== null}
+              disabled={hasHydrated ? pendingAction !== null : undefined}
             >
               <RefreshCw className={`mr-2 h-4 w-4 ${pendingAction === 'knowledge' ? 'animate-spin' : ''}`} />
               Knowledge-Reindex ausfuehren
@@ -246,14 +272,21 @@ export function AiReindexPanel({
 
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Letzte KI-Jobs
-            </h3>
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Letzte KI-Jobs
+              </h3>
+              {lastUpdatedAt ? (
+                <p className="text-xs text-muted-foreground">
+                  Zuletzt aktualisiert: {new Date(lastUpdatedAt).toLocaleTimeString('de-DE')}
+                </p>
+              ) : null}
+            </div>
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => loadJobs(true)}
-              disabled={loadingJobs || isRefreshing}
+              onClick={handleManualRefresh}
+              disabled={hasHydrated ? loadingJobs || isRefreshing : undefined}
             >
               <RefreshCw className={`mr-2 h-4 w-4 ${(loadingJobs || isRefreshing) ? 'animate-spin' : ''}`} />
               Aktualisieren

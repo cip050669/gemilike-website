@@ -9,7 +9,7 @@ interface HeroSectionProps {
   settings: HeroSettingsData;
 }
 
-const defaultHeroImage = '/uploads/hero/hero-default.jpg';
+const defaultHeroImage = '/images/hero-fallback.jpg';
 const defaultTitle = 'Einfach nur GemILike';
 const defaultSubtitle = 'Ihr Spezialist für rohe und geschliffene Edelsteine.';
 const defaultPrimaryCtaLabel = 'Sortiment entdecken';

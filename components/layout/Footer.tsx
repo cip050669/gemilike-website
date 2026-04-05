@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -17,13 +17,14 @@ interface FooterLink {
 
 export function Footer() {
   const locale = useLocale();
+  const tFooter = useTranslations('footer');
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [aboutLinks, setAboutLinks] = useState<FooterLink[]>([
-    { text: 'Über uns', url: '/about', slug: 'about' },
-    { text: 'Unsere Leistungen', url: '/services', slug: 'services' },
-    { text: 'Wissenswertes', url: '/wissenswertes', slug: 'wissenswertes' },
-    { text: 'Kontakt', url: '/contact', slug: 'contact' },
+    { text: locale === 'en' ? 'About us' : 'Über uns', url: '/about', slug: 'about' },
+    { text: locale === 'en' ? 'Our services' : 'Unsere Leistungen', url: '/services', slug: 'services' },
+    { text: locale === 'en' ? 'Knowledge' : 'Wissenswertes', url: '/wissenswertes', slug: 'wissenswertes' },
+    { text: locale === 'en' ? 'Contact' : 'Kontakt', url: '/contact', slug: 'contact' },
   ]);
   const [legalLinks, setLegalLinks] = useState<FooterLink[]>([]);
   const [linksLoaded, setLinksLoaded] = useState(false);
@@ -76,11 +77,11 @@ export function Footer() {
 
   return (
     <footer className="bg-gem-bgDark border-t border-gem-iceDark/20">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="flex flex-row gap-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
           
           {/* Spalte 1: Logo */}
-          <div className="flex-1 space-y-6">
+          <div className="space-y-5">
             <div className="flex flex-col items-start space-y-4">
               <Link href={`/${locale}`} className="inline-flex flex-col gap-3 items-start">
                 <Image 
@@ -88,7 +89,7 @@ export function Footer() {
                   alt="Gemilike Logo" 
                   width={240} 
                   height={106} 
-                  className="object-contain max-w-[300px] h-auto"
+                  className="h-auto max-w-[220px] object-contain sm:max-w-[260px]"
                 />
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-gem-ice/40 px-3 py-1 text-[11px] uppercase tracking-[0.3em] text-gem-iceLight">
                   Heroes in Gems
@@ -98,11 +99,11 @@ export function Footer() {
           </div>
 
           {/* Spalte 2: Wer sind wir? */}
-          <div className="flex-1 space-y-4">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gem-text uppercase tracking-[0.2em]">
-              Wer sind wir?
+              {locale === 'en' ? 'Who we are' : 'Wer sind wir?'}
             </h3>
-            <div className="flex flex-col items-start gap-2">
+            <div className="flex flex-col items-stretch gap-2 sm:items-start">
               {aboutLinks.map((link) => (
                 <Link
                   key={link.slug}
@@ -117,11 +118,11 @@ export function Footer() {
           </div>
 
           {/* Spalte 3: Rechtliches */}
-          <div className="flex-1 space-y-4">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gem-text uppercase tracking-[0.2em]">
-              Rechtliches
+              {locale === 'en' ? 'Legal' : 'Rechtliches'}
             </h3>
-            <div className="flex flex-col items-start gap-2">
+            <div className="flex flex-col items-stretch gap-2 sm:items-start">
               {linksLoaded && legalLinks.length > 0 ? (
                 legalLinks.map((link) => (
                   <Link
@@ -137,24 +138,28 @@ export function Footer() {
             </div>
             {!linksLoaded || legalLinks.length === 0 ? (
               <p className="text-xs text-gray-400 mt-2">
-                Erstellen Sie rechtliche Seiten im Admin-Bereich, damit sie hier erscheinen.
+                {locale === 'en'
+                  ? 'Create legal pages in the admin area so they appear here.'
+                  : 'Erstellen Sie rechtliche Seiten im Admin-Bereich, damit sie hier erscheinen.'}
               </p>
             ) : null}
           </div>
 
           {/* Spalte 4: Newsletter */}
-          <div className="flex-1 space-y-4">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gem-text uppercase tracking-[0.2em]">
               Newsletter
             </h3>
             <p className="text-sm text-gem-text2 leading-relaxed">
-              Bleiben Sie auf dem Laufenden über neue Edelsteine und exklusive Angebote.
+              {locale === 'en'
+                ? 'Stay up to date on new gemstones and exclusive offers.'
+                : 'Bleiben Sie auf dem Laufenden über neue Edelsteine und exklusive Angebote.'}
             </p>
             
-            <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+            <form onSubmit={handleNewsletterSubmit} className="space-y-3 max-w-md">
               <Input
                 type="email"
-                placeholder="Ihre E-Mail-Adresse"
+                placeholder={locale === 'en' ? 'Your email address' : 'Ihre E-Mail-Adresse'}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-gem-bgDark/50 border-gem-iceDark/30 text-gem-text placeholder:text-gem-text2 focus:border-gem-ice focus:ring-gem-ice/50"
@@ -165,7 +170,7 @@ export function Footer() {
                 className={cn(navStyles.navButton, navStyles.navButtonTight, 'w-full justify-center')}
               >
                 <span className={navStyles.navLabel}>
-                  {isSubscribed ? 'Angemeldet!' : 'Anmelden'}
+                  {isSubscribed ? (locale === 'en' ? 'Subscribed!' : 'Angemeldet!') : locale === 'en' ? 'Subscribe' : 'Anmelden'}
                 </span>
                 <span className={navStyles.navGlow} />
               </Button>
@@ -173,17 +178,17 @@ export function Footer() {
 
             {isSubscribed && (
               <p className="text-xs text-gem-green">
-                ✓ Newsletter-Anmeldung erfolgreich!
+                {locale === 'en' ? '✓ Newsletter subscription successful!' : '✓ Newsletter-Anmeldung erfolgreich!'}
               </p>
             )}
           </div>
         </div>
 
         {/* Footer Bottom */}
-        <div className="mt-12 pt-8 border-t border-gem-iceDark/20">
+        <div className="mt-8 border-t border-gem-iceDark/20 pt-6 sm:mt-12 sm:pt-8">
           <div className="flex justify-center">
-            <p className="text-sm text-gem-text2">
-              © {new Date().getFullYear()} Gemilike. Alle Rechte vorbehalten.
+            <p className="text-center text-sm text-gem-text2">
+              © {new Date().getFullYear()} Gemilike. {tFooter('rights')}
             </p>
           </div>
         </div>

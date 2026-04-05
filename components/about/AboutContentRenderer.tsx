@@ -17,6 +17,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export async function AboutContentRenderer({ locale }: { locale: string }) {
+  const isEnglish = locale === 'en';
   const [content, services] = await Promise.all([
     getAboutContent(locale),
     getServices(locale),
@@ -26,17 +27,21 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
   const contentMap = new Map(content.map((c) => [c.section, c.content]));
 
   // Fallback to default values if DB content is missing
-  const title = contentMap.get('title') || 'Über Gemilike';
-  const subtitle = contentMap.get('subtitle') || 'Exklusive Edelsteine, jahrzehntelange Erfahrung und persönliche Beratung';
+  const title = contentMap.get('title') || (isEnglish ? 'About Gemilike' : 'Über Gemilike');
+  const subtitle =
+    contentMap.get('subtitle') ||
+    (isEnglish
+      ? 'Exclusive gemstones, decades of experience, and personal advice'
+      : 'Exklusive Edelsteine, jahrzehntelange Erfahrung und persönliche Beratung');
   const intro1 = contentMap.get('intro1') || '';
   const intro2 = contentMap.get('intro2') || '';
-  const mission = contentMap.get('mission') || 'Unsere Mission';
+  const mission = contentMap.get('mission') || (isEnglish ? 'Our mission' : 'Unsere Mission');
   const missionDesc = contentMap.get('missionDesc') || '';
-  const values = contentMap.get('values') || 'Unsere Werte';
+  const values = contentMap.get('values') || (isEnglish ? 'Our values' : 'Unsere Werte');
   const valuesDesc = contentMap.get('valuesDesc') || '';
-  const expertise = contentMap.get('expertise') || 'Unsere Expertise';
+  const expertise = contentMap.get('expertise') || (isEnglish ? 'Our expertise' : 'Unsere Expertise');
   const expertiseDesc = contentMap.get('expertiseDesc') || '';
-  const quality = contentMap.get('quality') || 'Qualitätsversprechen';
+  const quality = contentMap.get('quality') || (isEnglish ? 'Quality promise' : 'Qualitätsversprechen');
   const qualityDesc = contentMap.get('qualityDesc') || '';
 
   return (
@@ -132,10 +137,12 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
               <div className="story-card p-6 md:p-8">
                 <div className="text-center">
                   <h2 className="text-3xl md:text-4xl font-impact font-weight-impact mb-4">
-                    <span className="gemilike-text-gradient">Unser Edelstein-Service</span>
+                    <span className="gemilike-text-gradient">{isEnglish ? 'Our gemstone service' : 'Unser Edelstein-Service'}</span>
                   </h2>
                   <p className="text-gray-200">
-                    Vom Rohstein bis zur Sammlungsbetreuung – wir begleiten Sie persönlich
+                    {isEnglish
+                      ? 'From rough stones to collection support, we guide you personally'
+                      : 'Vom Rohstein bis zur Sammlungsbetreuung – wir begleiten Sie persönlich'}
                   </p>
                 </div>
               </div>
@@ -175,12 +182,16 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
               <section className="main-container mt-8">
                 <div className="story-card text-center">
                 <div className="p-6 md:p-8">
-                  <h2 className="text-2xl font-bold mb-4 text-gray-200">Lassen Sie sich persönlich beraten</h2>
+                  <h2 className="text-2xl font-bold mb-4 text-gray-200">
+                    {isEnglish ? 'Get personal advice' : 'Lassen Sie sich persönlich beraten'}
+                  </h2>
                   <p className="text-gray-300 mb-6">
-                    Gemeinsam finden wir den passenden Edelstein für Ihr Projekt oder Ihre Sammlung.
+                    {isEnglish
+                      ? 'Together we will find the right gemstone for your project or collection.'
+                      : 'Gemeinsam finden wir den passenden Edelstein für Ihr Projekt oder Ihre Sammlung.'}
                   </p>
                   <Button size="lg" asChild>
-                    <Link href={`/${locale}/contact`}>Kontakt aufnehmen</Link>
+                    <Link href={`/${locale}/contact`}>{isEnglish ? 'Get in touch' : 'Kontakt aufnehmen'}</Link>
                   </Button>
                 </div>
               </div>
@@ -192,4 +203,3 @@ export async function AboutContentRenderer({ locale }: { locale: string }) {
     </div>
   );
 }
-

@@ -1175,6 +1175,22 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Automatische Aktualisierung der Jobliste bei laufenden Jobs
 - Locale-Anzeige für sprachbezogene Reindex-Läufe
 
+**Arbeitsweise im Alltag:**
+
+1. Inhalte im Shop oder in Wissenswertes ändern
+2. Dashboard öffnen
+3. Prüfen, ob Produkte oder Wissensartikel als „ohne aktuelles Embedding“ angezeigt werden
+4. Passenden Reindex starten:
+   - `Produkt-Reindex ausführen` für Edelsteine
+   - `Knowledge-Reindex ausführen` für Wissensartikel
+5. Warten, bis der letzte Job den Status `COMPLETED` erreicht
+6. Danach Suche oder Empfehlungen stichprobenartig prüfen
+
+**Wichtig:**
+- Das Dashboard ist die zentrale Stelle für die eigentlichen KI-/Embedding-Funktionen im Admin
+- Der Reindex aktualisiert die gespeicherten Embeddings, nicht nur den Cache
+- Fehlerhafte Läufe werden direkt im Panel und in der Jobliste sichtbar
+
 ---
 
 ### 4.3 Edelstein-Verwaltung (`/admin/gemstones`)
@@ -1552,6 +1568,21 @@ Zwei interaktive HTML-Formulare sind verfügbar:
 - Konfliktprüfung für Slugs mit verständlichen Fehlermeldungen bei Doppelvergaben
 - Änderungen setzen Such-Embeddings zurück; anschließender Reindex wird empfohlen
 - CTA- und Tabellen-Links im Admin farblich an das dunkle Admin-Layout angepasst
+- Zusätzliche Suchwartung über das Panel `Semantische Suche`
+
+**Panel „Semantische Suche“:**
+
+- `Vektor-Cache aktualisieren`
+  - baut den Cache für Wissenswertes neu auf
+  - sinnvoll nach strukturellen Änderungen oder nach einem Reindex
+- `Cache leeren`
+  - leert den Cache
+  - beim nächsten Suchvorgang wird er automatisch neu aufgebaut
+
+**Wichtig:**
+- Dieses Panel berechnet **keine neuen Embeddings**
+- Für echte KI-/Embedding-Aktualisierung muss weiterhin der `Knowledge-Reindex` im Dashboard verwendet werden
+- Das Wissenswertes-Panel ergänzt also die Suchwartung, ersetzt aber nicht den Reindex
 
 **Datenbank-Model:** `KnowledgeBase`
 
@@ -7205,6 +7236,34 @@ Das Ziel ist, Suchanfragen natürlicher zu verstehen, ohne die bisherige Funktio
   - Vorschläge bei Produktanlage
   - Bildähnlichkeit
   - KI-gestützte Content-Vorschläge
+
+#### 15.9.1.1 Wo sich die KI-Funktionen im Admin befinden
+
+**1. Dashboard (`/admin/dashboard`)**
+
+Hier befindet sich das zentrale Panel **„KI / Embedding-Suche“**.
+
+**Dort verfügbar:**
+- Anzahl der Produkte ohne aktuelles Embedding
+- Anzahl der Wissensartikel ohne aktuelles Embedding
+- letzter Produkt-Reindex
+- letzter Knowledge-Reindex
+- Liste der letzten KI-Jobs
+- Start von:
+  - `Produkt-Reindex ausführen`
+  - `Knowledge-Reindex ausführen`
+
+**2. Wissenswertes (`/admin/wissenswertes`)**
+
+Hier befindet sich zusätzlich das Panel **„Semantische Suche“**.
+
+**Dort verfügbar:**
+- `Vektor-Cache aktualisieren`
+- `Cache leeren`
+
+**Abgrenzung:**
+- Dashboard = eigentliche KI-/Embedding-Verwaltung
+- Wissenswertes-Seite = Cache-Wartung für die Suchausgabe
 
 #### 15.9.2 Technische Architektur
 

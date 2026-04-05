@@ -3,7 +3,8 @@ import { ScrollAnimated } from '@/components/ui/ScrollAnimated';
 import { loadBlogSectionSettings } from '@/lib/data/blog-settings';
 
 export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {
-  await params;
+  const { locale } = await params;
+  const isEnglish = locale === 'en';
   const blogSettings = await loadBlogSectionSettings();
 
   return (
@@ -18,7 +19,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
                     <span className="gemilike-text-gradient">{blogSettings.heading || 'Blog'}</span>
                   </h1>
                   <p className="mx-auto max-w-3xl text-sm md:text-base text-gray-200">
-                    {blogSettings.subheading || 'Entdecken Sie die faszinierende Welt der Edelsteine'}
+                    {blogSettings.subheading || (isEnglish ? 'Discover the fascinating world of gemstones' : 'Entdecken Sie die faszinierende Welt der Edelsteine')}
                   </p>
                 </div>
               </div>
@@ -29,10 +30,10 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
             <section className="main-container">
               <div className="story-card text-center">
                 <h3 className="text-2xl font-bold mb-4 gemilike-text-gradient">
-                  Blog-Funktionalität wird bald verfügbar sein
+                  {isEnglish ? 'Blog functionality will be available soon' : 'Blog-Funktionalität wird bald verfügbar sein'}
                 </h3>
                 <p className="text-gray-200 text-base leading-relaxed">
-                  Die Blog-Funktionalität wird in Kürze verfügbar sein.
+                  {isEnglish ? 'The blog functionality will be available shortly.' : 'Die Blog-Funktionalität wird in Kürze verfügbar sein.'}
                 </p>
               </div>
             </section>

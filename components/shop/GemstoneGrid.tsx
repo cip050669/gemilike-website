@@ -88,14 +88,24 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
 
   const updateUrl = (paramsToApply: URLSearchParams) => {
     const queryString = paramsToApply.toString();
-    router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
+    router.push(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
   };
 
   const openGemstone = (gem: ShopGemstone) => {
-    setSelectedGemstone(gem);
     const paramsCopy = new URLSearchParams(searchParams?.toString() ?? '');
     paramsCopy.set('gem', gem.id);
     updateUrl(paramsCopy);
+  };
+
+  const handleGemstoneActivate = (
+    event: React.MouseEvent<HTMLElement> | React.PointerEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>,
+    gem: ShopGemstone
+  ) => {
+    if ('key' in event) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+    }
+    openGemstone(gem);
   };
 
   const closeGemstone = () => {
@@ -195,9 +205,11 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
       <div
         className="grid gap-3 sm:gap-4 text-[var(--color-text-primary)]"
         style={{
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          justifyContent: 'center',
-          paddingBottom: '12px',
+          gridTemplateColumns: isMobile
+            ? 'repeat(2, minmax(0, 1fr))'
+            : 'repeat(auto-fit, minmax(180px, 1fr))',
+          justifyContent: isMobile ? 'stretch' : 'center',
+          paddingBottom: isMobile ? '8px' : '12px',
         }}
       >
         {displayGemstones.map((gem) => {
@@ -208,13 +220,22 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
           return (
             <article
               key={gem.id}
-              className="gem-card group flex min-w-[180px] max-w-[240px] flex-col gap-3 rounded-[18px] p-3 sm:p-4 transition-all duration-300 text-[color:rgba(255,255,255,0.7)]"
+              className={cn(
+                'gem-card group flex flex-col rounded-[18px] p-3 transition-all duration-300 text-[color:rgba(255,255,255,0.7)] sm:p-4',
+                isMobile ? 'min-w-0 max-w-none gap-2.5' : 'min-w-[180px] max-w-[240px] gap-3'
+              )}
+              role="button"
+              tabIndex={0}
+              onDoubleClick={(event) => handleGemstoneActivate(event, gem)}
+              onKeyDown={(event) => handleGemstoneActivate(event, gem)}
             >
               <button
                 type="button"
-                onClick={() => openGemstone(gem)}
+                onClick={(event) => handleGemstoneActivate(event, gem)}
+                onPointerUp={(event) => handleGemstoneActivate(event, gem)}
+                onDoubleClick={(event) => handleGemstoneActivate(event, gem)}
                 className="group relative block w-full overflow-hidden rounded-[18px]"
-                style={{ height: '240px' }}
+                style={{ height: isMobile ? '168px' : '240px' }}
               >
                 <Image
                   src={previewImage}
@@ -239,29 +260,32 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                 )}
               </button>
 
-              <div className="space-y-3 text-sm text-[var(--color-text-secondary)]">
+              <div className={cn('text-sm text-[var(--color-text-secondary)]', isMobile ? 'space-y-2' : 'space-y-3')}>
                 <div className="space-y-1">
                   <span className="text-[11px] uppercase tracking-[0.3em] !text-black" style={{ color: 'black' }}>
                     {gem.category}
                   </span>
                   <button
                     type="button"
-                    onClick={() => openGemstone(gem)}
-                    className="block text-left text-lg font-semibold !text-black line-clamp-2 hover:!text-black cursor-pointer"
+                    onClick={(event) => handleGemstoneActivate(event, gem)}
+                    className={cn(
+                      'block text-left font-semibold !text-black line-clamp-2 hover:!text-black cursor-pointer',
+                      isMobile ? 'text-sm leading-snug' : 'text-lg'
+                    )}
                     style={{ color: 'black' }}
                   >
                     {gem.name}
                   </button>
                 </div>
-                <div className="space-y-1 text-xs text-[var(--color-text-muted)]">
+                <div className="space-y-1 text-xs leading-snug text-[var(--color-text-muted)]">
                   <p>{priceLabel}</p>
                   {weightLabel && <p>Gewicht {weightLabel}</p>}
                   {gem.origin && <p>Herkunft {gem.origin}</p>}
                 </div>
               </div>
 
-              <div className="mt-auto space-y-3">
-                <div className="flex items-center justify-between gap-2">
+              <div className={cn('mt-auto', isMobile ? 'space-y-2' : 'space-y-3')}>
+                <div className={cn('gap-2', isMobile ? 'grid grid-cols-[1fr_auto]' : 'flex items-center justify-between')}>
                   <AddToCartButton
                     item={toCartItem(gem)}
                     disabled={!gem.inStock || gem.isSold}
@@ -271,8 +295,11 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-center text-[var(--font-button-size)] font-semibold"
-                  onClick={() => openGemstone(gem)}
+                  className={cn(
+                    'w-full justify-center font-semibold',
+                    isMobile ? 'h-9 px-3 text-xs' : 'text-[var(--font-button-size)]'
+                  )}
+                  onClick={(event) => handleGemstoneActivate(event, gem)}
                 >
                   Details öffnen
                 </Button>
@@ -305,15 +332,15 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                     bottom: 0,
                     top: 'auto',
                     margin: 0,
-                    padding: '1.25rem',
+                    padding: '0.875rem',
                     width: '100%',
                     maxWidth: '100%',
                     minWidth: '100%',
-                    height: '85vh',
-                    maxHeight: '85vh',
+                    height: '92dvh',
+                    maxHeight: '92dvh',
                     boxSizing: 'border-box',
-                    borderTopLeftRadius: '18px',
-                    borderTopRightRadius: '18px',
+                    borderTopLeftRadius: '22px',
+                    borderTopRightRadius: '22px',
                   }
                 : {
                     position: 'fixed',
@@ -346,7 +373,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
               {/* Header with Close Button - Draggable area */}
               <div 
                 className={cn(
-                  'flex justify-between items-start mb-4',
+                  'mb-4 flex justify-between items-start',
                   isMobile ? 'cursor-default' : 'cursor-move'
                 )}
                 onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
@@ -358,7 +385,10 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                   handleMouseDown(e);
                 }}
               >
-                <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] flex-1 pr-4 select-none">
+                <h2 className={cn(
+                  'flex-1 select-none pr-4 font-semibold text-[var(--color-text-primary)]',
+                  isMobile ? 'text-lg leading-tight' : 'text-2xl'
+                )}>
                   {selectedGemstone.name}
                 </h2>
                 <Button
@@ -482,7 +512,7 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                       )}
 
                       {/* Details */}
-                      <div className="grid grid-cols-1 gap-3 text-sm text-[var(--color-text-secondary)]" onMouseDown={(e) => e.stopPropagation()}>
+                      <div className="grid grid-cols-1 gap-2.5 text-sm text-[var(--color-text-secondary)]" onMouseDown={(e) => e.stopPropagation()}>
                         <DetailRow label="Edelsteinart">
                           <span className="text-[var(--color-text-primary)]">{selectedGemstone.category}</span>
                         </DetailRow>
@@ -568,7 +598,10 @@ export function GemstoneGrid({ gemstones }: GemstoneGridProps) {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--color-border)]" onMouseDown={(e) => e.stopPropagation()}>
+                      <div className={cn(
+                        'pt-4 border-t border-[var(--color-border)]',
+                        isMobile ? 'grid grid-cols-1 gap-2.5' : 'flex flex-wrap items-center gap-3'
+                      )} onMouseDown={(e) => e.stopPropagation()}>
                         <AddToCartButton
                           item={toCartItem(selectedGemstone)}
                           disabled={!selectedGemstone.inStock || selectedGemstone.isSold}
@@ -709,11 +742,11 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
   const { icon: IconComponent, style } = getIconAndStyle(label);
 
   return (
-    <div className="flex items-center gap-2 rounded-lg bg-gray-800/60 border border-[var(--color-border)] p-3 backdrop-blur text-[var(--color-text-primary)]">
+    <div className="flex items-start gap-2 rounded-lg bg-gray-800/60 border border-[var(--color-border)] p-3 backdrop-blur text-[var(--color-text-primary)]">
       <IconComponent className="h-4 w-4 flex-shrink-0" style={style} />
-      <div className="flex items-center gap-2 flex-1">
-        <span className="text-xs uppercase tracking-wide !text-black" style={{ color: 'black' }}>{label}:</span>
-        <span className="text-sm text-[var(--color-text-primary)] font-medium">{children}</span>
+      <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+        <span className="text-[10px] uppercase tracking-wide !text-black sm:text-xs" style={{ color: 'black' }}>{label}:</span>
+        <span className="min-w-0 text-sm leading-snug text-[var(--color-text-primary)] font-medium">{children}</span>
       </div>
     </div>
   );
