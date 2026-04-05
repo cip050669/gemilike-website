@@ -1,6 +1,8 @@
 # CodeQL Security Analysis
 # Performs static code analysis to find security vulnerabilities
 # This file is the standard name expected by GitHub CodeQL setup
+#
+# One language entry: CodeQL "javascript" covers .js, .jsx, .ts, .tsx (no separate typescript matrix row).
 name: CodeQL
 
 on:
@@ -23,26 +25,20 @@ jobs:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'javascript', 'typescript' ]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
-          languages: ${{ matrix.language }}
+          languages: javascript
           queries: +security-and-quality
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
-          category: "/language:${{matrix.language}}"
-
+          category: "/language:javascript"
