@@ -329,6 +329,7 @@ export default function NewGemstonePage() {
                   <option value="Baguette">Baguette</option>
                   <option value="Asscher">Asscher</option>
                   <option value="Trillion">Trillion</option>
+                  <option value="Fancy">Fancy</option>
                 </select>
               </div>
 

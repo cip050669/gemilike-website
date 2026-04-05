@@ -1,8 +1,9 @@
-import type { KnowledgeBase } from '@prisma/client';
+import { Prisma, type KnowledgeBase } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { semanticVectorSearch, type SemanticDocument, type VectorSearchResult } from '@/lib/search/vector-search';
 import { parseVectorQuery, evaluateVectorQuery } from '@/lib/search/query-parser';
 import { stripMarkdown } from '@/lib/utils/markdown';
+import { cosineSimilarity as cosineSimilarityEmbedding, embedText, parseEmbedding } from '@/lib/ai/embeddings';
 
 export interface KnowledgeBaseInput {
   slug: string;
@@ -85,6 +86,9 @@ export async function createKnowledgeArticle(data: KnowledgeBaseInput) {
       readingTime: data.readingTime || null,
       difficulty: data.difficulty || null,
       publishedAt: data.published && !data.publishedAt ? new Date() : data.publishedAt || null,
+      searchEmbedding: Prisma.DbNull,
+      searchEmbeddingModel: null,
+      searchEmbeddingUpdatedAt: null,
     },
   });
   invalidateKnowledgeVectorCache(data.locale || 'de');
@@ -103,7 +107,12 @@ export async function updateKnowledgeArticle(id: string, data: Partial<Knowledge
 
   const updated = await prisma.knowledgeBase.update({
     where: { id },
-    data: updateData,
+    data: {
+      ...updateData,
+      searchEmbedding: Prisma.DbNull,
+      searchEmbeddingModel: null,
+      searchEmbeddingUpdatedAt: null,
+    },
   });
   invalidateKnowledgeVectorCache(updated.locale);
   return updated;
@@ -128,7 +137,9 @@ function buildExcerpt(content: string, fallback?: string | null) {
 const VECTOR_CACHE_TTL_MS = 1000 * 60 * 10; // 10 minutes
 const CACHE_LOGGING_ENABLED = process.env.KNOWLEDGE_VECTOR_CACHE_LOGS === 'true';
 
-type KnowledgeVectorDocument = SemanticDocument<KnowledgeBase>;
+type KnowledgeVectorDocument = SemanticDocument<KnowledgeBase> & {
+  embedding: number[] | null;
+};
 
 interface CachedVectorDocs {
   documents: KnowledgeVectorDocument[];
@@ -153,18 +164,25 @@ function cacheEntryValid(entry: CachedVectorDocs | undefined) {
   return !!entry && entry.expiresAt > Date.now();
 }
 
+export function buildKnowledgeSearchText(
+  article: Pick<KnowledgeBase, 'title' | 'excerpt' | 'content' | 'category' | 'tags'>
+): string {
+  return [
+    article.title,
+    article.excerpt ?? '',
+    stripMarkdown(article.content),
+    article.category,
+    (article.tags ?? []).join(' '),
+  ].join('\n');
+}
+
 function createDocumentFromArticle(article: KnowledgeBase): KnowledgeVectorDocument {
   return {
     id: article.id,
-    text: [
-      article.title,
-      article.excerpt ?? '',
-      stripMarkdown(article.content),
-      article.category,
-      (article.tags ?? []).join(' '),
-    ].join('\n'),
+    text: buildKnowledgeSearchText(article),
     payload: article,
     boost: article.featured ? 1.15 : 1,
+    embedding: parseEmbedding(article.searchEmbedding),
   };
 }
 
@@ -284,20 +302,51 @@ export async function searchKnowledgeArticlesVector(
         score: 1,
       }));
 
-  const filtered = rawResults.filter((result) => {
+  const embeddingQuery = runSemanticSearch ? embedText(vectorText).vector : null;
+  const keywordScoreMap = new Map(rawResults.map((result) => [result.id, result.score]));
+  const embeddingResults = runSemanticSearch
+    ? documents
+        .map((doc) => ({
+          id: doc.id,
+          payload: doc.payload,
+          score: cosineSimilarityEmbedding(embeddingQuery, doc.embedding),
+        }))
+        .filter((result) => result.score >= 0.12)
+    : [];
+
+  const mergedResults = new Map<string, VectorSearchResult<KnowledgeBase>>();
+  for (const result of rawResults) {
+    mergedResults.set(result.id, result);
+  }
+
+  for (const result of embeddingResults) {
+    const existing = mergedResults.get(result.id);
+    const keywordScore = keywordScoreMap.get(result.id) ?? 0;
+    const mergedScore = Math.max(result.score, keywordScore * 0.92);
+    mergedResults.set(result.id, {
+      id: result.id,
+      payload: result.payload,
+      score: existing ? Math.max(existing.score, mergedScore) : mergedScore,
+    });
+  }
+
+  const filtered = Array.from(mergedResults.values()).filter((result) => {
     if (!parsedQuery.groups.length) return true;
     const docText = textMap.get(result.id) ?? '';
     return evaluateVectorQuery(parsedQuery, docText, result.payload, resolveFieldValue);
   });
 
-  return filtered.slice(0, limit).map(({ payload, score }) => ({
-    id: payload.id,
-    slug: payload.slug,
-    title: payload.title,
-    excerpt: buildExcerpt(payload.content, payload.excerpt),
-    image: payload.image || null,
-    similarity: Number(score.toFixed(4)),
-    tags: payload.tags ?? [],
-    publishedAt: payload.publishedAt,
-  }));
+  return filtered
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ payload, score }) => ({
+      id: payload.id,
+      slug: payload.slug,
+      title: payload.title,
+      excerpt: buildExcerpt(payload.content, payload.excerpt),
+      image: payload.image || null,
+      similarity: Number(score.toFixed(4)),
+      tags: payload.tags ?? [],
+      publishedAt: payload.publishedAt,
+    }));
 }

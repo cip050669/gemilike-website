@@ -1,23 +1,41 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import { createRequire } from "module";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const require = createRequire(import.meta.url);
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
+/** Next.js 16 liefert Flat Config; FlatCompat + extends("next/…") erzeugt Zirkelreferenzen mit ESLint 9. */
+const nextCoreWebVitals = require("eslint-config-next/core-web-vitals");
+
+/** Regeln in bestehende Blöcke mergen (keine zweite Registrierung derselben Plugins). */
+const mergedNext = nextCoreWebVitals.map((block) => {
+  if (block.name === "next") {
+    return {
+      ...block,
+      rules: {
+        ...block.rules,
+        "react/no-unescaped-entities": "warn",
+        "@next/next/no-html-link-for-pages": "warn",
+        // react-hooks v7 (eslint-config-next 16): zu strikt für bestehenden Code; schrittweise aktivieren
+        "react-hooks/set-state-in-effect": "off",
+        "react-hooks/purity": "off",
+        "react-hooks/immutability": "off",
+        "react-hooks/static-components": "off",
+      },
+    };
+  }
+  if (block.name === "next/typescript") {
+    return {
+      ...block,
+      rules: {
+        ...block.rules,
+        "@typescript-eslint/no-explicit-any": "warn",
+      },
+    };
+  }
+  return block;
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-  {
-    rules: {
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@next/next/no-html-link-for-pages": "warn",
-      "react/no-unescaped-entities": "warn",
-    },
-  },
+  ...mergedNext,
   {
     ignores: [
       "node_modules/**",
@@ -43,7 +61,6 @@ const eslintConfig = [
     files: ["**/__tests__/**/*.{ts,tsx}", "**/*.test.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-require-imports": "off",
     },
   },
 ];

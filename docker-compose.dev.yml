@@ -2,8 +2,7 @@
 services:
   # PostgreSQL Database (Development)
   postgres:
-    image: postgres:17-alpine
-    # PostgreSQL 17 is the latest stable version
+    image: postgres:16-alpine
     container_name: gemilike-postgres-dev
     restart: unless-stopped
     environment:

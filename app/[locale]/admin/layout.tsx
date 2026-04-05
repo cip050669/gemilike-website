@@ -392,14 +392,17 @@ export default function AdminLayout({
         </nav>
       </aside>
 
-      {/* Main Content */}
-      <main style={{ 
-        flex: 1, 
-        marginLeft: '256px', 
-        padding: '32px', 
-        overflow: 'auto',
-        backgroundColor: 'rgba(31, 41, 55, 0.5)'
-      }}>
+      {/* Main Content — alle Link-Farben weiß (kein Blau/Cyan aus text-primary o. ä.) */}
+      <main
+        className="[&_a]:!text-white [&_a:hover]:!text-white/90 [&_a:visited]:!text-white [&_a]:decoration-white/50 [&_a_button]:!text-white [&_a_button:hover]:!text-white/90"
+        style={{
+          flex: 1,
+          marginLeft: '256px',
+          padding: '32px',
+          overflow: 'auto',
+          backgroundColor: 'rgba(31, 41, 55, 0.5)',
+        }}
+      >
         {children}
       </main>
     </div>

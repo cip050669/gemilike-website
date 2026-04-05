@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Users, Gem, ShoppingCart, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+import { AiReindexPanel } from '@/components/admin/ai-reindex-panel';
 
 export default async function AdminDashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -18,6 +19,8 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
     recentGemstones,
     recentOrders,
     checkoutStats,
+    staleGemstoneEmbeddings,
+    staleKnowledgeEmbeddings,
   ] = await Promise.all([
     prisma.gemstone.count(),
     prisma.user.count(),
@@ -61,6 +64,22 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
       conversionRate: starts > 0 ? (successes / starts) * 100 : 0,
       abandonmentRate: starts > 0 ? (abandons / starts) * 100 : 0,
     })),
+    prisma.gemstone.count({
+      where: {
+        OR: [
+          { searchEmbedding: null },
+          { searchEmbeddingUpdatedAt: null },
+        ],
+      },
+    }),
+    prisma.knowledgeBase.count({
+      where: {
+        OR: [
+          { searchEmbedding: null },
+          { searchEmbeddingUpdatedAt: null },
+        ],
+      },
+    }),
   ]);
 
   const stats = {
@@ -221,6 +240,12 @@ export default async function AdminDashboardPage({ params }: { params: Promise<{
           </div>
         </CardContent>
       </Card>
+
+      <AiReindexPanel
+        locale={locale}
+        staleGemstoneEmbeddings={staleGemstoneEmbeddings}
+        staleKnowledgeEmbeddings={staleKnowledgeEmbeddings}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         {/* Recent Activity */}

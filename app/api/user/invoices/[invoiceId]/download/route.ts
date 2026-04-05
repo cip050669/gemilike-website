@@ -103,7 +103,11 @@ export async function GET(
     }
 
     // Read PDF file
-    const pdfPath = join(process.cwd(), 'public', invoice.pdfStorageKey.replace(/^\//, ''));
+    const pdfPath = join(
+      /* turbopackIgnore: true */ process.cwd(),
+      'public',
+      invoice.pdfStorageKey.replace(/^\//, '')
+    );
     const pdfBuffer = await readFile(pdfPath);
 
     // Update download count

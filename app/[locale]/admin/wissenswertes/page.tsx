@@ -22,7 +22,10 @@ const toListItem = (article: KnowledgeArticle) => ({
   publishedAt: article.publishedAt?.toISOString(),
   slug: article.slug,
   tags: article.tags || [],
-  image: article.image?.trim() ? article.image : PLACEHOLDER_IMAGE,
+  image:
+    article.image?.trim() ||
+    article.contentImages?.find((imageUrl) => imageUrl.trim().length > 0) ||
+    PLACEHOLDER_IMAGE,
 });
 
 const countByStatus = (articles: KnowledgeArticle[]) => ({
@@ -71,7 +74,11 @@ export default async function KnowledgeAdminPage({
             </div>
             <Link
               href={`/${locale}/admin/wissenswertes/new`}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
+              className="knowledge-admin-new-cta inline-flex items-center justify-center rounded-lg border border-white/50 bg-neutral-800/95 px-6 py-3 text-base font-medium no-underline shadow-sm transition-colors hover:bg-neutral-700/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
+              style={{
+                color: '#ffffff',
+                WebkitTextFillColor: '#ffffff',
+              }}
             >
               + Neuer Wissenswert-Artikel
             </Link>

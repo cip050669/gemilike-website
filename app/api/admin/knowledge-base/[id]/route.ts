@@ -1,12 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import {
   getKnowledgeArticleById,
   updateKnowledgeArticle,
   deleteKnowledgeArticle,
   KnowledgeBaseInput,
 } from '@/lib/services/knowledge.service';
+
+const ACCENT_MARKS_REGEX = /[\u0300-\u036f]/g;
+
+function toSlug(value: string) {
+  const slug = value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(ACCENT_MARKS_REGEX, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+  return slug || `article-${Date.now()}`;
+}
+
+function normalizeImage(
+  image: unknown,
+  contentImages: unknown,
+  fallbackImage?: string | null,
+  fallbackContentImages?: string[]
+) {
+  const imageValue = typeof image === 'string' ? image.trim() : '';
+  const contentImageList = Array.isArray(contentImages)
+    ? contentImages.filter(
+        (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0
+      )
+    : (fallbackContentImages ?? []);
+
+  const fallbackValue = fallbackImage?.trim() || '';
+  const normalizedImage =
+    imageValue && imageValue !== '/blog/default-blog.jpg' && imageValue !== '/images/stories/placeholder-gem.svg'
+      ? imageValue
+      : fallbackValue && fallbackValue !== '/blog/default-blog.jpg' && fallbackValue !== '/images/stories/placeholder-gem.svg'
+        ? fallbackValue
+        : contentImageList[0] || null;
+
+  return {
+    image: normalizedImage,
+    contentImages: contentImageList,
+  };
+}
 
 export async function GET(
   request: NextRequest,
@@ -98,7 +139,7 @@ export async function PUT(
 
     const updateData: Partial<KnowledgeBaseInput> = {};
     if (title !== undefined) updateData.title = title;
-    if (slug !== undefined) updateData.slug = slug;
+    if (slug !== undefined) updateData.slug = toSlug(slug);
     if (excerpt !== undefined) updateData.excerpt = excerpt;
     if (content !== undefined) updateData.content = content;
     if (author !== undefined) updateData.author = author;
@@ -112,10 +153,51 @@ export async function PUT(
     if (readingTime !== undefined) updateData.readingTime = readingTime;
     if (difficulty !== undefined) updateData.difficulty = difficulty;
 
+    const existingArticle = await getKnowledgeArticleById(id);
+    if (!existingArticle) {
+      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+    }
+
+    if (!updateData.slug && title !== undefined) {
+      updateData.slug = toSlug(title);
+    }
+
+    if (image !== undefined || contentImages !== undefined) {
+      const normalizedImages = normalizeImage(
+        image,
+        contentImages,
+        existingArticle.image,
+        existingArticle.contentImages ?? []
+      );
+      updateData.image = normalizedImages.image ?? undefined;
+      updateData.contentImages = normalizedImages.contentImages;
+    }
+
+    if (updateData.slug) {
+      const conflictingSlug = await prisma.knowledgeBase.findFirst({
+        where: {
+          slug: updateData.slug,
+          id: { not: id },
+        },
+        select: { id: true, locale: true },
+      });
+
+      if (conflictingSlug) {
+        return NextResponse.json(
+          {
+            error:
+              conflictingSlug.locale === existingArticle.locale
+                ? 'Ein anderer Artikel mit diesem Slug existiert bereits'
+                : `Dieser Slug ist bereits fuer die Sprache ${conflictingSlug.locale} vergeben`,
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     // Set publishedAt if publishing for the first time
     if (published === true) {
-      const existing = await getKnowledgeArticleById(id);
-      if (existing && !existing.publishedAt) {
+      if (!existingArticle.publishedAt) {
         updateData.publishedAt = new Date();
       }
     }
@@ -128,8 +210,12 @@ export async function PUT(
     if ((error as { code?: string }).code === 'P2025') {
       return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
+    if ((error as { code?: string }).code === 'P2002') {
+      return NextResponse.json({ error: 'Slug ist bereits vergeben' }, { status: 409 });
+    }
+    const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: message || 'Internal server error' },
       { status: 500 }
     );
   }

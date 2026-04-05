@@ -45,10 +45,12 @@ export default async function KnowledgeListPage({
           ? `${baseText.slice(0, 220).trimEnd()} …`
           : baseText;
 
+      const fallbackContentImage =
+        article.contentImages?.find((imageUrl) => imageUrl.trim().length > 0) || '';
       const image =
         article.image && article.image.trim() && article.image !== '/blog/default-blog.jpg'
           ? article.image
-          : STORY_PLACEHOLDER_IMAGE;
+          : fallbackContentImage || STORY_PLACEHOLDER_IMAGE;
 
       return {
         id: article.id,

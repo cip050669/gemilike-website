@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { semanticVectorSearch, type SemanticDocument, type VectorSearchResult } from '@/lib/search/vector-search';
 import { parseVectorQuery, evaluateVectorQuery } from '@/lib/search/query-parser';
 import { stripMarkdown } from '@/lib/utils/markdown';
+import { cosineSimilarity as cosineSimilarityEmbedding, embedText, parseEmbedding } from '@/lib/ai/embeddings';
 import type { ShopGemstone } from './types';
 
 export const GEMSTONE_PLACEHOLDER_IMAGE = '/products/placeholder-gem.jpg';
@@ -176,7 +177,13 @@ export interface GemstoneVectorSearchResult {
   similarity: number;
 }
 
-type GemstoneVectorDocument = SemanticDocument<ShopGemstone>;
+export interface SimilarGemstoneResult extends ShopGemstone {
+  similarity: number;
+}
+
+type GemstoneVectorDocument = SemanticDocument<ShopGemstone> & {
+  embedding: number[] | null;
+};
 
 interface GemstoneVectorCacheEntry {
   documents: GemstoneVectorDocument[];
@@ -186,8 +193,8 @@ interface GemstoneVectorCacheEntry {
 const GEMSTONE_VECTOR_CACHE_TTL_MS = 1000 * 60 * 10;
 const gemstoneVectorCache = new Map<string, GemstoneVectorCacheEntry>();
 
-const createGemstoneVectorDocument = (gem: ShopGemstone): GemstoneVectorDocument => {
-  const text = [
+export const buildGemstoneSearchText = (gem: ShopGemstone): string =>
+  [
     gem.name,
     gem.category,
     gem.origin ?? '',
@@ -202,19 +209,34 @@ const createGemstoneVectorDocument = (gem: ShopGemstone): GemstoneVectorDocument
     .filter(Boolean)
     .join('\n');
 
+const createGemstoneVectorDocument = (
+  gem: ShopGemstone,
+  searchEmbedding?: Prisma.JsonValue | null
+): GemstoneVectorDocument => {
+  const text = buildGemstoneSearchText(gem);
+
   return {
     id: gem.id,
     text,
     payload: gem,
     boost: gem.isNew ? 1.1 : 1,
+    embedding: parseEmbedding(searchEmbedding),
   };
 };
 
 async function buildGemstoneVectorDocuments() {
-  // Verwende ALLE Edelsteine für die Suche, nicht nur veröffentlichte
-  // So können auch DRAFT-Edelsteine gefunden werden
-  const gemstones = await listAllGemstones();
-  return gemstones.map(createGemstoneVectorDocument);
+  const gemstones = await prisma.gemstone.findMany({
+    include: gemstoneWithRelationsInclude,
+    orderBy: [
+      { isNew: 'desc' },
+      { publishedAt: 'desc' },
+      { createdAt: 'desc' },
+    ],
+  });
+
+  return gemstones.map((gemstone) =>
+    createGemstoneVectorDocument(toShopGemstone(gemstone), gemstone.searchEmbedding)
+  );
 }
 
 async function getGemstoneVectorDocuments(locale: string) {
@@ -299,6 +321,7 @@ export async function searchGemstonesVector(
   };
 
   const runSemanticSearch = vectorText.length > 0;
+  const embeddingQuery = runSemanticSearch ? embedText(vectorText).vector : null;
 
   const rawResults: VectorSearchResult<ShopGemstone>[] = runSemanticSearch
     ? semanticVectorSearch(vectorText, documents, {
@@ -311,17 +334,102 @@ export async function searchGemstonesVector(
         score: 1,
       }));
 
-  const filtered = rawResults.filter((result) => {
+  const keywordScoreMap = new Map(rawResults.map((result) => [result.id, result.score]));
+  const embeddingResults = runSemanticSearch
+    ? documents
+        .map((doc) => ({
+          id: doc.id,
+          payload: doc.payload,
+          score: cosineSimilarityEmbedding(embeddingQuery, doc.embedding),
+        }))
+        .filter((result) => result.score >= 0.12)
+    : [];
+
+  const mergedResults = new Map<string, VectorSearchResult<ShopGemstone>>();
+  for (const result of rawResults) {
+    mergedResults.set(result.id, result);
+  }
+
+  for (const result of embeddingResults) {
+    const existing = mergedResults.get(result.id);
+    const keywordScore = keywordScoreMap.get(result.id) ?? 0;
+    const mergedScore = Math.max(result.score, keywordScore * 0.92);
+    mergedResults.set(result.id, {
+      id: result.id,
+      payload: result.payload,
+      score: existing ? Math.max(existing.score, mergedScore) : mergedScore,
+    });
+  }
+
+  const filtered = Array.from(mergedResults.values()).filter((result) => {
     if (!parsedQuery.groups.length) return true;
     const docText = textMap.get(result.id) ?? '';
     return evaluateVectorQuery(parsedQuery, docText, result.payload, resolveFieldValue);
   });
 
-  return filtered.slice(0, limit).map(({ payload, score }) => ({
-    id: payload.id,
-    slug: payload.slug,
-    name: payload.name,
-    category: payload.category,
-    similarity: Number(score.toFixed(4)),
-  }));
+  return filtered
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ payload, score }) => ({
+      id: payload.id,
+      slug: payload.slug,
+      name: payload.name,
+      category: payload.category,
+      similarity: Number(score.toFixed(4)),
+    }));
+}
+
+export async function findSimilarGemstones(
+  gemstoneId: string,
+  limit = 4
+): Promise<SimilarGemstoneResult[]> {
+  const [target, gemstones] = await Promise.all([
+    prisma.gemstone.findUnique({
+      where: { id: gemstoneId },
+      include: gemstoneWithRelationsInclude,
+    }),
+    prisma.gemstone.findMany({
+      where: {
+        status: 'PUBLISHED',
+        id: { not: gemstoneId },
+      },
+      include: gemstoneWithRelationsInclude,
+      orderBy: [
+        { isNew: 'desc' },
+        { publishedAt: 'desc' },
+        { createdAt: 'desc' },
+      ],
+    }),
+  ]);
+
+  if (!target) {
+    return [];
+  }
+
+  const targetShopGemstone = toShopGemstone(target);
+  const targetEmbedding =
+    parseEmbedding(target.searchEmbedding) ?? embedText(buildGemstoneSearchText(targetShopGemstone)).vector;
+
+  return gemstones
+    .map((gemstone) => {
+      const shopGemstone = toShopGemstone(gemstone);
+      const embedding =
+        parseEmbedding(gemstone.searchEmbedding) ??
+        embedText(buildGemstoneSearchText(shopGemstone)).vector;
+
+      let similarity = cosineSimilarityEmbedding(targetEmbedding, embedding);
+
+      if (shopGemstone.category === targetShopGemstone.category) similarity += 0.08;
+      if (shopGemstone.type === targetShopGemstone.type) similarity += 0.03;
+      if (shopGemstone.color && shopGemstone.color === targetShopGemstone.color) similarity += 0.05;
+      if (shopGemstone.origin && shopGemstone.origin === targetShopGemstone.origin) similarity += 0.03;
+
+      return {
+        ...shopGemstone,
+        similarity: Number(similarity.toFixed(4)),
+      };
+    })
+    .filter((gemstone) => gemstone.similarity > 0.1)
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, limit);
 }

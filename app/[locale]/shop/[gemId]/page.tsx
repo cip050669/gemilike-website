@@ -11,7 +11,7 @@ import { WishlistButton } from '@/components/cart/WishlistButton';
 import { ReviewsDisplay } from '@/components/shop/ReviewsDisplay';
 import { ReviewForm } from '@/components/shop/ReviewForm';
 import { loadShopGemstoneById } from '@/lib/shop/shopData';
-import { GEMSTONE_PLACEHOLDER_IMAGE } from '@/lib/services/shop/gemstone.service';
+import { findSimilarGemstones, GEMSTONE_PLACEHOLDER_IMAGE } from '@/lib/services/shop/gemstone.service';
 import navStyles from '@/components/layout/HeaderNav.module.css';
 import { cn } from '@/lib/utils';
 
@@ -85,7 +85,10 @@ export async function generateMetadata({ params }: GemstoneDetailPageProps): Pro
 
 export default async function GemstoneDetailPage({ params }: GemstoneDetailPageProps) {
   const { gemId, locale } = await params;
-  const gemstone = await loadShopGemstoneById(gemId);
+  const [gemstone, similarGemstones] = await Promise.all([
+    loadShopGemstoneById(gemId),
+    findSimilarGemstones(gemId, 4),
+  ]);
 
   if (!gemstone) {
     notFound();
@@ -289,6 +292,48 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
 
           {/* Reviews Section */}
           <div className="mt-12 space-y-8">
+            {similarGemstones.length > 0 && (
+              <section className="space-y-4">
+                <div className="space-y-2">
+                  <h2 className="text-xl font-semibold text-white">Aehnliche Edelsteine</h2>
+                  <p className="text-sm text-white/70">
+                    Vorschlaege auf Basis von Kategorie, Merkmalen und semantischer Aehnlichkeit.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  {similarGemstones.map((similarGem) => (
+                    <Link
+                      key={similarGem.id}
+                      href={`/${locale}/shop/${similarGem.id}`}
+                      className="rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-white/20 hover:bg-white/10"
+                    >
+                      <div
+                        className="mb-3 h-40 rounded-xl bg-black/20"
+                        style={{
+                          backgroundImage: `url('${similarGem.images[0] ?? GEMSTONE_PLACEHOLDER_IMAGE}')`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
+                      />
+                      <div className="space-y-1">
+                        <p className="line-clamp-2 text-sm font-semibold text-white">
+                          {similarGem.name}
+                        </p>
+                        <p className="text-xs text-white/60">{similarGem.category}</p>
+                        <p className="text-sm text-white/85">
+                          {formatCurrency(similarGem.price, similarGem.currency ?? 'EUR')}
+                        </p>
+                        <p className="text-xs text-white/50">
+                          Relevanz {Math.max(1, Math.min(99, Math.round(similarGem.similarity * 100)))}%
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
             <ReviewsDisplay gemstoneId={gemId} verifiedOnly={false} />
             <ReviewForm gemstoneId={gemId} />
           </div>

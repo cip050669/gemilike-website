@@ -1,10 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import {
   getKnowledgeArticles,
   createKnowledgeArticle,
 } from '@/lib/services/knowledge.service';
+
+const ACCENT_MARKS_REGEX = /[\u0300-\u036f]/g;
+
+function toSlug(value: string) {
+  const slug = value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(ACCENT_MARKS_REGEX, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+  return slug || `article-${Date.now()}`;
+}
+
+function normalizeImage(
+  image: unknown,
+  contentImages: unknown
+) {
+  const imageValue = typeof image === 'string' ? image.trim() : '';
+  const contentImageList = Array.isArray(contentImages)
+    ? contentImages.filter(
+        (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0
+      )
+    : [];
+
+  const normalizedImage =
+    imageValue && imageValue !== '/blog/default-blog.jpg' && imageValue !== '/images/stories/placeholder-gem.svg'
+      ? imageValue
+      : contentImageList[0] || null;
+
+  return {
+    image: normalizedImage,
+    contentImages: contentImageList,
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -76,17 +112,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate slug from title
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    const slug = toSlug(title);
+    const normalizedImages = normalizeImage(image, contentImages);
 
-    // Check if slug already exists
-    const existing = await getKnowledgeArticles(locale);
-    if (existing.some((a) => a.slug === slug && a.locale === locale)) {
+    const existing = await prisma.knowledgeBase.findFirst({
+      where: {
+        slug,
+      },
+      select: { id: true, locale: true, title: true },
+    });
+
+    if (existing) {
       return NextResponse.json(
-        { error: 'Article with this title already exists' },
+        {
+          error:
+            existing.locale === locale
+              ? 'Ein Artikel mit diesem Titel bzw. Slug existiert in dieser Sprache bereits'
+              : `Ein Artikel mit diesem Slug existiert bereits in der Sprache ${existing.locale}`,
+        },
         { status: 409 }
       );
     }
@@ -102,8 +145,8 @@ export async function POST(request: NextRequest) {
       author: author || 'Gemilike Redaktion',
       category,
       tags: tags || [],
-      image: image || null,
-      contentImages: contentImages || [],
+      image: normalizedImages.image,
+      contentImages: normalizedImages.contentImages,
       published: published ?? false,
       featured: featured ?? false,
       locale,
@@ -122,10 +165,10 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       );
     }
+    const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: message || 'Internal server error' },
       { status: 500 }
     );
   }
 }
-

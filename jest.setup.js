@@ -1,5 +1,4 @@
 // TextEncoder/TextDecoder für Prisma, @noble/hashes und cuid2 in Jest/jsdom
-// eslint-disable-next-line @typescript-eslint/no-require-imports -- Jest setup uses CommonJS
 const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
@@ -120,7 +119,6 @@ global.URL.revokeObjectURL = jest.fn()
 if (typeof global.Request === 'undefined') {
   try {
     // Check if undici is available
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('undici')
     // undici exports fetch, not directly Request/Response in older versions
     // But in newer versions, we can use the global fetch which includes Request/Response

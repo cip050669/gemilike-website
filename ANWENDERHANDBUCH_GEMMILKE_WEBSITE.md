@@ -1,8 +1,8 @@
 # 📘 Anwenderhandbuch: Gemilike Website
 
-**Version:** 2.8.0  
-**Stand:** Februar 2026  
-**Letzte Aktualisierung:** Februar 2026 – Sicherheitsanpassungen (CodeQL, npm Overrides), Docker-Build-Fix, PayPal-Validierung, Such-Parser-Limits  
+**Version:** 2.9.0  
+**Stand:** April 2026  
+**Letzte Aktualisierung:** April 2026 – KI-Reindex-Panel, Job-Monitoring, ähnliche Edelsteine, Slug-Validierung und Stammdaten-Erweiterungen ergänzt  
 **Zielgruppe:** Administratoren, Redakteure, Entwickler
 
 ---
@@ -39,6 +39,8 @@ Dieses Anwenderhandbuch dokumentiert die vollständige Funktionalität der Gemil
 Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit folgenden Hauptfunktionen:
 
 - **E-Commerce-Shop** für Edelsteine
+- **Hybrid-Suche für Shop und Wissenswertes** mit klassischer semantischer Suche, Query-Parser und zusätzlicher Embedding-Ähnlichkeit
+- **Ähnliche Edelsteine auf Produktdetailseiten** auf Basis von Kategorie, Merkmalen und Embedding-Ähnlichkeit
 - **Content-Management** für Blogs, Stories und Wissenswertes
 - **Download-Bereich** (`/downloads`) mit drei Hauptbereichen:
   - **Dokumente**: Kataloge, Zertifikat-Vorlagen, Guides zum Herunterladen
@@ -48,6 +50,7 @@ Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit f
 - **Newsletter-Management**
 - **Warenwirtschaftssystem (WWS)** für Lagerverwaltung, Lieferanten, Einkaufsbestellungen und Lagerbewegungen
 - **Weltkarte** mit Fundorten
+- **Vorbereitete KI-Infrastruktur** für Reindexing, Suchverbesserung und spätere Vorschlags- bzw. Empfehlungsfunktionen
 - **Moderne Web Design Features** (Version 2.4.0+):
   - Progressive Enhancement für alle Formulare
   - Dark Mode mit System-Präferenz-Erkennung
@@ -69,6 +72,8 @@ Die Gemilike-Website ist eine moderne E-Commerce-Plattform für Edelsteine mit f
 - **PDF-Generierung:** @react-pdf/renderer 4.3.1
 - **Karten:** Leaflet 1.9.4
 - **Zahlungen:** PayPal Integration (@paypal/react-paypal-js 8.1.3, @paypal/paypal-server-sdk 1.0.0)
+- **Suche & Retrieval:** Eigene semantische Suche, Query-Parser, Hybrid-Ranking, Embedding-Speicherung in PostgreSQL/Prisma
+- **KI-/Embedding-Schicht:** Lokale deterministische Hash-Embeddings als providerfreie Basis mit späterer Erweiterbarkeit für externe Embedding-Modelle oder `pgvector`
 
 ---
 
@@ -84,6 +89,12 @@ Die Website folgt einer **Next.js App Router Architektur** mit:
 - **Proxy/Middleware** (`proxy.ts`) für Lokalisierung (next-intl), Header-Anpassungen und Routing; zusätzlich `middleware-admin.ts` für Admin-Bereich
 - **PayPal-Integration** über `@paypal/react-paypal-js` (Frontend) und `@paypal/paypal-server-sdk` (Backend) mit optionalem Ladeverhalten bei fehlenden Umgebungsvariablen
 - **Prisma** mit optionalem **Accelerate** (`PRISMA_ACCELERATE_URL`) für verbesserte DB-Performance
+- **Hybrid-Sucharchitektur** für Shop und Wissenswertes:
+  - klassische TF-IDF-/Keyword-Suche
+  - Query-Parser für strukturierte Suchausdrücke
+  - zusätzliche Embedding-Ähnlichkeit
+  - serverseitige Zusammenführung der Scores
+- **Asynchrone KI-Vorbereitung** über Reindex-Jobs und vorbereitete Suggestion-Modelle für spätere Admin-Assistenzfunktionen
 
 ### 2.2 Projektstruktur
 
@@ -132,7 +143,9 @@ gemilike-website/
 │   ├── accessibility/            # LiveRegion, SkipToContent, Focus-Trap, Keyboard-Navigation
 │   └── ...                       # blog, newsletter, legal, map, worldmap, providers, seo
 ├── lib/                          # Bibliotheken und Utilities
+│   ├── ai/                       # Embeddings, KI-Helferfunktionen
 │   ├── services/                 # Business-Logic-Services (shop, about, blog, invoice, …)
+│   │   ├── ai/                   # Reindexing und spätere KI-Services
 │   ├── store/                    # Zustand Stores (cart, wishlist)
 │   ├── paypal/                   # PayPal-Konfiguration (config.ts)
 │   ├── utils/                    # Utility-Funktionen
@@ -159,38 +172,60 @@ gemilike-website/
 
 ### 2.3 Code-Statistiken
 
-**Stand:** Januar 2026
+**Stand:** April 2026
 
-Das Projekt umfasst insgesamt **120.753 Zeilen Code** (ohne `node_modules`, `.next` und `.git`):
+Erfassung ohne `node_modules`, `.next`, `.git`, `out`, `dist`, `coverage`.
 
-| Dateityp | Zeilen | Anteil | Beschreibung |
-|----------|--------|--------|--------------|
-| **TSX** | 67.048 | 56 % | React-Komponenten mit TypeScript (UI-Komponenten, Seiten) |
-| **TS** | 40.604 | 34 % | TypeScript-Dateien (Services, Utilities, API-Routen, Server Actions) |
-| **JS** | 8.213 | 7 % | JavaScript-Dateien (Konfigurationen, Skripte, Legacy-Code) |
-| **CSS** | 1.341 | 1 % | Stylesheets (globale Styles, Tailwind-Erweiterungen) |
-| **HTML** | 3.547 | 3 % | HTML-Templates und statische Seiten |
-| **Gesamt** | **120.753** | 100 % | Gesamter Quellcode des Projekts |
+#### Quellcode nach Dateityp
+
+| Dateityp | Zeilen | Anteil (Quellcode) | Beschreibung |
+|----------|--------|---------------------|--------------|
+| **TSX** | 67.912 | 53,4 % | React-Komponenten mit TypeScript (UI-Komponenten, Seiten) |
+| **TS** | 41.674 | 32,8 % | TypeScript (Services, Utilities, API-Routen, Server Actions) |
+| **JS** | 8.219 | 6,5 % | JavaScript (Konfigurationen, Skripte, Tests) |
+| **HTML** | 3.565 | 2,8 % | HTML-Templates und statische Seiten |
+| **CSS** | 1.384 | 1,1 % | Stylesheets (globale Styles, Tailwind-Erweiterungen) |
+| **SQL** | 1.911 | 1,5 % | Prisma-Migrationen |
+| **Prisma** | 1.260 | 1,0 % | Schema (`schema.prisma`) |
+| **YML** | 725 | 0,6 % | GitHub Actions, Konfiguration |
+| **MJS** | 525 | 0,4 % | ES-Module (Skripte) |
+| **Quellcode gesamt** | **127.175** | 100 % | Summe der oben genannten Typen |
+
+#### Konfiguration & Dokumentation
+
+| Dateityp | Zeilen | Beschreibung |
+|----------|--------|--------------|
+| **JSON** | 19.533 | Konfiguration, i18n, Daten (z. B. `messages`, `package.json`) |
+| **MD** | 33.371 | Dokumentation (Anwendungshandbuch, README, Guides) |
+
+#### Summen
+
+| Kategorie | Zeilen |
+|-----------|--------|
+| Quellcode (TS, TSX, JS, HTML, CSS, SQL, Prisma, YML, MJS) | **127.175** |
+| + Konfiguration (JSON) | **146.708** |
+| + Dokumentation (MD) | **180.079** |
 
 **Hinweise:**
-- Die größte Codebasis liegt in **TSX-Dateien** (56 %), was die React-basierte Architektur widerspiegelt
-- **TypeScript-Dateien** (34 %) enthalten hauptsächlich Business-Logik, Server Actions und API-Routen
-- Die relativ geringe Anzahl an **CSS-Zeilen** (1 %) zeigt die effiziente Nutzung von Tailwind CSS
-- **HTML-Dateien** enthalten hauptsächlich Test-Dateien und Templates
+- Die größte Codebasis liegt in **TSX-Dateien** (53,4 %), was die React-basierte Architektur widerspiegelt.
+- **TypeScript-Dateien** (32,8 %) enthalten hauptsächlich Business-Logik, Server Actions und API-Routen.
+- Die geringe Anzahl an **CSS-Zeilen** (1,1 %) zeigt die Nutzung von Tailwind CSS.
+- **HTML-Dateien** enthalten vor allem Templates; **SQL** und **Prisma** die Datenbank-Definition und Migrationen.
 
 ### 2.4 Datenbank
 
 **PostgreSQL** mit **Prisma ORM 7** (Datasource-URL über `prisma.config.ts`):
 
-- **58 Haupt-Models** für verschiedene Entitäten
+- **60 Haupt-Models** für verschiedene Entitäten
 - **56 Relations** zwischen Models für Datenintegrität
 - **50 Indexes** (`@@index`) für Performance-Optimierung
-- **17 Enums** für typsichere Werte
+- **19 Enums** für typsichere Werte
 
 **Haupt-Models (Auswahl):**
 - **E-Commerce:** `Gemstone`, `GemstoneAttributes`, `GemstoneInventory`, `GemstonePrice`, `Cart`, `CartItem`, `Order`, `OrderItem`, `Invoice`, `InvoiceItem`
 - **Benutzer & Authentifizierung:** `User`, `Account`, `Session`, `Customer`, `Address`
 - **Content-Management:** `Blog`, `Story`, `KnowledgeBase`, `AboutContent`, `Service`
+- **KI / Suche:** `AiJob`, `AiSuggestion`
 - **Farbanalyse & Farbtafeln:** `ColorChart`, `GemstoneAnalysis`
 - **Weltkarte:** `Location`, `Country`, `GemType`
 - **Newsletter & Marketing:** `NewsletterSubscriber`, `NewstickerItem`
@@ -202,6 +237,7 @@ Das Projekt umfasst insgesamt **120.753 Zeilen Code** (ohne `node_modules`, `.ne
 
 **Enums:**
 - `UserRole`, `GemstoneStatus`, `GemstoneCondition`, `MediaType`, `PriceDiscountType`, `CartStatus`, `OrderStatus`, `PaymentStatus`, `PaymentMethod`, `DownloadResourceType`, `InvoiceStatus`, `AddressType`, `KycStatus`
+- **KI / Suche:** `AiJobType`, `AiJobStatus`
 - **WWS:** `PurchaseOrderStatus`, `StockMovementType`, `StockReferenceType`, `ReservationStatus`
 
 ### 2.5 Design & Layout-System
@@ -586,6 +622,17 @@ module.exports = {
   - **Beschreibung:** Die Edelstein-Beschreibung wird ebenfalls in schwarzer Schrift angezeigt
   - **Reihenfolge:** Das "Bestand"-Attribut wird immer am Ende der Detailansicht angezeigt (nach allen anderen Attributen)
 - **Aktionen:** `AddToCartButton` (deaktiviert bei `isSold`/`!inStock`) + `WishlistButton` direkt aus Grid und Detailkarte
+
+#### Produktdetailseite (`/shop/[gemId]`)
+
+- Serverseitige Detailseite für direkt verlinkbare Edelsteine
+- Zusätzlicher Block **„Ähnliche Edelsteine“** unterhalb der Produktdetails
+- Empfehlungen basieren auf:
+  - Embedding-Ähnlichkeit
+  - gleicher Kategorie
+  - gleichem Typ, gleicher Farbe oder gleicher Herkunft
+- Anzeige mit Bild, Kategorie, Preis und Relevanzwert
+- Fallback auf lokal berechnete Embeddings, falls für einzelne Datensätze noch kein gespeichertes Embedding existiert
 
 **UI-Verbesserungen (seit Version 2.5.7):**
 
@@ -1104,6 +1151,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Statistiken zu Edelsteinen, Bestellungen, Kunden
 - Charts und Grafiken
 - Schnellzugriff auf wichtige Funktionen
+- **KI-/Embedding-Reindex-Panel** mit Live-Status, Anzahl veralteter Embeddings und manueller Reindex-Auslösung
 
 **Datenquellen:**
 
@@ -1117,6 +1165,15 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Anzahl Kunden
 - Umsatz-Statistiken
 - Top-Kategorien
+- Anzahl Produkte ohne aktuelles Embedding
+- Anzahl Wissensartikel ohne aktuelles Embedding
+
+**KI-/Reindex-Panel:**
+
+- Anzeige der zuletzt ausgeführten KI-Jobs (`RUNNING`, `COMPLETED`, `FAILED`)
+- Manueller Start von Produkt-Reindex und Knowledge-Reindex direkt im Dashboard
+- Automatische Aktualisierung der Jobliste bei laufenden Jobs
+- Locale-Anzeige für sprachbezogene Reindex-Läufe
 
 ---
 
@@ -1140,6 +1197,7 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - Preisverwaltung (**Bruttopreis inkl. MwSt.**)
 - Inventar-Verwaltung
 - **Zahlenfelder:** Komma oder Punkt als Dezimaltrenner (Karat, Preis, Maße)
+- **Schliffform erweitert:** zusätzliche Option `Fancy`
 
 #### Bearbeiten (`/admin/gemstones/edit/[id]`)
 
@@ -1213,9 +1271,10 @@ Die Weltkarte enthält umfangreiche Standort-Daten für folgende Edelsteine:
 - `Länge_mm`, `Breite_mm`, `Höhe_mm` - Abmessungen
 - `Preis (Brutto)` - Preis (Pflichtfeld, Bruttopreis inkl. MwSt.)
 - `Kategorie` - Edelstein-Kategorie (Pflichtfeld, Dropdown mit 60+ Edelsteinarten, alphabetisch sortiert)
+- **Zusätzliche Kategorie (April 2026):** `Sphalerit`
 - `Entstehung` - Entstehung (Dropdown: natürlich, synthetisch, Imitation)
 - `Mine` - Minenname
-- `Schliffform` - Form des Schliffs (Dropdown: Rund, Oval, Kissen, Herz, Tropfen, Marquise, Princess, Brillant, Smaragd, Baguette, Asscher, Trillion)
+- `Schliffform` - Form des Schliffs (Dropdown: Rund, Oval, Kissen, Herz, Tropfen, Marquise, Princess, Brillant, Smaragd, Baguette, Asscher, Trillion, Fancy)
 - `Schliffqualität` - Qualität (Excellent, Very Good, Good, Fair, Poor)
 - `Reinheitsgrad` - Klarheit (vereinfacht: FL - Flawless, VVS - Very Very Slightly Included, VS - Very Slightly Included, SI - Slightly Included, I - Included, jeweils mit Erläuterungen)
 - `Farbsättigung` - Sättigung (Pale, Light, Medium, Intense, Vivid, Rich)
@@ -1489,6 +1548,10 @@ Zwei interaktive HTML-Formulare sind verfügbar:
 - Kategorisierung
 - Schwierigkeitsgrad
 - Veröffentlichung
+- Slug-Erzeugung automatisch aus dem Titel mit Normalisierung von Umlauten/Akzentzeichen
+- Konfliktprüfung für Slugs mit verständlichen Fehlermeldungen bei Doppelvergaben
+- Änderungen setzen Such-Embeddings zurück; anschließender Reindex wird empfohlen
+- CTA- und Tabellen-Links im Admin farblich an das dunkle Admin-Layout angepasst
 
 **Datenbank-Model:** `KnowledgeBase`
 
@@ -2252,7 +2315,7 @@ Die Datenbank-Migration wurde am 25. Januar 2026 durchgeführt:
 
 ### 5.1 Übersicht
 
-Die Datenbank besteht aus **34 Haupt-Models** (inkl. WWS) mit umfangreichen Relations:
+Die Datenbank besteht aus **60 Haupt-Models** (inkl. WWS und KI-/Such-Infrastruktur) mit umfangreichen Relations:
 
 #### Benutzer & Authentifizierung
 
@@ -2321,6 +2384,11 @@ Die Datenbank besteht aus **34 Haupt-Models** (inkl. WWS) mit umfangreichen Rela
 - `AuditLog` - Audit-Log
 - `DownloadGrant` - Download-Berechtigungen
 
+#### KI / Suche
+
+- `AiJob` - Reindexing- und KI-Hintergrundjobs
+- `AiSuggestion` - Vorbereitete KI-Vorschläge für spätere Assistenzfunktionen
+
 #### Spezial-Features
 
 - `ColorChart` - Farbtafeln
@@ -2379,15 +2447,137 @@ Die Datenbank besteht aus **34 Haupt-Models** (inkl. WWS) mit umfangreichen Rela
 - Eine `Order` kann eine `Invoice` haben
 - 1:1 Relation
 
+#### Gemstone → Search Embedding
+
+- Ein `Gemstone` kann ein gespeichertes Such-Embedding besitzen
+- Technisch über die Felder:
+  - `searchEmbedding`
+  - `searchEmbeddingModel`
+  - `searchEmbeddingUpdatedAt`
+- Dient der Hybrid-Suche im Shop
+
+#### KnowledgeBase → Search Embedding
+
+- Ein `KnowledgeBase`-Artikel kann ein gespeichertes Such-Embedding besitzen
+- Technisch über die Felder:
+  - `searchEmbedding`
+  - `searchEmbeddingModel`
+  - `searchEmbeddingUpdatedAt`
+- Dient der Hybrid-Suche im Bereich Wissenswertes
+
 #### User → GemstoneAnalysis
 
 - Ein `User` kann mehrere `GemstoneAnalysis` erstellen
 - 1:N Relation
 - `createdById` ist optional (kann NULL sein)
 
+#### AiJob → Geschäftsobjekte
+
+- `AiJob` kann sich logisch auf verschiedene Entitäten beziehen
+- Identifikation über:
+  - `entityType`
+  - `entityId`
+- Aktuell vor allem für:
+  - `Gemstone`
+  - `KnowledgeBase`
+- Es handelt sich um eine lose Referenz für Hintergrundjobs, keine harte Foreign-Key-Relation
+
 ---
 
-### 5.3 Detailliertes Schema: GemstoneAnalysis
+### 5.3 Detailliertes Schema: KI-/Such-Infrastruktur
+
+#### 5.3.1 Erweiterungen an `Gemstone`
+
+**Neue Suchfelder:**
+- `searchEmbedding` (Json?, optional)
+  - gespeicherter Embedding-Vektor für die Produktsuche
+  - wird durch Reindexing befüllt
+  - wird bei inhaltlichen Änderungen zurückgesetzt
+- `searchEmbeddingModel` (String?, optional)
+  - Kennung des verwendeten Embedding-Modells
+  - aktueller Stand: lokale providerfreie Embedding-Schicht
+- `searchEmbeddingUpdatedAt` (DateTime?, optional)
+  - Zeitpunkt der letzten erfolgreichen Embedding-Berechnung
+
+**Zweck:**
+- Hybrid-Suche für den Shop
+- Kombination aus klassischer semantischer Suche und Embedding-Ähnlichkeit
+
+#### 5.3.2 Erweiterungen an `KnowledgeBase`
+
+**Neue Suchfelder:**
+- `searchEmbedding` (Json?, optional)
+  - gespeicherter Embedding-Vektor für Wissensartikel
+- `searchEmbeddingModel` (String?, optional)
+  - Modellkennung der Embedding-Berechnung
+- `searchEmbeddingUpdatedAt` (DateTime?, optional)
+  - Zeitpunkt der letzten erfolgreichen Aktualisierung
+
+**Zweck:**
+- Hybrid-Suche im Bereich Wissenswertes / Knowledge Base
+
+#### 5.3.3 Model `AiJob`
+
+**Zweck:**
+- Verwaltung asynchroner KI- und Reindexing-Prozesse
+- Nachvollziehbarkeit von Laufzeit, Status und Ergebnis
+
+**Felder:**
+- `id` (String, Primary Key) - eindeutige Job-ID
+- `type` (AiJobType) - Art des Jobs
+- `status` (AiJobStatus, Default: `PENDING`) - aktueller Status
+- `entityType` (String?, optional) - Typ der betroffenen Entität
+- `entityId` (String?, optional) - ID der betroffenen Entität
+- `locale` (String?, optional) - Sprachkontext
+- `input` (Json?, optional) - Eingabedaten des Jobs
+- `output` (Json?, optional) - Ergebnisdaten des Jobs
+- `error` (String?, optional) - Fehlerbeschreibung bei Fehlschlag
+- `startedAt` (DateTime?, optional) - Startzeit
+- `completedAt` (DateTime?, optional) - Endzeit
+- `createdAt` (DateTime) - Erstellungsdatum
+- `updatedAt` (DateTime) - Aktualisierungsdatum
+
+**Indizes:**
+- `type, status` - für Joblisten und Monitoring
+- `entityType, entityId` - für Rückverfolgung je Objekt
+- `locale` - für sprachbezogene Rebuilds
+
+**Aktuelle Nutzung:**
+- Reindexing von Produkt-Embeddings
+- Reindexing von Knowledge-Embeddings
+
+#### 5.3.4 Model `AiSuggestion`
+
+**Zweck:**
+- Vorbereitung für KI-gestützte Vorschläge im Admin
+- Noch keine produktive Kernfunktion, aber strukturell integriert
+
+**Felder:**
+- `id` (String, Primary Key) - eindeutige Vorschlags-ID
+- `entityType` (String) - Typ der Ziel-Entität
+- `entityId` (String) - ID der Ziel-Entität
+- `suggestionType` (String) - Art des Vorschlags
+- `model` (String?, optional) - verwendetes Modell
+- `input` (Json?, optional) - Eingabedaten
+- `output` (Json, required) - erzeugter Vorschlag
+- `acceptedAt` (DateTime?, optional) - Annahmezeitpunkt
+- `rejectedAt` (DateTime?, optional) - Ablehnungszeitpunkt
+- `createdAt` (DateTime) - Erstellungsdatum
+- `updatedAt` (DateTime) - Aktualisierungsdatum
+
+**Beispielhafte spätere Anwendungsfälle:**
+- vorgeschlagene Kategorie für Edelsteine
+- vorgeschlagene Tags
+- Textvorschläge für Beschreibungen
+- Qualitäts- oder Bildhinweise
+
+**Indizes:**
+- `entityType, entityId`
+- `suggestionType`
+
+---
+
+### 5.4 Detailliertes Schema: GemstoneAnalysis
 
 **Vollständige Feldbeschreibung:**
 
@@ -2484,7 +2674,7 @@ Die Datenbank besteht aus **34 Haupt-Models** (inkl. WWS) mit umfangreichen Rela
 
 ---
 
-### 5.4 Enums
+### 5.5 Enums
 
 #### UserRole
 
@@ -2529,6 +2719,20 @@ Die Datenbank besteht aus **34 Haupt-Models** (inkl. WWS) mit umfangreichen Rela
 - `OVERDUE` - Überfällig
 - `PAID` - Bezahlt
 - `CANCELLED` - Storniert
+
+#### AiJobType
+
+- `GEMSTONE_REINDEX` - Reindexing von Produkt-Embeddings
+- `KNOWLEDGE_REINDEX` - Reindexing von Knowledge-Embeddings
+- `GEMSTONE_SUGGESTION` - vorbereitete Produktvorschläge
+- `IMAGE_ANALYSIS` - vorbereitete Bildanalyse-Jobs
+
+#### AiJobStatus
+
+- `PENDING` - Job angelegt, noch nicht gestartet
+- `RUNNING` - Job wird aktuell verarbeitet
+- `COMPLETED` - Job erfolgreich abgeschlossen
+- `FAILED` - Job mit Fehler beendet
 
 #### PurchaseOrderStatus (WWS)
 
@@ -2600,6 +2804,26 @@ Die Datenbank besteht aus **34 Haupt-Models** (inkl. WWS) mit umfangreichen Rela
 #### Search API
 
 - `POST /api/search/advanced` - Erweiterte Suche
+- `GET /api/shop/vector-search` - Hybrid-Suche für Edelsteine
+  - Query-Parameter:
+    - `q` - Suchbegriff
+    - `locale` - Sprache, Standard `de`
+    - `limit` - maximale Trefferzahl, Standard `15`, Maximum `50`
+  - Rückgabe:
+    - `results[]` mit `id`, `slug`, `name`, `category`, `similarity`
+  - Besonderheiten:
+    - kombiniert klassische semantische Suche und Embedding-Ähnlichkeit
+    - berücksichtigt weiterhin Query-Parser-Logik und Feldfilter
+- `GET /api/knowledge-base/vector-search` - Hybrid-Suche für Wissensartikel
+  - Query-Parameter:
+    - `q` - Suchbegriff
+    - `locale` - Sprache, Standard `de`
+    - `limit` - maximale Trefferzahl, Standard `9`, Maximum `20`
+  - Rückgabe:
+    - `results[]` mit `id`, `slug`, `title`, `excerpt`, `image`, `similarity`, `tags`, `publishedAt`
+  - Besonderheiten:
+    - kombiniert Volltext-/Keyword-Ranking und Embedding-Ähnlichkeit
+    - nur veröffentlichte Artikel werden in die öffentliche Suche aufgenommen
 
 #### Downloads API
 
@@ -2737,6 +2961,52 @@ Alle Admin-APIs erfordern Authentifizierung und ADMIN-Rolle.
 - `PUT /api/admin/container-content` - Container-Texte für Startseite speichern
 - `GET /api/admin/settings` - Einstellungen
 - `PUT /api/admin/settings` - Einstellungen aktualisieren
+
+#### KI / Reindex APIs
+
+- `POST /api/admin/ai/reindex/gemstones` - Produkt-Embeddings neu berechnen
+  - Authentifizierung: Nur `ADMIN`
+  - Optionaler Body:
+    - `ids` - Array einzelner Produkt-IDs
+    - `locale` - optionaler Sprachkontext
+  - Beispiel:
+    ```json
+    {
+      "ids": ["cuid1", "cuid2"],
+      "locale": "de"
+    }
+    ```
+  - Rückgabe:
+    - `status`
+    - `jobId`
+    - `processed`
+    - `locale`
+    - `model`
+    - `entity`
+    - `timestamp`
+
+- `POST /api/admin/ai/reindex/knowledge` - Knowledge-Embeddings neu berechnen
+  - Authentifizierung: Nur `ADMIN`
+  - Optionaler Body:
+    - `ids` - Array einzelner Artikel-IDs
+    - `locale` - Sprache, Standard `de`
+  - Beispiel:
+    ```json
+    {
+      "locale": "de"
+    }
+    ```
+  - Rückgabe:
+    - `status`
+    - `jobId`
+    - `processed`
+    - `locale`
+    - `model`
+    - `entity`
+    - `timestamp`
+  - Anwendungsfall:
+    - nach Massenänderungen in Wissenswertes
+    - nach Migrationen oder nach größeren redaktionellen Korrekturen
 
 #### Warenwirtschaftssystem (WWS) APIs
 
@@ -4748,6 +5018,19 @@ Siehe Abschnitt [5. Datenbank-Schema](#5-datenbank-schema) für die vollständig
 **Version:** 2.6.2  
 **Letzte Aktualisierung:** Januar 2026
 
+### 11.4 Ergänzende Projektdokumente
+
+Die folgenden Zusatzdokumente sind nicht redundant, sondern dienen als projektspezifische Detailnachweise für einzelne Umsetzungsbereiche:
+
+- `BRANDING_APPLIED.md`
+  - Logo-Integration im Header
+  - Farbschema aus dem Logo (Feuer & Eis)
+  - Hinweise zu Kontrast, Gradients und Responsive-Verhalten
+- `ADMIN_TESTS_SUMMARY.md`
+  - Übersicht über vorhandene Admin-Funktionstests
+  - Liste geplanter Admin-Tests
+  - wiederverwendbare Test-Patterns für Rendering, API-Aufrufe, Filter und CRUD
+
 ---
 
 ## 12. Support & Kontakt
@@ -4759,6 +5042,8 @@ Alle Dokumentationen sind jetzt vollständig in diesem Handbuch integriert:
 - ✅ **Docker:** Siehe Abschnitt [10.1](#101-docker-setup)
 - ✅ **API-Routen:** Siehe Abschnitt [11.2](#112-api-routen---vollständige-übersicht)
 - ✅ **Datenbank-Analyse:** Siehe Abschnitt [5. Datenbank-Schema](#5-datenbank-schema) und [11.3](#113-datenbank-funktions-analyse)
+- ✅ **Branding-Details:** Siehe Abschnitt [11.4](#114-ergänzende-projektdokumente) sowie `BRANDING_APPLIED.md`
+- ✅ **Admin-Testübersicht:** Siehe Abschnitt [11.4](#114-ergänzende-projektdokumente) sowie `ADMIN_TESTS_SUMMARY.md`
 
 ### 12.2 Troubleshooting
 
@@ -4860,16 +5145,16 @@ Die Gemilike-Website ist eine vollständige E-Commerce-Plattform mit:
 
 #### 13.5.3 Hauptsprachen
 
-1. **TypeScript React (TSX)** - 55% (64.484 Zeilen)
-2. **TypeScript (TS)** - 34% (39.523 Zeilen)
-3. **JavaScript (JS)** - 7% (8.213 Zeilen)
+1. **TypeScript React (TSX)** - 53,8% (67.482 Zeilen)
+2. **TypeScript (TS)** - 32,6% (40.962 Zeilen)
+3. **JavaScript (JS)** - 6,6% (8.219 Zeilen)
 
 #### 13.5.4 Feature-spezifische Statistiken
 
 - **Farbtafeln:** 2.958 Zeilen Code
 - **Farbanalyse:** 8.704 Zeilen Code
 - **Gesamt (color-charts):** 12.182 Zeilen Code (nur für diese Features)
-- **Gesamt-Projekt:** 105.373 Zeilen Code (alle Dateitypen)
+- **Gesamt-Projekt:** 125.449 Zeilen Code (alle Dateitypen)
 
 **Hinweis:** Die Statistiken schließen `node_modules`, `.next`, `.git`, `dist` und `build` aus.
 
@@ -5131,6 +5416,13 @@ Das Dokument enthält:
 - Farbtafeln: `/admin/color-charts`
 - Farbanalysen: `/admin/gemstone-analyses`
 
+#### KI / Suche
+
+- Shop-Vektorsuche: `/api/shop/vector-search`
+- Knowledge-Vektorsuche: `/api/knowledge-base/vector-search`
+- Produkt-Reindex (Admin): `/api/admin/ai/reindex/gemstones`
+- Knowledge-Reindex (Admin): `/api/admin/ai/reindex/knowledge`
+
 ### 14.2 Wichtige API-Endpunkte
 
 #### Öffentliche APIs
@@ -5146,6 +5438,8 @@ Das Dokument enthält:
 - `GET /api/admin/gemstones` - Edelsteine abrufen
 - `GET /api/admin/customers` - Kunden abrufen
 - `GET /api/admin/orders` - Bestellungen abrufen
+- `POST /api/admin/ai/reindex/gemstones` - Produkt-Embeddings neu berechnen
+- `POST /api/admin/ai/reindex/knowledge` - Knowledge-Embeddings neu berechnen
 
 ### 14.3 Datenbank-Models (Kurzübersicht)
 
@@ -5165,6 +5459,10 @@ Das Dokument enthält:
 
 - User, Session, AuditLog, CompanySettings
 
+**KI / Suche:**
+
+- AiJob, AiSuggestion
+
 **Spezial:**
 
 - ColorChart, GemstoneAnalysis
@@ -5173,9 +5471,9 @@ Das Dokument enthält:
 
 **Ende des Anwenderhandbuchs**
 
-*Letzte Aktualisierung: Februar 2026*  
-*Version: 2.8.0*  
-*Gesamt: 6.800+ Zeilen Dokumentation*
+*Letzte Aktualisierung: April 2026*  
+*Version: 2.9.0*  
+*Gesamt: 6.900+ Zeilen Dokumentation*
 
 ## Änderungsprotokoll
 
@@ -5414,14 +5712,15 @@ Das Dokument enthält:
 - **Von 57 auf 100+ Schmucksteine erweitert**
 - **Neue Steine hinzugefügt (inkl. angeforderte):**
   - **Albit, Amazonit, Zultanit** (wie angefragt)
-  - Andalusit, Andradit, Azurit, Benitoit, Bixbit, Carnelian, Cerussit, Charoit, Chrysokoll, Cordierit, Dumortierit, Ekanit, Eudialyt, Fenakit, Hambergit, Howlith, Hypersthen, Jadeit, Jeremejewit, Kyanit, Larimar, Lazulith, Lepidolith, Magnetit, Malachit, Perowskit, Phenakit, Pyrop, Rhodochrosit, Rhodonit, Rutil, Selenit, Serpentin, Smithsonit, Staurolith, Tanzanit, Türkis, Variscit
+  - Andalusit, Andradit, Azurit, Benitoit, Bixbit, Carnelian, Cerussit, Charoit, Chrysokoll, Cordierit, Dumortierit, Ekanit, Eudialyt, Fenakit, Hambergit, Howlith, Hypersthen, Jadeit, Jeremejewit, Kyanit, Larimar, Lazulith, Lepidolith, Magnetit, Malachit, Perowskit, Phenakit, Pyrop, Rhodochrosit, Rhodonit, Rutil, Selenit, Serpentin, Smithsonit, Sphalerit, Staurolith, Tanzanit, Türkis, Variscit
 - **Bestehende Kategorien:** Achat, Alexandrit, Amethyst, Apatit, Aquamarin, Aventurin, Beryll, Beryllonit, Brasilianit, Calcit, Chalcedon, Chrysoberyll, Chrysopras, Citrin, Danburit, Demantoid, Diamant, Diopsid, Epidot, Fluorit, Garnet, Goshenit, Grossular, Hämatit, Heliodor, Hessonit, Hiddenit, Iolith, Jade, Jaspis, Korund, Kunzit, Labradorit, Lapis Lazuli, Moldavit, Mondstein, Morganit, Obsidian, Opal, Padparadscha, Peridot, Prehnit, Pyrit, Quarz, Rhodolith, Rubin, Saphir, Sardonyx, Schörl, Smaragd, Spessartin, Spinell, Spodumen, Sunstone, Tansanit, Tigerauge, Topas, Tourmalin, Tsavorit, Turmalin, Uvarovit, Vesuvianit, Zirkon, Zoisit
 - **Alphabetisch sortiert** für einfache Auswahl
 - **Verfügbar in:** Admin-Bereich, HTML-Upload-Formularen, CSV-Import
 
 **Schliffform - Smaragd bestätigt:**
 - Smaragd bereits in der Liste vorhanden
-- Vollständige Liste: Rund, Oval, Kissen, Herz, Tropfen, Marquise, Princess, Brillant, Smaragd, Baguette, Asscher, Trillion
+- April 2026 zusätzlich erweitert um `Fancy`
+- Vollständige Liste: Rund, Oval, Kissen, Herz, Tropfen, Marquise, Princess, Brillant, Smaragd, Baguette, Asscher, Trillion, Fancy
 
 **Entstehung - Erweiterte Optionen:**
 - "Imitation" als neue Option hinzugefügt
@@ -6303,6 +6602,82 @@ git remote set-url origin git@github.com:cip050669/gemilike-website.git
 
 ## 16. Änderungsprotokoll
 
+### Version 2.9.0 (05. April 2026) - KI-/Embedding-Suche, Hybrid-Ranking und Reindexing
+
+#### KI-/Embedding-Suche
+- **Hybrid-Suche für Shop und Knowledge Base erweitert:**
+  - klassische semantische TF-IDF-/Keyword-Suche bleibt erhalten
+  - zusätzliche Embedding-Ähnlichkeit eingeführt
+  - serverseitige Zusammenführung beider Relevanz-Scores
+  - Query-Parser-Filter bleiben vollständig aktiv
+- **Lokale providerfreie Embedding-Schicht eingeführt:**
+  - deterministische Hash-Embeddings
+  - keine externe KI-Abhängigkeit erforderlich
+  - vorbereitet für spätere Umstellung auf externe Embedding-Provider oder `pgvector`
+- **Ähnliche Edelsteine auf Produktdetailseiten implementiert:**
+  - Empfehlungen auf `/shop/[gemId]`
+  - Ranking aus Embedding-Ähnlichkeit plus fachlichen Merkmalen
+  - Anzeige von Bild, Kategorie, Preis und Relevanz
+
+#### Admin-Verbesserungen
+- **KI-Reindex-Panel im Dashboard ergänzt:**
+  - Anzeige veralteter Produkt- und Knowledge-Embeddings
+  - Start von Reindex-Läufen direkt aus dem Admin-Dashboard
+  - Jobübersicht mit Status, Zeitstempel und Live-Aktualisierung
+- **Neuer Monitoring-Endpunkt:**
+  - `GET /api/admin/ai/jobs`
+  - Filterung nach `limit`, `type` und `status`
+- **Wissenswertes-Administration verbessert:**
+  - Slugs werden robust normalisiert (inkl. Entfernung von Akzentzeichen)
+  - Dublettenprüfung mit verständlichen Fehlermeldungen
+  - CTA- und Aktionslinks optisch an das Admin-Layout angeglichen
+- **Admin-UI konsolidiert:**
+  - allgemeine Linkfarben im Admin-Hauptbereich auf Weiß vereinheitlicht
+  - Kontrastkorrektur für Tabs im Select-Options-Manager
+
+#### Produktstammdaten & Formulare
+- **Edelstein-Kategorien erweitert:**
+  - neue Kategorie `Sphalerit`
+- **Schliffformen erweitert:**
+  - neue Option `Fancy`
+- **HTML-Upload-Formular synchronisiert:**
+  - `public/templates/gemstonecard-upload-formular.html` an die aktuellen Optionen angepasst
+
+#### Datenbank-Erweiterungen
+- **Neue Felder in `Gemstone`:**
+  - `searchEmbedding`
+  - `searchEmbeddingModel`
+  - `searchEmbeddingUpdatedAt`
+- **Neue Felder in `KnowledgeBase`:**
+  - `searchEmbedding`
+  - `searchEmbeddingModel`
+  - `searchEmbeddingUpdatedAt`
+- **Neue Modelle:**
+  - `AiJob` für Reindexing- und spätere KI-Prozesse
+  - `AiSuggestion` für vorbereitete Vorschlagslogik
+- **Neue Enums:**
+  - `AiJobType`
+  - `AiJobStatus`
+
+#### Neue API-Endpunkte
+- `POST /api/admin/ai/reindex/gemstones`
+  - Reindexing von Produkt-Embeddings
+- `POST /api/admin/ai/reindex/knowledge`
+  - Reindexing von Knowledge-Embeddings
+- `GET /api/admin/ai/jobs`
+  - Abruf der letzten KI-/Reindex-Jobs für Dashboard und Monitoring
+
+#### Betriebsverhalten
+- Bei Änderungen an Produkten oder Wissensartikeln werden Embeddings zunächst als veraltet markiert
+- Caches der Suchdienste werden invalidiert
+- Reindexing wird bewusst getrennt über Admin-Endpunkte ausgeführt
+- Grundlage für spätere Queue-/Worker-Architektur geschaffen
+
+#### Dokumentation aktualisiert
+- Einleitung und technische Übersicht um KI-/Embedding-Aspekte ergänzt
+- Neuer ausführlicher Abschnitt in Kapitel 15 zur KI-/Embedding-Suche
+- Schnellreferenz und API-Kurzübersicht erweitert
+
 ### Version 2.6.2 (13. Januar 2026) - PayPal Integration, Build-Fehler behoben & Zahlen aktualisiert
 
 #### PayPal Integration
@@ -6789,7 +7164,379 @@ export NVM_DIR="$HOME/.nvm"
 - **ReDoS/DoS-Absicherung:** Maximale Länge für Such-Eingabe (`MAX_QUERY_INPUT_LENGTH = 2000`) und für Dokumenttext bei der Auswertung (`MAX_DOCUMENT_TEXT_LENGTH = 50_000`) in `lib/search/query-parser.ts`
 - Behebung eines Tippfehlers (`vectorText`) und fehlender schließender Klammer in `parseVectorQuery`
 
-### 15.9 PayPal Integration (Version 2.6.2 - 13.01.2026)
+### 15.9 KI-/Embedding-Suche und Reindexing (Version 2.9.0 - 05.04.2026)
+
+**Überblick:**
+
+Seit Version 2.9.0 wurde die bestehende semantische Suche um eine zusätzliche Embedding-Schicht erweitert. Die Suchlogik arbeitet jetzt als **Hybrid-Suche**:
+
+1. **Bestehende TF-IDF-/Keyword-Suche** bleibt erhalten
+2. **Embedding-Ähnlichkeit** wird zusätzlich berechnet
+3. **Beide Scores** werden serverseitig zusammengeführt
+4. **Query-Parser-Filter** (z. B. Preis, Bestand, Zertifizierung) bleiben weiterhin aktiv
+
+Das Ziel ist, Suchanfragen natürlicher zu verstehen, ohne die bisherige Funktionalität oder bestehende Filterlogik zu verlieren.
+
+**Wichtiger Unterschied zu externen KI-Diensten:**
+- Die aktuell implementierte Embedding-Schicht verwendet **lokale, deterministische Hash-Embeddings**
+- Es wird **kein externer KI-Provider** benötigt
+- Die Architektur ist jedoch bereits so vorbereitet, dass später ein echter Embedding-Provider oder `pgvector` angeschlossen werden kann
+
+#### 15.9.1 Fachlicher Nutzen
+
+**Für Besucher im Shop:**
+- Besseres Verständnis natürlicher Suchanfragen wie:
+  - „grüner transparenter Stein“
+  - „seltener Stein aus Afrika“
+  - „mit Zertifikat und wenig Behandlung“
+- Robustere Treffer auch dann, wenn die Suchbegriffe nicht exakt den Feldwerten entsprechen
+- Verbesserte Gewichtung von Beschreibungen, Farbe, Herkunft, Zertifikaten und Seltenheit
+
+**Für Wissenswertes / Knowledge Base:**
+- Relevantere Artikel bei inhaltlich ähnlichen Anfragen
+- Besseres Auffinden von Beiträgen auch bei freierer Formulierung
+- Kombination aus Volltext, Tags, Kategorie und Embedding-Ähnlichkeit
+
+**Für Administratoren:**
+- bessere Transparenz über den Reindex-Status direkt im Dashboard
+- manuelle Kontrolle über Produkt- und Knowledge-Reindex-Läufe
+- Grundlage für weitere KI-Funktionen wie:
+  - Produktempfehlungen
+  - Vorschläge bei Produktanlage
+  - Bildähnlichkeit
+  - KI-gestützte Content-Vorschläge
+
+#### 15.9.2 Technische Architektur
+
+**Betroffene Modelle:**
+- `Gemstone`
+- `KnowledgeBase`
+- `AiJob`
+- `AiSuggestion`
+
+**Neue Datenbankfelder in `Gemstone`:**
+- `searchEmbedding` – gespeicherter Embedding-Vektor als JSON
+- `searchEmbeddingModel` – Kennung des verwendeten Embedding-Modells
+- `searchEmbeddingUpdatedAt` – Zeitpunkt der letzten erfolgreichen Embedding-Berechnung
+
+**Neue Datenbankfelder in `KnowledgeBase`:**
+- `searchEmbedding`
+- `searchEmbeddingModel`
+- `searchEmbeddingUpdatedAt`
+
+**Neue Modelle für spätere KI-Prozesse:**
+
+1. **`AiJob`**
+   - Speichert asynchrone KI-Aufgaben
+   - Aktuelle Nutzung: Reindexing von Produkt- und Knowledge-Embeddings
+   - Wichtige Felder:
+     - `type`
+     - `status`
+     - `entityType`
+     - `entityId`
+     - `locale`
+     - `input`
+     - `output`
+     - `error`
+     - `startedAt`
+     - `completedAt`
+
+2. **`AiSuggestion`**
+   - Grundlage für spätere KI-Vorschläge
+   - Beispiele:
+     - vorgeschlagene Kategorien
+     - vorgeschlagene Tags
+     - Textvorschläge
+     - Bildqualitätsbewertungen
+   - Aktuell als vorbereitendes Datenmodell integriert
+
+#### 15.9.3 Relevante Dateien
+
+**Embedding-Logik:**
+- `lib/ai/embeddings.ts`
+
+**Reindex-Service:**
+- `lib/services/ai/reindex.service.ts`
+
+**Hybrid-Suche Shop:**
+- `lib/services/shop/gemstone.service.ts`
+
+**Hybrid-Suche Knowledge Base:**
+- `lib/services/knowledge.service.ts`
+
+**Admin-API für Reindexing:**
+- `app/api/admin/ai/reindex/gemstones/route.ts`
+- `app/api/admin/ai/reindex/knowledge/route.ts`
+- `app/api/admin/ai/jobs/route.ts`
+
+**Admin-Oberfläche:**
+- `components/admin/ai-reindex-panel.tsx`
+- `app/[locale]/admin/dashboard/page.tsx`
+
+**Datenbankschema und Migration:**
+- `prisma/schema.prisma`
+- `prisma/migrations/20260405120000_add_ai_embeddings_and_jobs/migration.sql`
+
+#### 15.9.4 Wie die Hybrid-Suche arbeitet
+
+**Shop-Suche (`Gemstone`):**
+
+Für jeden Edelstein wird serverseitig ein Suchtext aufgebaut aus:
+- Name
+- Kategorie
+- Herkunft
+- Farbe
+- Reinheit
+- Behandlung
+- Zertifizierung
+- Seltenheit
+- Kurzbeschreibung und Beschreibung
+
+Dieser Text wird:
+- wie bisher für die TF-IDF-/Keyword-Suche verwendet
+- zusätzlich in einen Embedding-Vektor umgewandelt
+
+Bei einer Suchanfrage:
+1. Der Query-Parser analysiert den Suchtext
+2. Der Freitext-Anteil wird extrahiert
+3. Eine klassische semantische Suche wird berechnet
+4. Parallel wird ein Query-Embedding erzeugt
+5. Alle vorhandenen Embeddings werden per Kosinus-Ähnlichkeit verglichen
+6. Keyword-Score und Embedding-Score werden zusammengeführt
+7. Danach greifen die vorhandenen Feldfilter weiterhin
+
+**Knowledge-Base-Suche (`KnowledgeBase`):**
+
+Der Suchtext wird hier aus folgenden Feldern aufgebaut:
+- Titel
+- Excerpt
+- Inhalt
+- Kategorie
+- Tags
+
+Auch hier werden:
+- klassische semantische Suche
+- Embedding-Ähnlichkeit
+- Query-Parser-Filter
+kombiniert.
+
+#### 15.9.5 Admin-Ablauf im Betrieb
+
+**Wichtig:**
+Embeddings werden **nicht automatisch bei jeder Änderung neu berechnet**, sondern bei Inhaltsänderungen zunächst als veraltet markiert.
+
+Das bedeutet:
+- Wenn ein Edelstein geändert wird, werden die Embedding-Felder zurückgesetzt
+- Wenn ein Knowledge-Artikel erstellt oder geändert wird, werden die Embedding-Felder zurückgesetzt
+- Anschließend sollte ein Reindex durchgeführt werden
+
+**Vorteil dieses Vorgehens:**
+- Kürzere Antwortzeiten bei Bearbeitung im Admin
+- Keine langen Blockierungen beim Speichern
+- Später leicht auf Queue-/Worker-Betrieb erweiterbar
+
+**Empfohlener Ablauf nach Änderungen:**
+
+1. Produkte oder Wissensartikel im Admin bearbeiten
+2. Änderungen speichern
+3. Im Dashboard die Anzahl veralteter Embeddings prüfen
+4. Reindex der betroffenen Daten ausführen
+5. Suche prüfen
+
+#### 15.9.6 Admin-API-Endpunkte
+
+**1. Produkt-Embeddings neu berechnen**
+
+`POST /api/admin/ai/reindex/gemstones`
+
+**Zweck:**
+- Reindexing aller Edelsteine
+- oder gezielt einzelner Produkte
+
+**Beispiel-Body für alle Produkte:**
+```json
+{}
+```
+
+**Beispiel-Body für bestimmte IDs:**
+```json
+{
+  "ids": ["cuid1", "cuid2"]
+}
+```
+
+**Optional:**
+```json
+{
+  "ids": ["cuid1"],
+  "locale": "de"
+}
+```
+
+**Antwort:**
+- Job-ID
+- Anzahl verarbeiteter Datensätze
+- Modellkennung
+- Zeitstempel
+
+**2. Knowledge-Embeddings neu berechnen**
+
+`POST /api/admin/ai/reindex/knowledge`
+
+**Zweck:**
+- Reindexing aller Wissensartikel
+- oder gezielt einzelner Artikel
+- optional nach Sprache
+
+**Beispiel-Body:**
+```json
+{
+  "locale": "de"
+}
+```
+
+**Beispiel mit IDs:**
+```json
+{
+  "ids": ["article1", "article2"],
+  "locale": "de"
+}
+```
+
+**3. KI-/Reindex-Jobs abrufen**
+
+`GET /api/admin/ai/jobs`
+
+**Optionale Query-Parameter:**
+- `limit` - Anzahl Datensätze (1 bis 100)
+- `type` - z. B. `GEMSTONE_REINDEX`, `KNOWLEDGE_REINDEX`
+- `status` - z. B. `RUNNING`, `COMPLETED`, `FAILED`
+
+**Zweck:**
+- Dashboard-Monitoring
+- Nachverfolgung letzter Reindex-Läufe
+- Fehlersuche bei fehlgeschlagenen Jobs
+
+#### 15.9.7 Sicherheit und Berechtigungen
+
+Die KI-Endpunkte sind **nur für Administratoren** verfügbar.
+
+**Absicherung:**
+- Session-Prüfung über `getServerSession(authOptions)`
+- Rollenprüfung: `role === 'ADMIN'`
+- Bei fehlender Berechtigung Rückgabe `401 Unauthorized`
+
+Damit kann ein normaler Besucher keine KI-Rebuilds auslösen.
+
+#### 15.9.8 Verhalten bei Produkt- und Content-Änderungen
+
+**Produkte (`Gemstone`):**
+- Beim Bearbeiten eines Edelsteins werden folgende Felder zurückgesetzt:
+  - `searchEmbedding`
+  - `searchEmbeddingModel`
+  - `searchEmbeddingUpdatedAt`
+- Zusätzlich wird der Such-Cache invalidiert
+
+**Knowledge Base (`KnowledgeBase`):**
+- Beim Erstellen oder Aktualisieren werden die Embedding-Felder ebenfalls zurückgesetzt
+- Anschließend wird der Cache der Vektorsuche invalidiert
+
+**Warum das wichtig ist:**
+- Verhindert veraltete Suchrepräsentationen
+- Stellt sicher, dass Inhalte erst nach gezieltem Reindex wieder mit korrekten Embeddings im Ranking erscheinen
+
+#### 15.9.9 Caching
+
+Die Suchdienste für Shop und Knowledge Base arbeiten mit einem In-Memory-Cache.
+
+**Shop:**
+- Cache-Laufzeit: 10 Minuten
+- Funktion: `invalidateGemstoneVectorCache()`
+
+**Knowledge Base:**
+- Cache-Laufzeit: 10 Minuten
+- Funktion: `invalidateKnowledgeVectorCache()`
+
+**Hinweis für den Betrieb:**
+- Nach strukturellen Inhaltsänderungen sollte ein Reindex ausgeführt werden
+- Cache-Invalidierung allein erzeugt **keine neuen Embeddings**
+- Cache-Invalidierung sorgt nur dafür, dass die Suchdokumente neu geladen werden
+
+#### 15.9.10 Grenzen der aktuellen Implementierung
+
+Die aktuelle Embedding-Schicht ist **architektonisch korrekt vorbereitet**, aber bewusst konservativ implementiert.
+
+**Aktueller Stand:**
+- Lokale Hash-Embeddings
+- Speicherung als JSON
+- Kosinus-Ähnlichkeit in der Anwendung
+
+**Noch nicht umgesetzt:**
+- Kein echter externer LLM-/Embedding-Provider
+- Kein `pgvector`
+- Keine Approximate-Nearest-Neighbor-Suche
+- Keine automatische Queue/Worker-Ausführung
+
+**Folgen:**
+- Für mittlere Datenmengen gut geeignet
+- Für sehr große Produktmengen langfristig sollte auf `pgvector` oder spezialisierte Vektorindizes umgestellt werden
+
+#### 15.9.11 Empfohlener Betriebsprozess
+
+**Nach Produktimporten oder Massenänderungen:**
+- Reindex für `Gemstone` ausführen
+
+**Nach größeren redaktionellen Änderungen in Wissenswertes:**
+- Reindex für `KnowledgeBase` ausführen
+
+**Nach Deployment mit Schema-Änderung:**
+1. Migration ausführen
+2. Prisma Client generieren
+3. Reindex starten
+4. Suchfunktionen stichprobenartig prüfen
+
+#### 15.9.12 Fehlersuche
+
+**Problem: Suche liefert trotz geändertem Inhalt alte oder unpassende Treffer**
+- Prüfen, ob Reindex nach der Änderung ausgeführt wurde
+- Prüfen, ob die Embedding-Felder in der Datenbank gesetzt sind
+- Prüfen, ob der Such-Cache invalidiert oder automatisch abgelaufen ist
+
+**Problem: Reindex-Endpunkt liefert `401 Unauthorized`**
+- Mit Admin-Benutzer anmelden
+- Session prüfen
+- Rollenwert des Benutzers kontrollieren
+
+**Problem: Reindex wurde gestartet, aber im Dashboard erscheint ein Fehlerstatus**
+- Jobliste über `/api/admin/ai/jobs` prüfen
+- Fehlermeldung im Feld `error` kontrollieren
+- Prüfen, ob Migrationen und Prisma Client zum aktuellen Schema passen
+
+**Problem: `prisma generate` oder Migrationen schlagen lokal fehl**
+- Node.js-Version prüfen
+- Das Projekt erwartet Node.js `>= 20.19.0`
+- In älteren Umgebungen können Prisma-/ESM-Probleme auftreten
+
+**Problem: Ergebnisse sind semantisch noch nicht stark genug**
+- Das ist bei der aktuellen lokalen Hash-Embedding-Lösung erwartbar
+- Nächster Ausbauschritt wäre ein echter Embedding-Provider oder `pgvector`
+
+#### 15.9.13 Zukünftige Ausbaustufen
+
+Die jetzige Architektur ist die Grundlage für:
+- ähnliche Edelsteine auf Produktseiten (bereits umgesetzt)
+- AI-gestützte Produktempfehlungen
+- automatische Tag- und Kategorievorschläge
+- Bildähnlichkeitssuche
+- Support- oder Redaktionsassistenten
+- Ranking nach Nutzerverhalten
+
+Die dafür vorbereiteten Strukturen sind insbesondere:
+- `AiJob`
+- `AiSuggestion`
+- gespeicherte Embeddings auf `Gemstone` und `KnowledgeBase`
+
+### 15.10 PayPal Integration (Version 2.6.2 - 13.01.2026)
 
 **Vollständige PayPal-Integration für Online-Zahlungen:**
 
@@ -6841,7 +7588,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3003
 - Bestellstatus wird automatisch auf `PAID` gesetzt nach erfolgreicher Zahlung
 - **Sicherheit (Version 2.8.0):** `paypalOrderId` wird vor Verwendung in der PayPal-URL strikt validiert (nur `[A-Za-z0-9_-]`, max. 50 Zeichen), um Request-Forgery/SSRF zu verhindern
 
-### 15.10 Warenkorb-UI-Verbesserungen (Version 2.6.2 - 13.01.2026)
+### 15.11 Warenkorb-UI-Verbesserungen (Version 2.6.2 - 13.01.2026)
 
 **Schließen-Buttons verschoben:**
 - Header-Schließen-Button um 100px nach links verschoben (`transform: translateX(-100px)`)

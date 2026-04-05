@@ -15,6 +15,7 @@ interface KnowledgeArticle {
   excerpt: string;
   content?: string;
   image: string;
+  contentImages?: string[];
   createdAt: string;
   updatedAt: string;
   published: boolean;
@@ -49,7 +50,11 @@ export default function KnowledgeArticlePage() {
           title: found.title,
           excerpt: found.excerpt,
           content: found.content,
-          image: found.image || '/images/stories/placeholder-gem.svg',
+          image:
+            found.image ||
+            found.contentImages?.find((imageUrl: string) => imageUrl.trim().length > 0) ||
+            '/images/stories/placeholder-gem.svg',
+          contentImages: found.contentImages || [],
           createdAt: found.createdAt,
           updatedAt: found.updatedAt,
           published: found.published,

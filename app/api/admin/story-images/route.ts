@@ -30,8 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     const timestamp = Date.now();
-    const extension = file.name.split('.').pop();
-    const filename = `story-${timestamp}.${extension}`;
+    const filename = `story-${timestamp}.jpg`;
     const filepath = join(uploadsDir, filename);
 
     // Bild auf 1200x600px skalieren
@@ -53,5 +52,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
   }
 }
-
 

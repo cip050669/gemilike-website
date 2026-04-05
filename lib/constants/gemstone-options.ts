@@ -458,6 +458,7 @@ const GEMSTONE_CATEGORIES_ARRAY = [
   'Smithsonit',
   'Spessartin',
   'Spinell',
+  'Sphalerit',
   'Spodumen',
   'Staurolith',
   'Sunstone',
@@ -493,6 +494,7 @@ const CUT_FORM_OPTIONS_ARRAY = [
   'Baguette',
   'Asscher',
   'Trillion',
+  'Fancy',
 ];
 
 export const CUT_FORM_OPTIONS = [...CUT_FORM_OPTIONS_ARRAY].sort();

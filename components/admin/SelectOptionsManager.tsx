@@ -276,7 +276,7 @@ export function SelectOptionsManager() {
             <TabsTrigger 
               key={key} 
               value={key} 
-              className="text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:border-blue-500"
+              className="text-xs text-black dark:text-black data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=inactive]:text-black"
             >
               {label}
             </TabsTrigger>

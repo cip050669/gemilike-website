@@ -1,133 +1,3 @@
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
-import type { Attachment } from 'nodemailer/lib/mailer';
-
-export type SendEmailResult =
-  | { success: true; messageId: string }
-  | { success: false; error: string };
-
-interface SendEmailOptions {
-  to: string;
-  subject: string;
-  html?: string;
-  text?: string;
-  attachments?: Attachment[];
-}
-
-const transportMode = (process.env.SMTP_TRANSPORT || 'smtp').toLowerCase();
-const smtpHost = process.env.SMTP_HOST || 'smtp.strato.de';
-const smtpPort = Number.parseInt(process.env.SMTP_PORT || '587', 10);
-const smtpSecure = process.env.SMTP_SECURE === 'true';
-const smtpUser = process.env.SMTP_USER || 'info@gemilike.com';
-const smtpPassword = process.env.SMTP_PASSWORD || process.env.SMTP_PASS || '';
-const smtpFrom = process.env.SMTP_FROM || smtpUser || 'noreply@gemilike.com';
-const smtpMockDir = process.env.SMTP_OUTPUT_DIR || 'tmp/emails';
-const smtpFallbackToFile =
-  (process.env.SMTP_FALLBACK_TO_FILE || '').toLowerCase() === 'true';
-
-const ensureMockDir = async () => {
-  const dirPath = join(process.cwd(), smtpMockDir);
-  await fs.mkdir(dirPath, { recursive: true });
-  return dirPath;
-};
-
-const createFileTransport = () =>
-  nodemailer.createTransport({
-    streamTransport: true,
-    newline: 'unix',
-    buffer: true,
-  });
-
-const createSmtpTransport = () =>
-  nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpSecure,
-    auth: {
-      user: smtpUser,
-      pass: smtpPassword,
-    },
-  });
-
-const baseTransporter =
-  transportMode === 'file' ? createFileTransport() : createSmtpTransport();
-
-const sanitizeForFile = (value: string) =>
-  value.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase();
-
-const writeMockEmail = async (
-  info: nodemailer.SentMessageInfo,
-  subjectLine?: string,
-  fallbackFile?: string
-) => {
-  const dir = await ensureMockDir();
-  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const random = crypto.randomBytes(4).toString('hex');
-  const fileName =
-    fallbackFile ??
-    `${stamp}-${random}-${subjectLine ? sanitizeForFile(subjectLine).slice(0, 40) : 'message'}.eml`;
-
-  const content =
-    typeof info.message === 'string'
-      ? info.message
-      : Buffer.isBuffer(info.message)
-      ? info.message
-      : info.response || JSON.stringify(info, null, 2);
-
-  await fs.writeFile(join(dir, fileName), content);
-  return fileName;
-};
-
-// E-Mail senden
-export async function sendEmail({ to, subject, html, text, attachments }: SendEmailOptions): Promise<SendEmailResult> {
-  const sendWithTransport = async (transporter: nodemailer.Transporter) => {
-    const info = await transporter.sendMail({
-      from: smtpFrom,
-      to,
-      subject,
-      html,
-      text,
-      attachments,
-    });
-
-    if ('streamTransport' in transporter.options) {
-      const messageId = await writeMockEmail(info, subject ?? undefined);
-      return { success: true as const, messageId };
-    }
-
-    return { success: true as const, messageId: info.messageId };
-  };
-
-  try {
-    return await sendWithTransport(baseTransporter);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown email error';
-    console.error('E-Mail-Versand Fehler:', error);
-
-    if (smtpFallbackToFile && transportMode !== 'file') {
-      try {
-        const fallbackTransport = createFileTransport();
-        return await sendWithTransport(fallbackTransport);
-      } catch (fallbackError) {
-        const fallbackMessage =
-          fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
-        console.error('Fallback-Versand Fehler:', fallbackError);
-        return { success: false, error: `${message} (Fallback fehlgeschlagen: ${fallbackMessage})` };
-      }
-    }
-
-    return { success: false, error: message };
-  }
-}
-
-// E-Mail-Validierung
-export function validateEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
 type NewsletterCampaignTemplateInput = {
   subject: string;
   content: string;
@@ -135,7 +5,11 @@ type NewsletterCampaignTemplateInput = {
   locale?: 'de' | 'en';
 };
 
-// E-Mail-Templates
+export function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 export const emailTemplates = {
   newsletter: {
     de: (email: string) => ({
@@ -186,8 +60,8 @@ export const emailTemplates = {
     };
   },
   orderConfirmation: {
-    subject: (locale: string, orderNumber: string) => 
-      locale === 'de' 
+    subject: (locale: string, orderNumber: string) =>
+      locale === 'de'
         ? `Bestellbestätigung #${orderNumber} - Gemilike`
         : `Order Confirmation #${orderNumber} - Gemilike`,
     html: ({
@@ -197,7 +71,7 @@ export const emailTemplates = {
       totalAmount,
       currency,
       items,
-      locale = 'de'
+      locale = 'de',
     }: {
       orderNumber: string;
       customerName: string;
@@ -208,29 +82,31 @@ export const emailTemplates = {
       locale?: string;
     }) => {
       const isGerman = locale === 'de';
-      const texts = isGerman ? {
-        title: 'Bestellbestätigung',
-        orderNumber: 'Bestellnummer',
-        customer: 'Kunde',
-        date: 'Datum',
-        items: 'Artikel',
-        quantity: 'Menge',
-        price: 'Preis',
-        total: 'Gesamtbetrag',
-        thankYou: 'Vielen Dank für Ihre Bestellung!',
-        footer: 'Ihre Bestellung wird in Kürze bearbeitet.'
-      } : {
-        title: 'Order Confirmation',
-        orderNumber: 'Order Number',
-        customer: 'Customer',
-        date: 'Date',
-        items: 'Items',
-        quantity: 'Quantity',
-        price: 'Price',
-        total: 'Total Amount',
-        thankYou: 'Thank you for your order!',
-        footer: 'Your order will be processed shortly.'
-      };
+      const texts = isGerman
+        ? {
+            title: 'Bestellbestätigung',
+            orderNumber: 'Bestellnummer',
+            customer: 'Kunde',
+            date: 'Datum',
+            items: 'Artikel',
+            quantity: 'Menge',
+            price: 'Preis',
+            total: 'Gesamtbetrag',
+            thankYou: 'Vielen Dank für Ihre Bestellung!',
+            footer: 'Ihre Bestellung wird in Kürze bearbeitet.',
+          }
+        : {
+            title: 'Order Confirmation',
+            orderNumber: 'Order Number',
+            customer: 'Customer',
+            date: 'Date',
+            items: 'Items',
+            quantity: 'Quantity',
+            price: 'Price',
+            total: 'Total Amount',
+            thankYou: 'Thank you for your order!',
+            footer: 'Your order will be processed shortly.',
+          };
 
       return `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111827;">
@@ -249,7 +125,9 @@ export const emailTemplates = {
 
             <h3 style="color: #111827; margin-bottom: 16px;">${texts.items}</h3>
             <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-              ${items.map(item => `
+              ${items
+                .map(
+                  (item) => `
                 <div style="padding: 16px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
                   <div>
                     <p style="margin: 0; font-weight: bold;">${item.name}</p>
@@ -257,7 +135,9 @@ export const emailTemplates = {
                   </div>
                   <p style="margin: 0; font-weight: bold;">${item.price.toFixed(2)} ${currency}</p>
                 </div>
-              `).join('')}
+              `
+                )
+                .join('')}
             </div>
 
             <div style="margin-top: 24px; padding: 16px; background-color: #f3f4f6; border-radius: 8px; text-align: right;">
@@ -270,6 +150,6 @@ export const emailTemplates = {
           </div>
         </div>
       `;
-    }
-  }
+    },
+  },
 };

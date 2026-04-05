@@ -14,6 +14,9 @@ jest.mock('@/lib/prisma', () => ({
       count: jest.fn(),
       findMany: jest.fn(),
     },
+    knowledgeBase: {
+      count: jest.fn(),
+    },
     user: {
       count: jest.fn(),
     },
@@ -37,8 +40,12 @@ describe('Admin Dashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Default mock implementations
-    (prisma.gemstone.count as jest.Mock).mockResolvedValue(150);
+    // Default mock implementations (gemstone.count: total vs. stale-embedding query)
+    (prisma.gemstone.count as jest.Mock).mockImplementation((args?: { where?: unknown }) => {
+      if (args?.where) return Promise.resolve(5);
+      return Promise.resolve(150);
+    });
+    (prisma.knowledgeBase.count as jest.Mock).mockResolvedValue(2);
     (prisma.user.count as jest.Mock).mockResolvedValue(89);
     (prisma.order.count as jest.Mock).mockResolvedValue(234);
     (prisma.order.aggregate as jest.Mock).mockResolvedValue({

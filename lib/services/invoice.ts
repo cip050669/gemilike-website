@@ -11,7 +11,7 @@ interface GeneratedInvoice {
   items: InvoiceItem[];
 }
 
-const INVOICE_STORAGE_DIR = join(process.cwd(), 'public', 'invoices');
+const INVOICE_STORAGE_DIR = join(/* turbopackIgnore: true */ process.cwd(), 'public', 'invoices');
 
 const ensureInvoiceDir = async () => {
   await fsp.mkdir(INVOICE_STORAGE_DIR, { recursive: true });
@@ -395,7 +395,11 @@ export const sendInvoiceEmail = async (invoiceId: string) => {
   if (!pdfStorageKey) {
     pdfStorageKey = await generateInvoicePDF(invoiceId);
   }
-  const pdfAbsolutePath = join(process.cwd(), 'public', pdfStorageKey.replace(/^\//, ''));
+  const pdfAbsolutePath = join(
+    /* turbopackIgnore: true */ process.cwd(),
+    'public',
+    pdfStorageKey.replace(/^\//, '')
+  );
 
   const emailResult = await sendEmail({
     to: invoice.customer.email,

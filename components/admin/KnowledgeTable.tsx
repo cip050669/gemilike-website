@@ -145,7 +145,7 @@ export function KnowledgeTable({
             </thead>
             <tbody className="bg-gray-800/30 divide-y divide-gray-200">
               {filtered.map((article) => (
-                <tr key={article.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={article.id} className="hover:bg-gray-700/35 transition-colors">
                   <td className="px-6 py-4">
                     <div className="relative h-16 w-24 overflow-hidden rounded-md border border-gray-200 bg-gray-100">
                       <Image
@@ -197,26 +197,28 @@ export function KnowledgeTable({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {formatDate(article.updatedAt)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                    <Link
-                      href={`/${locale}/wissenswertes/${article.slug}`}
-                      className="text-white hover:text-gray-300"
-                    >
-                      Anzeigen
-                    </Link>
-                    <Link
-                      href={`/${locale}/admin/wissenswertes/edit/${article.id}`}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      Bearbeiten
-                    </Link>
-                    <button
-                      type="button"
-                      className="text-red-600 hover:text-red-900"
-                      onClick={() => handleDelete(article.id)}
-                    >
-                      Löschen
-                    </button>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="knowledge-wissenswertes-actions flex flex-wrap items-center gap-[10px]">
+                      <Link
+                        href={`/${locale}/wissenswertes/${article.slug}`}
+                        className="knowledge-wissenswertes-action-link"
+                      >
+                        Anzeigen
+                      </Link>
+                      <Link
+                        href={`/${locale}/admin/wissenswertes/edit/${article.id}`}
+                        className="knowledge-wissenswertes-action-link"
+                      >
+                        Bearbeiten
+                      </Link>
+                      <button
+                        type="button"
+                        className="knowledge-wissenswertes-action-delete"
+                        onClick={() => handleDelete(article.id)}
+                      >
+                        Löschen
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

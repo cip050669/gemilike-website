@@ -233,6 +233,9 @@ model Gemstone {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   rarity             String?
+  searchEmbedding    Json?
+  searchEmbeddingModel String?
+  searchEmbeddingUpdatedAt DateTime?
   cartItems          CartItem[]
   downloadGrants     DownloadGrant[]
   attributes         GemstoneAttributes?
@@ -509,11 +512,51 @@ model KnowledgeBase {
   publishedAt     DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  searchEmbedding Json?
+  searchEmbeddingModel String?
+  searchEmbeddingUpdatedAt DateTime?
 
   @@unique([slug, locale])
   @@index([slug, locale])
   @@index([published, locale])
   @@index([category])
+}
+
+model AiJob {
+  id          String      @id @default(cuid())
+  type        AiJobType
+  status      AiJobStatus @default(PENDING)
+  entityType  String?
+  entityId    String?
+  locale      String?
+  input       Json?
+  output      Json?
+  error       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([type, status])
+  @@index([entityType, entityId])
+  @@index([locale])
+}
+
+model AiSuggestion {
+  id             String   @id @default(cuid())
+  entityType     String
+  entityId       String
+  suggestionType String
+  model          String?
+  input          Json?
+  output         Json
+  acceptedAt     DateTime?
+  rejectedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([entityType, entityId])
+  @@index([suggestionType])
 }
 
 model AboutContent {
@@ -1020,6 +1063,20 @@ enum KycStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum AiJobType {
+  GEMSTONE_REINDEX
+  KNOWLEDGE_REINDEX
+  GEMSTONE_SUGGESTION
+  IMAGE_ANALYSIS
+}
+
+enum AiJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
 }
 
 // ============================================

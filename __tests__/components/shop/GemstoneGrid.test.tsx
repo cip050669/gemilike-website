@@ -48,9 +48,10 @@ jest.mock('@/components/cart/WishlistButton', () => ({
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: Record<string, unknown> & { alt: string }) => {
+    const { blurDataURL: _b, placeholder: _p, ...rest } = props
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img {...props} />
+    return <img {...rest} alt={props.alt} />
   },
 }))
 
@@ -176,6 +177,6 @@ describe('GemstoneGrid Component', () => {
     })
     render(<GemstoneGrid gemstones={[gemstoneWithWeight]} />)
     
-    expect(screen.getByText(/2\.50.*ct/i)).toBeInTheDocument()
+    expect(screen.getByText(/Gewicht\s+2,50\s+ct/i)).toBeInTheDocument()
   })
 })

@@ -24,6 +24,10 @@ interface KnowledgeEditorProps {
 
 const PLACEHOLDER_IMAGE = '/images/stories/placeholder-gem.svg';
 
+function isPlaceholderImage(value?: string | null) {
+  return !value || value === PLACEHOLDER_IMAGE || value === '/blog/default-blog.jpg';
+}
+
 export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false }: KnowledgeEditorProps) {
   const [formData, setFormData] = useState({
     title: article?.title || '',
@@ -138,8 +142,9 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
 
       const uploadedUrls = await Promise.all(uploadPromises);
       setFormData(prev => ({ 
-        ...prev, 
-        contentImages: [...prev.contentImages, ...uploadedUrls] 
+        ...prev,
+        image: isPlaceholderImage(prev.image) ? uploadedUrls[0] : prev.image,
+        contentImages: [...prev.contentImages, ...uploadedUrls],
       }));
       alert(`${uploadedUrls.length} Bilder erfolgreich hochgeladen!`);
     } catch (error) {
@@ -175,13 +180,20 @@ export function KnowledgeEditor({ article, onSave, onCancel, isCreating = false 
       // Generate slug from title
       const slug = formData.title
         .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-      
-      await onSave({ ...formData, slug });
+        .replace(/(^-|-$)/g, '') || `article-${Date.now()}`;
+
+      const normalizedImage =
+        !isPlaceholderImage(formData.image)
+          ? formData.image
+          : formData.contentImages.find((imageUrl) => imageUrl.trim().length > 0) || '';
+
+      await onSave({ ...formData, image: normalizedImage, slug });
     } catch (error) {
       console.error('Error saving article:', error);
-      alert('Fehler beim Speichern des Artikels');
+      alert(error instanceof Error ? error.message : 'Fehler beim Speichern des Artikels');
     } finally {
       setIsLoading(false);
     }

@@ -890,3 +890,46 @@ header[class*="fixed"] {
   -webkit-text-fill-color: #000000 !important;
   forced-color-adjust: none !important;
 }
+
+/* Admin Wissenswertes: CTA „+ Neuer Wissenswert-Artikel“ — weiße Schrift (Browser-/Theme-Linkfarbe überschreiben) */
+a.knowledge-admin-new-cta,
+a.knowledge-admin-new-cta:link,
+a.knowledge-admin-new-cta:visited,
+a.knowledge-admin-new-cta:hover,
+a.knowledge-admin-new-cta:active,
+a.knowledge-admin-new-cta:focus,
+a.knowledge-admin-new-cta:focus-visible {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+/* Wissenswertes-Admin-Tabelle: Aktionen rot wie „Löschen“ — überschreibt main [&_a]:!text-white (höhere Spezifität) */
+body main table tbody tr td .knowledge-wissenswertes-actions a.knowledge-wissenswertes-action-link,
+body main table tbody tr td .knowledge-wissenswertes-actions a.knowledge-wissenswertes-action-link:link,
+body main table tbody tr td .knowledge-wissenswertes-actions a.knowledge-wissenswertes-action-link:visited {
+  color: rgb(239 68 68) !important;
+  -webkit-text-fill-color: rgb(239 68 68) !important;
+  text-decoration: none !important;
+}
+
+body main table tbody tr td .knowledge-wissenswertes-actions a.knowledge-wissenswertes-action-link:hover {
+  color: rgb(185 28 28) !important;
+  -webkit-text-fill-color: rgb(185 28 28) !important;
+}
+
+body main table tbody tr td .knowledge-wissenswertes-actions button.knowledge-wissenswertes-action-delete {
+  color: rgb(239 68 68) !important;
+  -webkit-text-fill-color: rgb(239 68 68) !important;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+body main table tbody tr td .knowledge-wissenswertes-actions button.knowledge-wissenswertes-action-delete:hover {
+  color: rgb(185 28 28) !important;
+  -webkit-text-fill-color: rgb(185 28 28) !important;
+}

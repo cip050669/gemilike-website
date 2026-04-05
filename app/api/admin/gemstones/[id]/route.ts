@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { extractPayload, normaliseGemstonePayload } from '../utils';
 import { notifyWishlistCustomers } from '@/lib/services/wishlist-notifications';
 import { Prisma } from '@prisma/client';
+import { invalidateGemstoneVectorCache } from '@/lib/services/shop/gemstone.service';
 
 async function generateUniqueSlug(base: string, excludeId?: string) {
   const safeBase =
@@ -112,6 +113,9 @@ export async function PUT(
     }
 
     const data = normaliseGemstonePayload(basePayload, uploadedImage, fallbackImages, true);
+    data.searchEmbedding = Prisma.DbNull;
+    data.searchEmbeddingModel = null;
+    data.searchEmbeddingUpdatedAt = null;
     
     // Check if gemstone is becoming available (was sold, now not sold, or inventory updated)
     const wasSold = existing.isSold;
@@ -165,6 +169,8 @@ export async function PUT(
         console.error('Error sending wishlist notifications:', error);
       });
     }
+
+    invalidateGemstoneVectorCache();
 
     return NextResponse.json({
       success: true,
@@ -226,6 +232,8 @@ export async function DELETE(
     await prisma.gemstone.delete({
       where: { id }
     });
+
+    invalidateGemstoneVectorCache();
 
     console.log(`[DELETE] Successfully deleted gemstone: ${id}`);
 

@@ -4,6 +4,7 @@ import { extractPayload, normaliseGemstonePayload } from './utils';
 import { allGemstones } from '@/lib/data/gemstones';
 import { isCutGemstone, isRoughGemstone } from '@/lib/types/gemstone';
 import { Prisma } from '@prisma/client';
+import { invalidateGemstoneVectorCache } from '@/lib/services/shop/gemstone.service';
 
 async function generateUniqueSlug(base: string) {
   const safeBase =
@@ -225,6 +226,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('POST /api/admin/gemstones - Created gemstone:', gemstone.id);
+    invalidateGemstoneVectorCache();
 
     return NextResponse.json({
       success: true,
