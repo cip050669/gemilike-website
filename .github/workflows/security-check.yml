@@ -35,16 +35,14 @@ jobs:
         run: npm ci --legacy-peer-deps
       
       - name: Run OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@v3
+        # Releases: https://github.com/dependency-check/Dependency-Check_Action/releases (v3 tag does not exist)
+        uses: dependency-check/Dependency-Check_Action@1.1.0
         id: depcheck
         with:
           project: 'gemilike-website'
           path: '.'
           format: 'HTML'
-          args: >
-            --enableRetired
-            --enableExperimental
-            --failOnCVSS 7
+          others: '--enableRetired --enableExperimental --failOnCVSS 7'
         continue-on-error: true
       
       - name: Upload OWASP report
