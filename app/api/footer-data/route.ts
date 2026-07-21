@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma, runWithDbFallback } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,23 +9,27 @@ export async function GET(request: NextRequest) {
     // Hole alle aktiven LegalPages für "Rechtliches"
     // Filtere nur deutsche Slugs (keine englischen wie 'imprint', 'privacy', etc.)
     const germanSlugs = ['impressum', 'datenschutz', 'agb', 'widerruf', 'versand', 'cookies'];
-    
-    const legalPages = await prisma.legalPage.findMany({
-      where: {
-        locale,
-        isActive: true,
-        slug: {
-          in: germanSlugs, // Nur deutsche Slugs
-        },
-      },
-      select: {
-        slug: true,
-        title: true,
-      },
-      orderBy: {
-        slug: 'asc',
-      },
-    });
+
+    const legalPages = await runWithDbFallback(
+      () =>
+        prisma.legalPage.findMany({
+          where: {
+            locale,
+            isActive: true,
+            slug: {
+              in: germanSlugs, // Nur deutsche Slugs
+            },
+          },
+          select: {
+            slug: true,
+            title: true,
+          },
+          orderBy: {
+            slug: 'asc',
+          },
+        }),
+      []
+    );
 
     // Mappe die LegalPages zu Footer-Links
     // Die LegalPages haben deutsche Slugs (impressum, datenschutz, etc.)

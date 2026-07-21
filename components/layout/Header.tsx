@@ -221,16 +221,16 @@ export function Header() {
       data-header-fixed
       className="sticky top-0 z-[10000] border-b border-white/10 header-gradient-bg"
     >
-      <div className="mx-auto flex min-h-[84px] w-full max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-[96px] sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[114px] w-full max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-[126px] sm:px-6 lg:px-8">
         {/* Logo - Links */}
         <div className="flex shrink-0 items-center">
           <Link href={buildHref('/')} className="inline-flex items-center transition-transform duration-200 hover:scale-[1.05]">
             <Image
               src="/logo.png"
               alt="Gemilike - Heroes in Gems"
-              width={190}
-              height={114}
-              className="h-[56px] w-auto sm:h-[88px] lg:h-[96px]"
+              width={220}
+              height={144}
+              className="h-[86px] w-auto sm:h-[118px] lg:h-[126px]"
               style={{ width: 'auto' }}
               priority
             />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -54,30 +54,6 @@ function CarouselThumbnail({ gemstone, locale, priceLabel, weightLabel, cartItem
   weightLabel: string | null;
   cartItem: ReturnType<typeof toCartItem>;
 }) {
-  const categoryRef = useRef<HTMLSpanElement>(null);
-  const nameRef = useRef<HTMLAnchorElement>(null);
-
-  useEffect(() => {
-    // Einfache, einmalige Farbsetzung ohne MutationObserver
-    const setColor = () => {
-      if (categoryRef.current) {
-        categoryRef.current.style.setProperty('color', 'black', 'important');
-        categoryRef.current.style.setProperty('-webkit-text-fill-color', 'black', 'important');
-      }
-      if (nameRef.current) {
-        nameRef.current.style.setProperty('color', 'black', 'important');
-        nameRef.current.style.setProperty('-webkit-text-fill-color', 'black', 'important');
-      }
-    };
-
-    // Einmal nach dem Rendern ausführen
-    const timeout = setTimeout(setColor, 0);
-    
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [gemstone.id]);
-
   return (
     <article
       key={gemstone.id}
@@ -112,14 +88,12 @@ function CarouselThumbnail({ gemstone, locale, priceLabel, weightLabel, cartItem
       <div className="space-y-3 text-sm text-white/40">
         <div className="space-y-1">
           <span
-            ref={categoryRef}
             className="text-[11px] uppercase tracking-[0.3em] !text-black"
             style={{ color: 'black' } as React.CSSProperties}
           >
             {gemstone.category}
           </span>
           <Link
-            ref={nameRef}
             href={`/${locale}/shop?gem=${gemstone.id}`}
             className="block text-lg font-semibold !text-black line-clamp-2 transition-colors hover:!text-black"
             style={{ color: 'black' } as React.CSSProperties}

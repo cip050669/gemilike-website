@@ -1,8 +1,20 @@
-import { PrismaClient, GemstoneCondition, GemstoneStatus } from '@prisma/client';
+import './env-bootstrap';
 
-const prisma = new PrismaClient();
+import { GemstoneCondition, GemstoneStatus } from '@prisma/client';
+import { prisma } from '../lib/prisma';
+import seedWorldMap from './seed-worldmap';
 
 async function seedHeroSettings() {
+  const shouldResetHero = process.env.RESET_HERO_SETTINGS === '1';
+  const existingHero = await prisma.heroSettings.findUnique({
+    where: { id: 'singleton' },
+  });
+
+  if (existingHero && !shouldResetHero) {
+    console.log('⏭️ Hero settings already exist. Skipping overwrite.');
+    return;
+  }
+
   await prisma.heroSettings.upsert({
     where: { id: 'singleton' },
     update: {
@@ -73,14 +85,27 @@ async function seedSelectOptions() {
 }
 
 async function seedGemstones() {
-  await prisma.wishlistItem.deleteMany();
-  await prisma.cartItem.deleteMany();
-  await prisma.cart.deleteMany();
-  await prisma.gemstonePrice.deleteMany();
-  await prisma.gemstoneMedia.deleteMany();
-  await prisma.gemstoneAttributes.deleteMany();
-  await prisma.gemstoneInventory.deleteMany();
-  await prisma.gemstone.deleteMany();
+  const shouldResetCatalog = process.env.RESET_GEMSTONE_CATALOG === '1';
+  const existingCount = await prisma.gemstone.count();
+
+  if (existingCount > 0 && !shouldResetCatalog) {
+    console.log(
+      `⏭️ Gemstone catalog already contains ${existingCount} entries. ` +
+        'Skipping demo overwrite. Set RESET_GEMSTONE_CATALOG=1 to replace it.'
+    );
+    return;
+  }
+
+  if (shouldResetCatalog) {
+    await prisma.wishlistItem.deleteMany();
+    await prisma.cartItem.deleteMany();
+    await prisma.cart.deleteMany();
+    await prisma.gemstonePrice.deleteMany();
+    await prisma.gemstoneMedia.deleteMany();
+    await prisma.gemstoneAttributes.deleteMany();
+    await prisma.gemstoneInventory.deleteMany();
+    await prisma.gemstone.deleteMany();
+  }
 
   const gemstones = [
     {
@@ -254,7 +279,11 @@ async function seedGemstones() {
   ];
 
   for (const data of gemstones) {
-    await prisma.gemstone.create({ data });
+    await prisma.gemstone.upsert({
+      where: { slug: data.slug },
+      update: data,
+      create: data,
+    });
   }
 }
 
@@ -263,14 +292,22 @@ async function main() {
   await seedHeroSettings();
   await seedSelectOptions();
   await seedGemstones();
+  await seedWorldMap();
   console.log('✅ Seed completed.');
 }
 
 main()
-  .catch((error) => {
-    console.error('❌ Seed failed:', error);
-    process.exit(1);
-  })
-  .finally(async () => {
+  .then(async () => {
     await prisma.$disconnect();
+    // pg Pool (Prisma adapter) keeps the process alive after $disconnect
+    process.exit(0);
+  })
+  .catch(async (error) => {
+    console.error('❌ Seed failed:', error);
+    try {
+      await prisma.$disconnect();
+    } catch {
+      // ignore disconnect errors on failure path
+    }
+    process.exit(1);
   });

@@ -19,9 +19,9 @@ export interface ParsedVectorQuery {
 const LOGIC_SPLIT_OR = /\s+\bOR\b\s+/i;
 const LOGIC_SPLIT_AND = /\s+\bAND\b\s+/i;
 const COMPARATOR_REGEX =
-  /^([a-zA-Z][\w-]*)\s*(<=|>=|=|<|>)\s*([-+]?\d+(?:[.,]\d+)?)(?:\s*[a-zA-Z%°€$£¥]+)?$/i;
+  /^([a-zA-Z][\w-]*)\s*(<=|>=|=|<|>)\s*([-+]?\d+(?:[.,]\d+)?)(?:\s*([a-zA-Z%°€$£¥]+))?$/i;
 const COMPARATOR_NO_FIELD_REGEX =
-  /^(<=|>=|=|<|>)\s*([-+]?\d+(?:[.,]\d+)?)(?:\s*[a-zA-Z%°€$£¥]+)?$/i;
+  /^(<=|>=|=|<|>)\s*([-+]?\d+(?:[.,]\d+)?)(?:\s*([a-zA-Z%°€$£¥]+))?$/i;
 const HAS_LOGIC_REGEX = /\b(AND|OR)\b/i;
 const HAS_COMPARATOR_REGEX = /[a-zA-Z][\w-]*\s*(?:<=|>=|=|<|>)\s*[-+]?\d+(?:[.,]\d+)?/i;
 const TERM_STOP_WORDS = new Set([
@@ -43,11 +43,69 @@ const TERM_STOP_WORDS = new Set([
 
 const normalizeNumber = (value: string) => Number(value.replace(',', '.'));
 
+const NATURAL_COMPARATOR_PATTERNS: Array<{
+  pattern: RegExp;
+  replacement: string;
+}> = [
+  {
+    pattern: /(^|\s)(?:ab|mindestens|min)\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z%°€$£¥]+)(?=\s|$)/gi,
+    replacement: '$1>=$2 $3',
+  },
+  {
+    pattern: /(^|\s)(?:ueber|über|groesser|größer|mehr\s+als)\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z%°€$£¥]+)(?=\s|$)/gi,
+    replacement: '$1>$2 $3',
+  },
+  {
+    pattern: /(^|\s)(?:bis\s+maximal|maximal|hoechstens|höchstens|bis)\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z%°€$£¥]+)(?=\s|$)/gi,
+    replacement: '$1<=$2 $3',
+  },
+  {
+    pattern: /(^|\s)(?:unter|weniger\s+als)\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z%°€$£¥]+)(?=\s|$)/gi,
+    replacement: '$1<$2 $3',
+  },
+  {
+    pattern: /(^|\s)(?:genau|exakt)\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z%°€$£¥]+)(?=\s|$)/gi,
+    replacement: '$1=$2 $3',
+  },
+  {
+    pattern: /(^|\s)([-+]?\d+(?:[.,]\d+)?)\+\s*([a-zA-Z%°€$£¥]+)(?=\s|$)/gi,
+    replacement: '$1>=$2 $3',
+  },
+];
+
+const normalizeNaturalComparators = (input: string): string =>
+  NATURAL_COMPARATOR_PATTERNS.reduce(
+    (value, { pattern, replacement }) => value.replace(pattern, replacement),
+    input
+  );
+
+const inferFieldFromUnit = (unit?: string | null): string | null => {
+  if (!unit) return null;
+
+  switch (unit.toLowerCase()) {
+    case 'ct':
+    case 'carat':
+    case 'karat':
+    case 'g':
+    case 'gr':
+    case 'gram':
+    case 'gramm':
+      return 'weight';
+    case '€':
+    case '$':
+    case '£':
+    case '¥':
+      return 'price';
+    default:
+      return null;
+  }
+};
+
 /** Max input length to mitigate ReDoS / DoS from complex or very long queries */
 const MAX_QUERY_INPUT_LENGTH = 2000;
 
 export function parseVectorQuery(input: string): ParsedVectorQuery {
-  const trimmed = input.trim().slice(0, MAX_QUERY_INPUT_LENGTH);
+  const trimmed = normalizeNaturalComparators(input.trim()).slice(0, MAX_QUERY_INPUT_LENGTH);
   if (!trimmed) {
     return { groups: [], vectorText: '' };
   }
@@ -112,12 +170,13 @@ export function parseVectorQuery(input: string): ParsedVectorQuery {
       }
 
       const comparatorNoField = node.match(COMPARATOR_NO_FIELD_REGEX);
-      if (comparatorNoField && lastField) {
-        const [, operator, rawValue] = comparatorNoField;
+      if (comparatorNoField) {
+        const [, operator, rawValue, rawUnit] = comparatorNoField;
         const value = normalizeNumber(rawValue);
-        if (!Number.isNaN(value)) {
+        const inferredField = lastField ?? inferFieldFromUnit(rawUnit);
+        if (!Number.isNaN(value) && inferredField) {
           group.filters.push({
-            field: lastField,
+            field: inferredField,
             operator: operator as ComparisonOperator,
             value,
           });

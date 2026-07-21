@@ -1,4 +1,5 @@
 import type { Prisma } from '@prisma/client';
+import { Prisma as PrismaNamespace } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
   gemstoneWithRelationsInclude,
@@ -41,6 +42,39 @@ export interface WishlistSummary {
   id: string;
   items: WishlistItemDTO[];
   totalItems: number;
+}
+
+/** Sentinel when PostgreSQL is unreachable (reads return empty wishlist). */
+export const DB_UNAVAILABLE_WISHLIST_ID = '__db_unavailable__';
+
+function isDatabaseUnreachable(error: unknown): boolean {
+  if (error instanceof PrismaNamespace.PrismaClientKnownRequestError) {
+    return error.code === 'P1001' || error.code === 'P1017';
+  }
+  const message = error instanceof Error ? error.message : '';
+  return message.includes("Can't reach database server");
+}
+
+function unavailableWishlistPlaceholder(): WishlistWithItems {
+  const now = new Date();
+  return {
+    id: DB_UNAVAILABLE_WISHLIST_ID,
+    customerId: null,
+    sessionId: null,
+    name: 'Favoriten',
+    isPrimary: true,
+    createdAt: now,
+    updatedAt: now,
+    items: [],
+  } as WishlistWithItems;
+}
+
+function assertWishlistWritable(wishlist: WishlistWithItems): void {
+  if (wishlist.id === DB_UNAVAILABLE_WISHLIST_ID) {
+    throw new Error(
+      'Die Wunschliste ist vorübergehend nicht verfügbar (keine Verbindung zur Datenbank). Bitte starten Sie PostgreSQL oder prüfen Sie DATABASE_URL.'
+    );
+  }
 }
 
 const serializeWishlistItems = (wishlist: WishlistWithItems): WishlistItemDTO[] => {
@@ -95,44 +129,56 @@ const findSessionWishlist = async (sessionId: string) => {
 export const loadOrCreatePrimaryWishlist = async (
   identity: WishlistIdentity
 ): Promise<WishlistWithItems> => {
-  const { customerId, wishlistSessionId } = identity;
+  try {
+    const { customerId, wishlistSessionId } = identity;
 
-  if (customerId) {
-    const customerWishlist = await findCustomerWishlist(customerId);
-    if (customerWishlist) {
-      return customerWishlist;
-    }
+    if (customerId) {
+      const customerWishlist = await findCustomerWishlist(customerId);
+      if (customerWishlist) {
+        return customerWishlist;
+      }
 
-    if (wishlistSessionId) {
+      if (wishlistSessionId) {
+        const sessionWishlist = await findSessionWishlist(wishlistSessionId);
+        if (sessionWishlist) {
+          return prisma.wishlist.update({
+            where: { id: sessionWishlist.id },
+            data: {
+              customerId,
+              sessionId: null,
+              isPrimary: true,
+            },
+            include: wishlistWithItemsInclude,
+          });
+        }
+      }
+    } else if (wishlistSessionId) {
       const sessionWishlist = await findSessionWishlist(wishlistSessionId);
       if (sessionWishlist) {
-        return prisma.wishlist.update({
-          where: { id: sessionWishlist.id },
-          data: {
-            customerId,
-            sessionId: null,
-            isPrimary: true,
-          },
-          include: wishlistWithItemsInclude,
-        });
+        return sessionWishlist;
       }
     }
-  } else if (wishlistSessionId) {
-    const sessionWishlist = await findSessionWishlist(wishlistSessionId);
-    if (sessionWishlist) {
-      return sessionWishlist;
-    }
-  }
 
-  return prisma.wishlist.create({
-    data: {
-      name: 'Favoriten',
-      isPrimary: true,
-      customerId: customerId ?? null,
-      sessionId: customerId ? null : wishlistSessionId ?? null,
-    },
-    include: wishlistWithItemsInclude,
-  });
+    return prisma.wishlist.create({
+      data: {
+        name: 'Favoriten',
+        isPrimary: true,
+        customerId: customerId ?? null,
+        sessionId: customerId ? null : wishlistSessionId ?? null,
+      },
+      include: wishlistWithItemsInclude,
+    });
+  } catch (error) {
+    if (isDatabaseUnreachable(error)) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(
+          '[wishlist] PostgreSQL nicht erreichbar — leere Wunschliste. Starten Sie die DB (z. B. docker compose up) oder passen Sie DATABASE_URL an.'
+        );
+      }
+      return unavailableWishlistPlaceholder();
+    }
+    throw error;
+  }
 };
 
 export const getWishlistSummary = async (identity: WishlistIdentity): Promise<WishlistSummary> => {
@@ -145,6 +191,7 @@ export const toggleWishlistGemstone = async (
   gemstoneId: string
 ): Promise<WishlistSummary> => {
   const wishlist = await loadOrCreatePrimaryWishlist(identity);
+  assertWishlistWritable(wishlist);
   const existing = wishlist.items.find((item) => item.gemstoneId === gemstoneId);
 
   if (existing) {
@@ -178,6 +225,7 @@ export const removeWishlistItemById = async (
 
 export const clearWishlistItems = async (identity: WishlistIdentity): Promise<WishlistSummary> => {
   const wishlist = await loadOrCreatePrimaryWishlist(identity);
+  assertWishlistWritable(wishlist);
 
   await prisma.wishlistItem.deleteMany({
     where: { wishlistId: wishlist.id },

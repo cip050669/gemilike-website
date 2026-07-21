@@ -50,9 +50,10 @@ interface Location {
 interface InteractiveWorldMapProps {
   locations: Location[];
   gemTypes: GemType[];
+  locale?: string;
 }
 
-export function InteractiveWorldMap({ locations, gemTypes }: InteractiveWorldMapProps) {
+export function InteractiveWorldMap({ locations, gemTypes, locale = 'de' }: InteractiveWorldMapProps) {
   const [isClient, setIsClient] = useState(false);
   const [selectedGemType, setSelectedGemType] = useState<string>('all');
   const [filteredLocations, setFilteredLocations] = useState<Location[]>(locations);
@@ -107,8 +108,21 @@ export function InteractiveWorldMap({ locations, gemTypes }: InteractiveWorldMap
     );
   }
 
+  const emptyHint =
+    locale === 'en'
+      ? 'No deposit locations are loaded yet. Run npm run seed:worldmap on the server (with DATABASE_URL set), or add locations in Admin → World Map.'
+      : 'Es sind noch keine Fundorte geladen. Auf dem Server mit gesetzter DATABASE_URL „npm run seed:worldmap“ ausführen oder Fundorte unter Admin → Weltkarte anlegen.';
+
   return (
     <div className="space-y-6">
+      {locations.length === 0 && (
+        <div
+          className="rounded-lg border border-amber-500/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-100"
+          role="status"
+        >
+          {emptyHint}
+        </div>
+      )}
       {/* Filter und Legende */}
       <Card>
         <CardHeader>
@@ -190,14 +204,14 @@ export function InteractiveWorldMap({ locations, gemTypes }: InteractiveWorldMap
                           <p><strong>Minen-Typ:</strong> {location.mineType}</p>
                         )}
                         {location.status && (
-                          <p><strong>Status:</strong> 
-                            <Badge 
+                          <div className="flex flex-wrap items-center gap-1">
+                            <strong>Status:</strong>
+                            <Badge
                               variant={location.status === 'active' ? 'default' : 'secondary'}
-                              className="ml-1"
                             >
                               {location.status}
                             </Badge>
-                          </p>
+                          </div>
                         )}
                         {location.description && (
                           <p className="mt-2 text-gray-300">{location.description}</p>

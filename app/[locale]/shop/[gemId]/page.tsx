@@ -10,6 +10,7 @@ import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { WishlistButton } from '@/components/cart/WishlistButton';
 import { ReviewsDisplay } from '@/components/shop/ReviewsDisplay';
 import { ReviewForm } from '@/components/shop/ReviewForm';
+import { getPrismaConnectionErrorSummary, isPrismaConnectionError } from '@/lib/prisma';
 import { loadShopGemstoneById } from '@/lib/shop/shopData';
 import { findSimilarGemstones, GEMSTONE_PLACEHOLDER_IMAGE } from '@/lib/services/shop/gemstone.service';
 import navStyles from '@/components/layout/HeaderNav.module.css';
@@ -87,7 +88,17 @@ export default async function GemstoneDetailPage({ params }: GemstoneDetailPageP
   const { gemId, locale } = await params;
   const [gemstone, similarGemstones] = await Promise.all([
     loadShopGemstoneById(gemId),
-    findSimilarGemstones(gemId, 4),
+    findSimilarGemstones(gemId, 4).catch((error) => {
+      if (isPrismaConnectionError(error)) {
+        console.warn(
+          `Similar gemstones unavailable for ${gemId}: ${getPrismaConnectionErrorSummary(error)}`
+        );
+        return [];
+      }
+
+      console.error(`Similar gemstones unavailable for ${gemId}.`, error);
+      return [];
+    }),
   ]);
 
   if (!gemstone) {

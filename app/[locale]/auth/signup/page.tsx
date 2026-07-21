@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,7 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const t = useTranslations('auth');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +27,13 @@ export default function SignUpPage() {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwörter stimmen nicht überein');
+      setError(t('passwordsDoNotMatch'));
       setIsLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Passwort muss mindestens 6 Zeichen lang sein');
+      setError(t('passwordTooShort'));
       setIsLoading(false);
       return;
     }
@@ -50,13 +52,13 @@ export default function SignUpPage() {
       });
 
       if (response.ok) {
-        router.push('/auth/signin?message=Registrierung erfolgreich');
+        router.push('/auth/signin?message=signup-success');
       } else {
         const data = await response.json();
-        setError(data.error || 'Ein Fehler ist aufgetreten');
+        setError(data.error || t('errorOccurred'));
       }
     } catch {
-      setError('Ein Fehler ist aufgetreten');
+      setError(t('errorOccurred'));
     } finally {
       setIsLoading(false);
     }
@@ -73,9 +75,9 @@ export default function SignUpPage() {
     <div className="min-h-screen flex items-center justify-center public-page-bg py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Registrieren</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('signUpTitle')}</CardTitle>
           <CardDescription>
-            Erstellen Sie Ihr Konto
+            {t('signUpDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,7 +89,7 @@ export default function SignUpPage() {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('name')}</Label>
               <Input
                 id="name"
                 name="name"
@@ -95,12 +97,12 @@ export default function SignUpPage() {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                placeholder="Ihr Name"
+                placeholder={t('namePlaceholder')}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">E-Mail</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <Input
                 id="email"
                 name="email"
@@ -113,7 +115,7 @@ export default function SignUpPage() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Passwort</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <Input
                 id="password"
                 name="password"
@@ -121,12 +123,12 @@ export default function SignUpPage() {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                placeholder="Mindestens 6 Zeichen"
+                placeholder={t('passwordPlaceholder')}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+              <Label htmlFor="confirmPassword">{t('confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -134,7 +136,7 @@ export default function SignUpPage() {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                placeholder="Passwort wiederholen"
+                placeholder={t('confirmPasswordPlaceholder')}
               />
             </div>
             
@@ -143,15 +145,15 @@ export default function SignUpPage() {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? 'Wird registriert...' : 'Registrieren'}
+              {isLoading ? t('signUpLoading') : t('signUpButton')}
             </Button>
           </form>
           
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-300">
-              Bereits ein Konto?{' '}
+              {t('alreadyHaveAccount')}{' '}
               <Link href="/auth/signin" className="text-primary hover:underline">
-                Jetzt anmelden
+                {t('signInLink')}
               </Link>
             </p>
           </div>

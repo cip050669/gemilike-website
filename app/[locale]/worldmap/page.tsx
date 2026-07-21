@@ -104,7 +104,7 @@ export default async function WorldMapPage({ params }: { params: Promise<{ local
 
           <ScrollAnimated direction="up" delay={100}>
             <section className="main-container mt-8">
-            <WorldMapClient locations={locations} gemTypes={gemTypes} />
+            <WorldMapClient locations={locations} gemTypes={gemTypes} locale={locale} />
             </section>
           </ScrollAnimated>
         </div>

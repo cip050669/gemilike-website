@@ -1,5 +1,10 @@
 import { Prisma } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
+import {
+  getPrismaConnectionErrorSummary,
+  isPrismaConnectionError,
+  prisma,
+  withRetry,
+} from '@/lib/prisma';
 import {
   gemstoneWithRelationsInclude,
   toShopGemstone,
@@ -54,6 +59,14 @@ export interface CartSummary {
   totalQuantity: number;
   totalPrice: number;
 }
+
+const createEmptyCartSummary = (currency = 'EUR'): CartSummary => ({
+  id: 'unavailable-cart',
+  currency,
+  items: [],
+  totalPrice: 0,
+  totalQuantity: 0,
+});
 
 const serializeCartItems = (cart: CartWithItems): CartItemDTO[] => {
   return cart.items.map((item) => {
@@ -198,8 +211,19 @@ const resolveGemstonePrice = async (gemstoneId: string) => {
 };
 
 export const getCartSummaryForIdentity = async (identity: CartIdentity): Promise<CartSummary> => {
-  const cart = await loadOrCreateActiveCart(identity);
-  return serializeCart(cart);
+  try {
+    const cart = await withRetry(() => loadOrCreateActiveCart(identity));
+    return serializeCart(cart);
+  } catch (error) {
+    if (isPrismaConnectionError(error)) {
+      console.warn(
+        `Cart summary unavailable: ${getPrismaConnectionErrorSummary(error)}`
+      );
+      return createEmptyCartSummary();
+    }
+
+    throw error;
+  }
 };
 
 export const addGemstoneToCart = async (

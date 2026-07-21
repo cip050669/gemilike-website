@@ -1,7 +1,12 @@
 import type { Prisma } from '@prisma/client';
 import fs from 'node:fs';
 import path from 'node:path';
-import { prisma } from '@/lib/prisma';
+import {
+  getPrismaConnectionErrorSummary,
+  isPrismaConnectionError,
+  prisma,
+  withRetry,
+} from '@/lib/prisma';
 import { semanticVectorSearch, type SemanticDocument, type VectorSearchResult } from '@/lib/search/vector-search';
 import { parseVectorQuery, evaluateVectorQuery } from '@/lib/search/query-parser';
 import { stripMarkdown } from '@/lib/utils/markdown';
@@ -68,6 +73,25 @@ const extractRarity = (metadata?: Prisma.JsonValue | null): string | null => {
   const value = maybeRecord?.rarity;
   return typeof value === 'string' && value.trim().length ? value : null;
 };
+
+async function withGemstoneReadFallback<T>(
+  operation: () => Promise<T>,
+  fallback: T,
+  context: string
+): Promise<T> {
+  try {
+    return await withRetry(operation);
+  } catch (error) {
+    if (isPrismaConnectionError(error)) {
+      console.warn(
+        `${context}: ${getPrismaConnectionErrorSummary(error)}`
+      );
+      return fallback;
+    }
+
+    throw error;
+  }
+}
 
 export const toShopGemstone = (gem: GemstoneWithRelations): ShopGemstone => {
   // Prisma 7: Typ-Assertion für priceBooks Array
@@ -137,37 +161,52 @@ export const toShopGemstone = (gem: GemstoneWithRelations): ShopGemstone => {
 };
 
 export async function listPublishedGemstones(): Promise<ShopGemstone[]> {
-  const gemstones = await prisma.gemstone.findMany({
-    where: { status: 'PUBLISHED' },
-    include: gemstoneWithRelationsInclude,
-    orderBy: [
-      { isNew: 'desc' },
-      { publishedAt: 'desc' },
-      { createdAt: 'desc' },
-    ],
-  });
+  const gemstones = await withGemstoneReadFallback(
+    () =>
+      prisma.gemstone.findMany({
+        where: { status: 'PUBLISHED' },
+        include: gemstoneWithRelationsInclude,
+        orderBy: [
+          { isNew: 'desc' },
+          { publishedAt: 'desc' },
+          { createdAt: 'desc' },
+        ],
+      }),
+    [],
+    'Published gemstone list unavailable'
+  );
 
   return gemstones.map(toShopGemstone);
 }
 
 export async function listAllGemstones(): Promise<ShopGemstone[]> {
-  const gemstones = await prisma.gemstone.findMany({
-    include: gemstoneWithRelationsInclude,
-    orderBy: [
-      { isNew: 'desc' },
-      { publishedAt: 'desc' },
-      { createdAt: 'desc' },
-    ],
-  });
+  const gemstones = await withGemstoneReadFallback(
+    () =>
+      prisma.gemstone.findMany({
+        include: gemstoneWithRelationsInclude,
+        orderBy: [
+          { isNew: 'desc' },
+          { publishedAt: 'desc' },
+          { createdAt: 'desc' },
+        ],
+      }),
+    [],
+    'Gemstone list unavailable'
+  );
 
   return gemstones.map(toShopGemstone);
 }
 
 export async function fetchGemstoneById(id: string): Promise<ShopGemstone | null> {
-  const gemstone = await prisma.gemstone.findUnique({
-    where: { id },
-    include: gemstoneWithRelationsInclude,
-  });
+  const gemstone = await withGemstoneReadFallback(
+    () =>
+      prisma.gemstone.findUnique({
+        where: { id },
+        include: gemstoneWithRelationsInclude,
+      }),
+    null,
+    `Gemstone ${id} unavailable`
+  );
 
   if (!gemstone) {
     return null;
@@ -181,10 +220,15 @@ export async function fetchGemstonesByIds(ids: string[]): Promise<ShopGemstone[]
     return [];
   }
 
-  const gemstones = await prisma.gemstone.findMany({
-    where: { id: { in: ids } },
-    include: gemstoneWithRelationsInclude,
-  });
+  const gemstones = await withGemstoneReadFallback(
+    () =>
+      prisma.gemstone.findMany({
+        where: { id: { in: ids } },
+        include: gemstoneWithRelationsInclude,
+      }),
+    [],
+    'Gemstone selection unavailable'
+  );
 
   return gemstones.map(toShopGemstone);
 }
@@ -245,14 +289,19 @@ const createGemstoneVectorDocument = (
 };
 
 async function buildGemstoneVectorDocuments() {
-  const gemstones = await prisma.gemstone.findMany({
-    include: gemstoneWithRelationsInclude,
-    orderBy: [
-      { isNew: 'desc' },
-      { publishedAt: 'desc' },
-      { createdAt: 'desc' },
-    ],
-  });
+  const gemstones = await withGemstoneReadFallback(
+    () =>
+      prisma.gemstone.findMany({
+        include: gemstoneWithRelationsInclude,
+        orderBy: [
+          { isNew: 'desc' },
+          { publishedAt: 'desc' },
+          { createdAt: 'desc' },
+        ],
+      }),
+    [],
+    'Gemstone search index unavailable'
+  );
 
   return gemstones.map((gemstone) =>
     createGemstoneVectorDocument(toShopGemstone(gemstone), gemstone.searchEmbedding)
@@ -403,24 +452,29 @@ export async function findSimilarGemstones(
   gemstoneId: string,
   limit = 4
 ): Promise<SimilarGemstoneResult[]> {
-  const [target, gemstones] = await Promise.all([
-    prisma.gemstone.findUnique({
-      where: { id: gemstoneId },
-      include: gemstoneWithRelationsInclude,
-    }),
-    prisma.gemstone.findMany({
-      where: {
-        status: 'PUBLISHED',
-        id: { not: gemstoneId },
-      },
-      include: gemstoneWithRelationsInclude,
-      orderBy: [
-        { isNew: 'desc' },
-        { publishedAt: 'desc' },
-        { createdAt: 'desc' },
-      ],
-    }),
-  ]);
+  const [target, gemstones] = await withGemstoneReadFallback(
+    () =>
+      Promise.all([
+        prisma.gemstone.findUnique({
+          where: { id: gemstoneId },
+          include: gemstoneWithRelationsInclude,
+        }),
+        prisma.gemstone.findMany({
+          where: {
+            status: 'PUBLISHED',
+            id: { not: gemstoneId },
+          },
+          include: gemstoneWithRelationsInclude,
+          orderBy: [
+            { isNew: 'desc' },
+            { publishedAt: 'desc' },
+            { createdAt: 'desc' },
+          ],
+        }),
+      ]),
+    [null, []] as const,
+    `Similar gemstones unavailable for ${gemstoneId}`
+  );
 
   if (!target) {
     return [];

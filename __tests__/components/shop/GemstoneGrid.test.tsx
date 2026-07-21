@@ -5,23 +5,31 @@ import type { ShopGemstone } from '@/lib/services/shop/types'
 // Mock dependencies
 jest.mock('next/navigation', () => {
   let currentParams = new URLSearchParams()
-  const replaceMock = jest.fn()
+
+  const applyUrl = (url: string) => {
+    const queryIndex = url.indexOf('?')
+    const query = queryIndex >= 0 ? url.slice(queryIndex + 1) : ''
+    currentParams = new URLSearchParams(query)
+  }
+
+  const pushMock = jest.fn((url: string) => {
+    applyUrl(url)
+  })
+  const replaceMock = jest.fn((url: string) => {
+    applyUrl(url)
+  })
 
   return {
     useRouter: () => ({
-      push: jest.fn(),
-      replace: (url: string) => {
-        replaceMock(url)
-        const queryIndex = url.indexOf('?')
-        const query = queryIndex >= 0 ? url.slice(queryIndex + 1) : ''
-        currentParams = new URLSearchParams(query)
-      },
+      push: pushMock,
+      replace: replaceMock,
     }),
     useSearchParams: () => currentParams,
     usePathname: () => '/shop',
     useParams: () => ({ locale: 'de' }),
     __TEST_RESET__: () => {
       currentParams = new URLSearchParams()
+      pushMock.mockClear()
       replaceMock.mockClear()
     },
   }
@@ -117,12 +125,14 @@ describe('GemstoneGrid Component', () => {
   })
 
   it('should open modal when gemstone is clicked', () => {
-    render(<GemstoneGrid gemstones={mockGemstones} />)
-    
+    const { rerender } = render(<GemstoneGrid gemstones={mockGemstones} />)
+
     const detailButtons = screen.getAllByText('Details öffnen')
     fireEvent.click(detailButtons[0])
-    
-    // Modal should open (check for dialog or modal content)
+
+    // router.push updates search params in the mock; re-render so useSearchParams is read again
+    rerender(<GemstoneGrid gemstones={mockGemstones} />)
+
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 

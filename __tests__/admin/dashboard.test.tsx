@@ -28,7 +28,14 @@ jest.mock('@/lib/prisma', () => ({
     checkoutEvent: {
       count: jest.fn(),
     },
+    aiJob: {
+      findMany: jest.fn(),
+    },
   },
+}));
+
+jest.mock('@/components/admin/ai-reindex-panel', () => ({
+  AiReindexPanel: () => <div data-testid="ai-reindex-panel">AI Reindex</div>,
 }));
 
 // Mock next/navigation
@@ -95,6 +102,17 @@ describe('Admin Dashboard', () => {
           return Promise.resolve(0);
       }
     });
+    (prisma.aiJob.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'job-1',
+        type: 'GEMSTONE_REINDEX',
+        status: 'COMPLETED',
+        locale: 'de',
+        createdAt: new Date('2025-01-15'),
+        completedAt: new Date('2025-01-15'),
+        error: null,
+      },
+    ]);
   });
 
   describe('Page Rendering', () => {

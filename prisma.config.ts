@@ -1,3 +1,5 @@
+import './prisma/env-bootstrap';
+
 import { defineConfig } from '@prisma/config';
 
 // Prisma 7: DATABASE_URL muss für Migrationen gesetzt sein
@@ -13,8 +15,10 @@ if (!databaseUrl) {
 }
 
 export default defineConfig({
+  migrations: {
+    seed: 'ts-node --project prisma/tsconfig.seed.json prisma/seed.ts',
+  },
   datasource: {
     url: databaseUrl,
   },
 });
-

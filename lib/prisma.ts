@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -57,6 +57,104 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 // This is critical in production/serverless environments where modules can reload
 globalForPrisma.prisma = prisma;
 
+type ConnectionErrorLike = {
+  code?: string;
+  message?: string;
+};
+
+function connectionErrorFromEntry(err: unknown): boolean {
+  const e = err as ConnectionErrorLike | null | undefined;
+  const errorCode = typeof e?.code === 'string' ? e.code : undefined;
+  const errorMessage = typeof e?.message === 'string' ? e.message : undefined;
+
+  return (
+    errorCode === 'ECONNRESET' ||
+    errorCode === 'ECONNREFUSED' ||
+    errorCode === 'ETIMEDOUT' ||
+    errorCode === 'P1001' ||
+    errorCode === 'P1000' ||
+    errorCode === 'P1017' ||
+    errorMessage?.includes('connection') === true ||
+    errorMessage?.includes('aborted') === true ||
+    errorMessage?.includes('ECONNRESET') === true ||
+    errorMessage?.includes("Can't reach database server") === true ||
+    errorMessage?.includes('DatabaseNotReachable') === true
+  );
+}
+
+/** True for P1001/P1017, TCP/pg pool errors, Prisma 7 driver adapter "not reachable". */
+export function isPrismaConnectionError(error: unknown): boolean {
+  let current: unknown = error;
+  const seen = new Set<unknown>();
+  for (let depth = 0; depth < 8 && current != null && !seen.has(current); depth++) {
+    seen.add(current);
+    if (connectionErrorFromEntry(current)) {
+      return true;
+    }
+    if (typeof current === 'object' && current !== null && 'cause' in current) {
+      current = (current as { cause?: unknown }).cause;
+      continue;
+    }
+    break;
+  }
+  return false;
+}
+
+export function getPrismaConnectionErrorSummary(error: unknown): string {
+  const err = error as ConnectionErrorLike | null | undefined;
+  if (err?.code === 'P1001' || err?.message?.includes("Can't reach database server")) {
+    return err.code ?? 'P1001';
+  }
+  if (error instanceof Error && error.message === 'PRISMA_CONNECT_TIMEOUT') {
+    return 'connect timeout';
+  }
+  return err?.code ?? err?.message ?? 'Unknown database connection error';
+}
+
+/** DB-Query; bei Verbindungsfehler (P1001, …) wird `fallback` zurückgegeben (z. B. leere Liste). */
+export async function runWithDbFallback<T>(operation: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await operation();
+  } catch (error: unknown) {
+    if (isPrismaConnectionError(error)) {
+      return fallback;
+    }
+    throw error;
+  }
+}
+
+type DbReachableCache = { value: boolean; at: number };
+let dbReachableCache: DbReachableCache | null = null;
+const DB_REACHABLE_TTL_MS = 8000;
+
+/**
+ * Einmalige TCP/Query-Prüfung (gecached), z. B. um echte „leere DB“ von „DB down“ zu unterscheiden.
+ */
+export async function probeDatabaseReachable(): Promise<boolean> {
+  const now = Date.now();
+  if (dbReachableCache !== null && now - dbReachableCache.at < DB_REACHABLE_TTL_MS) {
+    return dbReachableCache.value;
+  }
+  try {
+    await Promise.race([
+      prisma.$queryRaw(Prisma.sql`SELECT 1`),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('PRISMA_PROBE_TIMEOUT')), 2000)
+      ),
+    ]);
+    dbReachableCache = { value: true, at: Date.now() };
+    return true;
+  } catch {
+    dbReachableCache = { value: false, at: Date.now() };
+    return false;
+  }
+}
+
+/** Nach erfolgreichem DB-Start Cache zurücksetzen (optional, z. B. Tests). */
+export function resetDatabaseReachableCache(): void {
+  dbReachableCache = null;
+}
+
 // Graceful shutdown handling
 if (process.env.NODE_ENV === 'production') {
   // In production, ensure graceful disconnection on shutdown
@@ -91,27 +189,14 @@ export async function withRetry<T>(
       return await operation();
     } catch (error: unknown) {
       lastError = error;
-
-      const err = error as { code?: string; message?: string };
-      const errorCode = typeof err?.code === 'string' ? err.code : undefined;
-      const errorMessage = typeof err?.message === 'string' ? err.message : undefined;
-      
-      // Check if it's a connection-related error
-      const isConnectionError = 
-        errorCode === 'ECONNRESET' ||
-        errorCode === 'ECONNREFUSED' ||
-        errorCode === 'ETIMEDOUT' ||
-        errorCode === 'P1001' || // Prisma connection error
-        errorCode === 'P1000' || // Prisma authentication error
-        errorCode === 'P1017' || // Prisma server closed connection
-        errorMessage?.includes('connection') ||
-        errorMessage?.includes('aborted') ||
-        errorMessage?.includes('ECONNRESET');
-      
-      if (!isConnectionError || attempt >= maxRetries) {
+      if (!isPrismaConnectionError(error) || attempt >= maxRetries) {
         throw error;
       }
-      
+
+      const err = error as ConnectionErrorLike | null | undefined;
+      const errorCode = typeof err?.code === 'string' ? err.code : undefined;
+      const errorMessage = typeof err?.message === 'string' ? err.message : undefined;
+
       // Exponential backoff: 100ms, 200ms, 400ms
       const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), 1000);
       console.warn(

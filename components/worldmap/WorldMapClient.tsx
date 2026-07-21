@@ -52,9 +52,10 @@ const LazyInteractiveWorldMap = dynamic(
 interface WorldMapClientProps {
   locations: Location[];
   gemTypes: GemType[];
+  locale?: string;
 }
 
-export function WorldMapClient({ locations, gemTypes }: WorldMapClientProps) {
-  return <LazyInteractiveWorldMap locations={locations} gemTypes={gemTypes} />;
+export function WorldMapClient({ locations, gemTypes, locale = 'de' }: WorldMapClientProps) {
+  return <LazyInteractiveWorldMap locations={locations} gemTypes={gemTypes} locale={locale} />;
 }
 
