@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendEmail, emailTemplates } from '@/lib/email';
 import { getSubscribers } from '@/lib/newsletter-storage';
+import { sanitizeForLog } from '@/lib/safe-log';
 
 const BASE_URL =
   process.env.NEXTAUTH_URL ??
@@ -33,7 +34,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`📧 Sending newsletter ${campaignId ?? ''} to ${subscribers.length} subscribers`);
+    console.log(
+      `Sending newsletter ${sanitizeForLog(campaignId ?? '')} to ${subscribers.length} subscribers`
+    );
 
     const results: Array<
       | { email: string; status: 'success'; messageId: string }

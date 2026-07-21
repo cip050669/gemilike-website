@@ -3,6 +3,13 @@ import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import { isPayPalConfigured, PAYPAL_API_BASE_URL } from '@/lib/paypal/config';
 
+/** Allow only PayPal-style order IDs; rebuild from match to clear taint (SSRF). */
+function parsePayPalOrderId(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  const match = raw.trim().match(/^[A-Za-z0-9_-]{1,50}$/);
+  return match ? match[0] : null;
+}
+
 /**
  * Capture PayPal Order
  * 
@@ -34,10 +41,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Restrict paypalOrderId to safe format (prevents request-forgery/SSRF)
-    const safePayPalOrderId = /^[A-Za-z0-9_-]{1,50}$/.test(String(paypalOrderId).trim())
-      ? String(paypalOrderId).trim()
-      : null;
+    const safePayPalOrderId = parsePayPalOrderId(paypalOrderId);
     if (!safePayPalOrderId) {
       return NextResponse.json(
         { error: 'Invalid PayPal Order ID format' },
@@ -69,20 +73,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Capture PayPal order via PayPal API (use validated ID only)
-    const captureResponse = await fetch(
-      `${PAYPAL_API_BASE_URL}/v2/checkout/orders/${safePayPalOrderId}/capture`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${Buffer.from(
-            `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
-          ).toString('base64')}`,
-          'Accept': 'application/json',
-        },
-      }
+    // Fixed API host + validated path segment only (no user-controlled URL)
+    const captureUrl = new URL(
+      `/v2/checkout/orders/${safePayPalOrderId}/capture`,
+      PAYPAL_API_BASE_URL
     );
+    if (
+      captureUrl.origin !== 'https://api-m.paypal.com' &&
+      captureUrl.origin !== 'https://api-m.sandbox.paypal.com'
+    ) {
+      return NextResponse.json({ error: 'Invalid PayPal API host' }, { status: 500 });
+    }
+
+    const captureResponse = await fetch(captureUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${Buffer.from(
+          `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
+        ).toString('base64')}`,
+        Accept: 'application/json',
+      },
+    });
+
 
     if (!captureResponse.ok) {
       const errorData = await captureResponse.json();

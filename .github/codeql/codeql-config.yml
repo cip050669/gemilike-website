@@ -1,0 +1,13 @@
+name: "Gemilike CodeQL config"
+
+paths-ignore:
+  # One-off local scripts / manual smoke tests (not production runtime)
+  - "test-*.js"
+  - "fix-mobile-testing.js"
+  - "get-ngrok-url.js"
+  - "simple-mobile-server.js"
+  - "start-mobile-server.js"
+  - "node_modules"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/__tests__/**"

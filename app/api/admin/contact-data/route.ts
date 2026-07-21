@@ -59,7 +59,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log('Received contact data:', data);
+    console.log('Received contact data keys:', Object.keys(data ?? {}).join(','));
     
     // Aktualisiere Kontaktdaten
     try {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
+import { sanitizeForLog } from '@/lib/safe-log';
 
 // GET - Länder und Lagerstätten abrufen
 export async function GET() {
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log('Creating country:', data);
+    console.log('Creating country:', sanitizeForLog(data));
 
     // Erstelle neues Land
     const country = await prisma.country.create({
@@ -107,7 +108,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log('Updating country:', data);
+    console.log('Updating country:', sanitizeForLog(data));
 
     // Aktualisiere Land
     const country = await prisma.country.update({
@@ -148,14 +149,14 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Country ID is required' }, { status: 400 });
     }
 
-    console.log('Deleting country:', countryId);
+    console.log('Deleting country:', sanitizeForLog(countryId));
 
     // Lösche Land (Cascade löscht auch alle Lagerstätten)
     await prisma.country.delete({
       where: { id: countryId }
     });
 
-    console.log('Country deleted:', countryId);
+    console.log('Country deleted:', sanitizeForLog(countryId));
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting country:', error);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isPayPalConfigured } from '@/lib/paypal/config';
+import { sanitizeForLog } from '@/lib/safe-log';
 
 /** Webhook-Resource von PayPal (Auszug) */
 interface PayPalWebhookResource {
@@ -10,9 +11,9 @@ interface PayPalWebhookResource {
 
 /**
  * PayPal Webhook Handler
- * 
+ *
  * This endpoint handles PayPal webhook events for payment notifications.
- * 
+ *
  * Configure webhook URL in PayPal Dashboard:
  * https://developer.paypal.com/dashboard/applications/sandbox (Sandbox)
  * https://developer.paypal.com/dashboard/applications (Live)
@@ -31,7 +32,11 @@ export async function POST(request: NextRequest) {
     const eventType = body.event_type;
     const resource = body.resource;
 
-    console.log('PayPal Webhook Event:', eventType, resource?.id);
+    console.log(
+      'PayPal Webhook Event:',
+      sanitizeForLog(eventType),
+      sanitizeForLog(resource?.id)
+    );
 
     // Handle different event types
     switch (eventType) {
@@ -52,7 +57,7 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.log('Unhandled PayPal webhook event:', eventType);
+        console.log('Unhandled PayPal webhook event:', sanitizeForLog(eventType));
     }
 
     return NextResponse.json({ received: true });
@@ -96,7 +101,7 @@ async function handlePaymentCaptureCompleted(resource: PayPalWebhookResource) {
             }),
           },
         });
-        console.log(`Order ${order.id} marked as PAID via PayPal webhook`);
+        console.log(`Order ${sanitizeForLog(order.id)} marked as PAID via PayPal webhook`);
       }
     }
   } catch (error) {
@@ -133,7 +138,7 @@ async function handlePaymentCaptureDenied(resource: PayPalWebhookResource) {
             }),
           },
         });
-        console.log(`Order ${order.id} marked as FAILED via PayPal webhook`);
+        console.log(`Order ${sanitizeForLog(order.id)} marked as FAILED via PayPal webhook`);
       }
     }
   } catch (error) {
@@ -144,7 +149,7 @@ async function handlePaymentCaptureDenied(resource: PayPalWebhookResource) {
 async function handleOrderApproved(resource: PayPalWebhookResource) {
   try {
     const orderId = resource.id;
-    console.log(`PayPal order ${orderId} approved by customer`);
+    console.log(`PayPal order ${sanitizeForLog(orderId)} approved by customer`);
     // Order approval is handled client-side, webhook is just for logging
   } catch (error) {
     console.error('Error handling order approved:', error);
@@ -154,5 +159,3 @@ async function handleOrderApproved(resource: PayPalWebhookResource) {
 // Allow webhook to be called without authentication (PayPal verifies via signature)
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
-

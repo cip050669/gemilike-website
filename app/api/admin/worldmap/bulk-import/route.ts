@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
+import { sanitizeForLog } from '@/lib/safe-log';
 
 interface ImportData {
   name: string;
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
               continent: getContinentFromCountry(item.country)
             }
           });
-          console.log(`Neues Land erstellt: ${item.country}`);
+          console.log(`Neues Land erstellt: ${sanitizeForLog(item.country)}`);
         }
 
         // 2. Edelstein-Typ finden oder erstellen
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
               description: getGemDescription(item.gem)
             }
           });
-          console.log(`Neuer Edelstein-Typ erstellt: ${item.gem}`);
+          console.log(`Neuer Edelstein-Typ erstellt: ${sanitizeForLog(item.gem)}`);
         }
 
         // 3. Lagerstätte erstellen
@@ -89,11 +90,13 @@ export async function POST(request: NextRequest) {
         });
 
         results.imported++;
-        console.log(`Lagerstätte erstellt: ${item.name} in ${item.country}`);
+        console.log(
+          `Lagerstätte erstellt: ${sanitizeForLog(item.name)} in ${sanitizeForLog(item.country)}`
+        );
 
       } catch (error: unknown) {
         const err = error as Error;
-        const errorMessage = `Fehler bei ${item.name} (${item.country}): ${err.message}`;
+        const errorMessage = `Fehler bei ${sanitizeForLog(item.name)} (${sanitizeForLog(item.country)}): ${sanitizeForLog(err.message)}`;
         results.errors.push(errorMessage);
         console.error(errorMessage);
       }

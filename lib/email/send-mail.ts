@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { basename, join, resolve } from 'path';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 
@@ -11,14 +11,23 @@ const smtpSecure = process.env.SMTP_SECURE === 'true';
 const smtpUser = process.env.SMTP_USER || 'info@gemilike.com';
 const smtpPassword = process.env.SMTP_PASSWORD || process.env.SMTP_PASS || '';
 const smtpFrom = process.env.SMTP_FROM || smtpUser || 'noreply@gemilike.com';
-const smtpMockDir = process.env.SMTP_OUTPUT_DIR || 'tmp/emails';
+/** Relative output dir only — reject absolute / traversal paths from env */
+const smtpMockDir = (() => {
+  const raw = (process.env.SMTP_OUTPUT_DIR || 'tmp/emails').replace(/\\/g, '/');
+  const segments = raw.split('/').filter((s) => s && s !== '.' && s !== '..');
+  return segments.length > 0 ? segments.join('/') : 'tmp/emails';
+})();
 const smtpFallbackToFile =
   (process.env.SMTP_FALLBACK_TO_FILE || '').toLowerCase() === 'true';
 
 const ensureMockDir = async () => {
   const { mkdir } = await import('fs/promises');
-  const { join: pathJoin } = await import('path');
-  const dirPath = pathJoin(/* turbopackIgnore: true */ process.cwd(), smtpMockDir);
+  const cwd = /* turbopackIgnore: true */ process.cwd();
+  const root = resolve(cwd);
+  const dirPath = resolve(cwd, smtpMockDir);
+  if (dirPath !== root && !dirPath.startsWith(root + '/')) {
+    throw new Error('Invalid SMTP_OUTPUT_DIR');
+  }
   await mkdir(dirPath, { recursive: true });
   return dirPath;
 };
@@ -44,20 +53,17 @@ const createSmtpTransport = () =>
 const baseTransporter =
   transportMode === 'file' ? createFileTransport() : createSmtpTransport();
 
-const sanitizeForFile = (value: string) =>
-  value.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase();
-
-const writeMockEmail = async (
-  info: nodemailer.SentMessageInfo,
-  subjectLine?: string,
-  fallbackFile?: string
-) => {
+const writeMockEmail = async (info: nodemailer.SentMessageInfo) => {
   const dir = await ensureMockDir();
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const random = crypto.randomBytes(4).toString('hex');
-  const fileName =
-    fallbackFile ??
-    `${stamp}-${random}-${subjectLine ? sanitizeForFile(subjectLine).slice(0, 40) : 'message'}.eml`;
+  // Filename is fully server-generated — never derived from email subject/body
+  const fileName = basename(`${stamp}-${random}-message.eml`);
+  const targetPath = join(dir, fileName);
+  const resolvedTarget = resolve(targetPath);
+  if (resolvedTarget !== dir && !resolvedTarget.startsWith(dir + '/')) {
+    throw new Error('Refusing to write email outside mock directory');
+  }
 
   const content =
     typeof info.message === 'string'
@@ -67,7 +73,7 @@ const writeMockEmail = async (
         : info.response || JSON.stringify(info, null, 2);
 
   const { writeFile } = await import('fs/promises');
-  await writeFile(join(dir, fileName), content);
+  await writeFile(targetPath, content);
   return fileName;
 };
 
@@ -89,7 +95,7 @@ export async function sendEmail({
     });
 
     if ('streamTransport' in transporter.options) {
-      const messageId = await writeMockEmail(info, subject ?? undefined);
+      const messageId = await writeMockEmail(info);
       return { success: true as const, messageId };
     }
 

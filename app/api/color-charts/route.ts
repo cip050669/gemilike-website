@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
+import { sanitizeForLog } from '@/lib/safe-log';
 
 // Helper function to generate slug
 function generateSlug(name: string): string {
@@ -72,7 +73,9 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    console.log(`[API] Returning ${serializedCharts.length} charts for locale=${locale}, published=${published || 'all'}, isAdmin=${isAdmin}`);
+    console.log(
+      `[API] Returning ${serializedCharts.length} charts for locale=${sanitizeForLog(locale)}, published=${sanitizeForLog(published || 'all')}, isAdmin=${isAdmin}`
+    );
     if (serializedCharts.length > 0) {
       console.log(`[API] First chart:`, {
         id: serializedCharts[0].id,

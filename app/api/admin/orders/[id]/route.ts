@@ -7,6 +7,7 @@ import {
   updateOrder,
   type ShopOrder,
 } from '@/lib/services/shop/order.service';
+import { sanitizeForLog } from '@/lib/safe-log';
 
 const parseAmount = (value: unknown) => {
   if (value === null || value === undefined || value === '') {
@@ -115,7 +116,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         invoiceDispatched = true;
       } catch (error) {
         invoiceError = (error as Error).message;
-        console.error('Rechnung konnte nicht generiert oder versendet werden:', error);
+        console.error('Rechnung konnte nicht generiert oder versendet werden:', sanitizeForLog(error));
       }
     }
 
@@ -243,7 +244,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           await regenerateAndSendInvoice(updatedOrder.id);
         } catch (error) {
           console.error(
-            `Rechnung konnte nach Formular-Update nicht versendet werden: ${(error as Error).message}`
+            `Rechnung konnte nach Formular-Update nicht versendet werden: ${sanitizeForLog((error as Error).message)}`
           );
         }
       }

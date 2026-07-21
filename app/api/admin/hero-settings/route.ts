@@ -6,6 +6,7 @@ import {
   getDefaultHeroSettings,
 } from '@/lib/data/hero-settings';
 import { regenerateAndSendInvoice } from '@/lib/services/invoice';
+import { sanitizeForLog } from '@/lib/safe-log';
 
 export async function GET() {
   try {
@@ -59,7 +60,7 @@ export async function PUT(request: NextRequest) {
     try {
       await regenerateAndSendInvoice('order-placeholder');
     } catch (error) {
-      console.warn('Invoice regeneration skipped:', error);
+      console.warn('Invoice regeneration skipped:', sanitizeForLog(error));
     }
 
     return NextResponse.json({ success: true, settings: saved });
