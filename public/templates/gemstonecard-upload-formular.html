@@ -1,1226 +1,1258 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GemstoneCard - Vollständiges Upload-Formular</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 30px;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-        
-        .form-group.conditional {
-            display: none;
-        }
-        
-        .form-group.conditional.show {
-            display: flex;
-        }
-        
-        label {
-            font-weight: 600;
-            color: #444;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        
-        label.required::after {
-            content: " *";
-            color: #dc3545;
-        }
-        
-        input[type="text"],
-        input[type="number"],
-        input[type="url"],
-        select,
-        textarea {
-            padding: 10px 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #e0e0e0;
-        }
-        
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-        
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-        
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #667eea;
-            margin: 30px 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        
-        .section-title:first-of-type {
-            margin-top: 0;
-        }
-        
-        .help-text {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        .records-section {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 3px solid #667eea;
-        }
-        
-        .records-list {
-            display: grid;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .record-item {
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-        }
-        
-        .record-item:hover {
-            border-color: #667eea;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-        }
-        
-        .record-info {
-            flex: 1;
-        }
-        
-        .record-info strong {
-            color: #667eea;
-            font-size: 16px;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .record-info span {
-            color: #666;
-            font-size: 13px;
-            margin-right: 15px;
-        }
-        
-        .record-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 13px;
-            border-radius: 4px;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .btn-edit {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-edit:hover {
-            background: #218838;
-        }
-        
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border: 1px solid #c3e6cb;
-            display: none;
-        }
-        
-        .csv-output {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border: 2px solid #e0e0e0;
-        }
-        
-        .csv-output h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        textarea#csvOutputText {
-            width: 100%;
-            min-height: 300px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            background: white;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GemstoneCard – CSV-Eingabeformular</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #ffffff;
+      --ink: #1e293b;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --danger: #b91c1c;
+      --ok: #15803d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #134e4a 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #1e3a5f 0%, transparent 50%),
+        var(--bg);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: var(--panel);
+      border-radius: 14px;
+      box-shadow: 0 24px 60px rgba(2, 8, 23, 0.35);
+      padding: 28px;
+    }
+
+    h1 { font-size: 1.6rem; margin-bottom: 6px; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 22px; line-height: 1.45; }
+    .subtitle a { color: var(--accent); }
+
+    .banner {
+      background: #f0fdfa;
+      border: 1px solid #99f6e4;
+      color: #115e59;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      line-height: 1.45;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 28px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label { font-size: 0.85rem; font-weight: 600; }
+    label.required::after { content: " *"; color: var(--danger); }
+
+    input, select, textarea {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      background: #fff;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid #5eead4;
+      border-color: var(--accent);
+    }
+
+    textarea { min-height: 78px; resize: vertical; }
+    .help { font-size: 0.75rem; color: var(--muted); }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 650;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: #f1f5f9; color: var(--ink); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-small { padding: 6px 10px; font-size: 0.8rem; }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .media-box {
+      border: 1px dashed #94a3b8;
+      border-radius: 10px;
+      padding: 14px;
+      background: #f8fafc;
+    }
+
+    .media-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .media-controls input[type="url"],
+    .media-controls input[type="text"] {
+      flex: 1 1 220px;
+      min-width: 180px;
+    }
+
+    .media-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .media-item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .media-thumb {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    .media-meta { flex: 1; min-width: 0; font-size: 0.82rem; word-break: break-all; }
+    .media-meta strong { display: block; margin-bottom: 2px; }
+
+    .success {
+      display: none;
+      background: #dcfce7;
+      color: var(--ok);
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+
+    .records-section { margin-top: 28px; }
+    .records-list { display: grid; gap: 10px; }
+
+    .record-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+
+    .record-info strong { display: block; margin-bottom: 4px; }
+    .record-info span { color: var(--muted); font-size: 0.82rem; margin-right: 10px; }
+    .record-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .csv-panel {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      background: #f8fafc;
+      display: none;
+    }
+
+    .csv-panel h3 { margin-bottom: 10px; }
+    #csvOutputText {
+      width: 100%;
+      min-height: 220px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.75rem;
+    }
+
+    .check-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+      padding-top: 6px;
+    }
+
+    .check-row label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .check-row input { width: 16px; height: 16px; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>GemstoneCard - Vollständiges Upload-Formular</h1>
-        <p class="subtitle">Erfassen Sie alle Felder der GemstoneCard mit Dropdown-Auswahlfeldern. Mehrere Datensätze können hinzugefügt und als CSV exportiert werden.</p>
-        
-        <div class="success-message" id="successMessage">
-            ✓ Datensatz erfolgreich hinzugefügt!
-        </div>
-        
-        <form id="gemstoneForm">
-            <div class="section-title">Grundinformationen</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="name" class="required">Name</label>
-                    <input type="text" id="name" name="name" required placeholder="z.B. Smaragd 2.5 Karat">
-                </div>
-                
-                <div class="form-group">
-                    <label for="type" class="required">Typ</label>
-                    <select id="type" name="type" required onchange="toggleTypeFields()">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="cut">Geschliffen (Cut)</option>
-                        <option value="rough">Rohstein (Rough)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="category" class="required">Kategorie</label>
-                    <select id="category" name="category" required>
-                        <option value="">-- Bitte wählen --</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="origin" class="required">Herkunft</label>
-                    <select id="origin" name="origin" required>
-                        <option value="">-- Bitte wählen --</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="originType">Entstehung</label>
-                    <select id="originType" name="originType">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="natürlich">Natürlich</option>
-                        <option value="synthetisch">Synthetisch</option>
-                        <option value="Imitation">Imitation</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="price" class="required">Preis (Brutto)</label>
-                    <input type="text" id="price" name="price" inputmode="decimal" pattern="[0-9.,\s]*" required placeholder="z.B. 1.600,00">
-                </div>
-                
-                <div class="form-group">
-                    <label for="currency" class="required">Währung</label>
-                    <select id="currency" name="currency" required>
-                        <option value="EUR" selected>EUR</option>
-                        <option value="USD">USD</option>
-                        <option value="GBP">GBP</option>
-                        <option value="CHF">CHF</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="section-title">Gewicht und Abmessungen</div>
-            <div class="form-grid">
-                <div class="form-group" id="caratWeightGroup">
-                    <label for="caratWeight">Karat (ct)</label>
-                    <input type="text" id="caratWeight" name="caratWeight" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 2,50">
-                </div>
-                
-                <div class="form-group" id="gramWeightGroup">
-                    <label for="gramWeight">Gewicht (g)</label>
-                    <input type="text" id="gramWeight" name="gramWeight" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 5,00">
-                </div>
-                
-                <div class="form-group">
-                    <label for="length">Länge (mm)</label>
-                    <input type="text" id="length" name="length" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 12,12">
-                </div>
-                
-                <div class="form-group">
-                    <label for="width">Breite (mm)</label>
-                    <input type="text" id="width" name="width" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 10,38">
-                </div>
-                
-                <div class="form-group">
-                    <label for="height">Höhe (mm)</label>
-                    <input type="text" id="height" name="height" inputmode="decimal" pattern="[0-9.,\s]*" placeholder="z.B. 7,62">
-                </div>
-            </div>
-            
-            <div class="section-title">Farbe und Eigenschaften</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="color" class="required">Farbe</label>
-                    <select id="color" name="color" required>
-                        <option value="">-- Bitte wählen --</option>
-                    </select>
-                </div>
-                
-                <div class="form-group conditional" id="colorIntensityGroup">
-                    <label for="colorIntensity">Farbsättigung</label>
-                    <select id="colorIntensity" name="colorIntensity">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="Pale">Pale (sehr hell)</option>
-                        <option value="Light">Light (hell)</option>
-                        <option value="Medium">Medium (mittel)</option>
-                        <option value="Intense">Intense (intensiv)</option>
-                        <option value="Vivid">Vivid (sehr intensiv)</option>
-                        <option value="Deep">Deep (dunkel)</option>
-                        <option value="Rich">Rich (satt)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group conditional" id="colorSaturationGroup">
-                    <label for="colorSaturation">Helligkeit (1-10)</label>
-                    <input type="number" id="colorSaturation" name="colorSaturation" min="1" max="10" placeholder="1-10">
-                    <div class="help-text">Helligkeitsskala von 1 (weiß) bis 10 (schwarz)</div>
-                </div>
-                
-                <div class="form-group conditional" id="clarityGroup">
-                    <label for="clarity">Reinheit</label>
-                    <select id="clarity" name="clarity">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="FL">FL - Flawless (Lupenrein, keine Einschlüsse)</option>
-                        <option value="VVS">VVS - Very Very Slightly Included</option>
-                        <option value="VS">VS - Very Slightly Included</option>
-                        <option value="SI">SI - Slightly Included</option>
-                        <option value="I">I - Included</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="section-title">Schliff (nur für geschliffene Edelsteine)</div>
-            <div class="form-grid">
-                <div class="form-group conditional" id="cutGroup">
-                    <label for="cut">Schliffart</label>
-                    <select id="cut" name="cut">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="Brillant-Schliff">Brillant-Schliff</option>
-                        <option value="Stufen-Schliff">Stufen-Schliff</option>
-                        <option value="Konkav-Schliff">Konkav-Schliff</option>
-                        <option value="Portugiesischer Schliff">Portugiesischer Schliff</option>
-                        <option value="Treppen-Schliff">Treppen-Schliff</option>
-                        <option value="Rosen-Schliff">Rosen-Schliff</option>
-                        <option value="Schachbrett-Schliff">Schachbrett-Schliff</option>
-                        <option value="Mischschliff">Mischschliff</option>
-                        <option value="Cabochon">Cabochon</option>
-                    </select>
-                </div>
-                
-                <div class="form-group conditional" id="cutFormGroup">
-                    <label for="cutForm">Schliffform</label>
-                    <select id="cutForm" name="cutForm">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="Rund">Rund</option>
-                        <option value="Oval">Oval</option>
-                        <option value="Kissen">Kissen</option>
-                        <option value="Herz">Herz</option>
-                        <option value="Tropfen">Tropfen</option>
-                        <option value="Marquise">Marquise</option>
-                        <option value="Princess">Princess</option>
-                        <option value="Brillant">Brillant</option>
-                        <option value="Smaragd">Smaragd</option>
-                        <option value="Baguette">Baguette</option>
-                        <option value="Asscher">Asscher</option>
-                        <option value="Trillion">Trillion</option>
-                        <option value="Fancy">Fancy</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="section-title">Rohstein-Eigenschaften (nur für Rohsteine)</div>
-            <div class="form-grid">
-                <div class="form-group conditional" id="crystalFormGroup">
-                    <label for="crystalForm">Kristallform</label>
-                    <input type="text" id="crystalForm" name="crystalForm" placeholder="z.B. Prismatisch">
-                </div>
-                
-                <div class="form-group conditional" id="crystalQualityGroup">
-                    <label for="crystalQuality">Kristallqualität</label>
-                    <select id="crystalQuality" name="crystalQuality">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="sehr gut">Sehr gut</option>
-                        <option value="gut">Gut</option>
-                        <option value="zufriedenstellend">Zufriedenstellend</option>
-                        <option value="ausreichend">Ausreichend</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="section-title">Behandlung und Zertifizierung</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="treatment">Behandlung</label>
-                    <select id="treatment" name="treatment">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="none">Keine Behandlung</option>
-                        <option value="heated">Erhitzt</option>
-                        <option value="oiled">Geölt</option>
-                        <option value="irradiated">Bestrahlt</option>
-                        <option value="diffused">Diffusionsbehandlung</option>
-                        <option value="coated">Beschichtet</option>
-                        <option value="bleached">Gebleicht</option>
-                        <option value="filled">Gefüllt (Fracture Filling)</option>
-                        <option value="stabilized">Stabilisiert</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="certification">Zertifizierung</label>
-                    <select id="certification" name="certification">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="GIA">GIA</option>
-                        <option value="IGI">IGI</option>
-                        <option value="HRD">HRD</option>
-                        <option value="SSEF">SSEF</option>
-                        <option value="Gübelin">Gübelin</option>
-                        <option value="DSEF">DSEF</option>
-                        <option value="AIGS">AIGS</option>
-                        <option value="GRS">GRS</option>
-                        <option value="GemResearch Swisslab">GemResearch Swisslab</option>
-                        <option value="ICI">ICI</option>
-                        <option value="none">Keine Zertifizierung</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="certificationNumber">Zertifikatsnummer</label>
-                    <input type="text" id="certificationNumber" name="certificationNumber" placeholder="z.B. ICI-2024-001">
-                </div>
-                
-                <div class="form-group">
-                    <label for="certificationUrl">Zertifikats-URL</label>
-                    <input type="url" id="certificationUrl" name="certificationUrl" placeholder="https://...">
-                </div>
-            </div>
-            
-            <div class="section-title">Weitere Informationen</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="rarity">Rarität</label>
-                    <select id="rarity" name="rarity">
-                        <option value="">-- Bitte wählen --</option>
-                        <option value="Gewöhnlich">Gewöhnlich</option>
-                        <option value="Häufig">Häufig</option>
-                        <option value="Selten">Selten</option>
-                        <option value="Sehr selten">Sehr selten</option>
-                        <option value="außergewöhnliches">Außergewöhnlich</option>
-                        <option value="Einzigartig">Einzigartig</option>
-                        <option value="Museumsqualität">Museumsqualität</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="stock">Bestand</label>
-                    <input type="number" id="stock" name="stock" min="0" value="1">
-                </div>
-                
-                <div class="form-group full-width">
-                    <label for="description">Beschreibung</label>
-                    <textarea id="description" name="description" placeholder="Beschreibung des Edelsteins..."></textarea>
-                </div>
-                
-                <div class="form-group full-width">
-                    <label for="images">Bilder (URLs, durch Komma getrennt)</label>
-                    <textarea id="images" name="images" placeholder="/products/gem1.jpg,/products/gem2.jpg"></textarea>
-                    <div class="help-text">Mehrere URLs durch Komma trennen</div>
-                </div>
-                
-                <div class="form-group full-width">
-                    <label for="videos">Videos (URLs, durch Komma getrennt)</label>
-                    <textarea id="videos" name="videos" placeholder="/products/video1.mp4"></textarea>
-                    <div class="help-text">Mehrere URLs durch Komma trennen</div>
-                </div>
-                
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="isNew" name="isNew" value="true">
-                    <label for="isNew" style="margin: 0;">Neu</label>
-                </div>
-                
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="featured" name="featured" value="true">
-                    <label for="featured" style="margin: 0;">Featured</label>
-                </div>
-                
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="inStock" name="inStock" value="true" checked>
-                    <label for="inStock" style="margin: 0;">Verfügbar</label>
-                </div>
-            </div>
-            
-            <div class="button-group">
-                <button type="button" class="btn-primary" onclick="addRecord()">Datensatz hinzufügen</button>
-                <button type="button" class="btn-secondary" onclick="clearForm()">Formular zurücksetzen</button>
-            </div>
-        </form>
-        
-        <div class="records-section" id="recordsSection" style="display: none;">
-            <div class="section-title">Gespeicherte Datensätze (<span id="recordCount">0</span>)</div>
-            <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 12px; margin-bottom: 15px; font-size: 13px; color: #004085;">
-                <strong>ℹ️ Hinweis:</strong> Ihre Datensätze werden automatisch im Browser gespeichert und bleiben auch nach einem Seitenneuladen erhalten. Sie können die CSV-Datei jederzeit generieren und herunterladen.
-            </div>
-            <div id="recordsList" class="records-list"></div>
-            <div class="button-group" style="margin-top: 20px;">
-                <button type="button" class="btn-primary" onclick="generateCSV()">CSV generieren und herunterladen</button>
-                <button type="button" class="btn-secondary" onclick="exportJSON()">Als JSON exportieren</button>
-                <button type="button" class="btn-secondary" onclick="printRecords()">Drucken</button>
-                <button type="button" class="btn-secondary" onclick="validateRecords()">Daten validieren</button>
-                <button type="button" class="btn-secondary" onclick="clearAllRecords()">Alle Datensätze löschen</button>
-            </div>
-            <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 13px;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" id="autoDeleteAfterExport" style="width: 18px; height: 18px;">
-                    <span>Nach CSV-Export automatisch alle Datensätze löschen</span>
-                </label>
-            </div>
-        </div>
-        
-        <div class="csv-output" id="csvOutput" style="display: none;">
-            <h3>Generierte CSV-Daten</h3>
-            <textarea id="csvOutputText" readonly></textarea>
-            <div class="button-group" style="margin-top: 15px;">
-                <button type="button" class="btn-primary" onclick="downloadCSV()">CSV herunterladen</button>
-                <button type="button" class="btn-secondary" onclick="copyToClipboard()">In Zwischenablage kopieren</button>
-                <button type="button" class="btn-secondary" onclick="exportAsExcel()">Als Excel exportieren</button>
-            </div>
-        </div>
-        
-        <div class="csv-output" id="jsonOutput" style="display: none; margin-top: 20px;">
-            <h3>Generierte JSON-Daten</h3>
-            <textarea id="jsonOutputText" readonly style="min-height: 200px;"></textarea>
-            <div class="button-group" style="margin-top: 15px;">
-                <button type="button" class="btn-primary" onclick="downloadJSON()">JSON herunterladen</button>
-                <button type="button" class="btn-secondary" onclick="copyJSONToClipboard()">In Zwischenablage kopieren</button>
-            </div>
-        </div>
-        
-        <div id="validationResults" style="display: none; margin-top: 20px; padding: 15px; border-radius: 6px; background: #fff3cd; border: 1px solid #ffc107;">
-            <h3 style="margin-bottom: 10px; color: #856404;">Validierungs-Ergebnisse</h3>
-            <div id="validationContent"></div>
-        </div>
+  <div class="container">
+    <h1>GemstoneCard – CSV-Eingabeformular</h1>
+    <p class="subtitle">
+      Erfasst Edelsteine im Format der Admin-Vorlage
+      (<a href="/templates/edelsteine-upload-vorlage.csv" target="_blank" rel="noopener">edelsteine-upload-vorlage.csv</a>)
+      für den Import unter <code>/de/admin/gemstones/</code>.
+      Bilder und Videos werden als Pfade oder URLs in den CSV-Spalten <strong>Bilder</strong> und <strong>Videos</strong> gespeichert.
+    </p>
+
+    <div class="banner">
+      <strong>Medien-Hinweis:</strong> Dateiauswahl speichert Pfade wie
+      <code>/uploads/gemstones/dateiname.jpg</code> in der CSV (kein Binär-Upload hier).
+      Legen Sie die Dateien unter <code>public/uploads/gemstones/</code> ab oder tragen Sie fertige URLs ein.
+      Mehrere Medien: kommagetrennt.
     </div>
-    
-    <script>
-        // Optionen aus Konstanten
-        const CATEGORIES = ['Achat', 'Albit', 'Alexandrit', 'Amazonit', 'Amethyst', 'Andalusit', 'Andradit', 'Apatit', 'Aquamarin', 'Aventurin', 'Azurit', 'Benitoit', 'Beryll', 'Beryllonit', 'Bixbit', 'Brasilianit', 'Calcit', 'Carnelian', 'Cerussit', 'Chalcedon', 'Charoit', 'Chrysoberyll', 'Chrysokoll', 'Chrysopras', 'Citrin', 'Cordierit', 'Danburit', 'Demantoid', 'Diamant', 'Diopsid', 'Dumortierit', 'Ekanit', 'Epidot', 'Eudialyt', 'Fenakit', 'Fluorit', 'Garnet', 'Goshenit', 'Grossular', 'Hämatit', 'Hambergit', 'Heliodor', 'Hessonit', 'Hiddenit', 'Howlith', 'Hypersthen', 'Iolith', 'Jade', 'Jadeit', 'Jaspis', 'Jeremejewit', 'Korund', 'Kunzit', 'Kyanit', 'Labradorit', 'Lapis Lazuli', 'Larimar', 'Lazulith', 'Lepidolith', 'Magnetit', 'Malachit', 'Moldavit', 'Mondstein', 'Morganit', 'Obsidian', 'Opal', 'Padparadscha', 'Peridot', 'Perowskit', 'Phenakit', 'Prehnit', 'Pyrit', 'Pyrop', 'Quarz', 'Rhodochrosit', 'Rhodolith', 'Rhodonit', 'Rubin', 'Rutil', 'Saphir', 'Sardonyx', 'Schörl', 'Selenit', 'Serpentin', 'Smaragd', 'Smithsonit', 'Spessartin', 'Spinell', 'Sphalerit', 'Spodumen', 'Staurolith', 'Sunstone', 'Tansanit', 'Tanzanit', 'Tigerauge', 'Topas', 'Tourmalin', 'Tsavorit', 'Turmalin', 'Türkis', 'Uvarovit', 'Variscit', 'Vesuvianit', 'Zirkon', 'Zoisit', 'Zultanit'].sort();
-        
-        const COUNTRIES = ['Afghanistan', 'Ägypten', 'Albanien', 'Algerien', 'Andorra', 'Angola', 'Antigua und Barbuda', 'Äquatorialguinea', 'Argentinien', 'Armenien', 'Aserbaidschan', 'Äthiopien', 'Australien', 'Bahamas', 'Bahrain', 'Bangladesch', 'Barbados', 'Belarus', 'Belgien', 'Belize', 'Benin', 'Bhutan', 'Bolivien', 'Bosnien und Herzegowina', 'Botswana', 'Brasilien', 'Brunei', 'Bulgarien', 'Burkina Faso', 'Burundi', 'Chile', 'China', 'Costa Rica', 'Dänemark', 'Deutschland', 'Dominica', 'Dominikanische Republik', 'Dschibuti', 'Ecuador', 'El Salvador', 'Elfenbeinküste', 'Eritrea', 'Estland', 'Eswatini', 'Fidschi', 'Finnland', 'Frankreich', 'Gabun', 'Gambia', 'Georgien', 'Ghana', 'Grenada', 'Griechenland', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Indien', 'Indonesien', 'Irak', 'Iran', 'Irland', 'Island', 'Israel', 'Italien', 'Jamaika', 'Japan', 'Jemen', 'Jordanien', 'Kambodscha', 'Kamerun', 'Kanada', 'Kap Verde', 'Kasachstan', 'Katar', 'Kenia', 'Kirgisistan', 'Kiribati', 'Kolumbien', 'Komoren', 'Kongo', 'Demokratische Republik Kongo', 'Kroatien', 'Kuba', 'Kuwait', 'Laos', 'Lesotho', 'Lettland', 'Libanon', 'Liberia', 'Libyen', 'Liechtenstein', 'Litauen', 'Luxemburg', 'Madagaskar', 'Malawi', 'Malaysia', 'Malediven', 'Mali', 'Malta', 'Marokko', 'Marshallinseln', 'Mauretanien', 'Mauritius', 'Mexiko', 'Mikronesien', 'Moldau', 'Monaco', 'Mongolei', 'Montenegro', 'Mosambik', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Neuseeland', 'Nicaragua', 'Niederlande', 'Niger', 'Nigeria', 'Nordkorea', 'Nordmazedonien', 'Norwegen', 'Oman', 'Österreich', 'Pakistan', 'Palau', 'Panama', 'Papua-Neuguinea', 'Paraguay', 'Peru', 'Philippinen', 'Polen', 'Portugal', 'Ruanda', 'Rumänien', 'Russland', 'Salomonen', 'Sambia', 'Samoa', 'San Marino', 'São Tomé und Príncipe', 'Saudi-Arabien', 'Schweden', 'Schweiz', 'Senegal', 'Serbien', 'Seychellen', 'Sierra Leone', 'Simbabwe', 'Singapur', 'Slowakei', 'Slowenien', 'Somalia', 'Spanien', 'Sri Lanka', 'St. Kitts und Nevis', 'St. Lucia', 'St. Vincent und die Grenadinen', 'Südafrika', 'Sudan', 'Südkorea', 'Südsudan', 'Suriname', 'Syrien', 'Tadschikistan', 'Taiwan', 'Tansania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad und Tobago', 'Tschad', 'Tschechien', 'Tunesien', 'Türkei', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'Ungarn', 'Uruguay', 'USA', 'Usbekistan', 'Vanuatu', 'Vatikanstadt', 'Venezuela', 'Vereinigte Arabische Emirate', 'Vietnam', 'Weißrussland', 'Zentralafrikanische Republik', 'Zypern'].sort();
-        
-        const COLORS = ['Achatgrau', 'Aprikose', 'Aquamarinblau', 'Aschgrau', 'Beige', 'Bernstein', 'Bisquit', 'Blassblau', 'Blassgelb', 'Blassgrün', 'Blasslila', 'Blassrosa', 'Blau', 'Blau-Grün', 'Blau-Violett', 'Bläulich', 'Bläulich-Grün', 'Bläulich-Violett', 'Braun', 'Braun-Gelb', 'Braun-Rot', 'Bronze', 'Champagner', 'Chromgrün', 'Cognac', 'Cyan', 'Dunkelblau', 'Dunkelbraun', 'Dunkelgelb', 'Dunkelgrau', 'Dunkelgrün', 'Dunkellila', 'Dunkelorange', 'Dunkelrosa', 'Dunkelrot', 'Dunkeltürkis', 'Dunkelviolett', 'Eisblau', 'Elfenbein', 'Emeraldgrün', 'Farblos', 'Feuerrot', 'Flieder', 'Gelb', 'Gelb-Grün', 'Gelb-Orange', 'Gelblich', 'Gelblich-Grün', 'Gold', 'Goldgelb', 'Grau', 'Grau-Blau', 'Grau-Grün', 'Grün', 'Grün-Blau', 'Grün-Gelb', 'Grünlich', 'Grünlich-Blau', 'Himmelblau', 'Honiggelb', 'Indigo', 'Jadegrün', 'Kamel', 'Karminrot', 'Kastanienbraun', 'Kobaltblau', 'Koralle', 'Kupfer', 'Lachs', 'Lavendel', 'Lemon', 'Lila', 'Lila-Blau', 'Lila-Rot', 'Magenta', 'Mahagoni', 'Marineblau', 'Mint', 'Moosgrün', 'Navy', 'Ocker', 'Oliv', 'Olivgrün', 'Orange', 'Orange-Gelb', 'Orange-Rot', 'Orchidee', 'Pastellblau', 'Pastellgelb', 'Pastellgrün', 'Pastelllila', 'Pastellrosa', 'Perlmutt', 'Pfirsich', 'Pink', 'Pink-Rot', 'Platin', 'Purpur', 'Rosa', 'Rosa-Lila', 'Rosa-Rot', 'Rot', 'Rot-Orange', 'Rot-Violett', 'Rötlich', 'Rötlich-Orange', 'Rötlich-Violett', 'Rubinrot', 'Safrangelb', 'Salmon', 'Scharlachrot', 'Schwarz', 'Schwarz-Blau', 'Schwarz-Grün', 'Schwarz-Rot', 'Schwarz-Violett', 'Silber', 'Smaragdgrün', 'Tannengrün', 'Taupe', 'Teal', 'Tiefblau', 'Tiefgrün', 'Tiefrot', 'Tiefviolett', 'Türkis', 'Türkis-Blau', 'Türkis-Grün', 'Ultramarin', 'Vanille', 'Violett', 'Violett-Blau', 'Violett-Rot', 'Violettlich', 'Weiß', 'Weiß-Gelb', 'Weiß-Grün', 'Weißlich', 'Weißlich-Blau', 'Weißlich-Grün', 'Zitronengelb', 'Zitronengrün'].sort();
-        
-        // CSV Header
-        const CSV_HEADER = 'Stein,Herkunft,Farbe,Cut/Rough,Karat,Preis (Brutto),Kategorie,Entstehung,Schliffart,Schliffform,Reinheitsgrad,Farbsättigung,Helligkeit,Behandlungsart,Zertifizierungs_Labor,Zertifikatsnummer,Zertifikats_URL,Rarität,Anzahl,SKU,Währung,Kurzbeschreibung,Langbeschreibung,Bilder,Videos,Neu,Featured,Verkauft,Länge_mm,Breite_mm,Höhe_mm';
-        
-        // Array zum Speichern aller Datensätze
-        let records = [];
-        let editingIndex = -1;
-        const STORAGE_KEY = 'gemstonecard_records';
-        
-        // Initialisierung
-        document.addEventListener('DOMContentLoaded', function() {
-            populateSelect('category', CATEGORIES);
-            populateSelect('origin', COUNTRIES);
-            populateSelect('color', COLORS);
-            loadRecordsFromStorage();
+
+    <div class="toolbar">
+      <button type="button" class="btn btn-secondary" id="btnLoadTemplate">CSV-Vorlage laden</button>
+      <label class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+        Bestehende CSV öffnen
+        <input type="file" id="csvImportFile" accept=".csv,text/csv" hidden>
+      </label>
+      <a class="btn btn-secondary" href="/templates/edelsteine-upload-vorlage.csv" download>Vorlage herunterladen</a>
+    </div>
+
+    <div class="success" id="successMessage">Datensatz gespeichert.</div>
+
+    <form id="gemstoneForm" novalidate>
+      <div class="section-title">Grunddaten</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="required" for="Stein">Stein (Name)</label>
+          <input id="Stein" name="Stein" required placeholder="z.B. Apatit">
+        </div>
+        <div class="form-group">
+          <label class="required" for="Kategorie">Kategorie</label>
+          <select id="Kategorie" name="Kategorie" required>
+            <option value="">-- Bitte wählen --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Herkunft">Herkunft</label>
+          <select id="Herkunft" name="Herkunft">
+            <option value="">-- Bitte wählen --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Besonderheit">Besonderheit</label>
+          <input id="Besonderheit" name="Besonderheit" placeholder="z.B. Farbwechsel, Tsavorit">
+        </div>
+        <div class="form-group">
+          <label for="Qualität">Qualität</label>
+          <select id="Qualität" name="Qualität">
+            <option value="">-- Bitte wählen --</option>
+            <option value="sehr gut">sehr gut</option>
+            <option value="gut">gut</option>
+            <option value="zufriedenstellend">zufriedenstellend</option>
+            <option value="ausreichend">ausreichend</option>
+            <option value="IF">IF</option>
+            <option value="VVS">VVS</option>
+            <option value="VS">VS</option>
+            <option value="SI">SI</option>
+            <option value="I">I</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="required" for="Farbe">Farbe</label>
+          <select id="Farbe" name="Farbe" required>
+            <option value="">-- Bitte wählen --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="transparent">Transparenz</label>
+          <select id="transparent" name="transparent">
+            <option value="">—</option>
+            <option value="transparent">transparent</option>
+            <option value="translucent">translucent</option>
+            <option value="opaque">opaque</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="required" for="CutRough">Cut/Rough</label>
+          <select id="CutRough" name="Cut/Rough" required>
+            <option value="">—</option>
+            <option value="cut">cut (geschliffen)</option>
+            <option value="rough">rough (Rohstein)</option>
+          </select>
+          <div class="help">Import erwartet <code>cut</code> oder <code>rough</code> (Kleinbuchstaben).</div>
+        </div>
+        <div class="form-group">
+          <label class="required" for="Karat">Karat</label>
+          <input id="Karat" name="Karat" required inputmode="decimal" placeholder="z.B. 1,78">
+        </div>
+        <div class="form-group">
+          <label class="required" for="PreisBrutto">Preis (Brutto)</label>
+          <input id="PreisBrutto" name="Preis (Brutto)" required inputmode="decimal" placeholder="z.B. 299">
+        </div>
+        <div class="form-group">
+          <label class="required" for="Währung">Währung</label>
+          <select id="Währung" name="Währung" required>
+            <option value="EUR" selected>EUR</option>
+            <option value="USD">USD</option>
+            <option value="CHF">CHF</option>
+            <option value="GBP">GBP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Entstehung">Entstehung</label>
+          <select id="Entstehung" name="Entstehung">
+            <option value="">—</option>
+            <option value="natürlich">natürlich</option>
+            <option value="synthetisch">synthetisch</option>
+            <option value="Imitation">Imitation</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Mine">Mine</label>
+          <input id="Mine" name="Mine" placeholder="z.B. Mogok">
+        </div>
+        <div class="form-group">
+          <label for="SKU">SKU</label>
+          <input id="SKU" name="SKU" placeholder="Artikelnummer">
+        </div>
+        <div class="form-group">
+          <label for="Anzahl">Anzahl</label>
+          <input id="Anzahl" name="Anzahl" type="number" min="1" value="1">
+        </div>
+      </div>
+
+      <div class="section-title">Maße &amp; Schliff</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="Länge_mm">Länge_mm</label>
+          <input id="Länge_mm" name="Länge_mm" inputmode="decimal">
+        </div>
+        <div class="form-group">
+          <label for="Breite_mm">Breite_mm</label>
+          <input id="Breite_mm" name="Breite_mm" inputmode="decimal">
+        </div>
+        <div class="form-group">
+          <label for="Höhe_mm">Höhe_mm</label>
+          <input id="Höhe_mm" name="Höhe_mm" inputmode="decimal">
+        </div>
+        <div class="form-group">
+          <label for="Schliffart">Schliffart</label>
+          <select id="Schliffart" name="Schliffart">
+            <option value="">-- Bitte wählen --</option>
+            <option value="Brillant-Schliff">Brillant-Schliff</option>
+            <option value="Stufen-Schliff">Stufen-Schliff</option>
+            <option value="Konkav-Schliff">Konkav-Schliff</option>
+            <option value="Portugiesischer Schliff">Portugiesischer Schliff</option>
+            <option value="Treppen-Schliff">Treppen-Schliff</option>
+            <option value="Rosen-Schliff">Rosen-Schliff</option>
+            <option value="Schachbrett-Schliff">Schachbrett-Schliff</option>
+            <option value="Mischschliff">Mischschliff</option>
+            <option value="Cabochon">Cabochon</option>
+            <option value="Oval">Oval</option>
+            <option value="Rund">Rund</option>
+            <option value="Smaragd">Smaragd</option>
+            <option value="Tropfen">Tropfen</option>
+            <option value="Kissen">Kissen</option>
+            <option value="Marquise">Marquise</option>
+            <option value="Trilliant">Trilliant</option>
+            <option value="Fancy">Fancy</option>
+            <option value="freiform">freiform</option>
+            <option value="Oktagon">Oktagon</option>
+            <option value="rechteckig">rechteckig</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Schliffform">Schliffform</label>
+          <select id="Schliffform" name="Schliffform">
+            <option value="">-- Bitte wählen --</option>
+            <option value="Rund">Rund</option>
+            <option value="Oval">Oval</option>
+            <option value="Kissen">Kissen</option>
+            <option value="Herz">Herz</option>
+            <option value="Tropfen">Tropfen</option>
+            <option value="Marquise">Marquise</option>
+            <option value="Princess">Princess</option>
+            <option value="Brillant">Brillant</option>
+            <option value="Smaragd">Smaragd</option>
+            <option value="Baguette">Baguette</option>
+            <option value="Asscher">Asscher</option>
+            <option value="Trillion">Trillion</option>
+            <option value="Trilliant">Trilliant</option>
+            <option value="Fancy">Fancy</option>
+            <option value="Cabochon">Cabochon</option>
+            <option value="Oktagon">Oktagon</option>
+            <option value="freiform">freiform</option>
+            <option value="rechteckig">rechteckig</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Schliffqualität">Schliffqualität</label>
+          <select id="Schliffqualität" name="Schliffqualität">
+            <option value="">-- Bitte wählen --</option>
+            <option value="Excellent">Excellent</option>
+            <option value="Very Good">Very Good</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+            <option value="Poor">Poor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Reinheitsgrad">Reinheitsgrad</label>
+          <select id="Reinheitsgrad" name="Reinheitsgrad">
+            <option value="">-- Bitte wählen --</option>
+            <option value="FL">FL - Flawless</option>
+            <option value="IF">IF - Internally Flawless</option>
+            <option value="VVS">VVS - Very Very Slightly Included</option>
+            <option value="VS">VS - Very Slightly Included</option>
+            <option value="SI">SI - Slightly Included</option>
+            <option value="I">I - Included</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Farbsättigung">Farbsättigung</label>
+          <select id="Farbsättigung" name="Farbsättigung">
+            <option value="">-- Bitte wählen --</option>
+            <option value="Pale">Pale (sehr hell)</option>
+            <option value="Light">Light (hell)</option>
+            <option value="Medium">Medium (mittel)</option>
+            <option value="Intense">Intense (intensiv)</option>
+            <option value="Vivid">Vivid (sehr intensiv)</option>
+            <option value="Deep">Deep (dunkel)</option>
+            <option value="Rich">Rich (satt)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Farbsättigung_1_10">Farbsättigung_1_10</label>
+          <input id="Farbsättigung_1_10" name="Farbsättigung_1_10" type="number" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label for="Helligkeit">Helligkeit (1–10)</label>
+          <input id="Helligkeit" name="Helligkeit" type="number" min="1" max="10" placeholder="1–10">
+          <div class="help">Helligkeitsskala von 1 (weiß) bis 10 (schwarz)</div>
+        </div>
+        <div class="form-group">
+          <label for="Farbgrad">Farbgrad</label>
+          <input id="Farbgrad" name="Farbgrad">
+        </div>
+        <div class="form-group">
+          <label for="Symmetrie">Symmetrie</label>
+          <select id="Symmetrie" name="Symmetrie">
+            <option value="">-- Bitte wählen --</option>
+            <option value="Excellent">Excellent</option>
+            <option value="Very Good">Very Good</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+            <option value="Poor">Poor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Politur">Politur</label>
+          <select id="Politur" name="Politur">
+            <option value="">-- Bitte wählen --</option>
+            <option value="Excellent">Excellent</option>
+            <option value="Very Good">Very Good</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+            <option value="Poor">Poor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Kristallqualität">Kristallqualität</label>
+          <select id="Kristallqualität" name="Kristallqualität">
+            <option value="">-- Bitte wählen --</option>
+            <option value="sehr gut">Sehr gut</option>
+            <option value="gut">Gut</option>
+            <option value="zufriedenstellend">Zufriedenstellend</option>
+            <option value="ausreichend">Ausreichend</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Kristallform">Kristallform</label>
+          <input id="Kristallform" name="Kristallform" placeholder="z.B. Prismatisch">
+        </div>
+        <div class="form-group">
+          <label for="Geschätzte_Karat_Ausbeute">Geschätzte_Karat_Ausbeute</label>
+          <input id="Geschätzte_Karat_Ausbeute" name="Geschätzte_Karat_Ausbeute" inputmode="decimal">
+        </div>
+        <div class="form-group">
+          <label for="Geeignet_für">Geeignet_für</label>
+          <select id="Geeignet_für" name="Geeignet_für">
+            <option value="">-- Bitte wählen --</option>
+            <option value="Ring">Ring</option>
+            <option value="Anhänger">Anhänger</option>
+            <option value="Ohrringe">Ohrringe</option>
+            <option value="Armreif">Armreif</option>
+            <option value="Sammlerstück">Sammlerstück</option>
+            <option value="Investition">Investition</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-title">Behandlung &amp; Zertifizierung</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="Behandelt">Behandelt</label>
+          <select id="Behandelt" name="Behandelt">
+            <option value="">-- Bitte wählen --</option>
+            <option value="true">Ja</option>
+            <option value="false">Nein</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Behandlungsart">Behandlungsart</label>
+          <select id="Behandlungsart" name="Behandlungsart">
+            <option value="">-- Bitte wählen --</option>
+            <option value="none">Keine Behandlung</option>
+            <option value="heated">Erhitzt</option>
+            <option value="oiled">Geölt</option>
+            <option value="irradiated">Bestrahlt</option>
+            <option value="diffused">Diffusionsbehandlung</option>
+            <option value="coated">Beschichtet</option>
+            <option value="bleached">Gebleicht</option>
+            <option value="filled">Gefüllt (Fracture Filling)</option>
+            <option value="stabilized">Stabilisiert</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label for="Behandlungsbeschreibung">Behandlungsbeschreibung</label>
+          <textarea id="Behandlungsbeschreibung" name="Behandlungsbeschreibung"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="Zertifiziert">Zertifiziert</label>
+          <select id="Zertifiziert" name="Zertifiziert">
+            <option value="">-- Bitte wählen --</option>
+            <option value="true">Ja</option>
+            <option value="false">Nein</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Zertifizierungs_Labor">Zertifizierungs_Labor</label>
+          <select id="Zertifizierungs_Labor" name="Zertifizierungs_Labor">
+            <option value="">-- Bitte wählen --</option>
+            <option value="GIA">GIA</option>
+            <option value="IGI">IGI</option>
+            <option value="HRD">HRD</option>
+            <option value="SSEF">SSEF</option>
+            <option value="Gübelin">Gübelin</option>
+            <option value="DSEF">DSEF</option>
+            <option value="AIGS">AIGS</option>
+            <option value="GRS">GRS</option>
+            <option value="GemResearch Swisslab">GemResearch Swisslab</option>
+            <option value="ICI">ICI</option>
+            <option value="none">Keine Zertifizierung</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Zertifikatsnummer">Zertifikatsnummer</label>
+          <input id="Zertifikatsnummer" name="Zertifikatsnummer">
+        </div>
+        <div class="form-group">
+          <label for="Zertifikats_URL">Zertifikats_URL</label>
+          <input id="Zertifikats_URL" name="Zertifikats_URL" type="url" placeholder="https://…">
+        </div>
+        <div class="form-group">
+          <label for="Rarität">Rarität</label>
+          <select id="Rarität" name="Rarität">
+            <option value="">-- Bitte wählen --</option>
+            <option value="Gewöhnlich">Gewöhnlich</option>
+            <option value="Häufig">Häufig</option>
+            <option value="Selten">Selten</option>
+            <option value="Sehr selten">Sehr selten</option>
+            <option value="außergewöhnliches">Außergewöhnlich</option>
+            <option value="Einzigartig">Einzigartig</option>
+            <option value="Museumsqualität">Museumsqualität</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="Verfügbar">Verfügbar</label>
+          <select id="Verfügbar" name="Verfügbar">
+            <option value="">-- Bitte wählen --</option>
+            <option value="true">Ja</option>
+            <option value="false">Nein</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-title">Beschreibungen</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="Kurzbeschreibung">Kurzbeschreibung</label>
+          <textarea id="Kurzbeschreibung" name="Kurzbeschreibung"></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="Langbeschreibung">Langbeschreibung</label>
+          <textarea id="Langbeschreibung" name="Langbeschreibung"></textarea>
+        </div>
+      </div>
+
+      <div class="section-title">Medien (Bilder / Videos)</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Bilder → CSV-Spalte „Bilder“</label>
+          <div class="media-box" data-media="Bilder">
+            <div class="media-controls">
+              <input type="url" class="media-url-input" placeholder="https://… oder /uploads/gemstones/foto.jpg">
+              <button type="button" class="btn btn-secondary btn-add-url">URL hinzufügen</button>
+              <label class="btn btn-secondary" style="display:inline-flex;cursor:pointer;">
+                Dateien wählen
+                <input type="file" class="media-file-input" accept="image/*,.jpg,.jpeg,.png,.webp,.gif" multiple hidden>
+              </label>
+            </div>
+            <div class="media-list" id="bilderList"></div>
+            <div class="help">Gespeichert als kommagetrennte Pfade/URLs in Spalte <code>Bilder</code>.</div>
+            <input type="hidden" id="Bilder" name="Bilder" value="">
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>Videos → CSV-Spalte „Videos“</label>
+          <div class="media-box" data-media="Videos">
+            <div class="media-controls">
+              <input type="url" class="media-url-input" placeholder="https://… oder /uploads/gemstones/video.mp4">
+              <button type="button" class="btn btn-secondary btn-add-url">URL hinzufügen</button>
+              <label class="btn btn-secondary" style="display:inline-flex;cursor:pointer;">
+                Dateien wählen
+                <input type="file" class="media-file-input" accept="video/*,.mp4,.webm,.mov" multiple hidden>
+              </label>
+            </div>
+            <div class="media-list" id="videosList"></div>
+            <div class="help">Gespeichert als kommagetrennte Pfade/URLs in Spalte <code>Videos</code>.</div>
+            <input type="hidden" id="Videos" name="Videos" value="">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Flags</div>
+      <div class="check-row">
+        <label><input type="checkbox" id="Neu" name="Neu"> Neu</label>
+        <label><input type="checkbox" id="Featured" name="Featured"> Featured</label>
+        <label><input type="checkbox" id="Verkauft" name="Verkauft"> Verkauft</label>
+      </div>
+
+      <div class="button-row">
+        <button type="button" class="btn btn-primary" id="btnAddRecord">Datensatz hinzufügen</button>
+        <button type="button" class="btn btn-secondary" id="btnClearForm">Formular zurücksetzen</button>
+      </div>
+    </form>
+
+    <div class="records-section" id="recordsSection" hidden>
+      <div class="section-title">Gespeicherte Datensätze (<span id="recordCount">0</span>)</div>
+      <div class="banner" style="margin-top:0;">
+        Datensätze bleiben im Browser (localStorage) erhalten. Export erzeugt eine CSV im Admin-Vorlagenformat.
+      </div>
+      <div class="records-list" id="recordsList"></div>
+      <div class="button-row">
+        <button type="button" class="btn btn-primary" id="btnGenerateCsv">CSV generieren &amp; herunterladen</button>
+        <button type="button" class="btn btn-secondary" id="btnClearRecords">Alle löschen</button>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.9rem;">
+          <input type="checkbox" id="autoDeleteAfterExport"> Nach Export löschen
+        </label>
+      </div>
+    </div>
+
+    <div class="csv-panel" id="csvOutput">
+      <h3>Generierte CSV</h3>
+      <textarea id="csvOutputText" readonly></textarea>
+      <div class="button-row" style="border:0;padding-top:10px;margin-top:10px;">
+        <button type="button" class="btn btn-primary" id="btnDownloadCsv">CSV herunterladen</button>
+        <button type="button" class="btn btn-secondary" id="btnCopyCsv">In Zwischenablage</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /** Exact header from /templates/edelsteine-upload-vorlage.csv (Admin Gemstones CSV Import) */
+    const CSV_COLUMNS = [
+      'Stein', 'Herkunft', 'Besonderheit', 'Qualität', 'Farbe', 'transparent', 'Schliffart', 'Cut/Rough',
+      'Karat', 'Länge_mm', 'Breite_mm', 'Höhe_mm', 'Preis (Brutto)', 'Kategorie', 'Entstehung', 'Mine',
+      'Schliffform', 'Schliffqualität', 'Reinheitsgrad', 'Farbsättigung', 'Farbsättigung_1_10', 'Helligkeit',
+      'Farbgrad', 'Symmetrie', 'Politur', 'Kristallqualität', 'Kristallform', 'Geschätzte_Karat_Ausbeute',
+      'Geeignet_für', 'Behandelt', 'Behandlungsart', 'Behandlungsbeschreibung', 'Zertifiziert',
+      'Zertifizierungs_Labor', 'Zertifikatsnummer', 'Zertifikats_URL', 'Rarität', 'Verfügbar', 'Anzahl',
+      'SKU', 'Währung', 'Kurzbeschreibung', 'Langbeschreibung', 'Bilder', 'Videos', 'Neu', 'Featured', 'Verkauft'
+    ];
+
+    const FIELD_IDS = {
+      'Stein': 'Stein',
+      'Herkunft': 'Herkunft',
+      'Besonderheit': 'Besonderheit',
+      'Qualität': 'Qualität',
+      'Farbe': 'Farbe',
+      'transparent': 'transparent',
+      'Schliffart': 'Schliffart',
+      'Cut/Rough': 'CutRough',
+      'Karat': 'Karat',
+      'Länge_mm': 'Länge_mm',
+      'Breite_mm': 'Breite_mm',
+      'Höhe_mm': 'Höhe_mm',
+      'Preis (Brutto)': 'PreisBrutto',
+      'Kategorie': 'Kategorie',
+      'Entstehung': 'Entstehung',
+      'Mine': 'Mine',
+      'Schliffform': 'Schliffform',
+      'Schliffqualität': 'Schliffqualität',
+      'Reinheitsgrad': 'Reinheitsgrad',
+      'Farbsättigung': 'Farbsättigung',
+      'Farbsättigung_1_10': 'Farbsättigung_1_10',
+      'Helligkeit': 'Helligkeit',
+      'Farbgrad': 'Farbgrad',
+      'Symmetrie': 'Symmetrie',
+      'Politur': 'Politur',
+      'Kristallqualität': 'Kristallqualität',
+      'Kristallform': 'Kristallform',
+      'Geschätzte_Karat_Ausbeute': 'Geschätzte_Karat_Ausbeute',
+      'Geeignet_für': 'Geeignet_für',
+      'Behandelt': 'Behandelt',
+      'Behandlungsart': 'Behandlungsart',
+      'Behandlungsbeschreibung': 'Behandlungsbeschreibung',
+      'Zertifiziert': 'Zertifiziert',
+      'Zertifizierungs_Labor': 'Zertifizierungs_Labor',
+      'Zertifikatsnummer': 'Zertifikatsnummer',
+      'Zertifikats_URL': 'Zertifikats_URL',
+      'Rarität': 'Rarität',
+      'Verfügbar': 'Verfügbar',
+      'Anzahl': 'Anzahl',
+      'SKU': 'SKU',
+      'Währung': 'Währung',
+      'Kurzbeschreibung': 'Kurzbeschreibung',
+      'Langbeschreibung': 'Langbeschreibung',
+      'Bilder': 'Bilder',
+      'Videos': 'Videos',
+      'Neu': 'Neu',
+      'Featured': 'Featured',
+      'Verkauft': 'Verkauft'
+    };
+
+    const CHECKBOX_FIELDS = new Set(['Neu', 'Featured', 'Verkauft']);
+    const MEDIA_UPLOAD_PREFIX = '/uploads/gemstones/';
+    const STORAGE_KEY = 'gemstonecard_csv_records_v2';
+
+    const CATEGORIES = ['Achat', 'Albit', 'Alexandrit', 'Amazonit', 'Amethyst', 'Andalusit', 'Andradit', 'Apatit', 'Aquamarin', 'Aventurin', 'Azurit', 'Benitoit', 'Beryll', 'Beryllonit', 'Bixbit', 'Brasilianit', 'Calcit', 'Carnelian', 'Cerussit', 'Chalcedon', 'Charoit', 'Chrysoberyll', 'Chrysokoll', 'Chrysopras', 'Citrin', 'Cordierit', 'Danburit', 'Demantoid', 'Diamant', 'Diopsid', 'Dumortierit', 'Ekanit', 'Epidot', 'Eudialyt', 'Fenakit', 'Fluorit', 'Garnet', 'Goshenit', 'Grossular', 'Hämatit', 'Hambergit', 'Heliodor', 'Hessonit', 'Hiddenit', 'Howlith', 'Hypersthen', 'Iolith', 'Jade', 'Jadeit', 'Jaspis', 'Jeremejewit', 'Korund', 'Kunzit', 'Kyanit', 'Labradorit', 'Lapis Lazuli', 'Larimar', 'Lazulith', 'Lepidolith', 'Magnetit', 'Malachit', 'Moldavit', 'Mondstein', 'Morganit', 'Obsidian', 'Opal', 'Padparadscha', 'Peridot', 'Perowskit', 'Phenakit', 'Prehnit', 'Pyrit', 'Pyrop', 'Quarz', 'Rhodochrosit', 'Rhodolith', 'Rhodonit', 'Rubin', 'Rutil', 'Saphir', 'Sardonyx', 'Schörl', 'Selenit', 'Serpentin', 'Smaragd', 'Smithsonit', 'Spessartin', 'Spinell', 'Sphalerit', 'Spodumen', 'Staurolith', 'Sunstone', 'Tansanit', 'Tanzanit', 'Tigerauge', 'Topas', 'Tourmalin', 'Tsavorit', 'Turmalin', 'Türkis', 'Uvarovit', 'Variscit', 'Vesuvianit', 'Zirkon', 'Zoisit', 'Zultanit'].sort();
+
+    const COUNTRIES = ['Afghanistan', 'Ägypten', 'Albanien', 'Algerien', 'Andorra', 'Angola', 'Antigua und Barbuda', 'Äquatorialguinea', 'Argentinien', 'Armenien', 'Aserbaidschan', 'Äthiopien', 'Australien', 'Bahamas', 'Bahrain', 'Bangladesch', 'Barbados', 'Belarus', 'Belgien', 'Belize', 'Benin', 'Bhutan', 'Bolivien', 'Bosnien und Herzegowina', 'Botswana', 'Brasilien', 'Brunei', 'Bulgarien', 'Burkina Faso', 'Burundi', 'Chile', 'China', 'Costa Rica', 'Dänemark', 'Deutschland', 'Dominica', 'Dominikanische Republik', 'Dschibuti', 'Ecuador', 'El Salvador', 'Elfenbeinküste', 'Eritrea', 'Estland', 'Eswatini', 'Fidschi', 'Finnland', 'Frankreich', 'Gabun', 'Gambia', 'Georgien', 'Ghana', 'Grenada', 'Griechenland', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Indien', 'Indonesien', 'Irak', 'Iran', 'Irland', 'Island', 'Israel', 'Italien', 'Jamaika', 'Japan', 'Jemen', 'Jordanien', 'Kambodscha', 'Kamerun', 'Kanada', 'Kap Verde', 'Kasachstan', 'Katar', 'Kenia', 'Kirgisistan', 'Kiribati', 'Kolumbien', 'Komoren', 'Kongo', 'Demokratische Republik Kongo', 'Kroatien', 'Kuba', 'Kuwait', 'Laos', 'Lesotho', 'Lettland', 'Libanon', 'Liberia', 'Libyen', 'Liechtenstein', 'Litauen', 'Luxemburg', 'Madagaskar', 'Malawi', 'Malaysia', 'Malediven', 'Mali', 'Malta', 'Marokko', 'Marshallinseln', 'Mauretanien', 'Mauritius', 'Mexiko', 'Mikronesien', 'Moldau', 'Monaco', 'Mongolei', 'Montenegro', 'Mosambik', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Neuseeland', 'Nicaragua', 'Niederlande', 'Niger', 'Nigeria', 'Nordkorea', 'Nordmazedonien', 'Norwegen', 'Oman', 'Österreich', 'Pakistan', 'Palau', 'Panama', 'Papua-Neuguinea', 'Paraguay', 'Peru', 'Philippinen', 'Polen', 'Portugal', 'Ruanda', 'Rumänien', 'Russland', 'Salomonen', 'Sambia', 'Samoa', 'San Marino', 'São Tomé und Príncipe', 'Saudi-Arabien', 'Schweden', 'Schweiz', 'Senegal', 'Serbien', 'Seychellen', 'Sierra Leone', 'Simbabwe', 'Singapur', 'Slowakei', 'Slowenien', 'Somalia', 'Spanien', 'Sri Lanka', 'St. Kitts und Nevis', 'St. Lucia', 'St. Vincent und die Grenadinen', 'Südafrika', 'Sudan', 'Südkorea', 'Südsudan', 'Suriname', 'Syrien', 'Tadschikistan', 'Taiwan', 'Tansania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad und Tobago', 'Tschad', 'Tschechien', 'Tunesien', 'Türkei', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'Ungarn', 'Uruguay', 'USA', 'Usbekistan', 'Vanuatu', 'Vatikanstadt', 'Venezuela', 'Vereinigte Arabische Emirate', 'Vietnam', 'Weißrussland', 'Zentralafrikanische Republik', 'Zypern'].sort();
+
+    const COLORS = ['Achatgrau', 'Aprikose', 'Aquamarinblau', 'Aschgrau', 'Beige', 'Bernstein', 'Bisquit', 'Blassblau', 'Blassgelb', 'Blassgrün', 'Blasslila', 'Blassrosa', 'Blau', 'Blau-Grün', 'Blau-Violett', 'Bläulich', 'Bläulich-Grün', 'Bläulich-Violett', 'Braun', 'Braun-Gelb', 'Braun-Rot', 'Bronze', 'Champagner', 'Chromgrün', 'Cognac', 'Cyan', 'Dunkelblau', 'Dunkelbraun', 'Dunkelgelb', 'Dunkelgrau', 'Dunkelgrün', 'Dunkellila', 'Dunkelorange', 'Dunkelrosa', 'Dunkelrot', 'Dunkeltürkis', 'Dunkelviolett', 'Eisblau', 'Elfenbein', 'Emeraldgrün', 'Farblos', 'Feuerrot', 'Flieder', 'Gelb', 'Gelb-Grün', 'Gelb-Orange', 'Gelblich', 'Gelblich-Grün', 'Gold', 'Goldgelb', 'Grau', 'Grau-Blau', 'Grau-Grün', 'Grün', 'Grün-Blau', 'Grün-Gelb', 'Grünlich', 'Grünlich-Blau', 'Himmelblau', 'Honiggelb', 'Indigo', 'Jadegrün', 'Kamel', 'Karminrot', 'Kastanienbraun', 'Kobaltblau', 'Koralle', 'Kupfer', 'Lachs', 'Lavendel', 'Lemon', 'Lila', 'Lila-Blau', 'Lila-Rot', 'Magenta', 'Mahagoni', 'Marineblau', 'Mint', 'Moosgrün', 'Navy', 'Ocker', 'Oliv', 'Olivgrün', 'Orange', 'Orange-Gelb', 'Orange-Rot', 'Orchidee', 'Pastellblau', 'Pastellgelb', 'Pastellgrün', 'Pastelllila', 'Pastellrosa', 'Perlmutt', 'Pfirsich', 'Pink', 'Pink-Rot', 'Platin', 'Purpur', 'Rosa', 'Rosa-Lila', 'Rosa-Rot', 'Rot', 'Rot-Orange', 'Rot-Violett', 'Rötlich', 'Rötlich-Orange', 'Rötlich-Violett', 'Rubinrot', 'Safrangelb', 'Salmon', 'Scharlachrot', 'Schwarz', 'Schwarz-Blau', 'Schwarz-Grün', 'Schwarz-Rot', 'Schwarz-Violett', 'Silber', 'Smaragdgrün', 'Tannengrün', 'Taupe', 'Teal', 'Tiefblau', 'Tiefgrün', 'Tiefrot', 'Tiefviolett', 'Türkis', 'Türkis-Blau', 'Türkis-Grün', 'Ultramarin', 'Vanille', 'Violett', 'Violett-Blau', 'Violett-Rot', 'Violettlich', 'Weiß', 'Weiß-Gelb', 'Weiß-Grün', 'Weißlich', 'Weißlich-Blau', 'Weißlich-Grün', 'Zitronengelb', 'Zitronengrün'].sort();
+
+    let records = [];
+    let editingIndex = -1;
+    let mediaState = { Bilder: [], Videos: [] };
+
+    function populateSelect(id, options) {
+      const select = document.getElementById(id);
+      if (!select) return;
+      options.forEach((option) => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option;
+        optionElement.textContent = option;
+        select.appendChild(optionElement);
+      });
+    }
+
+    function ensureSelectValue(select, value) {
+      if (!select || value === null || value === undefined || value === '') {
+        if (select) select.value = '';
+        return;
+      }
+      const str = String(value);
+      const exists = Array.from(select.options).some((opt) => opt.value === str);
+      if (!exists) {
+        const option = document.createElement('option');
+        option.value = str;
+        option.textContent = str;
+        select.appendChild(option);
+      }
+      select.value = str;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeCSV(value) {
+      if (value === null || value === undefined || value === '') return '';
+      const s = String(value);
+      if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+      return s;
+    }
+
+    function normalizeMediaPath(raw) {
+      const trimmed = String(raw || '').trim();
+      if (!trimmed) return '';
+      const publicIdx = trimmed.lastIndexOf('/public/');
+      if (publicIdx >= 0) return trimmed.slice(publicIdx + '/public'.length);
+      const winIdx = trimmed.toLowerCase().lastIndexOf('\\public\\');
+      if (winIdx >= 0) return trimmed.slice(winIdx + '\\public'.length).replace(/\\/g, '/');
+      if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) return trimmed;
+      return MEDIA_UPLOAD_PREFIX + trimmed.replace(/^\/+/, '');
+    }
+
+    function parseMediaList(value) {
+      if (!value) return [];
+      return String(value)
+        .split(',')
+        .map((part) => normalizeMediaPath(part))
+        .filter(Boolean);
+    }
+
+    function syncMediaHidden(kind) {
+      document.getElementById(kind).value = mediaState[kind].join(',');
+      renderMediaList(kind);
+    }
+
+    function isProbablyImage(url) {
+      return /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(url) || url.includes('/uploads/gemstones/');
+    }
+
+    function renderMediaList(kind) {
+      const list = document.getElementById(kind === 'Bilder' ? 'bilderList' : 'videosList');
+      const items = mediaState[kind];
+      if (!items.length) {
+        list.innerHTML = '<div class="help">Noch keine Medien hinzugefügt.</div>';
+        return;
+      }
+      list.innerHTML = items.map((url, index) => {
+        const thumb = kind === 'Bilder' && isProbablyImage(url)
+          ? `<img class="media-thumb" src="${escapeHtml(url)}" alt="" onerror="this.style.display='none'">`
+          : `<div class="media-thumb" aria-hidden="true"></div>`;
+        return `
+          <div class="media-item">
+            ${thumb}
+            <div class="media-meta"><strong>${kind === 'Bilder' ? 'Bild' : 'Video'} ${index + 1}</strong>${escapeHtml(url)}</div>
+            <button type="button" class="btn btn-danger btn-small" data-remove-media="${kind}" data-index="${index}">Entfernen</button>
+          </div>`;
+      }).join('');
+    }
+
+    function addMedia(kind, rawValue) {
+      const path = normalizeMediaPath(rawValue);
+      if (!path) return;
+      if (!mediaState[kind].includes(path)) mediaState[kind].push(path);
+      syncMediaHidden(kind);
+    }
+
+    function removeMedia(kind, index) {
+      mediaState[kind].splice(index, 1);
+      syncMediaHidden(kind);
+    }
+
+    function setupMediaBoxes() {
+      document.querySelectorAll('.media-box').forEach((box) => {
+        const kind = box.getAttribute('data-media');
+        const urlInput = box.querySelector('.media-url-input');
+        const addBtn = box.querySelector('.btn-add-url');
+        const fileInput = box.querySelector('.media-file-input');
+
+        addBtn.addEventListener('click', () => {
+          addMedia(kind, urlInput.value);
+          urlInput.value = '';
+          urlInput.focus();
         });
-        
-        // Daten aus localStorage laden
-        function loadRecordsFromStorage() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    records = JSON.parse(stored);
-                    if (records.length > 0) {
-                        updateRecordsList();
-                    }
-                }
-            } catch (error) {
-                console.error('Fehler beim Laden der gespeicherten Daten:', error);
-            }
+
+        urlInput.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            addBtn.click();
+          }
+        });
+
+        fileInput.addEventListener('change', () => {
+          Array.from(fileInput.files || []).forEach((file) => {
+            addMedia(kind, MEDIA_UPLOAD_PREFIX + file.name);
+          });
+          fileInput.value = '';
+        });
+      });
+
+      document.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-remove-media]');
+        if (!btn) return;
+        removeMedia(btn.getAttribute('data-remove-media'), Number(btn.getAttribute('data-index')));
+      });
+    }
+
+    function getFormRecord() {
+      const record = {};
+      CSV_COLUMNS.forEach((column) => {
+        const id = FIELD_IDS[column];
+        const el = document.getElementById(id);
+        if (!el) {
+          record[column] = '';
+          return;
         }
-        
-        // Daten in localStorage speichern
-        function saveRecordsToStorage() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-            } catch (error) {
-                console.error('Fehler beim Speichern der Daten:', error);
-                // Falls localStorage voll ist, warnen
-                alert('Warnung: Die Daten konnten nicht gespeichert werden. Bitte exportieren Sie die CSV-Datei, bevor Sie die Seite schließen.');
-            }
+        if (CHECKBOX_FIELDS.has(column)) {
+          record[column] = el.checked ? 'true' : '';
+          return;
         }
-        
-        function populateSelect(id, options) {
-            const select = document.getElementById(id);
-            if (!select) return;
-            
-            options.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option;
-                optionElement.textContent = option;
-                select.appendChild(optionElement);
-            });
+        if (column === 'Bilder' || column === 'Videos') {
+          record[column] = mediaState[column].join(',');
+          return;
         }
-        
-        function toggleTypeFields() {
-            const type = document.getElementById('type').value;
-            const isCut = type === 'cut';
-            const isRough = type === 'rough';
-            const caratWeightInput = document.getElementById('caratWeight');
-            const gramWeightInput = document.getElementById('gramWeight');
-            const caratLabel = document.querySelector('label[for="caratWeight"]');
-            const gramLabel = document.querySelector('label[for="gramWeight"]');
-            
-            // Gewicht-Felder
-            document.getElementById('caratWeightGroup').style.display = isCut ? 'flex' : 'none';
-            document.getElementById('gramWeightGroup').style.display = isRough ? 'flex' : 'none';
-            if (caratWeightInput) caratWeightInput.required = isCut;
-            if (gramWeightInput) gramWeightInput.required = isRough;
-            if (caratLabel) caratLabel.classList.toggle('required', isCut);
-            if (gramLabel) gramLabel.classList.toggle('required', isRough);
-            
-            // Cut-spezifische Felder
-            const cutFields = ['colorIntensityGroup', 'colorSaturationGroup', 'clarityGroup', 'cutGroup', 'cutFormGroup'];
-            cutFields.forEach(id => {
-                const group = document.getElementById(id);
-                if (group) {
-                    if (isCut) {
-                        group.classList.add('show');
-                    } else {
-                        group.classList.remove('show');
-                    }
-                }
-            });
-            
-            // Rough-spezifische Felder
-            const roughFields = ['crystalFormGroup', 'crystalQualityGroup'];
-            roughFields.forEach(id => {
-                const group = document.getElementById(id);
-                if (group) {
-                    if (isRough) {
-                        group.classList.add('show');
-                    } else {
-                        group.classList.remove('show');
-                    }
-                }
-            });
+        if (column === 'Cut/Rough') {
+          record[column] = String(el.value || '').toLowerCase();
+          return;
         }
-        
-        function escapeCSV(value) {
-            if (value === null || value === undefined || value === '') {
-                return '';
-            }
-            const stringValue = String(value);
-            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-                return '"' + stringValue.replace(/"/g, '""') + '"';
-            }
-            return stringValue;
+        record[column] = el.value || '';
+      });
+      return record;
+    }
+
+    function setFormRecord(record) {
+      CSV_COLUMNS.forEach((column) => {
+        const id = FIELD_IDS[column];
+        const el = document.getElementById(id);
+        if (!el) return;
+        const value = record[column] ?? '';
+        if (CHECKBOX_FIELDS.has(column)) {
+          el.checked = ['true', '1', 'yes', 'ja'].includes(String(value).toLowerCase());
+          return;
         }
-        
-        function getFormValue(id) {
-            const element = document.getElementById(id);
-            if (!element) return '';
-            
-            if (element.type === 'checkbox') {
-                return element.checked ? 'true' : 'false';
-            }
-            
-            return element.value || '';
+        if (column === 'Bilder' || column === 'Videos') {
+          mediaState[column] = parseMediaList(value);
+          syncMediaHidden(column);
+          return;
         }
-        
-        function getAllFormValues() {
-            return {
-                name: getFormValue('name'),
-                type: getFormValue('type'),
-                category: getFormValue('category'),
-                origin: getFormValue('origin'),
-                originType: getFormValue('originType'),
-                price: getFormValue('price'),
-                currency: getFormValue('currency'),
-                caratWeight: getFormValue('caratWeight'),
-                gramWeight: getFormValue('gramWeight'),
-                length: getFormValue('length'),
-                width: getFormValue('width'),
-                height: getFormValue('height'),
-                color: getFormValue('color'),
-                colorIntensity: getFormValue('colorIntensity'),
-                colorSaturation: getFormValue('colorSaturation'),
-                clarity: getFormValue('clarity'),
-                cut: getFormValue('cut'),
-                cutForm: getFormValue('cutForm'),
-                crystalForm: getFormValue('crystalForm'),
-                crystalQuality: getFormValue('crystalQuality'),
-                treatment: getFormValue('treatment'),
-                certification: getFormValue('certification'),
-                certificationNumber: getFormValue('certificationNumber'),
-                certificationUrl: getFormValue('certificationUrl'),
-                rarity: getFormValue('rarity'),
-                stock: getFormValue('stock'),
-                description: getFormValue('description'),
-                images: getFormValue('images'),
-                videos: getFormValue('videos'),
-                isNew: getFormValue('isNew'),
-                featured: getFormValue('featured'),
-                inStock: getFormValue('inStock')
-            };
+        if (column === 'Cut/Rough') {
+          el.value = String(value).toLowerCase() === 'rough' ? 'rough'
+            : (String(value).toLowerCase() === 'cut' ? 'cut' : '');
+          return;
         }
-        
-        function setFormValues(values) {
-            Object.keys(values).forEach(key => {
-                const element = document.getElementById(key);
-                if (!element) return;
-                
-                if (element.type === 'checkbox') {
-                    element.checked = values[key] === 'true';
-                } else {
-                    element.value = values[key] || '';
-                }
-            });
-            toggleTypeFields();
+        if (el.tagName === 'SELECT') {
+          ensureSelectValue(el, value);
+          return;
         }
-        
-        function addRecord() {
-            const form = document.getElementById('gemstoneForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            
-            const values = getAllFormValues();
-            
-            if (editingIndex >= 0) {
-                records[editingIndex] = values;
-                editingIndex = -1;
-            } else {
-                records.push(values);
-            }
-            
-            updateRecordsList();
-            saveRecordsToStorage(); // Speichere nach jedem Hinzufügen
-            clearForm();
-            showSuccessMessage();
+        el.value = value;
+      });
+    }
+
+    function clearForm() {
+      document.getElementById('gemstoneForm').reset();
+      document.getElementById('Währung').value = 'EUR';
+      document.getElementById('Anzahl').value = '1';
+      mediaState = { Bilder: [], Videos: [] };
+      syncMediaHidden('Bilder');
+      syncMediaHidden('Videos');
+      editingIndex = -1;
+      document.getElementById('btnAddRecord').textContent = 'Datensatz hinzufügen';
+    }
+
+    function saveStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      } catch (error) {
+        console.warn(error);
+        alert('Speichern im Browser fehlgeschlagen. Bitte CSV exportieren.');
+      }
+    }
+
+    function loadStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) records = parsed;
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+
+    function updateRecordsList() {
+      const section = document.getElementById('recordsSection');
+      const list = document.getElementById('recordsList');
+      const count = document.getElementById('recordCount');
+      if (!records.length) {
+        section.hidden = true;
+        list.innerHTML = '';
+        return;
+      }
+      section.hidden = false;
+      count.textContent = String(records.length);
+      list.innerHTML = records.map((record, index) => {
+        const mediaHint = [
+          record.Bilder ? `${parseMediaList(record.Bilder).length} Bild(er)` : null,
+          record.Videos ? `${parseMediaList(record.Videos).length} Video(s)` : null
+        ].filter(Boolean).join(', ') || 'keine Medien';
+        return `
+          <div class="record-item">
+            <div class="record-info">
+              <strong>${escapeHtml(record.Stein || 'Unbenannt')}</strong>
+              <span>${escapeHtml(record.Kategorie || '-')}</span>
+              <span>${escapeHtml(record.Farbe || '-')}</span>
+              <span>${escapeHtml(record['Preis (Brutto)'] || '-')} ${escapeHtml(record.Währung || 'EUR')}</span>
+              <span>${escapeHtml(record['Cut/Rough'] || '-')}</span>
+              <span>${escapeHtml(mediaHint)}</span>
+            </div>
+            <div class="record-actions">
+              <button type="button" class="btn btn-secondary btn-small" data-edit="${index}">Bearbeiten</button>
+              <button type="button" class="btn btn-danger btn-small" data-delete="${index}">Löschen</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function showSuccess(text) {
+      const el = document.getElementById('successMessage');
+      el.textContent = text;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 2500);
+    }
+
+    function addRecord() {
+      const form = document.getElementById('gemstoneForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      const record = getFormRecord();
+      if (editingIndex >= 0) {
+        records[editingIndex] = record;
+        editingIndex = -1;
+        document.getElementById('btnAddRecord').textContent = 'Datensatz hinzufügen';
+        showSuccess('Datensatz aktualisiert.');
+      } else {
+        records.push(record);
+        showSuccess('Datensatz hinzugefügt.');
+      }
+      saveStorage();
+      updateRecordsList();
+      clearForm();
+    }
+
+    function recordToCsvRow(record) {
+      return CSV_COLUMNS.map((column) => escapeCSV(record[column] ?? '')).join(',');
+    }
+
+    function buildCsv() {
+      return [CSV_COLUMNS.join(',')].concat(records.map(recordToCsvRow)).join('\n');
+    }
+
+    function downloadText(filename, text, mime) {
+      const blob = new Blob(['\uFEFF' + text], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function generateAndDownloadCsv() {
+      if (!records.length) {
+        alert('Bitte zuerst mindestens einen Datensatz hinzufügen.');
+        return;
+      }
+      const csv = buildCsv();
+      document.getElementById('csvOutput').style.display = 'block';
+      document.getElementById('csvOutputText').value = csv;
+      downloadText(`edelsteine-upload-${new Date().toISOString().slice(0, 10)}.csv`, csv, 'text/csv;charset=utf-8;');
+      if (document.getElementById('autoDeleteAfterExport').checked) {
+        if (confirm('Datensätze nach Export löschen?')) {
+          records = [];
+          localStorage.removeItem(STORAGE_KEY);
+          updateRecordsList();
         }
-        
-        function updateRecordsList() {
-            const recordsList = document.getElementById('recordsList');
-            const recordsSection = document.getElementById('recordsSection');
-            const recordCount = document.getElementById('recordCount');
-            
-            if (records.length === 0) {
-                recordsSection.style.display = 'none';
-                return;
-            }
-            
-            recordsSection.style.display = 'block';
-            recordCount.textContent = records.length;
-            
-            recordsList.innerHTML = '';
-            records.forEach((record, index) => {
-                const recordItem = document.createElement('div');
-                recordItem.className = 'record-item';
-                recordItem.innerHTML = `
-                    <div class="record-info">
-                        <strong>${record.name || 'Unbenannt'}</strong>
-                        <span>Typ: ${record.type === 'cut' ? 'Geschliffen' : 'Rohstein'}</span>
-                        <span>Kategorie: ${record.category || '-'}</span>
-                        <span>Farbe: ${record.color || '-'}</span>
-                        <span>Preis: ${record.price || '-'} ${record.currency || 'EUR'}</span>
-                    </div>
-                    <div class="record-actions">
-                        <button type="button" class="btn-edit btn-small" onclick="editRecord(${index})">Bearbeiten</button>
-                        <button type="button" class="btn-danger btn-small" onclick="deleteRecord(${index})">Löschen</button>
-                    </div>
-                `;
-                recordsList.appendChild(recordItem);
-            });
+      }
+    }
+
+    function parseCsv(content) {
+      const rows = [];
+      let row = [];
+      let value = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < content.length; i++) {
+        const char = content[i];
+        const next = content[i + 1];
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            value += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+          continue;
         }
-        
-        function editRecord(index) {
-            editingIndex = index;
-            const record = records[index];
-            setFormValues(record);
-            
-            document.getElementById('gemstoneForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (char === ',' && !inQuotes) {
+          row.push(value.trim());
+          value = '';
+          continue;
         }
-        
-        function deleteRecord(index) {
-            if (confirm('Möchten Sie diesen Datensatz wirklich löschen?')) {
-                records.splice(index, 1);
-                updateRecordsList();
-                saveRecordsToStorage(); // Speichere nach jedem Löschen
-            }
+        if ((char === '\n' || char === '\r') && !inQuotes) {
+          if (char === '\r' && next === '\n') i++;
+          row.push(value.trim());
+          if (row.some((cell) => cell !== '')) rows.push(row);
+          row = [];
+          value = '';
+          continue;
         }
-        
-        function clearAllRecords() {
-            if (records.length === 0) return;
-            if (confirm('Möchten Sie wirklich alle ' + records.length + ' Datensätze löschen?')) {
-                records = [];
-                updateRecordsList();
-                saveRecordsToStorage(); // Speichere nach dem Löschen
-                localStorage.removeItem(STORAGE_KEY); // Entferne auch aus localStorage
-            }
+        value += char;
+      }
+      if (value.length || row.length) {
+        row.push(value.trim());
+        if (row.some((cell) => cell !== '')) rows.push(row);
+      }
+      if (!rows.length) return { headers: [], data: [] };
+      const headers = rows[0].map((h) => h.replace(/^"|"$/g, '').trim());
+      const data = rows.slice(1).map((cells) => {
+        const obj = {};
+        headers.forEach((header, idx) => {
+          obj[header] = (cells[idx] || '').replace(/^"|"$/g, '');
+        });
+        return obj;
+      });
+      return { headers, data };
+    }
+
+    function importCsvText(text, { replace = true } = {}) {
+      const { headers, data } = parseCsv(text.replace(/^\uFEFF/, ''));
+      if (!headers.length) {
+        alert('Keine gültige CSV erkannt.');
+        return;
+      }
+      const mapped = data.map((row) => {
+        const record = {};
+        CSV_COLUMNS.forEach((column) => {
+          if (column === 'Preis (Brutto)') {
+            record[column] = row['Preis (Brutto)'] || row['Preis'] || '';
+            return;
+          }
+          if (column === 'Cut/Rough') {
+            const raw = row['Cut/Rough'] || row['Cut'] || '';
+            record[column] = String(raw).toLowerCase() === 'rough' ? 'rough'
+              : (String(raw).toLowerCase() === 'cut' ? 'cut' : String(raw).toLowerCase());
+            return;
+          }
+          record[column] = row[column] ?? '';
+        });
+        return record;
+      }).filter((row) => Object.values(row).some((v) => String(v || '').trim()));
+
+      if (!mapped.length) {
+        alert('CSV enthält keine Datenzeilen.');
+        return;
+      }
+      records = replace ? mapped : records.concat(mapped);
+      saveStorage();
+      updateRecordsList();
+      showSuccess(`${mapped.length} Zeile(n) aus CSV geladen.`);
+    }
+
+    async function loadTemplateCsv() {
+      try {
+        const response = await fetch('/templates/edelsteine-upload-vorlage.csv', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Vorlage nicht erreichbar');
+        const text = await response.text();
+        if (!confirm('Beispielzeilen aus der Admin-Vorlage laden? Bestehende Datensätze werden ersetzt.')) return;
+        importCsvText(text, { replace: true });
+      } catch (error) {
+        alert('Vorlage konnte nicht geladen werden: ' + error.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      populateSelect('Kategorie', CATEGORIES);
+      populateSelect('Herkunft', COUNTRIES);
+      populateSelect('Farbe', COLORS);
+      setupMediaBoxes();
+      syncMediaHidden('Bilder');
+      syncMediaHidden('Videos');
+      loadStorage();
+      updateRecordsList();
+
+      document.getElementById('btnAddRecord').addEventListener('click', addRecord);
+      document.getElementById('btnClearForm').addEventListener('click', clearForm);
+      document.getElementById('btnGenerateCsv').addEventListener('click', generateAndDownloadCsv);
+      document.getElementById('btnDownloadCsv').addEventListener('click', () => {
+        const text = document.getElementById('csvOutputText').value;
+        if (!text) return generateAndDownloadCsv();
+        downloadText(`edelsteine-upload-${new Date().toISOString().slice(0, 10)}.csv`, text, 'text/csv;charset=utf-8;');
+      });
+      document.getElementById('btnCopyCsv').addEventListener('click', async () => {
+        const text = document.getElementById('csvOutputText').value || buildCsv();
+        await navigator.clipboard.writeText(text);
+        alert('CSV in die Zwischenablage kopiert.');
+      });
+      document.getElementById('btnClearRecords').addEventListener('click', () => {
+        if (!records.length) return;
+        if (!confirm(`Alle ${records.length} Datensätze löschen?`)) return;
+        records = [];
+        localStorage.removeItem(STORAGE_KEY);
+        updateRecordsList();
+      });
+      document.getElementById('btnLoadTemplate').addEventListener('click', loadTemplateCsv);
+      document.getElementById('csvImportFile').addEventListener('change', (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => importCsvText(String(reader.result || ''), { replace: true });
+        reader.readAsText(file, 'UTF-8');
+        event.target.value = '';
+      });
+      document.getElementById('recordsList').addEventListener('click', (event) => {
+        const editBtn = event.target.closest('[data-edit]');
+        const deleteBtn = event.target.closest('[data-delete]');
+        if (editBtn) {
+          editingIndex = Number(editBtn.getAttribute('data-edit'));
+          setFormRecord(records[editingIndex]);
+          document.getElementById('btnAddRecord').textContent = 'Datensatz aktualisieren';
+          document.getElementById('gemstoneForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        
-        function showSuccessMessage() {
-            const message = document.getElementById('successMessage');
-            message.style.display = 'block';
-            setTimeout(() => {
-                message.style.display = 'none';
-            }, 3000);
+        if (deleteBtn) {
+          const index = Number(deleteBtn.getAttribute('data-delete'));
+          if (!confirm('Diesen Datensatz löschen?')) return;
+          records.splice(index, 1);
+          saveStorage();
+          updateRecordsList();
         }
-        
-        function generateCSV() {
-            if (records.length === 0) {
-                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
-                return;
-            }
-            
-            const csvRows = records.map(record => {
-                const karatValue = record.type === 'rough'
-                    ? (record.gramWeight || record.caratWeight)
-                    : (record.caratWeight || record.gramWeight);
-                const verkauft = record.inStock === 'false' ? 'true' : 'false';
-                return [
-                    escapeCSV(record.name),
-                    escapeCSV(record.origin),
-                    escapeCSV(record.color),
-                    escapeCSV(record.type),
-                    escapeCSV(karatValue),
-                    escapeCSV(record.price),
-                    escapeCSV(record.category),
-                    escapeCSV(record.originType),
-                    escapeCSV(record.cut),
-                    escapeCSV(record.cutForm),
-                    escapeCSV(record.clarity),
-                    escapeCSV(record.colorIntensity),
-                    escapeCSV(record.colorSaturation),
-                    escapeCSV(record.treatment),
-                    escapeCSV(record.certification),
-                    escapeCSV(record.certificationNumber),
-                    escapeCSV(record.certificationUrl),
-                    escapeCSV(record.rarity),
-                    escapeCSV(record.stock),
-                    escapeCSV(record.sku || ''),
-                    escapeCSV(record.currency),
-                    escapeCSV(record.description),
-                    escapeCSV(''),
-                    escapeCSV(record.images),
-                    escapeCSV(record.videos),
-                    escapeCSV(record.isNew),
-                    escapeCSV(record.featured),
-                    escapeCSV(verkauft),
-                    escapeCSV(record.length),
-                    escapeCSV(record.width),
-                    escapeCSV(record.height)
-                ].join(',');
-            });
-            
-            const fullCSV = CSV_HEADER + '\n' + csvRows.join('\n');
-            
-            document.getElementById('csvOutput').style.display = 'block';
-            document.getElementById('csvOutputText').value = fullCSV;
-            
-            downloadCSV();
-            
-            // Prüfe, ob automatisches Löschen aktiviert ist
-            const autoDelete = document.getElementById('autoDeleteAfterExport');
-            if (autoDelete && autoDelete.checked) {
-                if (confirm('Möchten Sie die gespeicherten Datensätze nach dem Export löschen?')) {
-                    records = [];
-                    localStorage.removeItem(STORAGE_KEY);
-                    updateRecordsList();
-                }
-            }
-            
-            document.getElementById('csvOutput').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        function clearForm() {
-            document.getElementById('gemstoneForm').reset();
-            editingIndex = -1;
-            toggleTypeFields();
-        }
-        
-        function downloadCSV() {
-            const csvText = document.getElementById('csvOutputText').value;
-            if (!csvText) {
-                alert('Bitte generieren Sie zuerst die CSV-Daten.');
-                return;
-            }
-            
-            const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'gemstonecard-upload-' + new Date().toISOString().split('T')[0] + '.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        function copyToClipboard() {
-            const csvText = document.getElementById('csvOutputText').value;
-            if (!csvText) {
-                alert('Bitte generieren Sie zuerst die CSV-Daten.');
-                return;
-            }
-            
-            navigator.clipboard.writeText(csvText).then(() => {
-                alert('CSV-Daten wurden in die Zwischenablage kopiert!');
-            }).catch(err => {
-                alert('Fehler beim Kopieren: ' + err);
-            });
-        }
-        
-        // JSON Export
-        function exportJSON() {
-            if (records.length === 0) {
-                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
-                return;
-            }
-            
-            const jsonData = {
-                exportDate: new Date().toISOString(),
-                totalRecords: records.length,
-                records: records
-            };
-            
-            const jsonText = JSON.stringify(jsonData, null, 2);
-            
-            document.getElementById('jsonOutput').style.display = 'block';
-            document.getElementById('jsonOutputText').value = jsonText;
-            
-            downloadJSON();
-            
-            document.getElementById('jsonOutput').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        function downloadJSON() {
-            const jsonText = document.getElementById('jsonOutputText').value;
-            if (!jsonText) {
-                alert('Bitte generieren Sie zuerst die JSON-Daten.');
-                return;
-            }
-            
-            const blob = new Blob([jsonText], { type: 'application/json;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'gemstonecard-upload-' + new Date().toISOString().split('T')[0] + '.json');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        function copyJSONToClipboard() {
-            const jsonText = document.getElementById('jsonOutputText').value;
-            if (!jsonText) {
-                alert('Bitte generieren Sie zuerst die JSON-Daten.');
-                return;
-            }
-            
-            navigator.clipboard.writeText(jsonText).then(() => {
-                alert('JSON-Daten wurden in die Zwischenablage kopiert!');
-            }).catch(err => {
-                alert('Fehler beim Kopieren: ' + err);
-            });
-        }
-        
-        // Excel Export (als CSV mit Excel-kompatiblem Format)
-        function exportAsExcel() {
-            const csvText = document.getElementById('csvOutputText').value;
-            if (!csvText) {
-                alert('Bitte generieren Sie zuerst die CSV-Daten.');
-                return;
-            }
-            
-            // Excel erkennt CSV mit BOM (Byte Order Mark) besser
-            const BOM = '\uFEFF';
-            const blob = new Blob([BOM + csvText], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'gemstonecard-upload-' + new Date().toISOString().split('T')[0] + '.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            alert('Excel-kompatible CSV-Datei wurde heruntergeladen. Öffnen Sie sie in Excel.');
-        }
-        
-        // Druckfunktion
-        function printRecords() {
-            if (records.length === 0) {
-                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
-                return;
-            }
-            
-            let printContent = '<html><head><title>Edelstein-Datensätze</title><style>';
-            printContent += 'body { font-family: Arial, sans-serif; padding: 20px; }';
-            printContent += 'h1 { color: #333; }';
-            printContent += 'table { width: 100%; border-collapse: collapse; margin-top: 20px; }';
-            printContent += 'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }';
-            printContent += 'th { background-color: #667eea; color: white; }';
-            printContent += 'tr:nth-child(even) { background-color: #f2f2f2; }';
-            printContent += '</style></head><body>';
-            printContent += '<h1>Edelstein-Datensätze</h1>';
-            printContent += '<p>Exportiert am: ' + new Date().toLocaleString('de-DE') + '</p>';
-            printContent += '<p>Anzahl Datensätze: ' + records.length + '</p>';
-            printContent += '<table>';
-            printContent += '<tr><th>Name</th><th>Typ</th><th>Kategorie</th><th>Herkunft</th><th>Preis</th><th>Währung</th></tr>';
-            
-            records.forEach(record => {
-                printContent += '<tr>';
-                printContent += '<td>' + (record.name || '-') + '</td>';
-                printContent += '<td>' + (record.type === 'cut' ? 'Geschliffen' : 'Rohstein') + '</td>';
-                printContent += '<td>' + (record.category || '-') + '</td>';
-                printContent += '<td>' + (record.origin || '-') + '</td>';
-                printContent += '<td>' + (record.price || '-') + '</td>';
-                printContent += '<td>' + (record.currency || 'EUR') + '</td>';
-                printContent += '</tr>';
-            });
-            
-            printContent += '</table></body></html>';
-            
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-            printWindow.print();
-        }
-        
-        // Validierungsfunktion
-        function validateRecords() {
-            if (records.length === 0) {
-                alert('Bitte fügen Sie zuerst mindestens einen Datensatz hinzu.');
-                return;
-            }
-            
-            const errors = [];
-            const warnings = [];
-            let validCount = 0;
-            
-            records.forEach((record, index) => {
-                const recordErrors = [];
-                const recordWarnings = [];
-                
-                // Pflichtfelder prüfen
-                if (!record.name || record.name.trim() === '') {
-                    recordErrors.push('Name fehlt');
-                }
-                if (!record.type) {
-                    recordErrors.push('Typ fehlt');
-                }
-                if (!record.category) {
-                    recordErrors.push('Kategorie fehlt');
-                }
-                if (!record.origin) {
-                    recordErrors.push('Herkunft fehlt');
-                }
-                const priceValue = parseFloat(String(record.price || '').replace(',', '.'));
-                if (!record.price || Number.isNaN(priceValue) || priceValue <= 0) {
-                    recordErrors.push('Preis fehlt oder ist ungültig');
-                }
-                if (!record.currency) {
-                    recordErrors.push('Währung fehlt');
-                }
-                if (!record.color) {
-                    recordErrors.push('Farbe fehlt');
-                }
-                
-                // Warnungen
-                if (!record.description || record.description.trim() === '') {
-                    recordWarnings.push('Keine Beschreibung');
-                }
-                if (!record.images || record.images.trim() === '') {
-                    recordWarnings.push('Keine Bilder');
-                }
-                if (record.type === 'cut' && !record.caratWeight) {
-                    recordErrors.push('Karat-Gewicht fehlt für geschliffenen Stein');
-                }
-                if (record.type === 'rough' && !record.gramWeight) {
-                    recordErrors.push('Gramm-Gewicht fehlt für Rohstein');
-                }
-                
-                if (recordErrors.length === 0) {
-                    validCount++;
-                } else {
-                    errors.push({
-                        index: index + 1,
-                        name: record.name || 'Unbenannt',
-                        errors: recordErrors
-                    });
-                }
-                
-                if (recordWarnings.length > 0) {
-                    warnings.push({
-                        index: index + 1,
-                        name: record.name || 'Unbenannt',
-                        warnings: recordWarnings
-                    });
-                }
-            });
-            
-            // Ergebnisse anzeigen
-            let resultHTML = '<div style="margin-bottom: 15px;">';
-            resultHTML += '<strong>Zusammenfassung:</strong><br>';
-            resultHTML += '✓ Gültige Datensätze: ' + validCount + ' von ' + records.length + '<br>';
-            resultHTML += '✗ Fehlerhafte Datensätze: ' + errors.length + '<br>';
-            resultHTML += '⚠ Warnungen: ' + warnings.length + '<br>';
-            resultHTML += '</div>';
-            
-            if (errors.length > 0) {
-                resultHTML += '<div style="margin-top: 15px;"><strong style="color: #dc3545;">Fehler:</strong><ul>';
-                errors.forEach(error => {
-                    resultHTML += '<li>Datensatz #' + error.index + ' (' + error.name + '): ' + error.errors.join(', ') + '</li>';
-                });
-                resultHTML += '</ul></div>';
-            }
-            
-            if (warnings.length > 0) {
-                resultHTML += '<div style="margin-top: 15px;"><strong style="color: #ffc107;">Warnungen:</strong><ul>';
-                warnings.forEach(warning => {
-                    resultHTML += '<li>Datensatz #' + warning.index + ' (' + warning.name + '): ' + warning.warnings.join(', ') + '</li>';
-                });
-                resultHTML += '</ul></div>';
-            }
-            
-            if (errors.length === 0 && warnings.length === 0) {
-                resultHTML += '<div style="color: #28a745; font-weight: bold; margin-top: 15px;">✓ Alle Datensätze sind gültig!</div>';
-            }
-            
-            document.getElementById('validationContent').innerHTML = resultHTML;
-            document.getElementById('validationResults').style.display = 'block';
-            document.getElementById('validationResults').scrollIntoView({ behavior: 'smooth' });
-        }
-    </script>
+      });
+    });
+  </script>
 </body>
 </html>
