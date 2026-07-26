@@ -23,7 +23,7 @@
     "seed:worldmap": "ts-node --project prisma/tsconfig.seed.json prisma/seed-worldmap.ts"
   },
   "dependencies": {
-    "@auth/core": "^0.41.1",
+    "@auth/core": "^0.41.3",
     "@auth/prisma-adapter": "^2.11.1",
     "@paypal/paypal-server-sdk": "^1.0.0",
     "@paypal/react-paypal-js": "^8.1.3",
