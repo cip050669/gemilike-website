@@ -138,9 +138,11 @@ interface ShopMetrics {
 
 export function GemstoneManagementSection() {
   const [gemstones, setGemstones] = useState<DisplayGemstone[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Start false so SSR + first client paint match (avoids disabled={true} vs null hydration mismatch).
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [usingFallback, setUsingFallback] = useState(true);
+  const [usingFallback, setUsingFallback] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const [detailGemstone, setDetailGemstone] = useState<DisplayGemstone | null>(null);
   const [editorState, setEditorState] = useState<{ open: boolean; initial: GemstoneFormValues | null }>({
     open: false,
@@ -285,6 +287,10 @@ export function GemstoneManagementSection() {
   }, [mapApiGemstone]);
 
   useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
     loadGemstones();
   }, [loadGemstones]);
 
@@ -322,7 +328,10 @@ export function GemstoneManagementSection() {
     return gemstones.filter((gem) => vectorMatchSet.has(gem.id));
   }, [gemstones, vectorMatchSet]);
 
-  const actionsDisabled = usingFallback || isLoading;
+  // Only apply disable logic after mount so server HTML and hydrated props agree.
+  // Use undefined (omit attr) instead of false to avoid React 19 disabled={false}/{null} mismatches.
+  const actionsDisabled = hasMounted && (usingFallback || isLoading);
+  const actionDisableProp = actionsDisabled ? true : undefined;
 
   const handleVectorReset = () => {
     setVectorMatches(null);
@@ -766,7 +775,7 @@ export function GemstoneManagementSection() {
           type="button"
           className="w-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-primary-strong sm:w-auto"
           onClick={() => handleOpenEditor()}
-          disabled={actionsDisabled}
+          disabled={actionDisableProp}
         >
           Edelsteineditor
         </AdminButton>
@@ -785,7 +794,7 @@ export function GemstoneManagementSection() {
               console.log('Is loading:', isLoading);
               await handleBulkDelete();
             }}
-            disabled={actionsDisabled || isLoading}
+            disabled={actionsDisabled || isLoading ? true : undefined}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {selectedIds.size} ausgewählte löschen
@@ -947,7 +956,7 @@ export function GemstoneManagementSection() {
               }
               onChange={(e) => handleSelectAll(e.target.checked)}
               className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-2 focus:ring-primary"
-              disabled={actionsDisabled}
+              disabled={actionDisableProp}
             />
             <label className="text-sm text-white/70">
               {selectedIds.size > 0
@@ -968,7 +977,7 @@ export function GemstoneManagementSection() {
                   checked={selectedIds.has(gemstone.id)}
                   onChange={() => handleToggleSelect(gemstone.id)}
                   className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-2 focus:ring-primary flex-shrink-0"
-                  disabled={actionsDisabled}
+                  disabled={actionDisableProp}
                 />
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <AdminButton
@@ -987,7 +996,7 @@ export function GemstoneManagementSection() {
                     className="border-white/20 text-white hover:bg-gray-800/30/10"
                     onClick={() => handleOpenEditor(gemstone)}
                     aria-label={`${gemstone.name} bearbeiten`}
-                    disabled={actionsDisabled}
+                    disabled={actionDisableProp}
                   >
                     <PenSquare className="h-4 w-4 mr-2" />
                     Bearbeiten
@@ -1077,7 +1086,7 @@ export function GemstoneManagementSection() {
                 variant="outline"
                 className="border-white/20 text-white hover:bg-gray-700/30/10"
                 onClick={() => handleToggleNew(detailGemstone, !detailGemstone.isNew)}
-                disabled={actionsDisabled}
+                disabled={actionDisableProp}
               >
                 {detailGemstone.isNew ? 'Neu-Markierung entfernen' : 'Als neu markieren'}
               </AdminButton>
@@ -1085,7 +1094,7 @@ export function GemstoneManagementSection() {
                 variant="outline"
                 className="border-white/20 text-white hover:bg-gray-700/30/10"
                 onClick={() => handleToggleSold(detailGemstone, !detailGemstone.isSold)}
-                disabled={actionsDisabled}
+                disabled={actionDisableProp}
               >
                 {detailGemstone.isSold ? 'Als verfügbar markieren' : 'Als verkauft markieren'}
               </AdminButton>

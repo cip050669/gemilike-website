@@ -242,6 +242,8 @@
       Erfasst Edelsteine im Format der Admin-Vorlage
       (<a href="/templates/edelsteine-upload-vorlage.csv" target="_blank" rel="noopener">edelsteine-upload-vorlage.csv</a>)
       für den Import unter <code>/de/admin/gemstones/</code>.
+      Auswahllisten entsprechen dem Admin-Edelsteineditor
+      (<code>lib/constants/gemstone-options.ts</code>) und sind alphabetisch sortiert.
       Bilder und Videos werden als Pfade oder URLs in den CSV-Spalten <strong>Bilder</strong> und <strong>Videos</strong> gespeichert.
     </p>
 
@@ -290,15 +292,10 @@
           <label for="Qualität">Qualität</label>
           <select id="Qualität" name="Qualität">
             <option value="">-- Bitte wählen --</option>
-            <option value="sehr gut">sehr gut</option>
-            <option value="gut">gut</option>
-            <option value="zufriedenstellend">zufriedenstellend</option>
             <option value="ausreichend">ausreichend</option>
-            <option value="IF">IF</option>
-            <option value="VVS">VVS</option>
-            <option value="VS">VS</option>
-            <option value="SI">SI</option>
-            <option value="I">I</option>
+            <option value="gut">gut</option>
+            <option value="sehr gut">sehr gut</option>
+            <option value="zufriedenstellend">zufriedenstellend</option>
           </select>
         </div>
         <div class="form-group">
@@ -310,16 +307,16 @@
         <div class="form-group">
           <label for="transparent">Transparenz</label>
           <select id="transparent" name="transparent">
-            <option value="">—</option>
-            <option value="transparent">transparent</option>
-            <option value="translucent">translucent</option>
+            <option value="">-- Bitte wählen --</option>
             <option value="opaque">opaque</option>
+            <option value="translucent">translucent</option>
+            <option value="transparent">transparent</option>
           </select>
         </div>
         <div class="form-group">
           <label class="required" for="CutRough">Cut/Rough</label>
           <select id="CutRough" name="Cut/Rough" required>
-            <option value="">—</option>
+            <option value="">-- Bitte wählen --</option>
             <option value="cut">cut (geschliffen)</option>
             <option value="rough">rough (Rohstein)</option>
           </select>
@@ -345,10 +342,10 @@
         <div class="form-group">
           <label for="Entstehung">Entstehung</label>
           <select id="Entstehung" name="Entstehung">
-            <option value="">—</option>
+            <option value="">-- Bitte wählen --</option>
+            <option value="Imitation">Imitation</option>
             <option value="natürlich">natürlich</option>
             <option value="synthetisch">synthetisch</option>
-            <option value="Imitation">Imitation</option>
           </select>
         </div>
         <div class="form-group">
@@ -383,86 +380,49 @@
           <label for="Schliffart">Schliffart</label>
           <select id="Schliffart" name="Schliffart">
             <option value="">-- Bitte wählen --</option>
-            <option value="Brillant-Schliff">Brillant-Schliff</option>
-            <option value="Stufen-Schliff">Stufen-Schliff</option>
-            <option value="Konkav-Schliff">Konkav-Schliff</option>
-            <option value="Portugiesischer Schliff">Portugiesischer Schliff</option>
-            <option value="Treppen-Schliff">Treppen-Schliff</option>
-            <option value="Rosen-Schliff">Rosen-Schliff</option>
-            <option value="Schachbrett-Schliff">Schachbrett-Schliff</option>
-            <option value="Mischschliff">Mischschliff</option>
-            <option value="Cabochon">Cabochon</option>
-            <option value="Oval">Oval</option>
-            <option value="Rund">Rund</option>
-            <option value="Smaragd">Smaragd</option>
-            <option value="Tropfen">Tropfen</option>
-            <option value="Kissen">Kissen</option>
-            <option value="Marquise">Marquise</option>
-            <option value="Trilliant">Trilliant</option>
-            <option value="Fancy">Fancy</option>
-            <option value="freiform">freiform</option>
-            <option value="Oktagon">Oktagon</option>
-            <option value="rechteckig">rechteckig</option>
           </select>
+          <div class="help">Schlifftechnik (wie im Admin-Editor) — nicht die Form.</div>
         </div>
         <div class="form-group">
           <label for="Schliffform">Schliffform</label>
           <select id="Schliffform" name="Schliffform">
             <option value="">-- Bitte wählen --</option>
-            <option value="Rund">Rund</option>
-            <option value="Oval">Oval</option>
-            <option value="Kissen">Kissen</option>
-            <option value="Herz">Herz</option>
-            <option value="Tropfen">Tropfen</option>
-            <option value="Marquise">Marquise</option>
-            <option value="Princess">Princess</option>
-            <option value="Brillant">Brillant</option>
-            <option value="Smaragd">Smaragd</option>
-            <option value="Baguette">Baguette</option>
-            <option value="Asscher">Asscher</option>
-            <option value="Trillion">Trillion</option>
-            <option value="Trilliant">Trilliant</option>
-            <option value="Fancy">Fancy</option>
-            <option value="Cabochon">Cabochon</option>
-            <option value="Oktagon">Oktagon</option>
-            <option value="freiform">freiform</option>
-            <option value="rechteckig">rechteckig</option>
           </select>
+          <div class="help">Äußere Form / Outline (wie im Admin-Editor).</div>
         </div>
         <div class="form-group">
           <label for="Schliffqualität">Schliffqualität</label>
           <select id="Schliffqualität" name="Schliffqualität">
             <option value="">-- Bitte wählen --</option>
             <option value="Excellent">Excellent</option>
-            <option value="Very Good">Very Good</option>
-            <option value="Good">Good</option>
             <option value="Fair">Fair</option>
+            <option value="Good">Good</option>
             <option value="Poor">Poor</option>
+            <option value="Very Good">Very Good</option>
           </select>
         </div>
         <div class="form-group">
           <label for="Reinheitsgrad">Reinheitsgrad</label>
           <select id="Reinheitsgrad" name="Reinheitsgrad">
             <option value="">-- Bitte wählen --</option>
-            <option value="FL">FL - Flawless</option>
-            <option value="IF">IF - Internally Flawless</option>
-            <option value="VVS">VVS - Very Very Slightly Included</option>
-            <option value="VS">VS - Very Slightly Included</option>
-            <option value="SI">SI - Slightly Included</option>
-            <option value="I">I - Included</option>
+            <option value="FL">FL - Flawless (Lupenrein, keine Einschlüsse)</option>
+            <option value="I">I - Included (Einschlüsse mit bloßem Auge deutlich sichtbar)</option>
+            <option value="SI">SI - Slightly Included (Kleine Einschlüsse)</option>
+            <option value="VS">VS - Very Slightly Included (Sehr kleine Einschlüsse)</option>
+            <option value="VVS">VVS - Very Very Slightly Included (Sehr, sehr kleine Einschlüsse)</option>
           </select>
         </div>
         <div class="form-group">
           <label for="Farbsättigung">Farbsättigung</label>
           <select id="Farbsättigung" name="Farbsättigung">
             <option value="">-- Bitte wählen --</option>
-            <option value="Pale">Pale (sehr hell)</option>
+            <option value="Deep">Deep (dunkel)</option>
+            <option value="Intense">Intense (intensiv)</option>
             <option value="Light">Light (hell)</option>
             <option value="Medium">Medium (mittel)</option>
-            <option value="Intense">Intense (intensiv)</option>
-            <option value="Vivid">Vivid (sehr intensiv)</option>
-            <option value="Deep">Deep (dunkel)</option>
+            <option value="Pale">Pale (sehr hell)</option>
             <option value="Rich">Rich (satt)</option>
+            <option value="Vivid">Vivid (sehr intensiv)</option>
           </select>
         </div>
         <div class="form-group">
@@ -470,9 +430,9 @@
           <input id="Farbsättigung_1_10" name="Farbsättigung_1_10" type="number" min="1" max="10">
         </div>
         <div class="form-group">
-          <label for="Helligkeit">Helligkeit (1–10)</label>
-          <input id="Helligkeit" name="Helligkeit" type="number" min="1" max="10" placeholder="1–10">
-          <div class="help">Helligkeitsskala von 1 (weiß) bis 10 (schwarz)</div>
+          <label for="Helligkeit">Helligkeit (0–10)</label>
+          <input id="Helligkeit" name="Helligkeit" type="number" min="0" max="10" placeholder="0–10">
+          <div class="help">Wie im Admin-Editor: 0 = weiß, 10 = schwarz</div>
         </div>
         <div class="form-group">
           <label for="Farbgrad">Farbgrad</label>
@@ -483,10 +443,10 @@
           <select id="Symmetrie" name="Symmetrie">
             <option value="">-- Bitte wählen --</option>
             <option value="Excellent">Excellent</option>
-            <option value="Very Good">Very Good</option>
-            <option value="Good">Good</option>
             <option value="Fair">Fair</option>
+            <option value="Good">Good</option>
             <option value="Poor">Poor</option>
+            <option value="Very Good">Very Good</option>
           </select>
         </div>
         <div class="form-group">
@@ -494,20 +454,20 @@
           <select id="Politur" name="Politur">
             <option value="">-- Bitte wählen --</option>
             <option value="Excellent">Excellent</option>
-            <option value="Very Good">Very Good</option>
-            <option value="Good">Good</option>
             <option value="Fair">Fair</option>
+            <option value="Good">Good</option>
             <option value="Poor">Poor</option>
+            <option value="Very Good">Very Good</option>
           </select>
         </div>
         <div class="form-group">
           <label for="Kristallqualität">Kristallqualität</label>
           <select id="Kristallqualität" name="Kristallqualität">
             <option value="">-- Bitte wählen --</option>
-            <option value="sehr gut">Sehr gut</option>
-            <option value="gut">Gut</option>
-            <option value="zufriedenstellend">Zufriedenstellend</option>
-            <option value="ausreichend">Ausreichend</option>
+            <option value="ausreichend">ausreichend</option>
+            <option value="gut">gut</option>
+            <option value="sehr gut">sehr gut</option>
+            <option value="zufriedenstellend">zufriedenstellend</option>
           </select>
         </div>
         <div class="form-group">
@@ -522,12 +482,12 @@
           <label for="Geeignet_für">Geeignet_für</label>
           <select id="Geeignet_für" name="Geeignet_für">
             <option value="">-- Bitte wählen --</option>
-            <option value="Ring">Ring</option>
             <option value="Anhänger">Anhänger</option>
-            <option value="Ohrringe">Ohrringe</option>
             <option value="Armreif">Armreif</option>
-            <option value="Sammlerstück">Sammlerstück</option>
             <option value="Investition">Investition</option>
+            <option value="Ohrringe">Ohrringe</option>
+            <option value="Ring">Ring</option>
+            <option value="Sammlerstück">Sammlerstück</option>
           </select>
         </div>
       </div>
@@ -546,15 +506,15 @@
           <label for="Behandlungsart">Behandlungsart</label>
           <select id="Behandlungsart" name="Behandlungsart">
             <option value="">-- Bitte wählen --</option>
-            <option value="none">Keine Behandlung</option>
-            <option value="heated">Erhitzt</option>
-            <option value="oiled">Geölt</option>
-            <option value="irradiated">Bestrahlt</option>
-            <option value="diffused">Diffusionsbehandlung</option>
-            <option value="coated">Beschichtet</option>
-            <option value="bleached">Gebleicht</option>
-            <option value="filled">Gefüllt (Fracture Filling)</option>
-            <option value="stabilized">Stabilisiert</option>
+            <option value="Beschichtet">Beschichtet</option>
+            <option value="Bestrahlt">Bestrahlt</option>
+            <option value="Diffusionsbehandlung">Diffusionsbehandlung</option>
+            <option value="Erhitzt">Erhitzt</option>
+            <option value="Gebleicht">Gebleicht</option>
+            <option value="Gefüllt (Fracture Filling)">Gefüllt (Fracture Filling)</option>
+            <option value="Geölt">Geölt</option>
+            <option value="Keine Behandlung">Keine Behandlung</option>
+            <option value="Stabilisiert">Stabilisiert</option>
           </select>
         </div>
         <div class="form-group full">
@@ -573,17 +533,17 @@
           <label for="Zertifizierungs_Labor">Zertifizierungs_Labor</label>
           <select id="Zertifizierungs_Labor" name="Zertifizierungs_Labor">
             <option value="">-- Bitte wählen --</option>
-            <option value="GIA">GIA</option>
-            <option value="IGI">IGI</option>
-            <option value="HRD">HRD</option>
-            <option value="SSEF">SSEF</option>
-            <option value="Gübelin">Gübelin</option>
-            <option value="DSEF">DSEF</option>
+            <option value="AIG">AIG</option>
             <option value="AIGS">AIGS</option>
-            <option value="GRS">GRS</option>
+            <option value="DSEF">DSEF</option>
             <option value="GemResearch Swisslab">GemResearch Swisslab</option>
-            <option value="ICI">ICI</option>
-            <option value="none">Keine Zertifizierung</option>
+            <option value="GIA">GIA</option>
+            <option value="GRS">GRS</option>
+            <option value="Gübelin">Gübelin</option>
+            <option value="HRD">HRD</option>
+            <option value="IGI">IGI</option>
+            <option value="Keine Zertifizierung">Keine Zertifizierung</option>
+            <option value="SSEF">SSEF</option>
           </select>
         </div>
         <div class="form-group">
@@ -598,13 +558,13 @@
           <label for="Rarität">Rarität</label>
           <select id="Rarität" name="Rarität">
             <option value="">-- Bitte wählen --</option>
+            <option value="Außergewöhnlich">Außergewöhnlich</option>
+            <option value="Einzigartig">Einzigartig</option>
             <option value="Gewöhnlich">Gewöhnlich</option>
             <option value="Häufig">Häufig</option>
-            <option value="Selten">Selten</option>
-            <option value="Sehr selten">Sehr selten</option>
-            <option value="außergewöhnliches">Außergewöhnlich</option>
-            <option value="Einzigartig">Einzigartig</option>
             <option value="Museumsqualität">Museumsqualität</option>
+            <option value="Sehr selten">Sehr selten</option>
+            <option value="Selten">Selten</option>
           </select>
         </div>
         <div class="form-group">
@@ -771,11 +731,45 @@
     const MEDIA_UPLOAD_PREFIX = '/uploads/gemstones/';
     const STORAGE_KEY = 'gemstonecard_csv_records_v2';
 
-    const CATEGORIES = ['Achat', 'Albit', 'Alexandrit', 'Amazonit', 'Amethyst', 'Andalusit', 'Andradit', 'Apatit', 'Aquamarin', 'Aventurin', 'Azurit', 'Benitoit', 'Beryll', 'Beryllonit', 'Bixbit', 'Brasilianit', 'Calcit', 'Carnelian', 'Cerussit', 'Chalcedon', 'Charoit', 'Chrysoberyll', 'Chrysokoll', 'Chrysopras', 'Citrin', 'Cordierit', 'Danburit', 'Demantoid', 'Diamant', 'Diopsid', 'Dumortierit', 'Ekanit', 'Epidot', 'Eudialyt', 'Fenakit', 'Fluorit', 'Garnet', 'Goshenit', 'Grossular', 'Hämatit', 'Hambergit', 'Heliodor', 'Hessonit', 'Hiddenit', 'Howlith', 'Hypersthen', 'Iolith', 'Jade', 'Jadeit', 'Jaspis', 'Jeremejewit', 'Korund', 'Kunzit', 'Kyanit', 'Labradorit', 'Lapis Lazuli', 'Larimar', 'Lazulith', 'Lepidolith', 'Magnetit', 'Malachit', 'Moldavit', 'Mondstein', 'Morganit', 'Obsidian', 'Opal', 'Padparadscha', 'Peridot', 'Perowskit', 'Phenakit', 'Prehnit', 'Pyrit', 'Pyrop', 'Quarz', 'Rhodochrosit', 'Rhodolith', 'Rhodonit', 'Rubin', 'Rutil', 'Saphir', 'Sardonyx', 'Schörl', 'Selenit', 'Serpentin', 'Smaragd', 'Smithsonit', 'Spessartin', 'Spinell', 'Sphalerit', 'Spodumen', 'Staurolith', 'Sunstone', 'Tansanit', 'Tanzanit', 'Tigerauge', 'Topas', 'Tourmalin', 'Tsavorit', 'Turmalin', 'Türkis', 'Uvarovit', 'Variscit', 'Vesuvianit', 'Zirkon', 'Zoisit', 'Zultanit'].sort();
+    /** Sortierung wie im Admin (deutsche Locale inkl. Umlaute) */
+    const sortDe = (list) => [...list].sort((a, b) => a.localeCompare(b, 'de'));
 
-    const COUNTRIES = ['Afghanistan', 'Ägypten', 'Albanien', 'Algerien', 'Andorra', 'Angola', 'Antigua und Barbuda', 'Äquatorialguinea', 'Argentinien', 'Armenien', 'Aserbaidschan', 'Äthiopien', 'Australien', 'Bahamas', 'Bahrain', 'Bangladesch', 'Barbados', 'Belarus', 'Belgien', 'Belize', 'Benin', 'Bhutan', 'Bolivien', 'Bosnien und Herzegowina', 'Botswana', 'Brasilien', 'Brunei', 'Bulgarien', 'Burkina Faso', 'Burundi', 'Chile', 'China', 'Costa Rica', 'Dänemark', 'Deutschland', 'Dominica', 'Dominikanische Republik', 'Dschibuti', 'Ecuador', 'El Salvador', 'Elfenbeinküste', 'Eritrea', 'Estland', 'Eswatini', 'Fidschi', 'Finnland', 'Frankreich', 'Gabun', 'Gambia', 'Georgien', 'Ghana', 'Grenada', 'Griechenland', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Indien', 'Indonesien', 'Irak', 'Iran', 'Irland', 'Island', 'Israel', 'Italien', 'Jamaika', 'Japan', 'Jemen', 'Jordanien', 'Kambodscha', 'Kamerun', 'Kanada', 'Kap Verde', 'Kasachstan', 'Katar', 'Kenia', 'Kirgisistan', 'Kiribati', 'Kolumbien', 'Komoren', 'Kongo', 'Demokratische Republik Kongo', 'Kroatien', 'Kuba', 'Kuwait', 'Laos', 'Lesotho', 'Lettland', 'Libanon', 'Liberia', 'Libyen', 'Liechtenstein', 'Litauen', 'Luxemburg', 'Madagaskar', 'Malawi', 'Malaysia', 'Malediven', 'Mali', 'Malta', 'Marokko', 'Marshallinseln', 'Mauretanien', 'Mauritius', 'Mexiko', 'Mikronesien', 'Moldau', 'Monaco', 'Mongolei', 'Montenegro', 'Mosambik', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Neuseeland', 'Nicaragua', 'Niederlande', 'Niger', 'Nigeria', 'Nordkorea', 'Nordmazedonien', 'Norwegen', 'Oman', 'Österreich', 'Pakistan', 'Palau', 'Panama', 'Papua-Neuguinea', 'Paraguay', 'Peru', 'Philippinen', 'Polen', 'Portugal', 'Ruanda', 'Rumänien', 'Russland', 'Salomonen', 'Sambia', 'Samoa', 'San Marino', 'São Tomé und Príncipe', 'Saudi-Arabien', 'Schweden', 'Schweiz', 'Senegal', 'Serbien', 'Seychellen', 'Sierra Leone', 'Simbabwe', 'Singapur', 'Slowakei', 'Slowenien', 'Somalia', 'Spanien', 'Sri Lanka', 'St. Kitts und Nevis', 'St. Lucia', 'St. Vincent und die Grenadinen', 'Südafrika', 'Sudan', 'Südkorea', 'Südsudan', 'Suriname', 'Syrien', 'Tadschikistan', 'Taiwan', 'Tansania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad und Tobago', 'Tschad', 'Tschechien', 'Tunesien', 'Türkei', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'Ungarn', 'Uruguay', 'USA', 'Usbekistan', 'Vanuatu', 'Vatikanstadt', 'Venezuela', 'Vereinigte Arabische Emirate', 'Vietnam', 'Weißrussland', 'Zentralafrikanische Republik', 'Zypern'].sort();
+    // Quellen: lib/constants/gemstone-options.ts + components/admin/GemstoneEditor.tsx
+    const CATEGORIES = sortDe(['Achat', 'Albit', 'Alexandrit', 'Amazonit', 'Amethyst', 'Andalusit', 'Andradit', 'Apatit', 'Aquamarin', 'Aventurin', 'Azurit', 'Benitoit', 'Beryll', 'Beryllonit', 'Bixbit', 'Brasilianit', 'Calcit', 'Carnelian', 'Cerussit', 'Chalcedon', 'Charoit', 'Chrysoberyll', 'Chrysokoll', 'Chrysopras', 'Citrin', 'Cordierit', 'Danburit', 'Demantoid', 'Diamant', 'Diopsid', 'Dumortierit', 'Ekanit', 'Epidot', 'Eudialyt', 'Fenakit', 'Fluorit', 'Garnet', 'Goshenit', 'Grossular', 'Hämatit', 'Hambergit', 'Heliodor', 'Hessonit', 'Hiddenit', 'Howlith', 'Hypersthen', 'Iolith', 'Jade', 'Jadeit', 'Jaspis', 'Jeremejewit', 'Korund', 'Kunzit', 'Kyanit', 'Labradorit', 'Lapis Lazuli', 'Larimar', 'Lazulith', 'Lepidolith', 'Magnetit', 'Malachit', 'Moldavit', 'Mondstein', 'Morganit', 'Obsidian', 'Opal', 'Padparadscha', 'Peridot', 'Perowskit', 'Phenakit', 'Prehnit', 'Pyrit', 'Pyrop', 'Quarz', 'Rhodochrosit', 'Rhodolith', 'Rhodonit', 'Rubin', 'Rutil', 'Saphir', 'Sardonyx', 'Schörl', 'Selenit', 'Serpentin', 'Smaragd', 'Smithsonit', 'Spessartin', 'Spinell', 'Sphalerit', 'Spodumen', 'Staurolith', 'Sunstone', 'Tansanit', 'Tanzanit', 'Tigerauge', 'Topas', 'Tourmalin', 'Tsavorit', 'Turmalin', 'Türkis', 'Uvarovit', 'Variscit', 'Vesuvianit', 'Zirkon', 'Zoisit', 'Zultanit']);
 
-    const COLORS = ['Achatgrau', 'Aprikose', 'Aquamarinblau', 'Aschgrau', 'Beige', 'Bernstein', 'Bisquit', 'Blassblau', 'Blassgelb', 'Blassgrün', 'Blasslila', 'Blassrosa', 'Blau', 'Blau-Grün', 'Blau-Violett', 'Bläulich', 'Bläulich-Grün', 'Bläulich-Violett', 'Braun', 'Braun-Gelb', 'Braun-Rot', 'Bronze', 'Champagner', 'Chromgrün', 'Cognac', 'Cyan', 'Dunkelblau', 'Dunkelbraun', 'Dunkelgelb', 'Dunkelgrau', 'Dunkelgrün', 'Dunkellila', 'Dunkelorange', 'Dunkelrosa', 'Dunkelrot', 'Dunkeltürkis', 'Dunkelviolett', 'Eisblau', 'Elfenbein', 'Emeraldgrün', 'Farblos', 'Feuerrot', 'Flieder', 'Gelb', 'Gelb-Grün', 'Gelb-Orange', 'Gelblich', 'Gelblich-Grün', 'Gold', 'Goldgelb', 'Grau', 'Grau-Blau', 'Grau-Grün', 'Grün', 'Grün-Blau', 'Grün-Gelb', 'Grünlich', 'Grünlich-Blau', 'Himmelblau', 'Honiggelb', 'Indigo', 'Jadegrün', 'Kamel', 'Karminrot', 'Kastanienbraun', 'Kobaltblau', 'Koralle', 'Kupfer', 'Lachs', 'Lavendel', 'Lemon', 'Lila', 'Lila-Blau', 'Lila-Rot', 'Magenta', 'Mahagoni', 'Marineblau', 'Mint', 'Moosgrün', 'Navy', 'Ocker', 'Oliv', 'Olivgrün', 'Orange', 'Orange-Gelb', 'Orange-Rot', 'Orchidee', 'Pastellblau', 'Pastellgelb', 'Pastellgrün', 'Pastelllila', 'Pastellrosa', 'Perlmutt', 'Pfirsich', 'Pink', 'Pink-Rot', 'Platin', 'Purpur', 'Rosa', 'Rosa-Lila', 'Rosa-Rot', 'Rot', 'Rot-Orange', 'Rot-Violett', 'Rötlich', 'Rötlich-Orange', 'Rötlich-Violett', 'Rubinrot', 'Safrangelb', 'Salmon', 'Scharlachrot', 'Schwarz', 'Schwarz-Blau', 'Schwarz-Grün', 'Schwarz-Rot', 'Schwarz-Violett', 'Silber', 'Smaragdgrün', 'Tannengrün', 'Taupe', 'Teal', 'Tiefblau', 'Tiefgrün', 'Tiefrot', 'Tiefviolett', 'Türkis', 'Türkis-Blau', 'Türkis-Grün', 'Ultramarin', 'Vanille', 'Violett', 'Violett-Blau', 'Violett-Rot', 'Violettlich', 'Weiß', 'Weiß-Gelb', 'Weiß-Grün', 'Weißlich', 'Weißlich-Blau', 'Weißlich-Grün', 'Zitronengelb', 'Zitronengrün'].sort();
+    const COUNTRIES = sortDe(['Afghanistan', 'Ägypten', 'Albanien', 'Algerien', 'Andorra', 'Angola', 'Antigua und Barbuda', 'Äquatorialguinea', 'Argentinien', 'Armenien', 'Aserbaidschan', 'Äthiopien', 'Australien', 'Bahamas', 'Bahrain', 'Bangladesch', 'Barbados', 'Belarus', 'Belgien', 'Belize', 'Benin', 'Bhutan', 'Bolivien', 'Bosnien und Herzegowina', 'Botswana', 'Brasilien', 'Brunei', 'Bulgarien', 'Burkina Faso', 'Burundi', 'Chile', 'China', 'Costa Rica', 'Dänemark', 'Deutschland', 'Dominica', 'Dominikanische Republik', 'Dschibuti', 'Ecuador', 'El Salvador', 'Elfenbeinküste', 'Eritrea', 'Estland', 'Eswatini', 'Fidschi', 'Finnland', 'Frankreich', 'Gabun', 'Gambia', 'Georgien', 'Ghana', 'Grenada', 'Griechenland', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Indien', 'Indonesien', 'Irak', 'Iran', 'Irland', 'Island', 'Israel', 'Italien', 'Jamaika', 'Japan', 'Jemen', 'Jordanien', 'Kambodscha', 'Kamerun', 'Kanada', 'Kap Verde', 'Kasachstan', 'Katar', 'Kenia', 'Kirgisistan', 'Kiribati', 'Kolumbien', 'Komoren', 'Kongo', 'Demokratische Republik Kongo', 'Kroatien', 'Kuba', 'Kuwait', 'Laos', 'Lesotho', 'Lettland', 'Libanon', 'Liberia', 'Libyen', 'Liechtenstein', 'Litauen', 'Luxemburg', 'Madagaskar', 'Malawi', 'Malaysia', 'Malediven', 'Mali', 'Malta', 'Marokko', 'Marshallinseln', 'Mauretanien', 'Mauritius', 'Mexiko', 'Mikronesien', 'Moldau', 'Monaco', 'Mongolei', 'Montenegro', 'Mosambik', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Neuseeland', 'Nicaragua', 'Niederlande', 'Niger', 'Nigeria', 'Nordkorea', 'Nordmazedonien', 'Norwegen', 'Oman', 'Österreich', 'Pakistan', 'Palau', 'Panama', 'Papua-Neuguinea', 'Paraguay', 'Peru', 'Philippinen', 'Polen', 'Portugal', 'Ruanda', 'Rumänien', 'Russland', 'Salomonen', 'Sambia', 'Samoa', 'San Marino', 'São Tomé und Príncipe', 'Saudi-Arabien', 'Schweden', 'Schweiz', 'Senegal', 'Serbien', 'Seychellen', 'Sierra Leone', 'Simbabwe', 'Singapur', 'Slowakei', 'Slowenien', 'Somalia', 'Spanien', 'Sri Lanka', 'St. Kitts und Nevis', 'St. Lucia', 'St. Vincent und die Grenadinen', 'Südafrika', 'Sudan', 'Südkorea', 'Südsudan', 'Suriname', 'Syrien', 'Tadschikistan', 'Taiwan', 'Tansania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad und Tobago', 'Tschad', 'Tschechien', 'Tunesien', 'Türkei', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'Ungarn', 'Uruguay', 'USA', 'Usbekistan', 'Vanuatu', 'Vatikanstadt', 'Venezuela', 'Vereinigte Arabische Emirate', 'Vietnam', 'Weißrussland', 'Zentralafrikanische Republik', 'Zypern']);
+
+    const COLORS = sortDe(['Achatgrau', 'Aprikose', 'Aquamarinblau', 'Aschgrau', 'Beige', 'Bernstein', 'Bisquit', 'Blassblau', 'Blassgelb', 'Blassgrün', 'Blasslila', 'Blassrosa', 'Blau', 'Blau-Grün', 'Blau-Violett', 'Bläulich', 'Bläulich-Grün', 'Bläulich-Violett', 'Braun', 'Braun-Gelb', 'Braun-Rot', 'Bronze', 'Champagner', 'Chromgrün', 'Cognac', 'Cyan', 'Dunkelblau', 'Dunkelbraun', 'Dunkelgelb', 'Dunkelgrau', 'Dunkelgrün', 'Dunkellila', 'Dunkelorange', 'Dunkelrosa', 'Dunkelrot', 'Dunkeltürkis', 'Dunkelviolett', 'Eisblau', 'Elfenbein', 'Emeraldgrün', 'Farblos', 'Feuerrot', 'Flieder', 'Gelb', 'Gelb-Grün', 'Gelb-Orange', 'Gelblich', 'Gelblich-Grün', 'Gold', 'Goldgelb', 'Grau', 'Grau-Blau', 'Grau-Grün', 'Grün', 'Grün-Blau', 'Grün-Gelb', 'Grünlich', 'Grünlich-Blau', 'Himmelblau', 'Honiggelb', 'Indigo', 'Jadegrün', 'Kamel', 'Karminrot', 'Kastanienbraun', 'Kobaltblau', 'Koralle', 'Kupfer', 'Lachs', 'Lavendel', 'Lemon', 'Lila', 'Lila-Blau', 'Lila-Rot', 'Magenta', 'Mahagoni', 'Marineblau', 'Mint', 'Moosgrün', 'Navy', 'Ocker', 'Oliv', 'Olivgrün', 'Orange', 'Orange-Gelb', 'Orange-Rot', 'Orchidee', 'Pastellblau', 'Pastellgelb', 'Pastellgrün', 'Pastelllila', 'Pastellrosa', 'Perlmutt', 'Pfirsich', 'Pink', 'Pink-Rot', 'Platin', 'Purpur', 'Rosa', 'Rosa-Lila', 'Rosa-Rot', 'Rot', 'Rot-Orange', 'Rot-Violett', 'Rötlich', 'Rötlich-Orange', 'Rötlich-Violett', 'Rubinrot', 'Safrangelb', 'Salmon', 'Scharlachrot', 'Schwarz', 'Schwarz-Blau', 'Schwarz-Grün', 'Schwarz-Rot', 'Schwarz-Violett', 'Silber', 'Smaragdgrün', 'Tannengrün', 'Taupe', 'Teal', 'Tiefblau', 'Tiefgrün', 'Tiefrot', 'Tiefviolett', 'Türkis', 'Türkis-Blau', 'Türkis-Grün', 'Ultramarin', 'Vanille', 'Violett', 'Violett-Blau', 'Violett-Rot', 'Violettlich', 'Weiß', 'Weiß-Gelb', 'Weiß-Grün', 'Weißlich', 'Weißlich-Blau', 'Weißlich-Grün', 'Zitronengelb', 'Zitronengrün']);
+
+    /** Schliffart = Technik (CUT_STYLE_OPTIONS) — nicht die Form */
+    const CUT_STYLES = sortDe([
+      'Brillant-Schliff',
+      'Cabochon',
+      'Konkav-Schliff',
+      'Mischschliff',
+      'Portugiesischer Schliff',
+      'Rosen-Schliff',
+      'Schachbrett-Schliff',
+      'Stufen-Schliff',
+      'Treppen-Schliff'
+    ]);
+
+    /** Schliffform = Outline (CUT_FORM_OPTIONS) */
+    const CUT_FORMS = sortDe([
+      'Asscher',
+      'Baguette',
+      'Brillant',
+      'Fancy',
+      'Herz',
+      'Kissen',
+      'Marquise',
+      'Oval',
+      'Princess',
+      'Rund',
+      'Smaragd',
+      'Trillion',
+      'Tropfen'
+    ]);
 
     let records = [];
     let editingIndex = -1;
@@ -784,10 +778,16 @@
     function populateSelect(id, options) {
       const select = document.getElementById(id);
       if (!select) return;
-      options.forEach((option) => {
+      const sorted = sortDe(options);
+      sorted.forEach((option) => {
         const optionElement = document.createElement('option');
-        optionElement.value = option;
-        optionElement.textContent = option;
+        if (typeof option === 'string') {
+          optionElement.value = option;
+          optionElement.textContent = option;
+        } else {
+          optionElement.value = option.value;
+          optionElement.textContent = option.label || option.value;
+        }
         select.appendChild(optionElement);
       });
     }
@@ -1200,6 +1200,8 @@
       populateSelect('Kategorie', CATEGORIES);
       populateSelect('Herkunft', COUNTRIES);
       populateSelect('Farbe', COLORS);
+      populateSelect('Schliffart', CUT_STYLES);
+      populateSelect('Schliffform', CUT_FORMS);
       setupMediaBoxes();
       syncMediaHidden('Bilder');
       syncMediaHidden('Videos');
