@@ -6,7 +6,7 @@ import {
   getDefaultHeroSettings,
 } from '@/lib/data/hero-settings';
 import { regenerateAndSendInvoice } from '@/lib/services/invoice';
-import { sanitizeForLog } from '@/lib/safe-log';
+import { logSafeError } from '@/lib/safe-log';
 
 export async function GET() {
   try {
@@ -60,12 +60,12 @@ export async function PUT(request: NextRequest) {
     try {
       await regenerateAndSendInvoice('order-placeholder');
     } catch (error) {
-      console.warn('Invoice regeneration skipped:', sanitizeForLog(error));
+      logSafeError('Invoice regeneration skipped:', error);
     }
 
     return NextResponse.json({ success: true, settings: saved });
   } catch (error) {
-    console.error('Error saving hero settings:', error);
+    logSafeError('Error saving hero settings:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to save hero settings' },
       { status: 500 }

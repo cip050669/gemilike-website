@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isPayPalConfigured } from '@/lib/paypal/config';
-import { sanitizeForLog } from '@/lib/safe-log';
+import { logSafeError, sanitizeForLog } from '@/lib/safe-log';
 
 /** Webhook-Resource von PayPal (Auszug) */
 interface PayPalWebhookResource {
@@ -32,11 +32,8 @@ export async function POST(request: NextRequest) {
     const eventType = body.event_type;
     const resource = body.resource;
 
-    console.log(
-      'PayPal Webhook Event:',
-      sanitizeForLog(eventType),
-      sanitizeForLog(resource?.id)
-    );
+    const safeEventType = sanitizeForLog(eventType);
+    console.log('PayPal Webhook Event received');
 
     // Handle different event types
     switch (eventType) {
@@ -57,12 +54,12 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.log('Unhandled PayPal webhook event:', sanitizeForLog(eventType));
+        console.log('Unhandled PayPal webhook event type:', safeEventType.length);
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Error processing PayPal webhook:', error);
+    logSafeError('Error processing PayPal webhook:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -101,11 +98,11 @@ async function handlePaymentCaptureCompleted(resource: PayPalWebhookResource) {
             }),
           },
         });
-        console.log(`Order ${sanitizeForLog(order.id)} marked as PAID via PayPal webhook`);
+        console.log('Order marked as PAID via PayPal webhook');
       }
     }
   } catch (error) {
-    console.error('Error handling payment capture completed:', error);
+    logSafeError('Error handling payment capture completed:', error);
   }
 }
 
@@ -138,21 +135,20 @@ async function handlePaymentCaptureDenied(resource: PayPalWebhookResource) {
             }),
           },
         });
-        console.log(`Order ${sanitizeForLog(order.id)} marked as FAILED via PayPal webhook`);
+        console.log('Order marked as FAILED via PayPal webhook');
       }
     }
   } catch (error) {
-    console.error('Error handling payment capture denied:', error);
+    logSafeError('Error handling payment capture denied:', error);
   }
 }
 
-async function handleOrderApproved(resource: PayPalWebhookResource) {
+async function handleOrderApproved(_resource: PayPalWebhookResource) {
   try {
-    const orderId = resource.id;
-    console.log(`PayPal order ${sanitizeForLog(orderId)} approved by customer`);
+    console.log('PayPal order approved by customer');
     // Order approval is handled client-side, webhook is just for logging
   } catch (error) {
-    console.error('Error handling order approved:', error);
+    logSafeError('Error handling order approved:', error);
   }
 }
 

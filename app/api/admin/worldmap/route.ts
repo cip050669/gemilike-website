@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
-import { sanitizeForLog } from '@/lib/safe-log';
+import { logSafeError } from '@/lib/safe-log';
 
 // GET - Länder und Lagerstätten abrufen
 export async function GET() {
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log('Creating country:', sanitizeForLog(data));
+    console.log('Creating country');
 
     // Erstelle neues Land
     const country = await prisma.country.create({
@@ -86,10 +86,10 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('Country created:', country);
+    console.log('Country created');
     return NextResponse.json({ success: true, country });
   } catch (error) {
-    console.error('Error creating country:', error);
+    logSafeError('Error creating country:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: (error as Error).message || 'Unknown error' },
       { status: 500 }
@@ -108,7 +108,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log('Updating country:', sanitizeForLog(data));
+    console.log('Updating country');
 
     // Aktualisiere Land
     const country = await prisma.country.update({
@@ -121,10 +121,10 @@ export async function PUT(request: NextRequest) {
       }
     });
 
-    console.log('Country updated:', country);
+    console.log('Country updated');
     return NextResponse.json({ success: true, country });
   } catch (error) {
-    console.error('Error updating country:', error);
+    logSafeError('Error updating country:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: (error as Error).message || 'Unknown error' },
       { status: 500 }
@@ -149,17 +149,17 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Country ID is required' }, { status: 400 });
     }
 
-    console.log('Deleting country:', sanitizeForLog(countryId));
+    console.log('Deleting country');
 
     // Lösche Land (Cascade löscht auch alle Lagerstätten)
     await prisma.country.delete({
       where: { id: countryId }
     });
 
-    console.log('Country deleted:', sanitizeForLog(countryId));
+    console.log('Country deleted');
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting country:', error);
+    logSafeError('Error deleting country:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: (error as Error).message || 'Unknown error' },
       { status: 500 }

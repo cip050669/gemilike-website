@@ -59,11 +59,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log('Received contact data keys:', Object.keys(data ?? {}).join(','));
+    console.log('Received contact data update request');
     
     // Aktualisiere Kontaktdaten
     try {
-      const contactData = await prisma.contactData.upsert({
+      await prisma.contactData.upsert({
         where: { id: 'default' },
         update: {
           companyName: data.companyName,
@@ -84,11 +84,11 @@ export async function PUT(request: NextRequest) {
         }
       });
 
-      console.log('Contact data updated:', contactData);
+      console.log('Contact data updated');
       return NextResponse.json({ success: true });
     } catch (dbError: unknown) {
       const err = dbError as Error;
-      console.error('Database error during save:', err);
+      console.error('Database error during save:', err.name);
       return NextResponse.json({ 
         success: false, 
         error: 'Database error', 
@@ -97,7 +97,7 @@ export async function PUT(request: NextRequest) {
     }
   } catch (error: unknown) {
     const err = error as Error;
-    console.error('Error updating contact data:', err);
+    console.error('Error updating contact data:', err.name);
     return NextResponse.json(
       { error: 'Internal server error', details: err.message || 'Unknown error' },
       { status: 500 }

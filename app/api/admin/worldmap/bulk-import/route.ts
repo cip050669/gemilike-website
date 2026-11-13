@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
-import { sanitizeForLog } from '@/lib/safe-log';
+import { logSafeError } from '@/lib/safe-log';
 
 interface ImportData {
   name: string;
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
               continent: getContinentFromCountry(item.country)
             }
           });
-          console.log(`Neues Land erstellt: ${sanitizeForLog(item.country)}`);
+          console.log('Neues Land erstellt');
         }
 
         // 2. Edelstein-Typ finden oder erstellen
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
               description: getGemDescription(item.gem)
             }
           });
-          console.log(`Neuer Edelstein-Typ erstellt: ${sanitizeForLog(item.gem)}`);
+          console.log('Neuer Edelstein-Typ erstellt');
         }
 
         // 3. Lagerstätte erstellen
@@ -90,15 +90,13 @@ export async function POST(request: NextRequest) {
         });
 
         results.imported++;
-        console.log(
-          `Lagerstätte erstellt: ${sanitizeForLog(item.name)} in ${sanitizeForLog(item.country)}`
-        );
+        console.log('Lagerstätte erstellt');
 
       } catch (error: unknown) {
         const err = error as Error;
-        const errorMessage = `Fehler bei ${sanitizeForLog(item.name)} (${sanitizeForLog(item.country)}): ${sanitizeForLog(err.message)}`;
+        const errorMessage = `Import row failed: ${err.name || 'Error'}`;
         results.errors.push(errorMessage);
-        console.error(errorMessage);
+        logSafeError('Bulk import row error:', error);
       }
     }
 
@@ -112,13 +110,11 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: unknown) {
-    const err = error as Error;
-    console.error('Bulk import error:', err);
+    logSafeError('Bulk import error:', error);
     return NextResponse.json(
       { 
         success: false, 
         error: 'Internal server error', 
-        details: err.message || 'Unknown error' 
       },
       { status: 500 }
     );

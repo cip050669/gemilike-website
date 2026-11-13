@@ -7,7 +7,7 @@ import {
   updateOrder,
   type ShopOrder,
 } from '@/lib/services/shop/order.service';
-import { sanitizeForLog } from '@/lib/safe-log';
+import { logSafeError } from '@/lib/safe-log';
 
 const parseAmount = (value: unknown) => {
   if (value === null || value === undefined || value === '') {
@@ -116,7 +116,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         invoiceDispatched = true;
       } catch (error) {
         invoiceError = (error as Error).message;
-        console.error('Rechnung konnte nicht generiert oder versendet werden:', sanitizeForLog(error));
+        logSafeError('Rechnung konnte nicht generiert oder versendet werden:', error);
       }
     }
 
@@ -243,9 +243,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         try {
           await regenerateAndSendInvoice(updatedOrder.id);
         } catch (error) {
-          console.error(
-            `Rechnung konnte nach Formular-Update nicht versendet werden: ${sanitizeForLog((error as Error).message)}`
-          );
+          logSafeError('Rechnung konnte nach Formular-Update nicht versendet werden:', error);
         }
       }
 
@@ -254,7 +252,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json({ success: false, error: 'Method not allowed' }, { status: 405 });
   } catch (error) {
-    console.error('Error processing request:', error);
+    logSafeError('Error processing request:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to process request: ' + (error as Error).message },
       { status: 500 }
