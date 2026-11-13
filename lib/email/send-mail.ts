@@ -4,6 +4,13 @@ import nodemailer from 'nodemailer';
 
 import type { SendEmailOptions, SendEmailResult } from './types';
 
+type MailTransporter = ReturnType<typeof nodemailer.createTransport>;
+type SentMessageInfo = {
+  messageId?: string;
+  message?: string | Buffer;
+  response?: string;
+};
+
 const transportMode = (process.env.SMTP_TRANSPORT || 'smtp').toLowerCase();
 const smtpHost = process.env.SMTP_HOST || 'smtp.strato.de';
 const smtpPort = Number.parseInt(process.env.SMTP_PORT || '587', 10);
@@ -53,7 +60,7 @@ const createSmtpTransport = () =>
 const baseTransporter =
   transportMode === 'file' ? createFileTransport() : createSmtpTransport();
 
-const writeMockEmail = async (info: nodemailer.SentMessageInfo) => {
+const writeMockEmail = async (info: SentMessageInfo) => {
   const dir = await ensureMockDir();
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const random = crypto.randomBytes(4).toString('hex');
@@ -84,15 +91,15 @@ export async function sendEmail({
   text,
   attachments,
 }: SendEmailOptions): Promise<SendEmailResult> {
-  const sendWithTransport = async (transporter: nodemailer.Transporter) => {
-    const info = await transporter.sendMail({
+  const sendWithTransport = async (transporter: MailTransporter) => {
+    const info = (await transporter.sendMail({
       from: smtpFrom,
       to,
       subject,
       html,
       text,
       attachments,
-    });
+    })) as SentMessageInfo;
 
     if ('streamTransport' in transporter.options) {
       const messageId = await writeMockEmail(info);

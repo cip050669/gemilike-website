@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
-import { sanitizeForLog } from '@/lib/safe-log';
-
 type NormalizedError = {
   message?: string;
   code?: string;
@@ -135,7 +133,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    console.log('Received address data:', sanitizeForLog(body));
+    console.log('Received address create request');
     
     const { type, firstName, lastName, company, address1, address2, city, state, postalCode, country, phone, isDefault } = body;
 

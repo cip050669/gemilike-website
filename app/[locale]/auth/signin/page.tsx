@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 export default function SignInPage() {
@@ -16,10 +16,13 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const searchParams = useSearchParams();
+  const locale = useLocale();
   const t = useTranslations('auth');
   const message = searchParams.get('message');
   const successMessage =
     message === 'signup-success' ? t('signupSuccessMessage') : '';
+  const shopHref = `/${locale}/shop/`;
+  const signupHref = `/${locale}/auth/signup/`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,14 +34,14 @@ export default function SignInPage() {
         email,
         password,
         redirect: false,
-        callbackUrl: '/shop'
+        callbackUrl: shopHref,
       });
 
       if (result?.error) {
         setError(t('invalidCredentials'));
       } else if (result?.ok) {
         // Use window.location for more reliable navigation
-        window.location.href = '/shop';
+        window.location.href = shopHref;
       }
     } catch (error) {
       console.error('Sign in error:', error);
@@ -106,7 +109,7 @@ export default function SignInPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-300">
               {t('noAccount')}{' '}
-              <Link href="/auth/signup" className="text-primary hover:underline">
+              <Link href={signupHref} className="text-primary hover:underline">
                 {t('signUpLink')}
               </Link>
             </p>

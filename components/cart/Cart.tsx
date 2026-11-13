@@ -10,11 +10,23 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { XIcon, PlusIcon, MinusIcon, ShoppingCartIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useLocale } from 'next-intl';
+import { defaultLocale, locales, type Locale } from '@/lib/i18n/config';
 
 const EMPTY_ITEMS: ReadonlyArray<CartItemDTO> = Object.freeze([]);
 
+function isLocale(value: string | undefined): value is Locale {
+  return !!value && (locales as readonly string[]).includes(value);
+}
+
+function withTrailingSlash(path: string): string {
+  if (path === '/') return '/';
+  return path.endsWith('/') ? path : `${path}/`;
+}
+
 export function Cart() {
   const pathname = usePathname();
+  const intlLocale = useLocale();
   const isOpen = useCartStore((state) => state.isOpen);
   const toggleCart = useCartStore((state) => state.toggleCart);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
@@ -27,16 +39,18 @@ export function Cart() {
   const fetchCart = useCartStore((state) => state.fetchCart);
   const error = useCartStore((state) => state.error);
 
-  const localePrefix = (() => {
-    if (!pathname) return '';
-    const segments = pathname.split('/');
-    return segments[1] && segments[1].length === 2 ? `/${segments[1]}` : '';
+  const pathLocale = (() => {
+    if (!pathname) return null;
+    const segment = pathname.split('/')[1];
+    return isLocale(segment) ? segment : null;
   })();
+  const currentLocale: Locale = pathLocale ?? (isLocale(intlLocale) ? intlLocale : defaultLocale);
+  const localePrefix = `/${currentLocale}`;
 
   const buildHref = (href: string) => {
-    if (!localePrefix) return href;
-    if (href === '/') return localePrefix;
-    return `${localePrefix}${href}`;
+    if (href === '/') return withTrailingSlash(localePrefix);
+    const normalized = href.startsWith('/') ? href : `/${href}`;
+    return withTrailingSlash(`${localePrefix}${normalized}`);
   };
 
   useEffect(() => {

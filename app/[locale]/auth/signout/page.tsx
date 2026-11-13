@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { signOut } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function SignOutPage() {
   const t = useTranslations('auth');
+  const locale = useLocale();
+  const homeHref = `/${locale}/`;
   const [status, setStatus] = useState('');
 
   useEffect(() => {
@@ -15,25 +17,25 @@ export default function SignOutPage() {
         
         await signOut({ 
           redirect: false,
-          callbackUrl: '/' 
+          callbackUrl: homeHref,
         });
         
         setStatus(t('signOutSuccess'));
         
         // Immediate redirect for better UX
-        window.location.href = '/';
+        window.location.href = homeHref;
         
       } catch (error) {
         console.error('Sign out error:', error);
         setStatus(t('redirecting'));
         
         // Fallback: redirect to home page anyway
-        window.location.href = '/';
+        window.location.href = homeHref;
       }
     };
 
     handleSignOut();
-  }, [t]);
+  }, [t, homeHref]);
 
   useEffect(() => {
     setStatus(t('signOutPreparing'));
