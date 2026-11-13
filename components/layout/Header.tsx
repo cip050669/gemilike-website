@@ -2,18 +2,17 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { HeartIcon, MenuIcon, ShoppingCartIcon, UserIcon, LogInIcon, Languages, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-// Removed Sheet import - using custom modal instead
 import { Cart } from '@/components/cart/Cart';
 import { useCartStore } from '@/lib/store/cart';
 import { useWishlistStore } from '@/lib/store/wishlist';
 import { cn } from '@/lib/utils';
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
+import { defaultLocale, locales, type Locale } from '@/lib/i18n/config';
 import styles from './HeaderNav.module.css';
 
 interface NavigationItem {
@@ -22,16 +21,26 @@ interface NavigationItem {
   id: string;
 }
 
+function isLocale(value: string | undefined): value is Locale {
+  return !!value && (locales as readonly string[]).includes(value);
+}
+
+function withTrailingSlash(path: string): string {
+  if (path === '/') return '/';
+  return path.endsWith('/') ? path : `${path}/`;
+}
+
 export function Header() {
   const t = useTranslations('nav');
   const pathname = usePathname();
-  const router = useRouter();
-  const localePrefix = (() => {
-    if (!pathname) return '';
-    const segments = pathname.split('/');
-    return segments[1] && segments[1].length === 2 ? `/${segments[1]}` : '';
+  const intlLocale = useLocale();
+  const pathLocale = (() => {
+    if (!pathname) return null;
+    const segment = pathname.split('/')[1];
+    return isLocale(segment) ? segment : null;
   })();
-  const currentLocale = localePrefix.replace('/', '') || 'de';
+  const currentLocale: Locale = pathLocale ?? (isLocale(intlLocale) ? intlLocale : defaultLocale);
+  const localePrefix = `/${currentLocale}`;
   const fallbackNav = useMemo<NavigationItem[]>(
     () => [
       { href: '/', label: t('home'), id: 'fallback-1' },
@@ -194,7 +203,7 @@ export function Header() {
 
   const stripLocale = (path: string) => {
     const segments = path.split('/');
-    if (segments[1] && segments[1].length === 2) {
+    if (isLocale(segments[1])) {
       const rest = segments.slice(2).join('/');
       return rest ? `/${rest}` : '/';
     }
@@ -203,27 +212,34 @@ export function Header() {
 
   const currentPath = stripLocale(pathname ?? '/');
   const buildHref = (href: string) => {
-    if (!localePrefix) return href;
-    if (href === '/') return localePrefix;
-    return `${localePrefix}${href}`;
+    const normalized = href.startsWith('/') ? href : `/${href}`;
+    const withoutLocale = stripLocale(normalized);
+    if (withoutLocale === '/') return withTrailingSlash(localePrefix);
+    return withTrailingSlash(`${localePrefix}${withoutLocale}`);
   };
 
-  const handleUserClick = () => {
-    if (status === 'authenticated' && session) {
-      router.push(buildHref('/profile'));
-    } else {
-      router.push(buildHref('/auth/signin'));
-    }
-  };
+  const alternateLocale: Locale = currentLocale === 'de' ? 'en' : 'de';
+  const alternateLocaleHref =
+    currentPath === '/'
+      ? `/${alternateLocale}/`
+      : withTrailingSlash(`/${alternateLocale}${currentPath}`);
+  const wishlistHref = buildHref('/wishlist');
+  const authHref =
+    status === 'authenticated' && session
+      ? buildHref('/profile')
+      : buildHref('/auth/signin');
+  const desktopActionClass = styles.actionIcon;
+  const mobileActionClass = cn(styles.actionIcon, styles.actionIconMobile);
 
   return (
+    <>
     <header 
       data-header-fixed
       className="sticky top-0 z-[10000] border-b border-white/10 header-gradient-bg"
     >
       <div className="mx-auto flex min-h-[114px] w-full max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-[126px] sm:px-6 lg:px-8">
         {/* Logo - Links */}
-        <div className="flex shrink-0 items-center">
+        <div className="relative z-[2] flex shrink-0 items-center">
           <Link href={buildHref('/')} className="inline-flex items-center transition-transform duration-200 hover:scale-[1.05]">
             <Image
               src="/logo.png"
@@ -237,7 +253,7 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Hauptnavigation - Desktop */}
+        {/* Hauptnavigation */}
         {navItems.length > 0 && (
           <nav 
             className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 md:justify-center md:gap-2 md:px-4 xl:gap-4"
@@ -265,77 +281,60 @@ export function Header() {
         )}
 
         {/* Action Buttons - Desktop */}
-        <div className="hidden shrink-0 flex-col items-end gap-1 md:flex">
+        <div className="relative z-[2] hidden shrink-0 flex-col items-end gap-1 pointer-events-auto md:flex">
           <div className="flex items-center gap-2 lg:gap-3">
-            {/* Language Switcher */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                const currentLocale = localePrefix.replace('/', '') || 'de';
-                const newLocale = currentLocale === 'de' ? 'en' : 'de';
-                const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
-                router.push(newPath);
-              }}
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
+            <a
+              href={alternateLocaleHref}
+              className={desktopActionClass}
               aria-label={switchLanguageLabel}
               title={switchLanguageTitle}
             >
-              <Languages className="h-4 w-4" />
-            </Button>
+              <Languages aria-hidden="true" />
+            </a>
             
-            <DarkModeToggle />
+            <DarkModeToggle className={desktopActionClass} />
             
             {headerSettings.wishlistEnabled && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => router.push(buildHref('/wishlist'))}
-                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all relative"
+              <a
+                href={wishlistHref}
+                className={desktopActionClass}
                 aria-label={`${wishlistLabel}${isMounted && wishlistCount > 0 ? `, ${wishlistCount}` : ''}`}
                 title={wishlistLabel}
               >
-                <HeartIcon className="h-4 w-4" />
+                <HeartIcon aria-hidden="true" />
                 {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                    {wishlistCount}
-                  </span>
+                  <span className={styles.actionBadge}>{wishlistCount}</span>
                 )}
-              </Button>
+              </a>
             )}
             
             {headerSettings.cartEnabled && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <button
+                type="button"
                 onClick={toggleCart}
-                className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all relative"
+                className={desktopActionClass}
                 aria-label={`${cartLabel}${isMounted && getTotalItems() > 0 ? `, ${getTotalItems()}` : ''}`}
                 title={cartLabel}
               >
-                <ShoppingCartIcon className="h-4 w-4" />
+                <ShoppingCartIcon aria-hidden="true" />
                 {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                    {getTotalItems()}
-                  </span>
+                  <span className={styles.actionBadge}>{getTotalItems()}</span>
                 )}
-              </Button>
+              </button>
             )}
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleUserClick}
-              className="h-9 w-9 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all"
+            <a
+              href={authHref}
+              className={desktopActionClass}
               aria-label={status === 'authenticated' ? profileLabel : signInLabel}
               title={status === 'authenticated' ? profileLabel : signInLabel}
             >
               {status === 'authenticated' ? (
-                <UserIcon className="h-4 w-4" />
+                <UserIcon aria-hidden="true" />
               ) : (
-                <LogInIcon className="h-4 w-4" />
+                <LogInIcon aria-hidden="true" />
               )}
-            </Button>
+            </a>
           </div>
           {/* Welcome Message - Desktop */}
           {status === 'authenticated' && session?.user?.name && (
@@ -346,83 +345,64 @@ export function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className="flex shrink-0 flex-col items-end gap-1 md:hidden">
+        <div className="relative z-[2] flex shrink-0 flex-col items-end gap-1 pointer-events-auto md:hidden">
           <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Language Switcher - Mobile */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                const currentLocale = localePrefix.replace('/', '') || 'de';
-                const newLocale = currentLocale === 'de' ? 'en' : 'de';
-                const newPath = pathname?.replace(`/${currentLocale}`, `/${newLocale}`) || `/${newLocale}`;
-                router.push(newPath);
-              }}
-              className="h-8 w-8 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+            <a
+              href={alternateLocaleHref}
+              className={mobileActionClass}
               aria-label={switchLanguageLabel}
               title={switchLanguageTitle}
             >
-              <Languages className="h-4 w-4 sm:h-4 sm:w-4" />
-            </Button>
+              <Languages aria-hidden="true" />
+            </a>
             
             {headerSettings.wishlistEnabled && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => router.push(buildHref('/wishlist'))}
-                className="relative h-8 w-8 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+              <a
+                href={wishlistHref}
+                className={mobileActionClass}
                 aria-label={wishlistLabel}
                 title={wishlistLabel}
               >
-                <HeartIcon className="h-4 w-4" />
+                <HeartIcon aria-hidden="true" />
                 {headerSettings.wishlistShowCount && isMounted && wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                    {wishlistCount}
-                  </span>
+                  <span className={styles.actionBadge}>{wishlistCount}</span>
                 )}
-              </Button>
+              </a>
             )}
             
             {headerSettings.cartEnabled && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <button
+                type="button"
                 onClick={toggleCart}
-                className="relative h-8 w-8 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+                className={mobileActionClass}
                 aria-label={cartLabel}
                 title={cartLabel}
               >
-                <ShoppingCartIcon className="h-4 w-4" />
+                <ShoppingCartIcon aria-hidden="true" />
                 {headerSettings.cartShowCount && isMounted && getTotalItems() > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                    {getTotalItems()}
-                  </span>
+                  <span className={styles.actionBadge}>{getTotalItems()}</span>
                 )}
-              </Button>
+              </button>
             )}
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleUserClick}
-              className="h-8 w-8 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+            <a
+              href={authHref}
+              className={mobileActionClass}
               aria-label={status === 'authenticated' ? profileLabel : signInLabel}
               title={status === 'authenticated' ? profileLabel : signInLabel}
             >
               {status === 'authenticated' ? (
-                <UserIcon className="h-4 w-4" />
+                <UserIcon aria-hidden="true" />
               ) : (
-                <LogInIcon className="h-4 w-4" />
+                <LogInIcon aria-hidden="true" />
               )}
-            </Button>
+            </a>
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="relative z-[10000] h-8 w-8 shrink-0 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 sm:h-9 sm:w-9"
+            <button
+              type="button"
+              className={mobileActionClass}
               aria-label={isMenuOpen ? closeNavigationLabel : openNavigationLabel}
               title={isMenuOpen ? closeNavigationLabel : openNavigationLabel}
-              type="button"
               aria-expanded={isMenuOpen}
               aria-haspopup="true"
               aria-controls="mobile-navigation"
@@ -430,189 +410,10 @@ export function Header() {
                 e.stopPropagation();
                 setIsMenuOpen((prev) => !prev);
               }}
-              style={{ pointerEvents: 'auto', touchAction: 'manipulation' }}
+              style={{ touchAction: 'manipulation' }}
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-            </Button>
-            
-            {/* Custom Mobile Menu Modal */}
-            {isMenuOpen && (
-              <>
-                {/* Overlay */}
-                <div
-                  style={{
-                    position: 'fixed',
-                    inset: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                    backdropFilter: 'blur(4px)',
-                    zIndex: 99998
-                  }}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-hidden="true"
-                />
-                
-                {/* Menu Panel */}
-                <div
-                  style={{
-                    position: 'fixed',
-                    left: 0,
-                    top: 0,
-                    width: 'min(88vw, 360px)',
-                    height: '100vh',
-                    backgroundColor: '#0a0a0a',
-                    borderRight: '1px solid #1f2937',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                    zIndex: 99999,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflow: 'hidden'
-                  }}
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="mobile-menu-title"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* Header */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '0.875rem 1rem',
-                      borderBottom: '1px solid #1f2937',
-                      backgroundColor: '#111111',
-                      flexShrink: 0,
-                      minHeight: '60px'
-                    }}
-                  >
-                    <h2
-                      id="mobile-menu-title"
-                      style={{
-                        fontSize: '1.25rem',
-                        fontWeight: 'bold',
-                        color: '#ffffff',
-                        margin: 0,
-                        lineHeight: '1.5'
-                      }}
-                    >
-                      {menuTitle}
-                    </h2>
-                    <button
-                      onClick={() => setIsMenuOpen(false)}
-                      style={{
-                        width: '2rem',
-                        height: '2rem',
-                        borderRadius: '50%',
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        color: '#ffffff',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(31, 41, 55, 1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                      aria-label={closeNavigationLabel}
-                    >
-                      <X style={{ width: '1.25rem', height: '1.25rem' }} />
-                    </button>
-                  </div>
-                  
-                  {/* Navigation */}
-                  <nav
-                    id="mobile-navigation"
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.5rem',
-                      padding: '0.875rem 1rem 1rem',
-                      overflowY: 'auto',
-                      overflowX: 'hidden',
-                      WebkitOverflowScrolling: 'touch',
-                      minHeight: 0
-                    }}
-                    aria-label="Mobile Navigation"
-                  >
-                    {navItems && navItems.length > 0 ? (
-                      navItems.map(({ href, label, id }) => {
-                        const isActive = currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
-                        const fullHref = buildHref(href);
-                        
-                        const handleClick = (e: React.MouseEvent) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setIsMenuOpen(false);
-                          router.push(fullHref);
-                        };
-                        
-                        return (
-                          <button
-                            key={id}
-                            type="button"
-                            onClick={handleClick}
-                            style={{
-                              padding: '0.875rem 1rem',
-                              borderRadius: '0.5rem',
-                              border: 'none',
-                              backgroundColor: isActive ? '#7c3aed' : '#1a1a1a',
-                              color: '#ffffff',
-                              fontSize: '1rem',
-                              fontWeight: isActive ? '600' : '500',
-                              textAlign: 'left',
-                              width: '100%',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              boxShadow: isActive ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isActive) {
-                                e.currentTarget.style.backgroundColor = '#2a2a2a';
-                                e.currentTarget.style.color = '#ff9447';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isActive) {
-                                e.currentTarget.style.backgroundColor = '#1a1a1a';
-                                e.currentTarget.style.color = '#ffffff';
-                              }
-                            }}
-                          >
-                            {label}
-                          </button>
-                        );
-                      })
-                    ) : (
-                      <div style={{ padding: '0.75rem 1rem', color: '#9ca4b5', fontSize: '0.875rem' }}>
-                        {emptyNavLabel}
-                      </div>
-                    )}
-                  </nav>
-                  
-                  {/* Footer */}
-                  {status === 'authenticated' && session?.user?.name && (
-                    <div
-                      style={{
-                        padding: '1rem',
-                        borderTop: '1px solid #1f2937',
-                        backgroundColor: '#111111',
-                        flexShrink: 0
-                      }}
-                    >
-                      <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
-                        {welcomeLabel}, {session.user.name}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+              {isMenuOpen ? <X aria-hidden="true" /> : <MenuIcon aria-hidden="true" />}
+            </button>
           </div>
           {/* Welcome Message - Mobile */}
           {status === 'authenticated' && session?.user?.name && (
@@ -622,8 +423,153 @@ export function Header() {
           )}
         </div>
       </div>
-
-      <Cart />
     </header>
+
+    {/* Außerhalb des Headers: backdrop-filter am Header würde fixed-Overlays sonst auf die Header-Höhe beschränken */}
+    <Cart />
+
+    {isMenuOpen && (
+      <>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 99998,
+          }}
+          onClick={() => setIsMenuOpen(false)}
+          aria-hidden="true"
+        />
+
+        <div
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            width: 'min(88vw, 360px)',
+            height: '100vh',
+            backgroundColor: '#0a0a0a',
+            borderRight: '1px solid #1f2937',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            zIndex: 99999,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mobile-menu-title"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.875rem 1rem',
+              borderBottom: '1px solid #1f2937',
+              backgroundColor: '#111111',
+              flexShrink: 0,
+              minHeight: '60px',
+            }}
+          >
+            <h2
+              id="mobile-menu-title"
+              style={{
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                color: '#ffffff',
+                margin: 0,
+                lineHeight: '1.5',
+              }}
+            >
+              {menuTitle}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen(false)}
+              style={{
+                width: '2rem',
+                height: '2rem',
+                borderRadius: '50%',
+                border: 'none',
+                backgroundColor: 'transparent',
+                color: '#ffffff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.2s',
+              }}
+              aria-label={closeNavigationLabel}
+            >
+              <X style={{ width: '1.25rem', height: '1.25rem' }} />
+            </button>
+          </div>
+
+          <nav
+            id="mobile-navigation"
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+              padding: '0.875rem 1rem 1rem',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              WebkitOverflowScrolling: 'touch',
+              minHeight: 0,
+            }}
+            aria-label="Mobile Navigation"
+          >
+            {navItems && navItems.length > 0 ? (
+              navItems.map(({ href, label, id }) => {
+                const isActive =
+                  currentPath === href || (href !== '/' && currentPath.startsWith(`${href}/`));
+                const fullHref = buildHref(href);
+
+                return (
+                  <a
+                    key={id}
+                    href={fullHref}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={cn(styles.mobileNavLink, isActive && styles.mobileNavLinkActive)}
+                  >
+                    {label}
+                  </a>
+                );
+              })
+            ) : (
+              <div style={{ padding: '0.75rem 1rem', color: '#9ca4b5', fontSize: '0.875rem' }}>
+                {emptyNavLabel}
+              </div>
+            )}
+          </nav>
+
+          {status === 'authenticated' && session?.user?.name && (
+            <div
+              style={{
+                padding: '1rem',
+                borderTop: '1px solid #1f2937',
+                backgroundColor: '#111111',
+                flexShrink: 0,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '0.875rem',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontWeight: '500',
+                }}
+              >
+                {welcomeLabel}, {session.user.name}
+              </div>
+            </div>
+          )}
+        </div>
+      </>
+    )}
+    </>
   );
 }

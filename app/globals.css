@@ -430,7 +430,7 @@ body {
     0 0 20px rgba(255, 148, 71, 0.1) !important;
 }
 
-/* Sticky header - always on top */
+/* Sticky header - always on top; children must receive clicks */
 [data-header-fixed],
 header[class*="sticky"],
 header[class*="fixed"] {
@@ -441,6 +441,20 @@ header[class*="fixed"] {
   width: 100% !important;
   z-index: 9999 !important;
   margin: 0 !important;
+  pointer-events: auto !important;
+}
+
+[data-header-fixed] a,
+[data-header-fixed] button {
+  pointer-events: auto !important;
+}
+
+[data-header-fixed] a:link,
+[data-header-fixed] a:visited,
+[data-header-fixed] a:hover,
+[data-header-fixed] a:active {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* Public pages blur backgrounds */

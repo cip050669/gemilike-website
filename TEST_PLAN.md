@@ -1,168 +1,127 @@
 # Jest Testplan für Gemilike Website
 
+## Status (Stand: 2026-11-13)
+
+| Metrik | Wert |
+|--------|------|
+| Unit-/Integration-Suites | **39 passed** |
+| Tests | **411 passed**, 4 skipped |
+| Production Build | **grün** (`npm run build`) |
+| Coverage (global, 2026-11-13) | **Stmts 9.72% / Branch 7.77% / Funcs 11.26% / Lines 9.75%** |
+| Coverage-Strategie | Risikobasiert (Kernpfade hoch); **kein** globales 70%-Ziel kurzfristig |
+| CI-Floor (`jest.config.js`) | Stmts ≥9 / Branch ≥7 / Funcs ≥10 / Lines ≥9 |
+| CI: Jest + Build | `.github/workflows/test.yml` |
+
+### Zuletzt verifiziert
+
+```bash
+npm test            # 39 Suites, 411 Tests OK (inkl. Header)
+npm run test:coverage
+npm run build       # Next.js 16.2.10 webpack Build OK
+```
+
+### Sofortmaßnahmen (angepasst, priorisiert)
+
+1. [x] **Header-Regression absichern** → `__tests__/components/layout/Header.test.tsx`
+2. [ ] Offene Lücken in Phase 1 schließen (Auth NextAuth-Flow, Payment nur high-level)
+3. [x] Coverage-Lauf dokumentieren (`npm run test:coverage`)
+4. [x] Jest in CI ergänzen (`.github/workflows/test.yml`)
+
+---
+
 ## Übersicht
 
-Dieser Testplan deckt alle wichtigen Bereiche der Gemilike-Website ab und stellt sicher, dass die Anwendung zuverlässig und fehlerfrei funktioniert.
+Dieser Plan spiegelt den **Ist-Stand der Repo-Tests** und die **nächsten sinnvollen Schritte** wider. Checkboxen:
+
+- `[x]` = durch vorhandene Tests abgedeckt (ggf. teilweise)
+- `[ ]` = noch offen / Lücke
+- `(teilweise)` = Suite existiert, aber nicht alle genannten Unterpunkte
 
 ## Test-Strategie
 
 ### Test-Pyramide
+
 - **Unit Tests** (70%): Komponenten, Utilities, Hooks, Stores
 - **Integration Tests** (20%): API Routes, Komponenten-Interaktionen
-- **E2E Tests** (10%): Kritische User-Flows (optional, mit Playwright)
+- **E2E Tests** (10%): Kritische User-Flows (optional, Playwright – noch nicht eingeführt)
 
-### Coverage-Ziele
-- **Aktuelles Ziel**: 70% Coverage (branches, functions, lines, statements)
-- **Zukünftiges Ziel**: 80%+ Coverage
+### Coverage-Ziele (realistisch)
+
+Globale ~10 % sind bei der großen Next-/Admin-/API-Fläche normal. **70 % global wäre aktuell dauerhaft rot** und ist kein sinnvolles CI-Gate.
+
+| Horizont | Ziel (Lines, global) | Zweck |
+|----------|----------------------|--------|
+| **Jetzt** | Floor **~9 %** Lines / **~7 %** Branches | nur Regression verhindern (`coverageThreshold`) |
+| **1–2 Monate** | **20–30 %** Lines | Kernpfade: Cart, Checkout, Auth, Shop, Header |
+| **Mittelfristig** | **40–50 %** Lines auf `lib/` + `app/api/` | nicht zwingend alle Admin-Pages |
+| **Später optional** | **~70 %** global | erst wenn Admin-UI und Services mitgezogen sind |
+
+**Priorität vor Prozentzahl:** hohe Coverage dort, wo Risiko liegt:
+
+| Bereich | Ist (ca.) | Zielrichtung |
+|---------|-----------|--------------|
+| `lib/store` (Cart/Wishlist) | ~80–95 % | halten |
+| Public APIs Cart/Orders/Wishlist/Auth-Register | hoch | halten + Lücken schließen |
+| `components/layout/Header` | ~76 % | halten |
+| `lib/search`, Hooks | mittel–hoch | halten |
+| `lib/services`, `lib/shop`, Footer, viele Admin-APIs | niedrig / 0 % | schrittweise |
+
+Nicht priorisieren: flächendeckende shadcn-UI-Tests, reine Admin-Listen-Pages ohne Logik, Performance-/A11y-Messungen als Coverage-Ersatz.
 
 ---
 
 ## 1. API Routes Tests
 
 ### 1.1 Authentifizierung (`/api/auth/**`)
-- [ ] **Register** (`/api/auth/register`)
-  - Erfolgreiche Registrierung
-  - Validierung (E-Mail-Format, Passwort-Stärke)
-  - Duplikat-E-Mail-Behandlung
-  - Fehlerbehandlung bei Datenbankfehlern
 
+- [x] **Register** (`/api/auth/register`) — `__tests__/api/auth/register.test.ts`
+  - Erfolgreiche Registrierung, Validierung, Fehlerpfade (teilweise)
 - [ ] **NextAuth** (`/api/auth/[...nextauth]`)
-  - Login-Flow
-  - Logout-Flow
-  - Session-Verwaltung
-  - Token-Validierung
+  - Login-/Logout-/Session-Flow (kein dedizierter Jest-Test)
 
 ### 1.2 Admin API Routes (`/api/admin/**`)
 
 #### Gemstones Management
-- [ ] **GET /api/admin/gemstones**
-  - Liste abrufen
-  - Paginierung
-  - Filterung
 
-- [ ] **POST /api/admin/gemstones**
-  - Neuen Edelstein erstellen
-  - Validierung der Eingabedaten
-  - Bild-Upload
-
-- [ ] **GET/PUT/DELETE /api/admin/gemstones/[id]**
-  - Edelstein-Details abrufen
-  - Edelstein aktualisieren
-  - Edelstein löschen
-  - Fehlerbehandlung (nicht gefunden)
+- [x] **GET/POST /api/admin/gemstones** — `__tests__/api/admin/gemstones.test.ts` (teilweise)
+- [ ] **GET/PUT/DELETE /api/admin/gemstones/[id]** (Detail/Update/Delete API)
 
 #### Customers Management
-- [ ] **GET /api/admin/customers**
-  - Kundenliste abrufen
-  - Filterung und Suche
 
-- [ ] **POST /api/admin/customers**
-  - Neuen Kunden erstellen
-  - Validierung
-
+- [x] **GET/POST /api/admin/customers** — `__tests__/api/admin/customers.test.ts` (teilweise)
 - [ ] **GET/PUT/DELETE /api/admin/customers/[id]**
-  - Kunden-Details abrufen
-  - Kunden aktualisieren
-  - Kunden löschen
 
 #### Orders Management
-- [ ] **GET /api/admin/orders**
-  - Bestellungen abrufen
-  - Status-Filterung
 
-- [ ] **GET/PUT /api/admin/orders/[id]**
-  - Bestellung-Details abrufen
-  - Bestellung aktualisieren
-  - Status-Änderungen
+- [x] Public Orders API — `__tests__/api/orders.test.ts`, `orders-id.test.ts`
+- [ ] **Admin** `/api/admin/orders` dediziert (UI-Tests unter `__tests__/admin/orders.test.tsx` vorhanden)
 
-#### Knowledge Management
-- [ ] **GET/POST /api/admin/knowledge**
-  - Artikel auflisten/erstellen
+#### Knowledge / Stories / Newsletter / Settings / Worldmap / Invoices
 
-- [ ] **GET/PUT/DELETE /api/admin/knowledge/[id]**
-  - Artikel-Details/Update/Delete
-
-#### Stories/Blogs
-- [ ] **GET/POST /api/admin/stories**
-- [ ] **GET/PUT/DELETE /api/admin/stories/[id]**
-
-#### Newsletter
-- [ ] **GET/POST /api/admin/newsletter**
-- [ ] **POST /api/admin/newsletter/[id]/send**
-- [ ] **GET /api/admin/newsletter/export**
-
-#### Settings
-- [ ] **GET/PUT /api/admin/settings**
-- [ ] **GET/PUT /api/admin/header**
-- [ ] **GET/PUT /api/admin/footer**
-- [ ] **GET/PUT /api/admin/hero-settings**
-- [ ] **GET/PUT /api/admin/knowledge-settings**
-
-#### Worldmap
-- [ ] **GET/POST /api/admin/worldmap**
-- [ ] **GET/PUT/DELETE /api/admin/worldmap/locations/[id]**
-- [ ] **POST /api/admin/worldmap/bulk-import**
-
-#### Invoices
-- [ ] **GET/POST /api/admin/invoices**
-- [ ] **GET/PUT /api/admin/invoices/[id]**
-- [ ] **POST /api/admin/invoices/[id]/status**
+- [x] Admin-UI/Pages: blogs, stories, wissenswertes, newsletter (teilweise)
+- [ ] Dedizierte API-Route-Tests für knowledge, header, footer, hero, worldmap, invoices
 
 ### 1.3 Public API Routes (`/api/**`)
 
 #### Cart
-- [ ] **GET /api/cart/load**
-  - Warenkorb laden
-  - Leerer Warenkorb
 
-- [ ] **POST /api/cart/save**
-  - Warenkorb speichern
-  - Validierung
-
-- [ ] **GET/POST /api/cart**
-  - Warenkorb-Operationen
+- [x] **GET/POST /api/cart** — `__tests__/api/cart.test.ts`
+- [ ] **GET /api/cart/load**, **POST /api/cart/save** explizit
 
 #### Wishlist
-- [ ] **GET/POST /api/wishlist**
-  - Wunschliste abrufen/speichern
 
+- [x] **GET/POST /api/wishlist** — `__tests__/api/wishlist.test.ts`
 - [ ] **POST /api/wishlist/sync**
-  - Synchronisierung
 
 #### Orders
-- [ ] **POST /api/orders**
-  - Bestellung erstellen
-  - Validierung
-  - Zahlungsverarbeitung
 
+- [x] **POST/GET /api/orders**, **GET/PUT /api/orders/[id]**
 - [ ] **POST /api/orders/confirmation**
-  - Bestätigungs-E-Mail senden
 
-#### Newsletter
-- [ ] **POST /api/newsletter**
-  - Newsletter-Anmeldung
-  - E-Mail-Validierung
-  - Duplikat-Prüfung
+#### Newsletter / Search / Downloads / Contact
 
-- [ ] **GET /api/newsletter/subscribers**
-
-#### Search
-- [ ] **POST /api/search/advanced**
-  - Erweiterte Suche
-  - Filterung
-  - Ergebnis-Validierung
-
-#### Downloads
-- [ ] **GET /api/downloads/files/[fileId]**
-  - Datei-Download
-  - Authentifizierung
-  - Berechtigungen
-
-#### Contact
-- [ ] **POST /api/contact**
-  - Kontaktformular senden
-  - Validierung
-  - E-Mail-Versand
+- [x] **POST /api/search/advanced** — `__tests__/api/search/advanced.test.ts`
+- [ ] Newsletter public API, Downloads, Contact
 
 ---
 
@@ -170,501 +129,211 @@ Dieser Testplan deckt alle wichtigen Bereiche der Gemilike-Website ab und stellt
 
 ### 2.1 Layout Components
 
-- [ ] **Header** (`components/layout/Header.tsx`)
-  - Navigation rendern
-  - Mobile-Menü
-  - Warenkorb-Icon
-  - Benutzer-Menü
-  - Aktive Route-Hervorhebung
-
+- [x] **Header** (`components/layout/Header.tsx`) — `__tests__/components/layout/Header.test.tsx`
+  - Navigation (Shop, Download, …)
+  - Locale-Switch-Link (natives `<a>`, kein Router-Push)
+  - Auth-/Wishlist-Links mit Locale-Prefix
+  - Action-Icon-Styling-Klassen (kein Browser-Link-Blau)
 - [ ] **Footer** (`components/layout/Footer.tsx`)
-  - Links rendern
-  - Newsletter-Formular
-  - Social Media Links
-
 - [ ] **PublicLayout** (`components/layout/PublicLayout.tsx`)
-  - Layout-Struktur
-  - SEO-Integration
 
 ### 2.2 Admin Components
 
-- [ ] **AdminSidebar** (`components/admin/AdminSidebar.tsx`)
-  - Navigation
-  - Aktive Route
-
-- [ ] **AdminHeader** (`components/admin/AdminHeader.tsx`)
-  - Titel und Breadcrumbs
-
-- [ ] **DashboardStats** (`components/admin/DashboardStats.tsx`)
-  - Statistiken rendern
-  - Daten-Formatierung
-
-- [ ] **GemstoneEditor** (`components/admin/GemstoneEditor.tsx`)
-  - Formular-Rendering
-  - Eingabe-Validierung
-  - Bild-Upload
-  - Speichern-Funktion
-
-- [ ] **CustomerDetailsModal** (`components/admin/CustomerDetailsModal.tsx`)
-  - Modal öffnen/schließen
-  - Kunden-Daten anzeigen
-
-- [ ] **OrderEditForm** (`components/admin/orders/OrderEditForm.tsx`)
-  - Formular-Rendering
-  - Status-Änderung
-  - Validierung
+- [x] **DashboardStats** — `__tests__/components/DashboardStats.test.tsx`
+- [x] **AdminNavigation** — `__tests__/components/AdminNavigation.test.tsx`
+- [x] Admin-Pages (dashboard, gemstones, customers, orders, newsletter, reviews, wishlists, stories, blogs, wissenswertes, audit, reports) — `__tests__/admin/*`
+- [ ] **GemstoneEditor**, **CustomerDetailsModal**, **OrderEditForm** (dediziert)
 
 ### 2.3 Shop Components
 
-- [ ] **GemstoneGrid** (`components/shop/GemstoneGrid.tsx`)
-  - Produktliste rendern
-  - Paginierung
-  - Loading-State
-  - Empty-State
-
-- [ ] **GemstoneCard** (`components/shop/GemstoneCard.tsx`)
-  - Produkt-Details anzeigen
-  - Preis-Formatierung
-  - Bild-Rendering
-  - Link-Funktionalität
-
-- [ ] **ShopFilters** (`components/shop/ShopFilters.tsx`)
-  - Filter-Rendering
-  - Filter-Änderungen
-  - Reset-Funktion
-
-- [ ] **AddToCartButton** (`components/shop/AddToCartButton.tsx`)
-  - Button-Klick
-  - Warenkorb-Update
-  - Loading-State
-  - Erfolgs-Feedback
-
-- [ ] **AdvancedSearch** (`components/shop/AdvancedSearch.tsx`)
-  - Suchformular
-  - Filter-Logik
-  - Ergebnis-Anzeige
+- [x] **GemstoneGrid** — `__tests__/components/shop/GemstoneGrid.test.tsx`
+- [x] **AddToCartButton** — `__tests__/components/shop/AddToCartButton.test.tsx`
+- [x] **AdvancedSearch** — `__tests__/components/AdvancedSearch.test.tsx`
+- [ ] **GemstoneCard**, **ShopFilters**
 
 ### 2.4 Cart Components
 
-- [ ] **Cart** (`components/cart/Cart.tsx`)
-  - Warenkorb öffnen/schließen
-  - Artikel anzeigen
-  - Menge ändern
-  - Artikel entfernen
-  - Gesamtsumme berechnen
-  - Leerer Warenkorb
+- [x] **Cart** — `__tests__/components/cart/Cart.test.tsx`
+- [x] **CartSync** — `__tests__/components/CartSync.test.tsx`
+- [x] **WishlistButton** — `__tests__/components/cart/WishlistButton.test.tsx`
+- [x] **WishlistManager** — `__tests__/components/profile/WishlistManager.test.tsx`
 
-- [ ] **CartSync** (`components/cart/CartSync.tsx`)
-  - Synchronisierung
-  - Fehlerbehandlung
+### 2.5 Home / UI (shadcn)
 
-- [ ] **WishlistButton** (`components/cart/WishlistButton.tsx`)
-  - Zu Wunschliste hinzufügen
-  - Von Wunschliste entfernen
-  - Icon-Status
-
-### 2.5 Home Components
-
-- [ ] **HeroSection** (`components/home/HeroSection.tsx`)
-  - Hero-Bild rendern
-  - CTA-Buttons
-  - Responsive-Verhalten
-
-- [ ] **Newsticker** (`components/home/Newsticker.tsx`)
-  - Ticker-Inhalt
-  - Animation
-  - Empty-State
-
-- [ ] **NewGemstonesCarousel** (`components/home/NewGemstonesCarousel.tsx`)
-  - Carousel-Rendering
-  - Navigation
-  - Auto-Play
-
-### 2.6 UI Components (shadcn/ui)
-
-- [ ] **Button** (`components/ui/button.tsx`)
-  - Varianten
-  - Größen
-  - Disabled-State
-  - Loading-State
-
-- [ ] **Card** (`components/ui/card.tsx`)
-  - Struktur
-  - Varianten
-
-- [ ] **Input** (`components/ui/input.tsx`)
-  - Eingabe-Validierung
-  - Error-State
-  - Disabled-State
-
-- [ ] **Select** (`components/ui/select.tsx`)
-  - Optionen rendern
-  - Auswahl
-  - Disabled-Optionen
-
-- [ ] **Dialog** (`components/ui/dialog.tsx`)
-  - Öffnen/Schließen
-  - Overlay
-  - Esc-Taste
+- [ ] HeroSection, Newsticker, NewGemstonesCarousel
+- [ ] Button/Card/Input/Select/Dialog dediziert (niedrige Prio – über Feature-Tests indirekt)
 
 ---
 
 ## 3. Store/Hooks Tests
 
-### 3.1 Cart Store
+### 3.1 Cart / Wishlist
 
-- [ ] **useCartStore** (`lib/store/cart.ts`)
-  - Warenkorb hinzufügen
-  - Menge ändern
-  - Artikel entfernen
-  - Gesamtsumme berechnen
-  - Warenkorb löschen
-  - Persistierung
+- [x] **useCartStore** — `__tests__/store/cart.test.ts`
+- [x] **persistentCart** — `__tests__/store/persistentCart.test.ts`
+- [x] **useWishlistStore** — `__tests__/store/wishlist.test.ts`
 
-### 3.2 Wishlist Store
+### 3.2 Custom Hooks
 
-- [ ] **useWishlistStore** (`lib/store/wishlist.ts`)
-  - Artikel hinzufügen
-  - Artikel entfernen
-  - Liste abrufen
-  - Persistierung
-
-### 3.3 Custom Hooks
-
-- [ ] **useAdvancedSearch** (`lib/hooks/useAdvancedSearch.ts`)
-  - Suchparameter setzen
-  - Filter-Logik
-  - Ergebnis-Caching
-
-- [ ] **useHeroSettings** (`lib/hooks/useHeroSettings.ts`)
-  - Settings laden
-  - Settings aktualisieren
-  - Fallback zu localStorage
-
-- [ ] **usePictogramDescriptions** (`lib/hooks/usePictogramDescriptions.ts`)
-  - Descriptions laden
-  - Caching
+- [x] **useAdvancedSearch** — `__tests__/hooks/useAdvancedSearch.test.ts`
+- [ ] useHeroSettings, usePictogramDescriptions
 
 ---
 
-## 4. Utility Functions Tests
+## 4. Utility / Services / Lib
 
-### 4.1 Utilities
-
-- [ ] **cn** (`lib/utils.ts`)
-  - Klassen-Verknüpfung
-  - Conditional Classes
-
-- [ ] **colorBadge** (`lib/utils/colorBadge.ts`)
-  - Farb-Badge-Generierung
-
-### 4.2 Data Loaders
-
-- [ ] **loadGemstones** (`lib/data/gemstones.ts`)
-  - Daten laden
-  - Filterung
-  - Fehlerbehandlung
-
-- [ ] **loadKnowledgeArticles** (`lib/data/knowledge.ts`)
-  - Artikel laden
-  - Publikations-Filter
-
-- [ ] **loadStories** (`lib/data/stories.ts`)
-  - Stories laden
-  - Sortierung
-
-### 4.3 Services
-
-- [ ] **Invoice Service** (`lib/services/invoice.ts`)
-  - PDF-Generierung
-  - E-Mail-Versand
-  - Validierung
-
-- [ ] **Email Service** (`lib/email.ts`)
-  - E-Mail-Versand
-  - Template-Rendering
-  - Fehlerbehandlung
-
-- [ ] **SEO Utils** (`lib/seo.ts`)
-  - Meta-Tags generieren
-  - Structured Data
+- [x] **query-parser** — `__tests__/lib/query-parser.test.ts`
+- [x] **vector-search** — `__tests__/lib/vector-search.test.ts`
+- [x] **order.service** serialize — `__tests__/services/order.service.test.ts`
+- [ ] cn/utils, colorBadge, SEO, Invoice/Email Service (breit)
 
 ---
 
 ## 5. Integration Tests
 
-### 5.1 E-Commerce Flows
-
-- [ ] **Bestellprozess**
-  - Warenkorb → Checkout → Bestätigung
-  - Zahlungsverarbeitung
-  - E-Mail-Bestätigung
-
-- [ ] **Wunschliste → Warenkorb**
-  - Zu Wunschliste hinzufügen
-  - In Warenkorb verschieben
-
-- [ ] **Produktsuche**
-  - Suche → Filter → Auswahl
-  - Paginierung
-
-### 5.2 Admin Flows
-
-- [ ] **Edelstein-Verwaltung**
-  - Erstellen → Bearbeiten → Löschen
-  - Bild-Upload
-  - Kategorisierung
-
-- [ ] **Bestellverwaltung**
-  - Bestellung ansehen
-  - Status ändern
-  - Rechnung generieren
-
-- [ ] **Newsletter-Verwaltung**
-  - Newsletter erstellen
-  - Versenden
-  - Export
+- [x] **Checkout-Flow** (teilweise) — `__tests__/integration/checkout-flow.test.ts`
+- [x] **Wishlist Actions** — `__tests__/integration/wishlist-actions.integration.test.ts`
+- [ ] Admin End-to-End Flows, Payment Capture (PayPal) high-level
 
 ---
 
-## 6. Test-Helfer und Utilities
+## 6. Test-Helfer
 
-### 6.1 Test Utilities zu erstellen
-
-- [ ] **test-utils.tsx**
-  - Render-Helfer
-  - Mock-Wrapper
-  - Data-Factories
-
-- [ ] **mock-data.ts**
-  - Mock-Gemstones
-  - Mock-Orders
-  - Mock-Customers
-  - Mock-Users
-
-### 6.2 Mock-Setup
-
-- [ ] **Prisma-Mock**
-  - Datenbank-Mocks
-  - Query-Mocks
-
-- [ ] **Next.js Mocks** (bereits vorhanden in jest.setup.js)
-  - Router
-  - Image
-  - next-intl
+- [x] **test-utils.helper.tsx**, **mock-data.helper.ts** — `__tests__/utils/`
+- [x] Next.js / next-intl Mocks in `jest.setup.js`
+- [ ] Prisma-Mock zentral vereinheitlichen (viele Suites mocken lokal)
 
 ---
 
-## 7. Performance Tests
+## 7–8. Performance / Accessibility
 
-- [ ] **Component Rendering**
-  - Render-Zeit messen
-  - Re-Render-Optimierung
-
-- [ ] **API Response Times**
-  - Request-Zeit messen
-  - Caching-Verhalten
+- [ ] Performance-Messungen (nicht in Jest-Scope priorisieren)
+- [ ] A11y: Header-ARIA-Labels sind vorhanden; automatisierte Axe-Suite noch offen
 
 ---
 
-## 8. Accessibility Tests
-
-- [ ] **Keyboard Navigation**
-  - Tab-Order
-  - Enter/Space-Events
-
-- [ ] **Screen Reader**
-  - ARIA-Labels
-  - Semantic HTML
-
-- [ ] **Color Contrast**
-  - WCAG AA/AAA Compliance
-
----
-
-## 9. Test-Dateien Struktur
+## 9. Ist-Struktur (`__tests__/`)
 
 ```
 __tests__/
-├── api/
-│   ├── admin/
-│   │   ├── gemstones.test.ts
-│   │   ├── customers.test.ts
-│   │   ├── orders.test.ts
-│   │   ├── knowledge.test.ts
-│   │   └── newsletter.test.ts
-│   ├── cart.test.ts
-│   ├── wishlist.test.ts
-│   ├── orders.test.ts
-│   └── newsletter.test.ts
-├── components/
-│   ├── admin/
-│   │   ├── GemstoneEditor.test.tsx
-│   │   ├── DashboardStats.test.tsx
-│   │   └── ...
-│   ├── shop/
-│   │   ├── GemstoneGrid.test.tsx
-│   │   ├── GemstoneCard.test.tsx
-│   │   └── ...
-│   ├── cart/
-│   │   ├── Cart.test.tsx
-│   │   └── ...
-│   └── layout/
-│       ├── Header.test.tsx
-│       └── Footer.test.tsx
-├── lib/
-│   ├── store/
-│   │   ├── cart.test.ts
-│   │   └── wishlist.test.ts
-│   ├── hooks/
-│   │   ├── useAdvancedSearch.test.ts
-│   │   └── ...
-│   └── utils/
-│       └── utils.test.ts
+├── admin/            # Page-Level Admin UI
+├── api/              # auth, cart, wishlist, orders, search, admin/*
+├── components/       # cart, shop, layout/Header, AdvancedSearch, …
+├── hooks/
 ├── integration/
-│   ├── checkout-flow.test.ts
-│   └── admin-flow.test.ts
-└── utils/
-    ├── test-utils.tsx
-    └── mock-data.ts
+├── lib/
+├── services/
+├── store/
+└── utils/            # test-utils.helper.tsx, mock-data.helper.ts
 ```
+
+Abweichung zum alten Soll-Baum: Helper heißen `*.helper.ts(x)`; Layout-Tests liegen unter `components/layout/`.
 
 ---
 
-## 10. Priorisierung
+## 10. Priorisierung (angepasst)
 
-### Phase 1 (Hoch) - Kritische Funktionen
-1. **Cart Store** - Warenkorb-Funktionalität
-2. **Orders API** - Bestellprozess
-3. **Authentication** - Login/Register
-4. **Admin Gemstones** - Produktverwaltung
-5. **Payment Flow** - Zahlungsabwicklung
+### Phase 1 — kritisch / aktuell
 
-### Phase 2 (Mittel) - Wichtige Funktionen
-1. **Search** - Produktsuche
-2. **Wishlist** - Wunschliste
-3. **Newsletter** - Newsletter-System
-4. **User Profile** - Profil-Verwaltung
+1. [x] Cart Store + Cart API
+2. [x] Orders API (public)
+3. [x] Auth Register API
+4. [x] Admin Gemstones API/UI (teilweise)
+5. [x] **Header-Regression** (Locale, Nav, Actions)
+6. [ ] Payment/PayPal Capture Validierung (Unit um Validierungslogik)
 
-### Phase 3 (Niedrig) - Nice-to-Have
-1. **SEO Utils** - Meta-Tags
-2. **Analytics** - Tracking
-3. **Performance** - Optimierungen
+### Phase 2 — wichtig
+
+1. [x] Search advanced
+2. [x] Wishlist Store/API
+3. [ ] Newsletter public API
+4. [ ] Footer / Profile Flows
+
+### Phase 3 — später
+
+1. SEO Utils, Analytics, Performance, volle A11y-Suite
+2. Dedizierte shadcn UI-Tests
 
 ---
 
 ## 11. Test-Commands
 
 ```bash
-# Alle Tests ausführen
 npm test
-
-# Watch-Modus
 npm run test:watch
-
-# Mit Coverage
-npm run test:coverage
-
-# Einzelnen Test ausführen
-npm test -- GemstoneGrid
-
-# Nur Tests in einem Verzeichnis
+npm run test:coverage   # mit Coverage + Regression-Floor
+npm run test:ci         # wie CI: coverage + --ci --forceExit
+npm test -- Header
 npm test -- __tests__/api
-
-# Mit Verbose-Output
 npm test -- --verbose
+npm run build
 ```
 
 ---
 
 ## 12. CI/CD Integration
 
-- [ ] **Pre-commit Hooks**
-  - Tests vor Commit ausführen
-  - Linting
-
-- [ ] **GitHub Actions / CI Pipeline**
-  - Automatische Test-Ausführung
-  - Coverage-Reporting
-  - Test-Ergebnisse dokumentieren
+- [x] Security: CodeQL, npm audit, dependency-review, secret-scanning (`.github/workflows/`)
+- [x] Jest + Coverage + Build: `.github/workflows/test.yml`
+  - Job `unit`: `npm run test:ci` (Coverage-Artifact `coverage-report`)
+  - Job `build`: `npm run build` (Dummy-`DATABASE_URL`)
+- [ ] Pre-commit: Tests optional (nicht erzwingen ohne Team-Entscheidung)
 
 ---
 
 ## 13. Best Practices
 
-1. **Test-Naming**: Klare, beschreibende Namen
-   ```typescript
-   // Gut
-   describe('GemstoneCard', () => {
-     it('should display product name and price', () => {})
-   })
-
-   // Schlecht
-   describe('Card', () => {
-     it('should work', () => {})
-   })
-   ```
-
-2. **AAA-Pattern**: Arrange, Act, Assert
-   ```typescript
-   it('should add item to cart', () => {
-     // Arrange
-     const item = mockGemstone
-     const cart = useCartStore.getState()
-     
-     // Act
-     cart.addItem(item)
-     
-     // Assert
-     expect(cart.items).toContain(item)
-   })
-   ```
-
-3. **Isolation**: Jeder Test sollte unabhängig sein
-
-4. **Mocking**: Externe Abhängigkeiten mocken
-
-5. **Snapshots**: Vorsichtig verwenden, nur für stabile UI
+1. Beschreibende `describe`/`it`-Namen
+2. AAA-Pattern
+3. Isolation + Mocks für Prisma/Next/Auth
+4. Keine flaky Router-Tests: Header-Navigation über `href` assertieren (kein `router.push` vor Init)
+5. Snapshots sparsam
 
 ---
 
-## 14. Metriken und Reporting
+## 14. Metriken
 
-### Coverage-Metriken
-- **Branches**: Alle if/else, switch cases
-- **Functions**: Alle Funktionen getestet
-- **Lines**: Alle Code-Zeilen
-- **Statements**: Alle Statements
+Nach jedem Release-Kandidaten:
 
-### Test-Statistiken
-- Anzahl der Tests
-- Durchschnittliche Ausführungszeit
-- Flaky Tests identifizieren
-- Langsamste Tests
+```bash
+npm test
+npm run test:coverage
+npm run build
+```
+
+Dokumentieren: Suites/Tests, **globale** Coverage %, Build OK/Fail.
+
+Bewertung:
+
+- CI-Floor halten (keine Regression unter ~9 % Lines)
+- Fortschritt an **Kernpfad-Coverage** messen, nicht nur am globalen %-Wert
+- Floor in `jest.config.js` nur anheben, wenn der Ist-Stand stabil darüber liegt
 
 ---
 
-## 15. Nächste Schritte
+## 15. Nächste Schritte (konkret)
 
-1. **Test-Umgebung aufsetzen** ✅ (bereits vorhanden)
-2. **Test-Utilities erstellen** (test-utils.tsx, mock-data.ts)
-3. **Kritische Tests implementieren** (Phase 1)
-4. **Coverage schrittweise erhöhen**
-5. **CI/CD Integration**
-6. **Regelmäßige Test-Reviews**
+1. [x] Test-Umgebung
+2. [x] Test-Utilities
+3. [x] Phase-1-Kern (Cart/Orders/Register/Stores)
+4. [x] Header-Suite nach UI-Fix
+5. [x] Coverage-Report + realistische Ziele dokumentiert
+6. [x] `test.yml` Workflow: Jest+Coverage + Build
+7. [ ] Richtung **20–30 % Lines**: zuerst `lib/services`, `lib/shop`, Contact/Newsletter-APIs
+8. [ ] Fehlende Public-APIs: contact, newsletter, cart load/save
+9. [ ] CI-Floor anheben, sobald global stabil ≥15 % Lines
 
 ---
 
 ## 16. Wartung
 
-- **Wöchentlich**: Test-Ausführung und Review
-- **Vor jedem Release**: Vollständige Test-Suite
-- **Bei Bug-Fixes**: Korrespondierende Tests schreiben
-- **Bei neuen Features**: Tests parallel entwickeln
+- Vor Release: volle Suite + Build + Coverage-Report  
+- Bei Bugfixes: Regressionstest (wie Header)  
+- Bei Features: Tests parallel; Coverage-Floor nicht senken  
+- Globales 70 %-Gate erst einführen, wenn mittelfristiges 40–50 %-Band auf `lib/`/`app/api/` erreicht ist
 
 ---
 
-**Erstellt am**: $(date)
-**Letzte Aktualisierung**: $(date)
-**Version**: 1.0
-
+**Erstellt**: 2025  
+**Letzte Aktualisierung**: 2026-11-13  
+**Version**: 1.2 (realistische Coverage-Ziele)

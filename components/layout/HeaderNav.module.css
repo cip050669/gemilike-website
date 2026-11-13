@@ -1,5 +1,4 @@
 
-
 .navButton {
   position: relative;
   display: inline-flex;
@@ -11,11 +10,23 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-primary) !important;
+  -webkit-text-fill-color: var(--color-text-primary);
   border: 1px solid var(--color-border) !important;
   background: transparent;
+  text-decoration: none !important;
   transition: all 0.25s ease;
   overflow: hidden;
   box-shadow: none;
+}
+
+.navButton:link,
+.navButton:visited,
+.navButton:hover,
+.navButton:active,
+.navButton:focus {
+  color: var(--color-text-primary) !important;
+  -webkit-text-fill-color: var(--color-text-primary);
+  text-decoration: none !important;
 }
 
 .navButton:hover {
@@ -26,6 +37,127 @@
 .navButton:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-border-strong);
+}
+
+/* Icon-Actions im Header – gleiches Erscheinungsbild für a und button */
+.actionIcon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+  text-decoration: none !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.actionIcon:link,
+.actionIcon:visited,
+.actionIcon:hover,
+.actionIcon:active,
+.actionIcon:focus {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+  text-decoration: none !important;
+}
+
+.actionIcon:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.actionIcon:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
+
+.actionIcon svg {
+  width: 1rem;
+  height: 1rem;
+  pointer-events: none;
+  color: inherit;
+  stroke: currentColor;
+}
+
+.actionIconMobile {
+  width: 2rem;
+  height: 2rem;
+}
+
+@media (min-width: 640px) {
+  .actionIconMobile {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+.actionBadge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  background: #ef4444;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.mobileNavLink {
+  display: block;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  background: #1a1a1a;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.mobileNavLink:link,
+.mobileNavLink:visited,
+.mobileNavLink:hover,
+.mobileNavLink:active {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+  text-decoration: none !important;
+}
+
+.mobileNavLink:hover {
+  background: #2a2a2a;
+  color: var(--color-accent-warm, #ff9447) !important;
+  -webkit-text-fill-color: var(--color-accent-warm, #ff9447);
+}
+
+.mobileNavLinkActive {
+  background: rgba(255, 255, 255, 0.12);
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mobileNavLinkActive:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
 }
 
 .navButtonTight {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface DarkModeToggleProps {
   className?: string;
@@ -14,13 +14,11 @@ export function DarkModeToggle({ className }: DarkModeToggleProps) {
 
   useEffect(() => {
     setMounted(true);
-    // Prüfe localStorage oder System-Präferenz
     const saved = localStorage.getItem('darkMode');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = saved === 'true' || (!saved && prefersDark);
     setDarkMode(isDark);
-    
-    // Setze initial class
+
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {
@@ -30,7 +28,7 @@ export function DarkModeToggle({ className }: DarkModeToggleProps) {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (darkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('darkMode', 'true');
@@ -40,39 +38,29 @@ export function DarkModeToggle({ className }: DarkModeToggleProps) {
     }
   }, [darkMode, mounted]);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
-  // Verhindere Hydration Mismatch
-  if (!mounted) {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        type="button"
-        className={className ?? 'h-9 w-9'}
-        aria-label="Dark Mode umschalten"
-      >
-        <Sun className="h-4 w-4" />
-      </Button>
-    );
-  }
-
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={toggleDarkMode}
-      aria-label={darkMode ? 'Light Mode aktivieren' : 'Dark Mode aktivieren'}
-      title={darkMode ? 'Hellmodus aktivieren - Wechseln Sie zum hellen Farbschema' : 'Dunkelmodus aktivieren - Wechseln Sie zum dunklen Farbschema'}
-      className={className}
+    <button
+      type="button"
+      onClick={() => setDarkMode((prev) => !prev)}
+      aria-label={
+        !mounted
+          ? 'Dark Mode umschalten'
+          : darkMode
+            ? 'Light Mode aktivieren'
+            : 'Dark Mode aktivieren'
+      }
+      title={
+        darkMode
+          ? 'Hellmodus aktivieren - Wechseln Sie zum hellen Farbschema'
+          : 'Dunkelmodus aktivieren - Wechseln Sie zum dunklen Farbschema'
+      }
+      className={cn(className)}
     >
-      {darkMode ? (
-        <Sun className="h-4 w-4" aria-hidden="true" />
+      {darkMode || !mounted ? (
+        <Sun aria-hidden="true" />
       ) : (
-        <Moon className="h-4 w-4" aria-hidden="true" />
+        <Moon aria-hidden="true" />
       )}
-    </Button>
+    </button>
   );
 }
